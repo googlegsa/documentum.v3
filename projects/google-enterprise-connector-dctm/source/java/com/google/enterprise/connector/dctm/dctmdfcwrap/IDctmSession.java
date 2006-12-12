@@ -1,21 +1,15 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 
-import com.documentum.fc.client.DfAuthenticationException;
-import com.documentum.fc.client.DfClient;
-import com.documentum.fc.client.DfIdentityException;
-import com.documentum.fc.client.DfPrincipalException;
-import com.documentum.fc.client.DfServiceException;
-import com.documentum.fc.client.IDfClient;
-import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.IDfId;
 import com.documentum.fc.common.IDfLoginInfo;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 
 public class IDctmSession implements ISession{
 	//IDctmSession idm=new IDfSession();
@@ -26,8 +20,12 @@ public class IDctmSession implements ISession{
 		this.idfSession=DfSession;
 	}
 	
-	public IDctmSysObject getObject(IDctmId objectId){
-		IDfId idfId=objectId.getidfId();
+	public ISysObject getObject(IId objectId){
+		if (!(objectId instanceof IDctmId)) {
+			throw new IllegalArgumentException();
+		}
+		IDctmId dctmId = (IDctmId) objectId;
+		IDfId idfId=dctmId.getidfId();
 		IDfSysObject idfSysObject=null;
 		try{
 			idfSysObject=(IDfSysObject)idfSession.getObject(idfId);
@@ -38,7 +36,7 @@ public class IDctmSession implements ISession{
 	}
 	
 	
-	public IDctmSysObject getObjectByQualification(String qualification){
+	public ISysObject getObjectByQualification(String qualification){
 		IDfSysObject idfSysObject=null;
 		try{
 			idfSysObject=(IDfSysObject)idfSession.getObjectByQualification(qualification);
@@ -48,8 +46,12 @@ public class IDctmSession implements ISession{
 		return new IDctmSysObject(idfSysObject);
 	}
 	
-	public void authenticate(IDctmLoginInfo loginInfo){
-		IDfLoginInfo idfLoginInfo=loginInfo.getIdfLoginInfo();
+	public void authenticate(ILoginInfo loginInfo){
+		if (!(loginInfo instanceof IDctmLoginInfo)) {
+			throw new IllegalArgumentException();
+		}
+		IDctmLoginInfo dctmLoginInfo = (IDctmLoginInfo) loginInfo;
+		IDfLoginInfo idfLoginInfo=dctmLoginInfo.getIdfLoginInfo();
 		try{
 			idfSession.authenticate(idfLoginInfo);
 		}catch(DfException de){

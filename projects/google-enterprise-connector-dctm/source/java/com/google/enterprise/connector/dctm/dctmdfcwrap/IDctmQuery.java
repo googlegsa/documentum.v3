@@ -4,7 +4,9 @@ import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.common.DfException;
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 
 public class IDctmQuery implements IQuery{
 	IDfQuery idfQuery;
@@ -14,9 +16,12 @@ public class IDctmQuery implements IQuery{
 		this.idfQuery=idfQuery;
 	}
 	
-	public IDctmCollection execute(IDctmSession session, int queryType){
-		
-		IDfSession idfSession=session.getDfSession();
+	public ICollection execute(ISession session, int queryType){	
+		if (!(session instanceof IDctmSession)) {
+			throw new IllegalArgumentException();
+		}
+		IDctmSession idctmsession = (IDctmSession) session;
+		IDfSession idfSession=idctmsession.getDfSession();
 		IDfCollection DfCollection=null;
 		
 		try{
