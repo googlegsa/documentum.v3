@@ -47,5 +47,20 @@ public class IDctmSessionManager implements ISessionManager{
 		}
 	}
 	
+	public ISession newSession(String docbase){
+		IDfSession DfSession=null;
+		try{
+			DfSession=DfSessionManager.newSession(docbase);
+		}catch(DfIdentityException di){
+			di.getMessage();
+		}catch(DfAuthenticationException da){
+			da.getMessage();
+		}catch(DfPrincipalException dp){
+			dp.getMessage();
+		}catch(DfServiceException ds){
+			ds.getMessage();
+		}
+		return new IDctmSession(DfSession);
+	}
 	
 }

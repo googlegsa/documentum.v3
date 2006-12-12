@@ -25,6 +25,10 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	/**
 	 * @param args
 	 */
+	public DctmAuthenticationManager(){
+		
+	}
+	
 	
 	public DctmAuthenticationManager(IDfSession session){
 		setSession(session);

@@ -62,7 +62,9 @@ public class IDctmSession implements ISession{
 	public IDfSession getDfSession() {
 		return idfSession;
 	}
-
+	
+	
+	
 	public void setDfSession(IDfSession dfSession) {
 		idfSession = dfSession;
 	}

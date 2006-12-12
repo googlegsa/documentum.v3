@@ -3,39 +3,37 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 import java.io.ByteArrayInputStream;
 
 import com.documentum.fc.client.IDfFormat;
+import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 
-public class IDctmSysObject implements ISysObject{
-	IDfSysObject DfSysObject;
+public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
+	IDfSysObject idfSysObject;
 	
-	
-	public IDctmSysObject(){
-		super();
-	}
-	
-	public IDctmSysObject(IDfSysObject DfSysObject){
-		this.DfSysObject=DfSysObject;
+	public IDctmSysObject(IDfSysObject idfSysObject){
+		super((IDfPersistentObject)idfSysObject);
+		this.idfSysObject=idfSysObject;
 	}
 	
 	public IFormat getFormat(){
-		IDfFormat dfFormat=null;
+		IDfFormat idfFormat=null;
 		try{
-			dfFormat=DfSysObject.getFormat();
+			idfFormat=idfSysObject.getFormat();
 		}catch(DfException de){
 			de.getMessage();
 		}
-		return new IDctmFormat(dfFormat);
+		return new IDctmFormat(idfFormat);
 	}
 	
 	public long getContentSize(){
 		long contentSize=0;
 		try{
-			contentSize=DfSysObject.getContentSize();
+			contentSize=idfSysObject.getContentSize();
 		}catch(DfException de){
 			de.getMessage();
 		}
@@ -46,7 +44,7 @@ public class IDctmSysObject implements ISysObject{
 	public ByteArrayInputStream getContent(){
 		ByteArrayInputStream content=null;
 		try{
-			content=DfSysObject.getContent();
+			content=idfSysObject.getContent();
 		}catch(DfException de){
 			de.getMessage();
 		}
@@ -56,20 +54,12 @@ public class IDctmSysObject implements ISysObject{
 	public int getPermitEx(String name){
 		int perm=0;
 		try{
-			perm=DfSysObject.getPermitEx(name);
+			perm=idfSysObject.getPermitEx(name);
 		}catch(DfException de){
 			de.getMessage();
 		}
 		return(perm);
 	}
 	
-	public IId getObjectId(){
-		IDfId idfId=null;
-		try{
-			idfId=DfSysObject.getObjectId();
-		}catch(DfException de){
-			de.getMessage();
-		}
-		return new IDctmId(idfId);
-	}
+	
 }

@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
 public interface IQuery {
-	 ICollection execute(ISession session, int queryType); 
+	 ICollection execute(ISession session, int queryType);
+	 public void setDQL(String dqlStatement);
 }

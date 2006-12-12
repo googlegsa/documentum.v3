@@ -9,4 +9,8 @@ public class IDctmValue implements IValue{
 	public IDctmValue(IDfValue dfValue){
 		this.dfValue=dfValue;
 	}
+	
+	public String asString(){
+		return (dfValue.asString());
+	}
 }

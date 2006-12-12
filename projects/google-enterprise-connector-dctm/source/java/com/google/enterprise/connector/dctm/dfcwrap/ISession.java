@@ -7,7 +7,7 @@ public interface ISession{
 	public void authenticate(ILoginInfo loginInfo);
 	
 	public ISysObject getObject(IId objectId);
-	
+
 	//IDfSession machin =new IDctmSession(); 
 /*
 	public void abortTrans();

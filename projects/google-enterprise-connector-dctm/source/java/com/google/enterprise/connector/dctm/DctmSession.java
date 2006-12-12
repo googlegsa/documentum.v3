@@ -1,103 +1,42 @@
 package com.google.enterprise.connector.dctm;
 
-
-import com.google.enterprise.connector.spi.*;
-import com.documentum.fc.client.DfAuthenticationException;
 import com.documentum.fc.client.DfClient;
-import com.documentum.fc.client.DfIdentityException;
-import com.documentum.fc.client.DfPrincipalException;
-import com.documentum.fc.client.DfServiceException;
-import com.documentum.fc.client.IDfACL;
-import com.documentum.fc.client.IDfClient;
-import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.client.IDfSessionManager;
-import com.documentum.fc.client.IDfSysObject;
-import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.DfLoginInfo;
-import com.documentum.fc.common.IDfLoginInfo;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLocalClient;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSessionManager;
+import com.google.enterprise.connector.spi.AuthenticationManager;
+import com.google.enterprise.connector.spi.AuthorizationManager;
+import com.google.enterprise.connector.spi.QueryTraversalManager;
+import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.Session;
 
 public class DctmSession implements Session{
-	  /**
-	   * Gets a QueryTraversalManager to implement query-based traversal.  
-	   * @return    a QueryTraversalManager - should not be null
-	   * @throws RepositoryException
-	   */
-	IDfSession idfsession;
-	IDfClient client;
-	IDfSessionManager sMgr;
-	IDfLoginInfo loginInfo;
+	IDctmClient dctmClient;
+	IDctmLocalClient dctmLocalClient;
+	IDctmSessionManager dctmsessionmanager;
 	String docbase;
-	String username;
 	
-	  public DctmSession(String username, String password, String docbase)throws DfServiceException, DfAuthenticationException{
-		  	setDocbase(docbase);
-		  	setUsername(username);
+	  public DctmSession(){
+		  	IDctmLoginInfo dctmLoginInfo=null;
+		  	docbase="gdoc";
 		  	
+		  	dctmClient=new IDctmClient();
+		  	dctmLocalClient=(IDctmLocalClient)dctmClient.getLocalClientEx();
+		  	dctmsessionmanager=(IDctmSessionManager)dctmLocalClient.newSessionManager(); 
+		  	dctmLoginInfo=new IDctmLoginInfo();
+		  	dctmLoginInfo.setUser("emilie");
+		  	dctmLoginInfo.setPassword("emilie2");
+		  	dctmsessionmanager.setIdentity(docbase,dctmLoginInfo);
 		  	
-		  	client = DfClient.getLocalClientEx();
-
-		  	//.getClientNetworkLocations
-			sMgr = client.newSessionManager(); 
-			
-			loginInfo = new DfLoginInfo();
-			loginInfo.setUser(username);
-			loginInfo.setPassword(password);
-			sMgr.setIdentity( docbase, loginInfo );
-			
-			setLogininfo(loginInfo);
-			idfsession = sMgr.getSession( docbase );
 	  }
 	
-	  
-	  
-	  /*
-	  public void setClient(){
-		  client = DfClient.getLocalClientEx();
-	  }
-	  
-	  public void setSessionManager(){
-		  sMgr = client.newSessionManager(); 
-	  }
-	  
-	  public void setLoginInfo(String username, String password){
-		  loginInfo = new DfLoginInfo();
-		  loginInfo.setUser(username);
-		  loginInfo.setPassword(password);
-	  }
-	  */
-	  
-	  public IDfLoginInfo getLoginInfo(){
-		  return loginInfo;
-	  }
-	  
-	  public String getDocbase(){
-		  return docbase;
-	  }
-	  
-	  public String getUsername(){
-		  return username;
-	  }
-	  
-	  public void setLogininfo(IDfLoginInfo loginInfo){
-		  this.loginInfo=loginInfo;
-	  }
-	  
-	  public void setDocbase(String  docbase){
-		  this.docbase=docbase;
-	  }
-	  
-	  public void setUsername(String  username){
-		  this.username=username;
-	  }
-	  
-	  
-	  public IDfSession getSession(){
-		  return idfsession;
-	  }
-	  
+	
 	  public QueryTraversalManager getQueryTraversalManager(){
-		  QueryTraversalManager DctmQtm=new DctmQueryTraversalManager(idfsession);
+		  DctmQueryTraversalManager DctmQtm=new DctmQueryTraversalManager();
+		  DctmQtm.setIdctmses((IDctmSession)dctmsessionmanager.newSession(docbase));
 		  return DctmQtm;
 	  }
 	  
@@ -114,7 +53,7 @@ public class DctmSession implements Session{
 	   * @throws RepositoryException
 	   */
 	  public AuthenticationManager getAuthenticationManager() {
-		  AuthenticationManager DctmAm=new DctmAuthenticationManager(idfsession);
+		  AuthenticationManager DctmAm=new DctmAuthenticationManager();
 		  return DctmAm;
 	  }
 	  
@@ -132,8 +71,37 @@ public class DctmSession implements Session{
 	   * @throws RepositoryException
 	   */
 	  public AuthorizationManager getAuthorizationManager(){
-		  AuthorizationManager DctmAzm=new DctmAuthorizationManager(idfsession);
+		  AuthorizationManager DctmAzm=new DctmAuthorizationManager();
 		  return DctmAzm;
 	  }
 
+
+	public IDctmClient getDctmClient() {
+		return dctmClient;
+	}
+
+
+	public void setDctmClient(IDctmClient dctmClient) {
+		this.dctmClient = dctmClient;
+	}
+
+
+	public IDctmLocalClient getDctmLocalClient() {
+		return dctmLocalClient;
+	}
+
+
+	public void setDctmLocalClient(IDctmLocalClient dctmLocalClient) {
+		this.dctmLocalClient = dctmLocalClient;
+	}
+
+
+	public IDctmSessionManager getDctmsessionmanager() {
+		return dctmsessionmanager;
+	}
+
+
+	public void setDctmsessionmanager(IDctmSessionManager dctmsessionmanager) {
+		this.dctmsessionmanager = dctmsessionmanager;
+	}
 }
