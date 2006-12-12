@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.documentum.fc.client.DfQuery;
+import com.documentum.fc.client.IDfACL;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;
@@ -10,10 +12,14 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 
 public class IDctmQuery implements IQuery{
 	IDfQuery idfQuery;
-	
+	public static int DF_READ_QUERY=IDfQuery.DF_READ_QUERY; 
 	
 	public IDctmQuery(IDfQuery idfQuery){
 		this.idfQuery=idfQuery;
+	}
+	
+	public IDctmQuery(){
+		this.idfQuery=new DfQuery();
 	}
 	
 	public ICollection execute(ISession session, int queryType){	
@@ -30,5 +36,9 @@ public class IDctmQuery implements IQuery{
 			de.getMessage();
 		}
 		return new IDctmCollection(DfCollection);
+	}
+	
+	public void setDQL(String dqlStatement){
+		idfQuery.setDQL(dqlStatement);
 	}
 }

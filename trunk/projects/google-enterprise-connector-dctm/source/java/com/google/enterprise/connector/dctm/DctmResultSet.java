@@ -30,6 +30,5 @@ public class DctmResultSet implements ResultSet{
 	public Iterator iterator() throws RepositoryException{
 		Iterator ite=null;
 		return ite;
-	
 	}
 }

@@ -23,7 +23,9 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 	/**
 	 * @param args
 	 */
-	
+	public DctmAuthorizationManager(){
+		
+	}
 	
 	public DctmAuthorizationManager(IDfSession session){
 		setSession(session);
