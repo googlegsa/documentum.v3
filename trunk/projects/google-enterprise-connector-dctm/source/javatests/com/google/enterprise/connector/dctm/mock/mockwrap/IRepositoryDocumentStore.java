@@ -1,5 +1,4 @@
 package com.google.enterprise.connector.dctm.mock.mockwrap;
 
-public interface IRepositoryDocumentStore{
-	
+public interface IRepositoryDocumentStore{	
 }
