@@ -48,9 +48,9 @@ public class IDctmSessionManager implements ISessionManager{
 	}
 	
 	public ISession newSession(String docbase){
-		IDfSession DfSession=null;
+		IDfSession idfSession=null;
 		try{
-			DfSession=DfSessionManager.newSession(docbase);
+			idfSession=DfSessionManager.newSession(docbase);
 		}catch(DfIdentityException di){
 			di.getMessage();
 		}catch(DfAuthenticationException da){
@@ -60,7 +60,7 @@ public class IDctmSessionManager implements ISessionManager{
 		}catch(DfServiceException ds){
 			ds.getMessage();
 		}
-		return new IDctmSession(DfSession);
+		return new IDctmSession(idfSession);
 	}
 	
 }

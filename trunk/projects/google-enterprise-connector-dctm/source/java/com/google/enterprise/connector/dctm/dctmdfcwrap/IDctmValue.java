@@ -11,6 +11,8 @@ public class IDctmValue implements IValue{
 	}
 	
 	public String asString(){
-		return (dfValue.asString());
+		String rep=null;
+		rep=dfValue.asString();
+		return(rep);
 	}
 }

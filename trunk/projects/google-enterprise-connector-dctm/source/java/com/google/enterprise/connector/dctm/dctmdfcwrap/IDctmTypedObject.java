@@ -9,6 +9,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 public class IDctmTypedObject implements ITypedObject{
 	IDfTypedObject idfTypedObject;
 	
+	
 	public IDctmTypedObject(IDfTypedObject idfTypedObject){
 		this.idfTypedObject=idfTypedObject;
 	}
