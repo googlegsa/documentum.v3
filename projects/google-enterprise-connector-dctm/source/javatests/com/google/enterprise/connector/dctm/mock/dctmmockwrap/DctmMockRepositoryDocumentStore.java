@@ -21,12 +21,18 @@ import java.util.Iterator;
 import java.util.List;
 
 public class DctmMockRepositoryDocumentStore implements IRepositoryDocumentStore {
+/**MockAccess**/
 	private MockRepositoryDocumentStore mockRDS;
-	
+	public DctmMockRepositoryDocumentStore(MockRepositoryDocumentStore mockRDSInstance) {
+		mockRDS = mockRDSInstance;
+	}
+/**MockAccess**/
+
+/**Constructors**/
 	public DctmMockRepositoryDocumentStore() {
 		mockRDS = new MockRepositoryDocumentStore();
-		mockRDS.reinit();
 	}
+/**Constructors**/
 	
 	public void reinit() {
 		mockRDS.reinit();
@@ -48,13 +54,12 @@ public class DctmMockRepositoryDocumentStore implements IRepositoryDocumentStore
 		return mockRDS.size();
 	}
 
-	public List dateRange(final IRepositoryDateTime from,
-			final IRepositoryDateTime to) {
-		return mockRDS.dateRange(new MockRepositoryDateTime(from.getTicks()) ,
-				new MockRepositoryDateTime(from.getTicks()));
+	public List dateRange(final IRepositoryDateTime from, final IRepositoryDateTime to) {
+		return mockRDS.dateRange(from.getmrDateTime() ,
+				to.getmrDateTime());
 	}
 
 	public List dateRange(final IRepositoryDateTime from) {
-		return mockRDS.dateRange(new MockRepositoryDateTime(from.getTicks()));
+		return mockRDS.dateRange(from.getmrDateTime());
 	}
 }

@@ -1,39 +1,25 @@
 package com.google.enterprise.connector.dctm.mock.dctmmockwrap;
 
 
-import com.google.enterprise.connector.dctm.DctmResultSet;
 import com.google.enterprise.connector.dctm.mock.mockwrap.*;
-import com.google.enterprise.connector.mock.*;
-
-import java.util.List;
-import java.util.ListIterator;
+import com.google.enterprise.connector.mock.MockRepository;
+import com.google.enterprise.connector.mock.MockRepositoryDateTime;
 
 public class DctmMockRepository implements IRepository {
+/**MockAccess**/
 	private MockRepository mr;
+/**MockAccess**/
 	
+	
+/**Constructors**/
 	public DctmMockRepository(IRepositoryEventList iEventList,
-			IRepositoryDateTime iTime) {
-		
-		MockRepositoryEventList mrEL=new MockRepositoryEventList();
-		MockRepositoryDateTime mrDT=new MockRepositoryDateTime(iTime.getTicks());
-		
-		mrEL.setRepositoryFileName(iEventList.getRepFileName());
-		mrEL.setWorkDirName(iEventList.getWorkDirName());
-//		Initializes private variable eventList with what's in the file defined by the two other private variables (set above).
-		mrEL.getEventList();
-		
-		mr = new MockRepository(mrEL,mrDT);
-	}
-
+			IRepositoryDateTime iTime) {		
+		mr = new MockRepository(iEventList.getmrEventList(),new MockRepositoryDateTime(iTime.getTicks()));
+	}	
 	public DctmMockRepository(IRepositoryEventList iEventList) {
-		MockRepositoryEventList mrEL=new MockRepositoryEventList();
-		mrEL.setRepositoryFileName(iEventList.getRepFileName());
-		mrEL.setWorkDirName(iEventList.getWorkDirName());
-//		Initializes private variable eventList with what's in the file defined by the two other private variables (set above).
-		mrEL.getEventList();
-		
-		mr = new MockRepository(mrEL);
+		mr = new MockRepository(iEventList.getmrEventList());
 	}
+/**Constructors**/	
 	
 	public void reinit() {
 		mr.reinit();
@@ -47,7 +33,7 @@ public class DctmMockRepository implements IRepository {
 		return new DctmMockRepositoryDateTime(mr.getCurrentTime().getTicks());
 	}
 	
-	/*public IRepositoryDocumentStore getStore() {
-		return mr.getStore();
-	}*/
+	public IRepositoryDocumentStore getStore() {
+		return new DctmMockRepositoryDocumentStore(mr.getStore());
+	}
 }
