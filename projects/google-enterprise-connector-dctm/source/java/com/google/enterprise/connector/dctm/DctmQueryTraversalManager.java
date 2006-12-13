@@ -157,9 +157,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	  public IDctmCollection execQuery(String queryString) {
 		  	IDctmCollection dctmCollection = null; // Collection for the result
 			IDctmQuery dctmQuery = new IDctmQuery(); // Create query object
-			IDctmSession dctmSes = getIdctmses();
 			dctmQuery.setDQL(queryString); // Give it the query
-			dctmCollection = (IDctmCollection)dctmQuery.execute(dctmSes, IDctmQuery.DF_READ_QUERY);
+			dctmCollection = (IDctmCollection)dctmQuery.execute(idctmses, IDctmQuery.DF_READ_QUERY);
 			return dctmCollection;
 		}
 

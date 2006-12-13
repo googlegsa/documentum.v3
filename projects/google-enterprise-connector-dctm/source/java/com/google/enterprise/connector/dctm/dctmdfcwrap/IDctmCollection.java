@@ -10,12 +10,14 @@ import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfValue;
 
-public class IDctmCollection extends IDctmTypedObject  implements ICollection{
+public class IDctmCollection extends IDctmTypedObject implements ICollection{
 	IDfCollection idfCollection;
 	
 	public IDctmCollection(IDfCollection idfCollection){
-		super((IDfPersistentObject)idfCollection);
+		super(idfCollection);
+		
 		this.idfCollection=idfCollection;
+		
 	}
 	
 	public IValue getValue(String attrName){
@@ -46,5 +48,9 @@ public class IDctmCollection extends IDctmTypedObject  implements ICollection{
 			de.getMessage();
 		}
 		return new IDctmTypedObject(dfTypedObj);
+	}
+	
+	public IDfCollection getIDfCollection(){
+		return idfCollection;
 	}
 }
