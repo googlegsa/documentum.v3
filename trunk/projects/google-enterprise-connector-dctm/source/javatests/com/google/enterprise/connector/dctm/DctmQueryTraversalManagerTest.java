@@ -1,6 +1,8 @@
 package com.google.enterprise.connector.dctm;
 
 import java.io.ByteArrayInputStream;
+
+import javax.jcr.query.QueryManager;
 /*
 import com.documentum.fc.client.DfClient;
 import com.documentum.fc.client.IDfClient;
@@ -39,6 +41,26 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	 * Test method for 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.startTraversal()'
 	 */
 	
+	
+	
+	
+	
+	public void testSetIdctmses() {
+		//System.out.println("Native Library path(s): " + System.getProperty("java.library.path"));
+		//System.out.println("Native Library path(s): " + System.getProperty("path"));
+	  	IDctmClient dctmClient=new IDctmClient();
+	  	IDctmLocalClient dctmLocalClient=(IDctmLocalClient)dctmClient.getLocalClientEx();
+	  	IDctmSessionManager dctmsessionmanager=(IDctmSessionManager)dctmLocalClient.newSessionManager(); 
+	  	IDctmLoginInfo dctmLoginInfodctmLoginInfo=new IDctmLoginInfo();
+	  	dctmLoginInfodctmLoginInfo.setUser("emilie");
+	  	dctmLoginInfodctmLoginInfo.setPassword("emilie2");
+	  	dctmsessionmanager.setIdentity("gdoc", dctmLoginInfodctmLoginInfo);
+	  	idctmses = ((IDctmSession)dctmsessionmanager.newSession("gdoc"));
+	  	assertNotNull(idctmses);
+	}
+	
+	
+	
 	public void testStartTraversal() throws RepositoryException{
 		
 		ResultSet resu=null;
@@ -59,10 +81,12 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		  
 		  ByteArrayInputStream content=null;
 		  
-		  TestSetIdctmses();
+		  testSetIdctmses();
 		 
 		  IDctmSysObject dctmSysObj = null;
 		  IDctmFormat dctmForm = null;
+		  
+		  DctmQueryTraversalManager 
 		  col=testExecQuery();
 		  assertNotNull(col);
 		  
@@ -110,9 +134,9 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	 * Test method for 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.execQuery(String)'
 	 */
 	
-	public IDctmCollection testExecQuery() {
+	public void testExecQuery() {
 		IDctmCollection dctmCollection = null; // Collection for the result
-		IDctmSession dctmSes=TestGetIdctmses();
+		IDctmSession dctmSes=testGetIdctmses();
 		assertNotNull(dctmSes);
 		
 		IDfSession idfSes=dctmSes.getDfSession();
@@ -124,28 +148,15 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		
 		dctmCollection = (IDctmCollection)dctmQuery.execute(dctmSes, IDctmQuery.DF_READ_QUERY);
 		assertNotNull(dctmCollection);
-		return(dctmCollection);
+		
 	}
 	
 	/*
 	 * Test method for 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.getIdctmses()'
 	 */
 	
-	public void TestSetIdctmses() {
-		//System.out.println("Native Library path(s): " + System.getProperty("java.library.path"));
-		//System.out.println("Native Library path(s): " + System.getProperty("path"));
-	  	IDctmClient dctmClient=new IDctmClient();
-	  	IDctmLocalClient dctmLocalClient=(IDctmLocalClient)dctmClient.getLocalClientEx();
-	  	IDctmSessionManager dctmsessionmanager=(IDctmSessionManager)dctmLocalClient.newSessionManager(); 
-	  	IDctmLoginInfo dctmLoginInfodctmLoginInfo=new IDctmLoginInfo();
-	  	dctmLoginInfodctmLoginInfo.setUser("emilie");
-	  	dctmLoginInfodctmLoginInfo.setPassword("emilie2");
-	  	dctmsessionmanager.setIdentity("gdoc", dctmLoginInfodctmLoginInfo);
-	  	idctmses = ((IDctmSession)dctmsessionmanager.newSession("gdoc"));
-	  	assertNotNull(idctmses);
-	}
-	
-	public IDctmSession TestGetIdctmses() {
+
+	public IDctmSession testGetIdctmses() {
 		return idctmses;
 	}
 	
