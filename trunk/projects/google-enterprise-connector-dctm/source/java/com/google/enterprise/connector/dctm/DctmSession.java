@@ -7,6 +7,10 @@ import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLocalClient;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSessionManager;
+import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
@@ -14,9 +18,10 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
 public class DctmSession implements Session{
-	IDctmClient dctmClient;
-	IDctmLocalClient dctmLocalClient;
-	IDctmSessionManager dctmsessionmanager;
+	IClient dctmClient;
+	ILocalClient dctmLocalClient;
+	ISessionManager dctmsessionmanager;
+	ISession dctmsession;
 	String docbase;
 	
 	  public DctmSession(){
@@ -36,7 +41,7 @@ public class DctmSession implements Session{
 	
 	  public QueryTraversalManager getQueryTraversalManager(){
 		  DctmQueryTraversalManager DctmQtm=new DctmQueryTraversalManager();
-		  DctmQtm.setIdctmses((IDctmSession)dctmsessionmanager.newSession(docbase));
+		  DctmQtm.setIDctmSession((IDctmSession)dctmsessionmanager.newSession(docbase));
 		  return DctmQtm;
 	  }
 	  
@@ -76,32 +81,35 @@ public class DctmSession implements Session{
 	  }
 
 
-	public IDctmClient getDctmClient() {
+	public IClient getIClient() {
 		return dctmClient;
 	}
 
 
-	public void setDctmClient(IDctmClient dctmClient) {
+	public void setIClient(IDctmClient dctmClient) {
 		this.dctmClient = dctmClient;
 	}
 
 
-	public IDctmLocalClient getDctmLocalClient() {
+	public ILocalClient getDctmLocalClient() {
 		return dctmLocalClient;
 	}
 
 
-	public void setDctmLocalClient(IDctmLocalClient dctmLocalClient) {
+	public void setILocalClient(IDctmLocalClient dctmLocalClient) {
 		this.dctmLocalClient = dctmLocalClient;
 	}
 
 
-	public IDctmSessionManager getDctmsessionmanager() {
+	public ISessionManager getISessionmanager() {
 		return dctmsessionmanager;
 	}
 
-
-	public void setDctmsessionmanager(IDctmSessionManager dctmsessionmanager) {
+	public ISession getISession() {
+		return dctmsession;
+	}
+	
+	public void setISessionmanager(IDctmSessionManager dctmsessionmanager) {
 		this.dctmsessionmanager = dctmsessionmanager;
 	}
 }

@@ -1,6 +1,15 @@
 package com.google.enterprise.connector.dctm;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.HashMap;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfCollection;
@@ -14,6 +23,12 @@ import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSysObject;
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
+import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -23,11 +38,36 @@ import com.google.enterprise.connector.spi.SimplePropertyMap;
 import com.google.enterprise.connector.spi.SimpleResultSet;
 import com.google.enterprise.connector.spi.SimpleValue;
 import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.ValueType;
 
 public class DctmQueryTraversalManager implements QueryTraversalManager{
 	IDctmSession idctmses;
 	
+	
+	 private static final String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id from dm_sysobject where r_object_type='dm_document' and r_creator_name!='Administrator' order by r_modify_date, i_chronicle_id";
+		  
+	 private static final String QUERY_STRING_BOUNDED_DEFAULT = 
+		 "select i_chronicle_id from dm_sysobject where r_object_type='dm_document' and r_creator_name!='Administrator' and r_modify_date >= "+ 
+		 "''{0}'' "+
+		 "order by r_modify_date, i_chronicle_id";
+	
+	 private String unboundedTraversalQuery;
+	 private String boundedTraversalQuery;
+	 
+	 
+	 public DctmQueryTraversalManager() {
+		    this.unboundedTraversalQuery = QUERY_STRING_UNBOUNDED_DEFAULT;
+		    this.boundedTraversalQuery = QUERY_STRING_BOUNDED_DEFAULT;
+	 }
+	 
+	 
+	 public DctmQueryTraversalManager(IDctmSession iDctmSes) {
+		 	setIDctmSession(iDctmSes);
+		    this.unboundedTraversalQuery = QUERY_STRING_UNBOUNDED_DEFAULT;
+		    this.boundedTraversalQuery = QUERY_STRING_BOUNDED_DEFAULT;
+	 }
+	 
 	 /**
 	   * Starts (or restarts) traversal from the beginning. This action will return
 	   * objects starting from the very oldest, or with the smallest IDs, or
@@ -40,11 +80,14 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	   * @throws RepositoryException if the Repository is unreachable or similar
 	   *           exceptional condition.
 	   */
+	 
+	
+	
 	  public ResultSet startTraversal() throws RepositoryException{
 		  
 		  ResultSet resu=null;
-		  String query=null;
-		  IDctmCollection col=null;
+		  IQuery query=null;
+		  ICollection col=null;
 		  byte[]buf=null;
 		  int count = 0;
 		  
@@ -55,15 +98,22 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		  SimpleValue vlDate=null;
 		  SimpleValue vlID=null;
 		  SimpleValue vlMime=null;
+		  SimpleValue vlCont=null;
 		  
 		  SimplePropertyMap pm=null;
 		  
 		  ByteArrayInputStream content=null;
 		  
-		  IDctmSession dctmSes = getIdctmses();
-		  IDctmSysObject dctmSysObj = null;
-		  IDctmFormat dctmForm = null;
-		  query=CreateQuery();
+		  int size=0;
+		  byte[] bufContent;
+		  
+		  ISession dctmSes = getIdctmses();
+		  ISysObject dctmSysObj = null;
+		  IFormat dctmForm = null;
+		  
+		  
+		  query=makeCheckpointQuery(unboundedTraversalQuery);
+		 
 		  col=execQuery(query);
 		  
 		  resu=new SimpleResultSet(); 
@@ -74,8 +124,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 				  crID = col.getValue("i_chronicle_id").asString();
 				  vlID=new SimpleValue(ValueType.STRING,crID);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,vlID));
-					 
-				  modifDate = col.getValue("r_modify_date").asString();
+				
+				  System.out.println(col.getValue("r_modify_date").toString());
+				  //modifDate = col.getValue("r_modify_date").asString();
+				  modifDate = col.getValue("r_modify_date").toString();
+				  
 				  vlDate=new SimpleValue(ValueType.DATE,modifDate);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
 				  
@@ -85,7 +138,30 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 				  if(dctmForm.canIndex()){
 					  content=dctmSysObj.getContent();
 					  mimetype=dctmForm.getMIMEType();
+					  size=new Long(dctmSysObj.getContentSize()).intValue();
+						 
+					   bufContent = new byte[size];
+						ByteArrayOutputStream output=new ByteArrayOutputStream(); 
+						 try{
+							 
+							 while ((count = content.read(bufContent)) > -1){
+							 
+								 output.write(bufContent, 0, count);
+							 }
+							 content.close();
+						 }catch(IOException ie){
+							 System.out.println(ie.getMessage());
+						 }
+						 //content.
+						 if(bufContent.length>0){
+							 vlCont=new SimpleValue(ValueType.BINARY,bufContent);
+							 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
+						 }else{
+							 vlCont=new SimpleValue(ValueType.BINARY,"");
+							 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
+						 }
 				  }
+				  
 				  vlMime=new SimpleValue(ValueType.STRING,mimetype);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
 					 
@@ -93,6 +169,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		  return resu; 
 	  }
 	
+	 
+	  
 		/**
 	   * Continues traversal from a supplied checkpoint. The checkPoint parameter
 	   * will have been created by a call to the {@link #checkpoint(PropertyMap)}
@@ -108,6 +186,18 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	  public ResultSet resumeTraversal(String checkPoint)
 	      throws RepositoryException{
 		  ResultSet resu=null;
+		  JSONObject jo = null;
+		    try {
+		      jo = new JSONObject(checkPoint);
+		    } catch (JSONException e) {
+		      throw new IllegalArgumentException(
+		          "checkPoint string does not parse as JSON: " + checkPoint);
+		    }
+		    String uuid = extractDocidFromCheckpoint(jo, checkPoint);
+		    Calendar c = extractCalendarFromCheckpoint(jo, checkPoint);
+		    String queryString = makeCheckpointQueryString(uuid, c);
+		  
+		  
 		  return resu;
 	  }
 
@@ -130,10 +220,26 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	   *         {@link #resumeTraversal(String)} method.
 	   * @throws RepositoryException
 	   */
-	  public String checkpoint(PropertyMap pm) throws RepositoryException{
-		  String resu=null;
-		  return resu;
-	  }
+	  public String checkpoint(PropertyMap pm) throws RepositoryException {
+		    String uuid =
+		        fetchAndVerifyValueForCheckpoint(pm, SpiConstants.PROPNAME_DOCID)
+		            .getString();
+		    Calendar c =
+		        fetchAndVerifyValueForCheckpoint(pm, SpiConstants.PROPNAME_LASTMODIFY)
+		            .getDate();
+		    String dateString = SimpleValue.calendarToIso8601(c);
+		    String result = null;
+		    try {
+		    JSONObject jo = new JSONObject();
+		      jo.put("uuid", uuid);
+		      jo.put("lastModified", dateString);
+		      result = jo.toString();
+		    } catch (JSONException e) {
+		      throw new RepositoryException("Unexpected JSON problem", e);
+		    }
+		    return result;
+		  }
+
 
 	  /**
 	   * Sets the preferred batch size. The caller advises the implementation that
@@ -154,11 +260,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 			return(query);
 	  }
 	  
-	  public IDctmCollection execQuery(String queryString) {
-		  	IDctmCollection dctmCollection = null; // Collection for the result
-			IDctmQuery dctmQuery = new IDctmQuery(); // Create query object
-			dctmQuery.setDQL(queryString); // Give it the query
-			dctmCollection = (IDctmCollection)dctmQuery.execute(idctmses, IDctmQuery.DF_READ_QUERY);
+	  public ICollection execQuery(IQuery query) {
+		  	ICollection dctmCollection = null; // Collection for the result
+			dctmCollection = (IDctmCollection)query.execute(idctmses, IDctmQuery.DF_READ_QUERY);
 			return dctmCollection;
 		}
 
@@ -166,10 +270,71 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		return idctmses;
 	}
 
-	public void setIdctmses(IDctmSession idctmses) {
+	public void setIDctmSession(IDctmSession idctmses) {
 		this.idctmses = idctmses;
 	}
 
 	
+	private Value fetchAndVerifyValueForCheckpoint(PropertyMap pm, String pName)
+    	throws RepositoryException {
+		Property property = pm.getProperty(pName);
+		if (property == null) {
+			throw new IllegalArgumentException("checkpoint must have a " + pName
+					+ " property");
+		}
+		Value value = property.getValue();
+		if (value == null) {
+			throw new IllegalArgumentException("checkpoint " + pName
+        + " property must have a non-null value");
+		}
+		return value;
+	}
+	
+	private IQuery makeCheckpointQuery(String queryString) throws RepositoryException {
+		    IQuery query = null;
+		    query=new IDctmQuery();
+		    System.out.println(queryString);
+		    query.setDQL(queryString);
+		    return query;
+	}
+	
+	String extractDocidFromCheckpoint(JSONObject jo, String checkPoint) {
+	    String uuid = null;
+	    try {
+	      uuid = jo.getString("uuid");
+	    } catch (JSONException e) {
+	      throw new IllegalArgumentException(
+	          "could not get uuid from checkPoint string: " + checkPoint);
+	    }
+	    return uuid;
+	  }
+
+	  Calendar extractCalendarFromCheckpoint(JSONObject jo, String checkPoint) {
+	    String dateString = null;
+	    try {
+	      dateString = jo.getString("lastModified");
+	    } catch (JSONException e) {
+	      throw new IllegalArgumentException(
+	          "could not get lastmodify from checkPoint string: " + checkPoint);
+	    }
+	    Calendar c = null;
+	    try {
+	      c = SimpleValue.iso8601ToCalendar(dateString);
+	    } catch (ParseException e) {
+	      throw new IllegalArgumentException(
+	          "could not parse date string from checkPoint string: " + dateString);
+	    }
+	    return c;
+	  }
+	  
+	  private String makeCheckpointQueryString(String uuid, Calendar c)
+      throws RepositoryException {
+
+		  String time = SimpleValue.calendarToIso8601(c);
+		  Object[] arguments = { time };
+		  String statement = MessageFormat.format(boundedTraversalQuery,arguments);
+		  return statement;
+	  }
+
 	  
 }
