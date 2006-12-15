@@ -130,6 +130,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 				
 				  System.out.println(col.getValue("r_modify_date"));
 				  
+				  
+				  modifDate = col.getValue("r_modify_date").asString();
+				  vlDate=new SimpleValue(ValueType.DATE,modifDate);
+				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
 				  /*
 				  IValue val=col.getValue("r_modify_date");
 				  ITime itime=val.asTime();
