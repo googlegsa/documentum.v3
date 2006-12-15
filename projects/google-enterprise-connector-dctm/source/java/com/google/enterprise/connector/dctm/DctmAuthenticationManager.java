@@ -1,5 +1,11 @@
 
 package com.google.enterprise.connector.dctm;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
+import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.*;
 import com.documentum.fc.client.DfAuthenticationException;
 import com.documentum.fc.client.DfClient;
@@ -18,10 +24,10 @@ import com.documentum.fc.common.IDfLoginInfo;
 
 
 public class DctmAuthenticationManager implements AuthenticationManager {
-	IDfSession session;
-	IDfClient client;
-	IDfSessionManager sMgr;
-	IDfLoginInfo loginInfo;
+	ISession session;
+	IClient client;
+	ISessionManager sMgr;
+	ILoginInfo loginInfo;
 	/**
 	 * @param args
 	 */
@@ -30,12 +36,12 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	}
 	
 	
-	public DctmAuthenticationManager(IDfSession session){
+	public DctmAuthenticationManager(ISession session){
 		setSession(session);
 	}
 	
 	
-	public IDfSession getSession(){
+	public ISession getSession(){
 		return session;
 	}
 	
@@ -50,13 +56,13 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		//try{
 			setLoginInfo(username,password);
 			System.out.println("après setlogininfo : username = "+username+" password = "+password);
-			try{
-				session.authenticate(loginInfo);
-				authOK=true;
-			}catch(DfException De){
-				RepositoryException Re=new RepositoryException("erreur d'authentification");
-				System.out.println(Re.getMessage());
-			}
+			
+			session.authenticate(loginInfo);
+			authOK=true;
+			
+			RepositoryException Re=new RepositoryException("erreur d'authentification");
+			System.out.println(Re.getMessage());
+			
 			//session = connection(username,password,docbase);
 			//authOK=true;
 		//}catch(DfAuthenticationException Dae){
@@ -72,19 +78,19 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		return authOK;
 	}
 	
-	public void setSession(IDfSession session){
+	public void setSession(ISession session){
 		this.session=session;
 	}
 	
 	public void setLoginInfo(String username,String password){
-		loginInfo = new DfLoginInfo();
+		loginInfo = new IDctmLoginInfo();
 		loginInfo.setUser(username);
 		System.out.println("logininfo:"+username);
 		loginInfo.setPassword(password);
 		System.out.println("logininfo:"+password);
 	}
 	
-	public IDfLoginInfo getLoginInfo(){
+	public ILoginInfo getLoginInfo(){
 		return loginInfo;
 	}
 	/*

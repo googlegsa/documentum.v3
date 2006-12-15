@@ -1,6 +1,11 @@
 package com.google.enterprise.connector.dctm;
 import java.util.List;
 
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmFormat;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmId;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSysObject;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.*;
 import com.google.enterprise.connector.spi.*;
 import com.documentum.fc.client.DfAuthenticationException;
@@ -19,7 +24,7 @@ import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
 public class DctmAuthorizationManager implements AuthorizationManager{
-	IDfSession session;
+	ISession session;
 	/**
 	 * @param args
 	 */
@@ -27,7 +32,7 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 		
 	}
 	
-	public DctmAuthorizationManager(IDfSession session){
+	public DctmAuthorizationManager(ISession session){
 		setSession(session);
 	}
 	
@@ -35,31 +40,28 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 	    throws RepositoryException{
 		 int i=0;
 		  String objIDEnCours=null;
-		  IDfSysObject objectauto=null;
+		  ISysObject objectauto=null;
 		  int userPermit=0;
 		  boolean result = false;
 		  SimpleResultSet docresu=null;
 		  SimplePropertyMap docmap=null;
-		  try{
+		  
 			  for(i=0;i<=docidList.size();i++){
 				  objIDEnCours=docidList.get(i).toString();
-				  objectauto = (IDfSysObject) session.getObject(new DfId(objIDEnCours));
+				  objectauto = session.getObject(new IDctmId(objIDEnCours));
 				  userPermit=objectauto.getPermitEx(username);
 				  result = userPermit > IDfACL.DF_PERMIT_BROWSE;
 				  if (result){
 					  docmap=new SimplePropertyMap();
-					  docmap.put(SpiConstants.PROPNAME_DOCID,objectauto.getObjectId());
+					  docmap.put(SpiConstants.PROPNAME_DOCID,((IDctmSysObject)objectauto).getObjectId());
 					  //docmap.put(objectauto.getObjectName());
-					  docmap.put(SpiConstants.PROPNAME_CONTENT,objectauto.getContent());
-					  docmap.put(SpiConstants.PROPNAME_CONTENTURL,objectauto.getObjectId());
+					  docmap.put(SpiConstants.PROPNAME_CONTENT,((IDctmSysObject)objectauto).getContent());
+					  docmap.put(SpiConstants.PROPNAME_CONTENTURL,((IDctmSysObject)objectauto).getObjectId());
 					  //docresu.add();
 					  //"http://"+tabPartUrl[2]+"/webtop/drl/objectId"+"/"+tabPartUrl[6];
 				  }
 			  }
-		  }catch(DfException De) {
-			  
-		  }
-		  
+		 
 			 return docresu;
 		 
 		 
@@ -72,7 +74,7 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 			 return responses;
 	  }
 	  
-	  public void setSession(IDfSession session){
+	  public void setSession(ISession session){
 			this.session=session;
 	}
 

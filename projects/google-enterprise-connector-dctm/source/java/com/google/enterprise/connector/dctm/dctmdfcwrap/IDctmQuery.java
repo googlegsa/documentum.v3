@@ -31,9 +31,10 @@ public class IDctmQuery implements IQuery{
 		IDfCollection DfCollection=null;
 		
 		try{
+			System.out.println("Querytype vaut "+queryType);
 			DfCollection=idfQuery.execute(idfSession,queryType);
 		}catch(DfException de){
-			de.getMessage();
+			System.out.println(de.getMessage());
 		}
 		return new IDctmCollection(DfCollection);
 	}
