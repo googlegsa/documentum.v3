@@ -23,11 +23,14 @@ import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSysObject;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmTime;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
@@ -42,7 +45,7 @@ import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.ValueType;
 
 public class DctmQueryTraversalManager implements QueryTraversalManager{
-	IDctmSession idctmses;
+	ISession idctmses;
 	
 	
 	 private static final String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id from dm_sysobject where r_object_type='dm_document' and r_creator_name!='Administrator' order by r_modify_date, i_chronicle_id";
@@ -85,7 +88,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	
 	  public ResultSet startTraversal() throws RepositoryException{
 		  
-		  ResultSet resu=null;
+		  SimpleResultSet resu=null;
 		  IQuery query=null;
 		  ICollection col=null;
 		  byte[]buf=null;
@@ -107,7 +110,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		  int size=0;
 		  byte[] bufContent;
 		  
-		  ISession dctmSes = getIdctmses();
+		  //ISession dctmSes = getIdctmses();
 		  ISysObject dctmSysObj = null;
 		  IFormat dctmForm = null;
 		  
@@ -125,14 +128,16 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 				  vlID=new SimpleValue(ValueType.STRING,crID);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,vlID));
 				
-				  System.out.println(col.getValue("r_modify_date").toString());
-				  //modifDate = col.getValue("r_modify_date").asString();
-				  modifDate = col.getValue("r_modify_date").toString();
+				  System.out.println(col.getValue("r_modify_date"));
 				  
+				  /*
+				  IValue val=col.getValue("r_modify_date");
+				  ITime itime=val.asTime();
+				  modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
 				  vlDate=new SimpleValue(ValueType.DATE,modifDate);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
-				  
-				  dctmSysObj = (IDctmSysObject)dctmSes.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
+				  */
+				  dctmSysObj = (IDctmSysObject)idctmses.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
 				  dctmForm = (IDctmFormat)dctmSysObj.getFormat();
 				  
 				  if(dctmForm.canIndex()){
@@ -164,8 +169,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 				  
 				  vlMime=new SimpleValue(ValueType.STRING,mimetype);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
-					 
+				  resu.add(pm);	 
 			  }
+		int nb=resu.size();	
+		
+		System.out.println("nb vaut "+nb);
 		  return resu; 
 	  }
 	
@@ -262,11 +270,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	  
 	  public ICollection execQuery(IQuery query) {
 		  	ICollection dctmCollection = null; // Collection for the result
-			dctmCollection = (IDctmCollection)query.execute(idctmses, IDctmQuery.DF_READ_QUERY);
+			dctmCollection = query.execute(idctmses, IDctmQuery.DF_READ_QUERY);
 			return dctmCollection;
 		}
 
-	public IDctmSession getIdctmses() {
+	public ISession getIdctmses() {
 		return idctmses;
 	}
 

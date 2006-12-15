@@ -28,20 +28,21 @@ public class DctmSession implements Session{
 		  	IDctmLoginInfo dctmLoginInfo=null;
 		  	docbase="gdoc";
 		  	
+		  	
 		  	dctmClient=new IDctmClient();
-		  	dctmLocalClient=(IDctmLocalClient)dctmClient.getLocalClientEx();
-		  	dctmsessionmanager=(IDctmSessionManager)dctmLocalClient.newSessionManager(); 
+		  	dctmLocalClient=dctmClient.getLocalClientEx();
+		  	dctmsessionmanager=dctmLocalClient.newSessionManager(); 
 		  	dctmLoginInfo=new IDctmLoginInfo();
 		  	dctmLoginInfo.setUser("emilie");
 		  	dctmLoginInfo.setPassword("emilie2");
 		  	dctmsessionmanager.setIdentity(docbase,dctmLoginInfo);
-		  	
+		  	dctmsession=dctmsessionmanager.newSession(docbase);
 	  }
 	
 	
 	  public QueryTraversalManager getQueryTraversalManager(){
 		  DctmQueryTraversalManager DctmQtm=new DctmQueryTraversalManager();
-		  DctmQtm.setIDctmSession((IDctmSession)dctmsessionmanager.newSession(docbase));
+		  DctmQtm.setIDctmSession((IDctmSession)dctmsession);
 		  return DctmQtm;
 	  }
 	  
