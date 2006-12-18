@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import java.util.Date;
+
 import com.documentum.fc.common.IDfTime;
 import com.documentum.fc.common.IDfValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
@@ -17,4 +19,11 @@ public static String DF_TIME_PATTERN45 = IDfTime.DF_TIME_PATTERN45;
 		time=dfTime.asString(pattern);
 		return time;
 	}
+	
+	public Date getDate(){
+		Date date=null;
+		date=dfTime.getDate();
+		return date;
+	}
+	
 }

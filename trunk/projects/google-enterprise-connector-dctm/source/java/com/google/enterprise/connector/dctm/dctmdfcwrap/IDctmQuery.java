@@ -42,4 +42,13 @@ public class IDctmQuery implements IQuery{
 	public void setDQL(String dqlStatement){
 		idfQuery.setDQL(dqlStatement);
 	}
+	
+	public int getDF_READ_QUERY() {
+		return DF_READ_QUERY;
+	}
+
+	public void setDF_READ_QUERY(int df_read_query){
+		DF_READ_QUERY = df_read_query;
+	}
+
 }

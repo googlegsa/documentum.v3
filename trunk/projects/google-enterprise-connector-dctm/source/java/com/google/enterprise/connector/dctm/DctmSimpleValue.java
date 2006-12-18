@@ -148,6 +148,8 @@ public class DctmSimpleValue implements Value {
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
   private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+  private static final SimpleDateFormat ISO8601_DATE_FORMAT =
+      new SimpleDateFormat("yyyy-MM-dd'T'");
   public static final SimpleDateFormat RFC822_DATE_FORMAT =
       new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss z");
 
@@ -193,7 +195,16 @@ public class DctmSimpleValue implements Value {
     } catch (ParseException e) {
       // this is just here so we can try another format
     }
+    try {
     d = ISO8601_DATE_FORMAT_SECS.parse(s);
+    } catch (ParseException e) {
+      // this is just here so we can try another format
+    }
+    try {
+        d = ISO8601_DATE_FORMAT.parse(s);
+        } catch (ParseException e) {
+          // this is just here so we can try another format
+        }
     return d;
   }
 

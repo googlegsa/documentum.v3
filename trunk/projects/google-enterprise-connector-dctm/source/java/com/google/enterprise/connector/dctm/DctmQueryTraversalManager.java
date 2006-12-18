@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.json.JSONException;
@@ -24,6 +25,7 @@ import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSysObject;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmTime;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
@@ -39,7 +41,6 @@ import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.SimpleProperty;
 import com.google.enterprise.connector.spi.SimplePropertyMap;
 import com.google.enterprise.connector.spi.SimpleResultSet;
-import com.google.enterprise.connector.spi.SimpleValue;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.ValueType;
@@ -47,8 +48,9 @@ import com.google.enterprise.connector.spi.ValueType;
 public class DctmQueryTraversalManager implements QueryTraversalManager{
 	ISession idctmses;
 	
+	 public static String QUERY_CLASS_NAME="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery";
 	
-	 private static final String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id from dm_sysobject where r_object_type='dm_document' and r_creator_name!='Administrator' order by r_modify_date, i_chronicle_id";
+	 private static final String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_creator_name!='Administrator' order by r_modify_date, i_chronicle_id";
 		  
 	 private static final String QUERY_STRING_BOUNDED_DEFAULT = 
 		 "select i_chronicle_id from dm_sysobject where r_object_type='dm_document' and r_creator_name!='Administrator' and r_modify_date >= "+ 
@@ -98,10 +100,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		  String crID=null;
 		  String mimetype=null;
 		  
-		  SimpleValue vlDate=null;
-		  SimpleValue vlID=null;
-		  SimpleValue vlMime=null;
-		  SimpleValue vlCont=null;
+		  DctmSimpleValue vlDate=null;
+		  DctmSimpleValue vlID=null;
+		  DctmSimpleValue vlMime=null;
+		  DctmSimpleValue vlCont=null;
 		  
 		  SimplePropertyMap pm=null;
 		  
@@ -113,7 +115,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		  //ISession dctmSes = getIdctmses();
 		  ISysObject dctmSysObj = null;
 		  IFormat dctmForm = null;
-		  
+		  IDctmValue val=null;
+		  ITime itime=null;
 		  
 		  query=makeCheckpointQuery(unboundedTraversalQuery);
 		 
@@ -125,22 +128,29 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 				  pm=new SimplePropertyMap();
 				 
 				  crID = col.getValue("i_chronicle_id").asString();
-				  vlID=new SimpleValue(ValueType.STRING,crID);
+				  int rep_Id=col.getValue("i_chronicle_id").getDataType();
+				 
+				  vlID=new DctmSimpleValue(ValueType.STRING,crID);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,vlID));
 				
-				  System.out.println(col.getValue("r_modify_date"));
+				 // System.out.println("r_modify_date "+col.getValue("r_modify_date"));
 				  
-				  
-				  modifDate = col.getValue("r_modify_date").asString();
-				  vlDate=new SimpleValue(ValueType.DATE,modifDate);
-				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
 				  /*
-				  IValue val=col.getValue("r_modify_date");
-				  ITime itime=val.asTime();
-				  modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
-				  vlDate=new SimpleValue(ValueType.DATE,modifDate);
+				  modifDate = col.getValue("r_modify_date").asString();
+				  vlDate=new DctmSimpleValue(ValueType.DATE,modifDate);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
 				  */
+				  
+				  
+				  val=(IDctmValue)col.getValue("r_modify_date");
+				  int rep=val.getDataType();
+				  itime=val.asTime();
+				  modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
+				  Date mydate=itime.getDate();
+				  System.out.println("modifdate vaut "+modifDate);
+				  vlDate=new DctmSimpleValue(ValueType.DATE,modifDate);
+				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
+				  
 				  dctmSysObj = (IDctmSysObject)idctmses.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
 				  dctmForm = (IDctmFormat)dctmSysObj.getFormat();
 				  
@@ -163,15 +173,15 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 						 }
 						 //content.
 						 if(bufContent.length>0){
-							 vlCont=new SimpleValue(ValueType.BINARY,bufContent);
+							 vlCont=new DctmSimpleValue(ValueType.BINARY,bufContent);
 							 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
 						 }else{
-							 vlCont=new SimpleValue(ValueType.BINARY,"");
+							 vlCont=new DctmSimpleValue(ValueType.BINARY,"");
 							 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
 						 }
 				  }
 				  
-				  vlMime=new SimpleValue(ValueType.STRING,mimetype);
+				  vlMime=new DctmSimpleValue(ValueType.STRING,mimetype);
 				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
 				  resu.add(pm);	 
 			  }
@@ -239,7 +249,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		    Calendar c =
 		        fetchAndVerifyValueForCheckpoint(pm, SpiConstants.PROPNAME_LASTMODIFY)
 		            .getDate();
-		    String dateString = SimpleValue.calendarToIso8601(c);
+		    String dateString = DctmSimpleValue.calendarToIso8601(c);
 		    String result = null;
 		    try {
 		    JSONObject jo = new JSONObject();
@@ -304,8 +314,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	
 	private IQuery makeCheckpointQuery(String queryString) throws RepositoryException {
 		    IQuery query = null;
-		    query=new IDctmQuery();
-		    System.out.println(queryString);
+		   
+		    //query=(IQuery)Class.forName(QUERY_CLASS_NAME).newInstance();
+		    DFC_MOCK_instanciator instant=new DFC_MOCK_instanciator();
+		    query=instant.getIQueryObject();
 		    query.setDQL(queryString);
 		    return query;
 	}
@@ -331,7 +343,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	    }
 	    Calendar c = null;
 	    try {
-	      c = SimpleValue.iso8601ToCalendar(dateString);
+	      c = DctmSimpleValue.iso8601ToCalendar(dateString);
 	    } catch (ParseException e) {
 	      throw new IllegalArgumentException(
 	          "could not parse date string from checkPoint string: " + dateString);
@@ -342,7 +354,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	  private String makeCheckpointQueryString(String uuid, Calendar c)
       throws RepositoryException {
 
-		  String time = SimpleValue.calendarToIso8601(c);
+		  String time = DctmSimpleValue.calendarToIso8601(c);
 		  Object[] arguments = { time };
 		  String statement = MessageFormat.format(boundedTraversalQuery,arguments);
 		  return statement;
