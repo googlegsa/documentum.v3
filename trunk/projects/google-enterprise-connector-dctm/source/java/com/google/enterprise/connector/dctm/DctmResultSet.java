@@ -3,6 +3,8 @@ package com.google.enterprise.connector.dctm;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.ResultSet;
@@ -24,11 +26,21 @@ import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
-public class DctmResultSet implements ResultSet{
+public class DctmResultSet extends LinkedList implements ResultSet{
 	
+	public DctmResultSet(){
+		super();
+	}
 	
-	public Iterator iterator() throws RepositoryException{
-		Iterator ite=null;
+	public DctmResultSet(Collection co){
+		super(co);
+	}
+	
+	public Iterator iterator(){
+		ListIterator ite=listIterator(0);
 		return ite;
 	}
+	
+	
+	
 }
