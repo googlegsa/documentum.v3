@@ -44,7 +44,7 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 		  int userPermit=0;
 		  boolean result = false;
 		  SimpleResultSet docresu=null;
-		  SimplePropertyMap docmap=null;
+		  DctmPropertyMap docmap=null;
 		  
 			  for(i=0;i<=docidList.size();i++){
 				  objIDEnCours=docidList.get(i).toString();
@@ -52,7 +52,7 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 				  userPermit=objectauto.getPermitEx(username);
 				  result = userPermit > IDfACL.DF_PERMIT_BROWSE;
 				  if (result){
-					  docmap=new SimplePropertyMap();
+					  docmap=new DctmPropertyMap();
 					  docmap.put(SpiConstants.PROPNAME_DOCID,((IDctmSysObject)objectauto).getObjectId());
 					  //docmap.put(objectauto.getObjectName());
 					  docmap.put(SpiConstants.PROPNAME_CONTENT,((IDctmSysObject)objectauto).getContent());
