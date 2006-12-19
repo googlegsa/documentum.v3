@@ -1,7 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-import com.documentum.fc.client.DfClient;
-import com.documentum.fc.common.DfLoginInfo;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLocalClient;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
