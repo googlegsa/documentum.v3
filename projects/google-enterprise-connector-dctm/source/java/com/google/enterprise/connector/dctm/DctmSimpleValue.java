@@ -149,7 +149,7 @@ public class DctmSimpleValue implements Value {
   private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
   private static final SimpleDateFormat ISO8601_DATE_FORMAT =
-      new SimpleDateFormat("yyyy-MM-dd'T'");
+      new SimpleDateFormat("yyyy-MM-dd");
   public static final SimpleDateFormat RFC822_DATE_FORMAT =
       new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss z");
 
