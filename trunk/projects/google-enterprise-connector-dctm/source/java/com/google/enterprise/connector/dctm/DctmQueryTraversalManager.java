@@ -48,17 +48,17 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	
 	
 	public DctmQueryTraversalManager() {
-		DFC_MOCK_instanciator.initialize();
-		this.unboundedTraversalQuery = DFC_MOCK_instanciator.QUERY_STRING_UNBOUNDED_DEFAULT;
-		this.boundedTraversalQuery = DFC_MOCK_instanciator.QUERY_STRING_BOUNDED_DEFAULT;
+		DctmInstantiator.initialize();
+		this.unboundedTraversalQuery = DctmInstantiator.QUERY_STRING_UNBOUNDED_DEFAULT;
+		this.boundedTraversalQuery = DctmInstantiator.QUERY_STRING_BOUNDED_DEFAULT;
 	}
 	
 	
 	public DctmQueryTraversalManager(IDctmSession iDctmSes) {
-		DFC_MOCK_instanciator.initialize();
+		DctmInstantiator.initialize();
 		setIDctmSession(iDctmSes);
-		this.unboundedTraversalQuery = DFC_MOCK_instanciator.QUERY_STRING_UNBOUNDED_DEFAULT;
-		this.boundedTraversalQuery = DFC_MOCK_instanciator.QUERY_STRING_BOUNDED_DEFAULT;
+		this.unboundedTraversalQuery = DctmInstantiator.QUERY_STRING_UNBOUNDED_DEFAULT;
+		this.boundedTraversalQuery = DctmInstantiator.QUERY_STRING_BOUNDED_DEFAULT;
 	}
 	
 	/**
@@ -304,7 +304,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		IQuery query = null;
 		
 		//query=(IQuery)Class.forName(QUERY_CLASS_NAME).newInstance();
-		DFC_MOCK_instanciator instant=new DFC_MOCK_instanciator();
+		DctmInstantiator instant=new DctmInstantiator();
 		query=instant.getIQueryObject();
 		query.setDQL(queryString);
 		return query;
