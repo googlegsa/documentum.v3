@@ -4,6 +4,7 @@
 	<bean id="DctmConnectorInstance"
 		class="com.google.enterprise.connector.dctm.DctmConnector">
 		<property name="repository" value="gdoc" />
+		<property name="login" value="emilie" />
+		<property name="password" value="emilie2" />
 	</bean>
-
 </beans>
