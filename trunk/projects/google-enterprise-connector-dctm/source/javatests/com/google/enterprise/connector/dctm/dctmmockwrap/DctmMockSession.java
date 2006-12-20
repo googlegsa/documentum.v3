@@ -16,7 +16,6 @@ public class DctmMockSession implements ISession {
 	
 	private MockRepository mockRep;
 	private MockRepositoryEventList mrel;
-	private MockRepository r;
 	private QueryManager qm;
 	
 	public ISysObject getObjectByQualification(String qualification){
