@@ -6,6 +6,7 @@ import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
+//import com.google.enterprise.connector.test.QueryTraversalUtil;
 import com.google.enterprise.connector.dctm.QueryTraversalUtil;
 
 public class DctmQueryTraversalUtilCall {
