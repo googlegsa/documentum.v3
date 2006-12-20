@@ -12,6 +12,7 @@ import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 public class DctmMockQuery implements IQuery {
 	MockJcrQuery queryStr;
 	String Query;
+	private int DF_READ_QUERY;
 	
 	public ICollection execute(ISession session, int queryType){
 		try{
@@ -25,10 +26,10 @@ public class DctmMockQuery implements IQuery {
 		}
 	}
 	public int getDF_READ_QUERY(){
-		return 0;
+		return DF_READ_QUERY;
 	}
 	public void setDF_READ_QUERY(int i){
-		//Nothing to do
+		DF_READ_QUERY=i;
 	}
 	public void setDQL(String dqlStatement){
 		this.Query=dqlStatement;
