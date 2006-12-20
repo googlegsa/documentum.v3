@@ -25,6 +25,8 @@ public class DctmSession implements Session{
 	  public DctmSession(){
 		  	IDctmLoginInfo dctmLoginInfo=null;
 		  	docbase="gdoc";
+		  	
+		  	
 		  	dctmClient=new IDctmClient();
 		  	dctmLocalClient=dctmClient.getLocalClientEx();
 		  	dctmsessionmanager=dctmLocalClient.newSessionManager(); 
