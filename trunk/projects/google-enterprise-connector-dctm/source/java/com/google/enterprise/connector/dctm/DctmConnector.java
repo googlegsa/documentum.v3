@@ -18,11 +18,33 @@ import com.google.enterprise.connector.spi.SpiConstants;
 public class DctmConnector implements Connector{
 
 	private String repoName;
+	private String login;
+	private String password;
 	
 	public void setRepository(String repoName) {
 	   this.repoName=repoName;
 	}
+	
+	public void setLogin(String login) {
+		   this.login=login;
+	}
+	
+	public void setPassword(String password) {
+		   this.password=password;
+	}
 
+	public String getRepository(){
+		return repoName;
+	}
+	
+	public String getLogin(){
+		return login;
+	}
+	
+	public String getPassword(){
+		return password;
+	}
+	
 	public Session login() throws LoginException{
 		Session sess=null;
 		sess=new DctmSession();
