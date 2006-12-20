@@ -2,9 +2,7 @@ package com.google.enterprise.connector.dctm;
 
 import java.io.ByteArrayInputStream;
 
-import com.documentum.fc.client.DfAuthenticationException;
-import com.documentum.fc.client.DfServiceException;
-import com.documentum.fc.client.IDfSession;
+
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.spi.Connector;
