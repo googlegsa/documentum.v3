@@ -8,21 +8,27 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 
 public class IDctmValue implements IValue{
-	IDfValue dfValue;
+	IDfValue idfValue;
 	
-	public IDctmValue(IDfValue dfValue){
-		this.dfValue=dfValue;
+	public IDctmValue(IDfValue idfValue){
+		this.idfValue=idfValue;
 	}
 	
 	public String asString(){
 		String rep=null;
-		rep=dfValue.asString();
+		rep=idfValue.asString();
 		return(rep);
 	}
 	
 	public ITime asTime(){
 		IDfTime idfTime=null;
-		idfTime=dfValue.asTime();
+		idfTime=idfValue.asTime();
 		return new IDctmTime(idfTime);
+	}
+	
+	public int getDataType(){
+		int rep=0;
+		rep=idfValue.getDataType();
+		return(rep);
 	}
 }
