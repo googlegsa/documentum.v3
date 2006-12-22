@@ -27,8 +27,8 @@ public class DctmQTMUtilCallTest extends TestCase {
 		try{
 			sess=(DctmSession)myconn.login();
 		
-			qtm= new DctmQueryTraversalManager();
 			qtm=(DctmQueryTraversalManager)sess.getQueryTraversalManager(); 
+			
 			
 			QueryTraversalUtil.runTraversal(qtm, 0);
 			
