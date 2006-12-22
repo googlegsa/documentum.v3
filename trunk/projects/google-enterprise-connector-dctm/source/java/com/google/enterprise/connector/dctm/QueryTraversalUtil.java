@@ -61,7 +61,7 @@ public class QueryTraversalUtil {
     
     System.out.println("resultset not null");  
 
-    ///while (true) {
+    while (true) {
     	 System.out.println("always true");	
       int counter = 0;
      
@@ -83,6 +83,7 @@ public class QueryTraversalUtil {
           // this test program only takes batchHint results from each
           // resultSet. The real connector manager may take fewer - for
           // example, if it receives a shutdown request
+          //suggestion d'ajout : counter = 0;	
           break;
         }
         
@@ -91,7 +92,7 @@ public class QueryTraversalUtil {
       if (counter == 0) {
         // this test program stops if it receives zero results in a resultSet.
         // the real connector Manager might wait a while, then try again
-        ///break;
+        break;
       }
 
       String checkPointString = queryTraversalManager.checkpoint(pm);
@@ -110,7 +111,7 @@ public class QueryTraversalUtil {
       // Or, it may be running this connector on a schedule and there may be a
       // scheduled pause.
     }
-  ///}
+  }
 
   public static void processOneDocument(PropertyMap pm) throws RepositoryException {
 	  System.out.println("processOneDocument");  
