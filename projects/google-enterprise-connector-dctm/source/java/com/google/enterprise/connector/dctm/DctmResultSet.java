@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.ResultSet;
 import com.documentum.fc.client.DfAuthenticationException;

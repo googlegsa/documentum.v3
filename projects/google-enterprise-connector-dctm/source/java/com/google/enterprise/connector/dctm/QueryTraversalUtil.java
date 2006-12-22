@@ -43,7 +43,7 @@ public class QueryTraversalUtil {
     queryTraversalManager.setBatchHint(batchHint);
    
     ResultSet resultSet = queryTraversalManager.startTraversal();
-    //int nb=resultSet.size();
+    ///int nb=resultSet.size();
     //System.out.println("nb vaut "+nb);	
     // The real connector manager will not always start from the beginning.
     // It will start from the beginning if it receives an explicit admin
@@ -61,38 +61,45 @@ public class QueryTraversalUtil {
     
     System.out.println("resultset not null");  
 
-    while (true) {
+    ///while (true) {
     	 System.out.println("always true");	
       int counter = 0;
+     
       PropertyMap pm = null;
       Iterator it = resultSet.iterator();
+      /*
       boolean truc =it.hasNext();
       System.out.println("truc vaut "+truc);	
+      */
       for (Iterator iter = resultSet.iterator(); iter.hasNext();) {
-    	System.out.println("inside iterator");   
+    	System.out.println("counter vaut "+counter);	
         pm = (PropertyMap) iter.next ();
         System.out.println("before process");  
         processOneDocument(pm);
         counter++;
-        /*
+        
         if (counter == batchHint) {
+        	System.out.println("counter == batchhint !!!!");
           // this test program only takes batchHint results from each
           // resultSet. The real connector manager may take fewer - for
           // example, if it receives a shutdown request
           break;
         }
-        */
+        
       }
 
       if (counter == 0) {
         // this test program stops if it receives zero results in a resultSet.
         // the real connector Manager might wait a while, then try again
-        break;
+        ///break;
       }
 
       String checkPointString = queryTraversalManager.checkpoint(pm);
       System.out.println("checkPOintString vaut "+checkPointString);
-      resultSet = (SimpleResultSet)queryTraversalManager.resumeTraversal(checkPointString);
+      
+      resultSet = queryTraversalManager.resumeTraversal(checkPointString);
+      System.out.println("after ResultSet");
+      
       // the real connector manager will call checkpoint (as here) as soon
       // as possible after processing the last property map it wants to process.
       // It would then store the checkpoint string it received in persistent
@@ -103,7 +110,7 @@ public class QueryTraversalUtil {
       // Or, it may be running this connector on a schedule and there may be a
       // scheduled pause.
     }
-  }
+  ///}
 
   public static void processOneDocument(PropertyMap pm) throws RepositoryException {
 	  System.out.println("processOneDocument");  
@@ -154,6 +161,7 @@ public class QueryTraversalUtil {
     // here the real content manager would format the document as
     // required by the feed API and send it to the GSA.
     System.out.println("Document " + name);
+    ///System.out.println("Document ");
     System.out.println("Content");
     System.out.println(contentSnippet);
   }

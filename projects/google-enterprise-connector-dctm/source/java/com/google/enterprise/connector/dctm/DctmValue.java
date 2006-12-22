@@ -47,10 +47,18 @@ public class DctmValue implements Value {
   public DctmValue(ValueType t, byte[] v) {
     this.type = t;
     this.stringValue = null;
+    this.byteArrayValue = v;
+    
+    ///this.byteArrayValue = (byte[])v.clone();
+    /*
+    en commentaire car changement de méthode pour éviter OutOfMemory error
     this.byteArrayValue = new byte[v.length];
     for (int i=0; i<v.length; i++) {
       this.byteArrayValue[i] = v[i];
     }
+    */
+    
+    
   }
 
   /*
@@ -183,7 +191,8 @@ public class DctmValue implements Value {
    */
   public static String calendarToIso8601(Calendar c) {
     Date d = c.getTime();
-    String isoString = ISO8601_DATE_FORMAT_MILLIS.format(d);
+    ///String isoString = ISO8601_DATE_FORMAT_MILLIS.format(d);
+    String isoString = ISO8601_DATE_FORMAT.format(d);
     return isoString;
   }
 
