@@ -25,7 +25,7 @@ public class DctmMockCollection implements ICollection {
 	}
 	
 	//Needed as next() is called in DctmQTM. Will no longer be needed soon:
-	//BuildResSet method intends to avoid the necessity of parsing the collection
+	//buildResultSet() method intends to avoid the necessity of parsing the collection
 	//in a class common to DFC and Mock but rather in the Collection object (this)
 	public boolean next(){
 		if (collection.hasNext()){
