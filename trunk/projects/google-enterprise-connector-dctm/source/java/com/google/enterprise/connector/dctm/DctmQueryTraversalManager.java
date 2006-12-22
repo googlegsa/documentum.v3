@@ -25,6 +25,7 @@ import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmValue;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
+import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
@@ -40,7 +41,12 @@ import com.google.enterprise.connector.spi.ValueType;
 import com.google.enterprise.connector.spi.ResultSet;
 
 public class DctmQueryTraversalManager implements QueryTraversalManager{
-	ISession idctmses;
+	
+	IClient client;
+	String sessionID;
+	///ILocalClient localClient;
+	
+	ISession session;
 	
 	public static String QUERY_CLASS_NAME="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery";
 	
@@ -48,19 +54,46 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	private String boundedTraversalQuery;
 	
 	
-	public DctmQueryTraversalManager() {
+	protected void setClient(IClient client){
+		this.client=client;
+	}
+	
+	protected IClient getClient(){
+		return client;
+	}
+
+	protected void setSessionID(String sessionID){
+		this.sessionID=sessionID;
+	}
+	
+	protected String getSessionID(){
+		return sessionID;
+	}
+
+	private void setSession(){
+		ILocalClient localClient=client.getLocalClientEx();
+		session=localClient.findSession(sessionID); 
+	}
+	
+	protected ISession getSession(){
+		return session;
+	}
+	
+	
+	
+	
+	
+	
+	public DctmQueryTraversalManager(IClient client,String sessionID) {
+		setClient(client);
+		setSessionID(sessionID);
+		setSession();
 		DctmInstantiator.initialize();
 		this.unboundedTraversalQuery = DctmInstantiator.QUERY_STRING_UNBOUNDED_DEFAULT;
 		this.boundedTraversalQuery = DctmInstantiator.QUERY_STRING_BOUNDED_DEFAULT;
 	}
 	
-	
-	public DctmQueryTraversalManager(IDctmSession iDctmSes) {
-		DctmInstantiator.initialize();
-		setIDctmSession(iDctmSes);
-		this.unboundedTraversalQuery = DctmInstantiator.QUERY_STRING_UNBOUNDED_DEFAULT;
-		this.boundedTraversalQuery = DctmInstantiator.QUERY_STRING_BOUNDED_DEFAULT;
-	}
+
 	
 	/**
 	 * Starts (or restarts) traversal from the beginning. This action will return
@@ -107,8 +140,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		IDctmValue val=null;
 		ITime itime=null;
 		
-		query=makeCheckpointQuery(unboundedTraversalQuery);
 		
+		
+		query=makeCheckpointQuery(unboundedTraversalQuery);
+		System.out.println("query vaut "+unboundedTraversalQuery);
+		System.out.println("query vaut "+query);
 		col=execQuery(query);
 		
 		resu=new DctmResultSet(); 
@@ -140,14 +176,14 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 			vlDate=new DctmValue(ValueType.DATE,modifDate);
 			pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
 			
-			dctmSysObj = (IDctmSysObject)idctmses.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
+			dctmSysObj = (IDctmSysObject)session.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
 			dctmForm = (IDctmFormat)dctmSysObj.getFormat();
 			
 			if(dctmForm.canIndex()){
 				content=dctmSysObj.getContent();
 				mimetype=dctmForm.getMIMEType();
 				size=new Long(dctmSysObj.getContentSize()).intValue();
-				
+			
 				bufContent = new byte[size];
 				ByteArrayOutputStream output=new ByteArrayOutputStream(); 
 				try{
@@ -274,7 +310,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 			vlDate=new DctmValue(ValueType.DATE,modifDate);
 			pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
 			
-			dctmSysObj = (IDctmSysObject)idctmses.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
+			dctmSysObj = (IDctmSysObject)session.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
 			
 			dctmForm = (IDctmFormat)dctmSysObj.getFormat();
 			
@@ -289,6 +325,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 				///System.out.println("taille vaut "+size+" available vaut "+truc);
 				
 				System.out.println("taille vaut "+size);
+				
 				bufContent = new byte[size];
 				
 				ByteArrayOutputStream output=new ByteArrayOutputStream(); 
@@ -314,14 +351,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 				if(bufContent.length>0){
 					///ligne qui plante
 					
-					///vlCont=new DctmValue(ValueType.BINARY,bufContent);
-					///pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,new DctmValue(ValueType.BINARY,bufContent)));
-				}
-				/*else{
+					vlCont=new DctmValue(ValueType.BINARY,bufContent);
+					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
+					///pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,new DctmValue(ValueType.BINARY,bufContent)));
+				}else{
 					vlCont=new DctmValue(ValueType.BINARY,"");
 					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-				}*/
+				}
 				
 			}
 			
@@ -392,25 +428,16 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		;
 	}
 	
-	private String CreateQuery(){
-		String query;
-		query="select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_creator_name!='Administrator' order by r_modify_date, i_chronicle_id";
-		return(query);
-	}
+	
 	
 	public ICollection execQuery(IQuery query) {
 		ICollection dctmCollection = null; // Collection for the result
-		dctmCollection = query.execute(idctmses, IDctmQuery.DF_READ_QUERY);
+		//dctmCollection = query.execute(session, IDctmQuery.DF_READ_QUERY);
+		dctmCollection = query.execute(session, 0);
 		return dctmCollection;
 	}
 	
-	public ISession getIdctmses() {
-		return idctmses;
-	}
 	
-	public void setIDctmSession(IDctmSession idctmses) {
-		this.idctmses = idctmses;
-	}
 	
 	
 	private Value fetchAndVerifyValueForCheckpoint(PropertyMap pm, String pName)
@@ -432,9 +459,14 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		IQuery query = null;
 		
 		//query=(IQuery)Class.forName(QUERY_CLASS_NAME).newInstance();
-		DctmInstantiator instant=new DctmInstantiator();
-		query=instant.getIQueryObject();
+		
+		
+		//query=DctmInstantiator.getIQueryObject();
+		//query.setDQL(queryString);
+		
+		query=client.getQuery();
 		query.setDQL(queryString);
+		
 		return query;
 	}
 	
