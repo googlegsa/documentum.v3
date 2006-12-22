@@ -7,6 +7,7 @@ import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.dctm.QueryTraversalUtil;
+//import com.google.enterprise.connector.test.QueryTraversalUtil;
 
 public class DctmQueryTraversalUtilCall {
 	public static void main(String[] args){
@@ -18,13 +19,18 @@ public class DctmQueryTraversalUtilCall {
 		
 		myconn=new DctmConnector();
 		
+		((DctmConnector)myconn).setLogin("emilie");
+		((DctmConnector)myconn).setPassword("emilie2");
+		((DctmConnector)myconn).setDocbase("gdoc");
+		
+		
 		try{
 			sess=(DctmSession)myconn.login();
 		
-			qtm= new DctmQueryTraversalManager();
+			//qtm= new DctmQueryTraversalManager();
 			qtm=(DctmQueryTraversalManager)sess.getQueryTraversalManager(); 
 			
-			QueryTraversalUtil.runTraversal(qtm, 0);
+			QueryTraversalUtil.runTraversal(qtm, 15);
 			
 		}catch(LoginException le){
 			le.getMessage();
