@@ -7,6 +7,8 @@ public interface ISession{
 	public void authenticate(ILoginInfo loginInfo);
 	
 	public ISysObject getObject(IId objectId);
+	
+	public String getSessionId();
 
 	//IDfSession machin =new IDctmSession(); 
 /*
