@@ -20,6 +20,18 @@ public class IDctmSession implements ISession{
 		this.idfSession=DfSession;
 	}
 	
+	
+	public String getSessionId(){
+		String IDSess=null;
+		try{
+			IDSess=idfSession.getSessionId();
+		}catch(DfException de){
+			de.getMessage();
+		}
+		return IDSess;
+		
+	}
+	
 	public ISysObject getObject(IId objectId){
 		if (!(objectId instanceof IDctmId)) {
 			throw new IllegalArgumentException();
@@ -62,7 +74,6 @@ public class IDctmSession implements ISession{
 	public IDfSession getDfSession() {
 		return idfSession;
 	}
-	
 	
 	
 	public void setDfSession(IDfSession dfSession) {
