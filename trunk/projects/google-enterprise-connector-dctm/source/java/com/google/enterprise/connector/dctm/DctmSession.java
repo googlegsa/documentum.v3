@@ -7,6 +7,7 @@ import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.AuthenticationManager;
@@ -16,33 +17,60 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
 public class DctmSession implements Session{
-	IClient dctmClient;
-	ILocalClient dctmLocalClient;
-	ISessionManager dctmsessionmanager;
-	ISession dctmsession;
+	IClient client;
+	ILocalClient localClient;
+	ISessionManager sessionManager;
+	ISession session;
+	
 	String docbase;
 	
+	
+	
 	  public DctmSession(){
-		  	IDctmLoginInfo dctmLoginInfo=null;
+		  	ILoginInfo dctmLoginInfo=null;
+		  	/*
+		  	ILocalClient dctmLocalClient=null;
+			ISessionManager dctmsessionmanager=null;
+			ISession dctmsession=null;
+		  	*/
+		  	
 		  	docbase="gdoc";
-		  	
-		  	
-		  	dctmClient=new IDctmClient();
-		  	dctmLocalClient=dctmClient.getLocalClientEx();
-		  	dctmsessionmanager=dctmLocalClient.newSessionManager(); 
+		  	localClient=client.getLocalClientEx();
+		  	sessionManager=localClient.newSessionManager(); 
 		  	dctmLoginInfo=new IDctmLoginInfo();
 		  	dctmLoginInfo.setUser("emilie");
 		  	dctmLoginInfo.setPassword("emilie2");
-		  	dctmsessionmanager.setIdentity(docbase,dctmLoginInfo);
-		  	dctmsession=dctmsessionmanager.newSession(docbase);
+		  	sessionManager.setIdentity(docbase,dctmLoginInfo);
+		  	session=sessionManager.newSession(docbase);
 	  }
 	
-	
+	  public DctmSession(IClient client, String login, String password, String docbase){
+		  	ILoginInfo dctmLoginInfo=null;
+		  	/*
+		  	ILocalClient dctmLocalClient=null;
+			ISessionManager dctmsessionmanager=null;
+			ISession dctmsession=null;
+		  	*/
+		  	setClient(client);
+		  	localClient=client.getLocalClientEx();
+		  	sessionManager=localClient.newSessionManager(); 
+		  	dctmLoginInfo=new IDctmLoginInfo();
+		  	dctmLoginInfo.setUser(login);
+		  	dctmLoginInfo.setPassword(password);
+		  	sessionManager.setIdentity(docbase,dctmLoginInfo);
+		  	session=sessionManager.newSession(docbase);
+	  }
+	  
+	  
+	  
 	  public QueryTraversalManager getQueryTraversalManager(){
-		  DctmQueryTraversalManager DctmQtm=new DctmQueryTraversalManager();
-		  DctmQtm.setIDctmSession((IDctmSession)dctmsession);
+		  DctmQueryTraversalManager DctmQtm=new DctmQueryTraversalManager(client,session.getSessionId());
+		  ///DctmQtm.setIDctmSession((IDctmSession)dctmsession);
 		  return DctmQtm;
 	  }
+	  
+	  
+	  
 	  
 	  /**
 	   * Gets an AuthenticationManager.  It is permissible to return null.  
@@ -80,16 +108,16 @@ public class DctmSession implements Session{
 	  }
 
 
-	public IClient getIClient() {
-		return dctmClient;
+	public IClient getClient() {
+		return client;
 	}
 
 
-	public void setIClient(IDctmClient dctmClient) {
-		this.dctmClient = dctmClient;
+	public void setClient(IClient client) {
+		this.client = client;
 	}
 
-
+/*
 	public ILocalClient getDctmLocalClient() {
 		return dctmLocalClient;
 	}
@@ -111,4 +139,6 @@ public class DctmSession implements Session{
 	public void setISessionmanager(IDctmSessionManager dctmsessionmanager) {
 		this.dctmsessionmanager = dctmsessionmanager;
 	}
+	
+	*/
 }
