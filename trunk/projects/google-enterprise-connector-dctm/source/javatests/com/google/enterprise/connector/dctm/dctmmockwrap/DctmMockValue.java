@@ -6,6 +6,12 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 
 public class DctmMockValue implements IValue {
+	
+	/**
+	 * Will probably no longer be required soon as values are processed 
+	 * respectively in the dctmmockwrap and in the dctmdfcwrap packages
+	 * (probably in the objectimplementing ICollection).
+	 */
 	Property property;
 	
 	public DctmMockValue(Property prop){
