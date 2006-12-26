@@ -12,7 +12,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 
 public class IDctmQuery implements IQuery{
 	IDfQuery idfQuery;
-	public static int DF_READ_QUERY=IDfQuery.DF_READ_QUERY; 
+	public static int DF_READ_QUERY = IDfQuery.DF_READ_QUERY; 
 	
 	public IDctmQuery(IDfQuery idfQuery){
 		this.idfQuery=idfQuery;

@@ -24,4 +24,6 @@ public class IDctmTypedObject implements ITypedObject{
 		}
 		return new IDctmId(idfId);
 	}
+	
+	
 }

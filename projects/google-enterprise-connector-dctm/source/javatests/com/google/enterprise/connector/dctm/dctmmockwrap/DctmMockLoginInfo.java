@@ -18,4 +18,12 @@ public class DctmMockLoginInfo implements ILoginInfo {
 	public void setPassword(String pwd){
 		this.password=pwd;
 	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public String getPassword() {
+		return password;
+	}
 }

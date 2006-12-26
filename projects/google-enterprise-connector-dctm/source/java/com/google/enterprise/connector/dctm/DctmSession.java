@@ -1,10 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLocalClient;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -33,15 +30,15 @@ public class DctmSession implements Session{
 			ISessionManager dctmsessionmanager=null;
 			ISession dctmsession=null;
 		  	*/
-		  	
-		  	docbase="gdoc";
-		  	localClient=client.getLocalClientEx();
-		  	sessionManager=localClient.newSessionManager(); 
-		  	dctmLoginInfo=new IDctmLoginInfo();
+		  	client = new IDctmClient();
+		  	docbase = "gdoc";
+		  	localClient = client.getLocalClientEx();
+		  	sessionManager = localClient.newSessionManager(); 
+		  	dctmLoginInfo = new IDctmLoginInfo();
 		  	dctmLoginInfo.setUser("emilie");
 		  	dctmLoginInfo.setPassword("emilie2");
 		  	sessionManager.setIdentity(docbase,dctmLoginInfo);
-		  	session=sessionManager.newSession(docbase);
+		  	session = sessionManager.newSession(docbase);
 	  }
 	
 	  public DctmSession(IClient client, String login, String password, String docbase){
@@ -64,7 +61,9 @@ public class DctmSession implements Session{
 	  
 	  
 	  public QueryTraversalManager getQueryTraversalManager(){
+		  
 		  DctmQueryTraversalManager DctmQtm=new DctmQueryTraversalManager(client,session.getSessionId());
+		  
 		  ///DctmQtm.setIDctmSession((IDctmSession)dctmsession);
 		  return DctmQtm;
 	  }
@@ -85,7 +84,7 @@ public class DctmSession implements Session{
 	   * @throws RepositoryException
 	   */
 	  public AuthenticationManager getAuthenticationManager() {
-		  AuthenticationManager DctmAm=new DctmAuthenticationManager();
+		  AuthenticationManager DctmAm = new DctmAuthenticationManager(getSession(),getClient());
 		  return DctmAm;
 	  }
 	  
@@ -103,7 +102,7 @@ public class DctmSession implements Session{
 	   * @throws RepositoryException
 	   */
 	  public AuthorizationManager getAuthorizationManager(){
-		  AuthorizationManager DctmAzm=new DctmAuthorizationManager();
+		  AuthorizationManager DctmAzm=new DctmAuthorizationManager(getSession(),getClient());
 		  return DctmAzm;
 	  }
 
@@ -115,6 +114,14 @@ public class DctmSession implements Session{
 
 	public void setClient(IClient client) {
 		this.client = client;
+	}
+
+	public ISession getSession() {
+		return session;
+	}
+
+	public void setSession(ISession session) {
+		this.session = session;
 	}
 
 /*

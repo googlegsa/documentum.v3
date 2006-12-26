@@ -1,11 +1,10 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.documentum.fc.client.IDfCollection;
-import com.documentum.fc.client.IDfPersistentObject;
-import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfValue;
@@ -53,4 +52,28 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection{
 	public IDfCollection getIDfCollection(){
 		return idfCollection;
 	}
+	
+	public IId getObjectId(){
+		IId id = null;
+		try {
+			id = new IDctmId(this.idfCollection.getObjectId());
+		} catch (DfException e) {
+			// TODO Auto-generated catch block
+			e.getMessage();
+		}
+		return id ;
+	}
+	
+	public String getString(String colName) {
+		try {
+			return this.idfCollection.getString(colName);
+		} catch (DfException e) {
+			
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	
 }
