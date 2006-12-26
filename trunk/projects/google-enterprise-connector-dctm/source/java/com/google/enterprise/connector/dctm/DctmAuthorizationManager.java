@@ -1,30 +1,19 @@
 package com.google.enterprise.connector.dctm;
+
 import java.util.List;
 
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmFormat;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmId;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSysObject;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
+import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
+import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.*;
-import com.google.enterprise.connector.spi.*;
-import com.documentum.fc.client.DfAuthenticationException;
-import com.documentum.fc.client.DfClient;
-import com.documentum.fc.client.DfIdentityException;
-import com.documentum.fc.client.DfPrincipalException;
-import com.documentum.fc.client.DfServiceException;
-import com.documentum.fc.client.IDfACL;
-import com.documentum.fc.client.IDfClient;
-import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.client.IDfSessionManager;
-import com.documentum.fc.client.IDfSysObject;
-import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.DfId;
-import com.documentum.fc.common.DfLoginInfo;
-import com.documentum.fc.common.IDfLoginInfo;
+
 
 public class DctmAuthorizationManager implements AuthorizationManager{
 	ISession session;
+	IClient client;
 	/**
 	 * @param args
 	 */
@@ -32,50 +21,70 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 		
 	}
 	
-	public DctmAuthorizationManager(ISession session){
+	public DctmAuthorizationManager(ISession session, IClient client){
 		setSession(session);
+		setClient(client);
 	}
 	
-	 public ResultSet authorizeDocids(List docidList, String username)
-	    throws RepositoryException{
-		 int i=0;
-		  String objIDEnCours=null;
-		  ISysObject objectauto=null;
-		  int userPermit=0;
-		  boolean result = false;
-		  SimpleResultSet docresu=null;
-		  DctmPropertyMap docmap=null;
-		  
-			  for(i=0;i<=docidList.size();i++){
-				  objIDEnCours=docidList.get(i).toString();
-				  objectauto = session.getObject(new IDctmId(objIDEnCours));
-				  userPermit=objectauto.getPermitEx(username);
-				  result = userPermit > IDfACL.DF_PERMIT_BROWSE;
-				  if (result){
-					  docmap=new DctmPropertyMap();
-					  docmap.put(SpiConstants.PROPNAME_DOCID,((IDctmSysObject)objectauto).getObjectId());
-					  //docmap.put(objectauto.getObjectName());
-					  docmap.put(SpiConstants.PROPNAME_CONTENT,((IDctmSysObject)objectauto).getContent());
-					  docmap.put(SpiConstants.PROPNAME_CONTENTURL,((IDctmSysObject)objectauto).getObjectId());
-					  //docresu.add();
-					  //"http://"+tabPartUrl[2]+"/webtop/drl/objectId"+"/"+tabPartUrl[6];
-				  }
-			  }
-		 
-			 return docresu;
-		 
-		 
-		 
-	 }
-	 
-	  public ResultSet authorizeTokens(List tokenList, String username)
-	    throws RepositoryException{
-		  ResultSet responses=null;
-			 return responses;
-	  }
-	  
-	  public void setSession(ISession session){
-			this.session=session;
+		
+	public ResultSet authorizeDocids(List docidList, String username)
+	throws RepositoryException{
+		int i=0;
+		DctmResultSet resultSet = null;
+		DctmPropertyMap docmap = null;
+		IQuery query = this.getClient().getQuery();
+		String dqlQuery ="select r_object_id from dm_document where r_object_id in (";
+		ICollection collec = null;
+		
+		
+		String ticket = session.getLoginTicketForUser(username);
+		ILoginInfo logInfo = new IDctmLoginInfo();
+		logInfo.setUser(username);
+		logInfo.setPassword(ticket);
+		ISession sessionUser = client.newSession("gdoc",logInfo);
+		
+		
+		for(i=0;i<docidList.size()-1;i++){
+			dqlQuery += "'" + docidList.get(i).toString() + "', ";
+			
+		}
+		dqlQuery += "'" + docidList.get(i).toString() + "')";
+		query.setDQL(dqlQuery);
+		collec = (ICollection) query.execute(sessionUser,IQuery.DF_READ_QUERY);
+		String ids = "";
+		while(collec!=null && collec.next()){
+			ids += collec.getString("r_object_id") + " ";
+		}
+		resultSet = new DctmResultSet();
+		for(i = 0; i < docidList.size() ; i++){
+			System.out.println("index " + i);
+			docmap = new DctmPropertyMap();
+			docmap.putProperty(new DctmProperty("PROPNAME_DOCID",docidList.get(i).toString()));
+			docmap.putProperty(new DctmProperty("PROPNAME_AUTH_VIEWPERMIT", (ids.indexOf(docidList.get(i).toString()) != -1)));
+			resultSet.add(docmap);
+		}
+		return resultSet;
+		
+		
+		
+	}
+	
+	public ResultSet authorizeTokens(List tokenList, String username)
+	throws RepositoryException{
+		ResultSet responses=null;
+		return responses;
+	}
+	
+	public void setSession(ISession session){
+		this.session=session;
 	}
 
+	public IClient getClient() {
+		return client;
+	}
+
+	public void setClient(IClient client) {
+		this.client = client;
+	}
+	
 }

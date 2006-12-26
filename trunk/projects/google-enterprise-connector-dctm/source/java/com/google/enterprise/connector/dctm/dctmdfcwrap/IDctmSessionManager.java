@@ -12,16 +12,16 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 
 public class IDctmSessionManager implements ISessionManager{
-	IDfSessionManager DfSessionManager;
+	IDfSessionManager dfSessionManager;
 	
 	public IDctmSessionManager (IDfSessionManager DfSessionManager){
-		this.DfSessionManager=DfSessionManager;
+		this.dfSessionManager=DfSessionManager;
 	}
 	
 	public ISession getSession(String docbase){
 		IDfSession DfSession=null;
 		try{
-			DfSession=DfSessionManager.getSession(docbase);
+			DfSession=dfSessionManager.getSession(docbase);
 		}catch(DfIdentityException di){
 			di.getMessage();
 		}catch(DfAuthenticationException da){
@@ -41,16 +41,16 @@ public class IDctmSessionManager implements ISessionManager{
 		IDctmLoginInfo dctmLoginInfo = (IDctmLoginInfo) identity;
 		IDfLoginInfo idfLoginInfo=dctmLoginInfo.getIdfLoginInfo();
 		try{
-			DfSessionManager.setIdentity(docbase,idfLoginInfo);
+			dfSessionManager.setIdentity(docbase,idfLoginInfo);
 		}catch(DfServiceException dse){
 			dse.getMessage();
 		}
 	}
 	
 	public ISession newSession(String docbase){
-		IDfSession idfSession=null;
+		IDfSession idfSession=null;	
 		try{
-			idfSession=DfSessionManager.newSession(docbase);
+			idfSession=dfSessionManager.newSession(docbase);	
 		}catch(DfIdentityException di){
 			di.getMessage();
 		}catch(DfAuthenticationException da){
@@ -62,5 +62,7 @@ public class IDctmSessionManager implements ISessionManager{
 		}
 		return new IDctmSession(idfSession);
 	}
+	
+	
 	
 }

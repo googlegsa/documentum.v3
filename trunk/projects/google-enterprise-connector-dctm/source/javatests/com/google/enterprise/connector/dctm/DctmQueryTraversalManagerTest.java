@@ -88,7 +88,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	}
 	
 	
-	/*
+	
 	public void testStartTraversal() throws RepositoryException{
 		
 		 SimpleResultSet resu=null;
@@ -178,7 +178,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		
 	}
 	
-	*/
+	
 
 	/*
 	 * Test method for 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.execQuery(String)'
@@ -378,7 +378,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	}
 	
 	
-	/*
+	
 	 public void testExecQuery() {
 		  	ICollection dctmCollection = null; // Collection for the result
 		  	IQuery query=null;
@@ -392,7 +392,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		  	dctmCollection = query.execute(idctmses, IDctmQuery.DF_READ_QUERY);
 			assertNotNull(dctmCollection);
 	}
-	 */
+	
 	
 	/*
 	 * Test method for 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.getIdctmses()'

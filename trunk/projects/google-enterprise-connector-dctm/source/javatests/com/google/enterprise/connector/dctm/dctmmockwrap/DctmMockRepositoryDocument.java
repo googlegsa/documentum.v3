@@ -47,4 +47,9 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 	public IId getObjectId(){
 		return new DctmMockId(mrDocument.getDocID());
 	}
+
+	public boolean findString(String value) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

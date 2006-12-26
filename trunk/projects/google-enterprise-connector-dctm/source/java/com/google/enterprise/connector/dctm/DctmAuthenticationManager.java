@@ -1,26 +1,12 @@
-
 package com.google.enterprise.connector.dctm;
+
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.*;
-import com.documentum.fc.client.DfAuthenticationException;
-import com.documentum.fc.client.DfClient;
-import com.documentum.fc.client.DfIdentityException;
-import com.documentum.fc.client.DfPrincipalException;
-import com.documentum.fc.client.DfServiceException;
-import com.documentum.fc.client.IDfACL;
-import com.documentum.fc.client.IDfClient;
-import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.client.IDfSessionManager;
-import com.documentum.fc.client.IDfSysObject;
-import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.DfId;
-import com.documentum.fc.common.DfLoginInfo;
-import com.documentum.fc.common.IDfLoginInfo;
+
 
 
 public class DctmAuthenticationManager implements AuthenticationManager {
@@ -36,8 +22,9 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	}
 	
 	
-	public DctmAuthenticationManager(ISession session){
+	public DctmAuthenticationManager(ISession session,IClient client){
 		setSession(session);
+		setClient(client);
 	}
 	
 	
@@ -48,35 +35,41 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	
 	public boolean authenticate(String username, String password)
     throws LoginException, RepositoryException{
+		setLoginInfo(username,password);
+		System.out.println("docbaseName "  + session.getDocbaseName());
+		client.authenticate (session.getDocbaseName(),getLoginInfo());
+		
+//		setLoginInfo(username,password);
+//		session.authenticate(getLoginInfo());
 		return true;
 	}
 	
-	public boolean authenticate(String username, String password, String docbase){
-		boolean authOK=false;
-		//try{
-			setLoginInfo(username,password);
-			System.out.println("après setlogininfo : username = "+username+" password = "+password);
-			
-			session.authenticate(loginInfo);
-			authOK=true;
-			
-			RepositoryException Re=new RepositoryException("erreur d'authentification");
-			System.out.println(Re.getMessage());
-			
-			//session = connection(username,password,docbase);
-			//authOK=true;
-		//}catch(DfAuthenticationException Dae){
-			//throw new LoginException();
-			//System.out.println("msg d'erreur vaut "+Dae);
-			//return false;
-		//}catch(DfServiceException Dse){
-			//System.out.println("msg d'erreur vaut "+Dse);
-			//return false;
-			//throw new RepositoryException();
-			
-		//}
-		return authOK;
-	}
+//	public boolean authenticate(String username, String password, String docbase){
+//		boolean authOK=false;
+//		//try{
+//			setLoginInfo(username,password);
+//			System.out.println("après setlogininfo : username = "+username+" password = "+password);
+//			
+//			session.authenticate(loginInfo);
+//			authOK=true;
+//			
+//			RepositoryException Re=new RepositoryException("erreur d'authentification");
+//			System.out.println(Re.getMessage());
+//			
+//			//session = connection(username,password,docbase);
+//			//authOK=true;
+//		//}catch(DfAuthenticationException Dae){
+//			//throw new LoginException();
+//			//System.out.println("msg d'erreur vaut "+Dae);
+//			//return false;
+//		//}catch(DfServiceException Dse){
+//			//System.out.println("msg d'erreur vaut "+Dse);
+//			//return false;
+//			//throw new RepositoryException();
+//			
+//		//}
+//		return authOK;
+//	}
 	
 	public void setSession(ISession session){
 		this.session=session;
@@ -88,6 +81,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		System.out.println("logininfo:"+username);
 		loginInfo.setPassword(password);
 		System.out.println("logininfo:"+password);
+		
 	}
 	
 	public ILoginInfo getLoginInfo(){
@@ -126,6 +120,16 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
 	}
 	*/
+
+
+	public IClient getClient() {
+		return client;
+	}
+
+
+	public void setClient(IClient client) {
+		this.client = client;
+	}
 	
 
 }

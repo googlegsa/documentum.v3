@@ -27,5 +27,13 @@ public class IDctmLoginInfo implements ILoginInfo{
 	public void setIdfLoginInfo(IDfLoginInfo idfLoginInfo) {
 		this.idfLoginInfo = idfLoginInfo;
 	}
+
+	public String getUser() {
+		return idfLoginInfo.getUser();
+	}
+
+	public String getPassword() {
+		return idfLoginInfo.getPassword();
+	}
 	
 }

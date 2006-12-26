@@ -10,6 +10,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.spi.LoginException;
 
 public class IDctmSession implements ISession{
 	//IDctmSession idm=new IDfSession();
@@ -58,18 +59,23 @@ public class IDctmSession implements ISession{
 		return new IDctmSysObject(idfSysObject);
 	}
 	
-	public void authenticate(ILoginInfo loginInfo){
-		if (!(loginInfo instanceof IDctmLoginInfo)) {
-			throw new IllegalArgumentException();
-		}
-		IDctmLoginInfo dctmLoginInfo = (IDctmLoginInfo) loginInfo;
-		IDfLoginInfo idfLoginInfo=dctmLoginInfo.getIdfLoginInfo();
-		try{
-			idfSession.authenticate(idfLoginInfo);
-		}catch(DfException de){
-			de.getMessage();
-		}
-	}
+//	public void authenticate(ILoginInfo loginInfo){
+//		if (!(loginInfo instanceof IDctmLoginInfo)) {
+//			throw new IllegalArgumentException();
+//		}
+//		IDctmLoginInfo dctmLoginInfo = (IDctmLoginInfo) loginInfo;
+//		IDfLoginInfo idfLoginInfo=dctmLoginInfo.getIdfLoginInfo();
+//		try{
+//			idfSession.authenticate(idfLoginInfo);
+//		}catch(DfException de){
+//			try {
+//				throw new LoginException(de.getMessage());
+//			} catch (LoginException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 
 	public IDfSession getDfSession() {
 		return idfSession;
@@ -79,9 +85,32 @@ public class IDctmSession implements ISession{
 	public void setDfSession(IDfSession dfSession) {
 		idfSession = dfSession;
 	}
+
+
+	public String getLoginTicketForUser(String username) {
+		String ticket = null;
+		try {
+			ticket = this.idfSession.getLoginTicketForUser(username);
+		} catch (DfException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ticket;
+	}
+
+
+	public String getDocbaseName() {
+		String docbaseName = null;
+		try {
+			docbaseName = this.idfSession.getDocbaseName();
+		} catch (DfException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return docbaseName;
+	}
 	
     
-	
 	
 	/*
 	public IDctmSession(String docbase){

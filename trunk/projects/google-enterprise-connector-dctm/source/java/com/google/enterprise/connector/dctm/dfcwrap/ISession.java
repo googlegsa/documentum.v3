@@ -1,14 +1,21 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
+import com.documentum.fc.common.DfException;
+
 public interface ISession{
 	
 	public ISysObject getObjectByQualification(String qualification);
 	
-	public void authenticate(ILoginInfo loginInfo);
+//	public void authenticate(ILoginInfo loginInfo);
 	
 	public ISysObject getObject(IId objectId);
 	
 	public String getSessionId();
+
+	public String getLoginTicketForUser(String username);
+
+	public String getDocbaseName();
+
 
 	//IDfSession machin =new IDctmSession(); 
 /*
