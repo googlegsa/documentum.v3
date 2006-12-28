@@ -5,8 +5,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 
 public class DctmInstantiator {
-	//That private static variable has to be valuated by Spring configuration? For the moment let's keep it hard coded.
-	private static final boolean isDFCavailable=true;
+	private static final boolean isDFCavailable=true;//How to detect that?
 	
 	public static String QUERY_STRING_UNBOUNDED_DEFAULT;
 	
