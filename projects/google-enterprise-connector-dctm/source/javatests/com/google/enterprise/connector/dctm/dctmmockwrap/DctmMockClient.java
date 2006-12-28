@@ -16,6 +16,33 @@ public class DctmMockClient implements IClient, ILocalClient {
 	public ISessionManager newSessionManager(){
 		return new DctmMockSessionManager();
 	}
+<<<<<<< .mine
+
+	public String getSessionForUser(String userName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IQuery getQuery() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ISession newSession(String string, ILoginInfo logInfo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void authenticate(String docbaseName, ILoginInfo loginInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public ISession findSession(String dfcSessionId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+=======
 
 	public String getSessionForUser(String userName) {
 		// TODO Auto-generated method stub
@@ -41,4 +68,5 @@ public class DctmMockClient implements IClient, ILocalClient {
 		// TODO Auto-generated method stub
 		
 	}
+>>>>>>> .r76
 }
