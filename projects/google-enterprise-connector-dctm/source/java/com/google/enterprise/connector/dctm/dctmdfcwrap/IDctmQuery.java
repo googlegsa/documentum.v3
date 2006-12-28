@@ -1,7 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.client.DfQuery;
-import com.documentum.fc.client.IDfACL;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;

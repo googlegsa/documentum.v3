@@ -76,7 +76,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	}
 	
 	public void setLoginInfo(String username,String password){
-		loginInfo = new IDctmLoginInfo();
+		loginInfo = new IDctmLoginInfo();/*todo jey*/
 		loginInfo.setUser(username);
 		System.out.println("logininfo:"+username);
 		loginInfo.setPassword(password);

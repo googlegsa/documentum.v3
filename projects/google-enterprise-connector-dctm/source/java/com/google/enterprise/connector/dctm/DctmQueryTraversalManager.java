@@ -111,109 +111,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	
 	
 	public ResultSet startTraversal() throws RepositoryException{
-		
-		DctmResultSet resu=null;
 		IQuery query=null;
-		ICollection col=null;
-		byte[]buf=null;
-		int count = 0;
-		
-		String modifDate=null;
-		String crID=null;
-		String mimetype=null;
-		
-		DctmValue vlDate=null;
-		DctmValue vlID=null;
-		DctmValue vlMime=null;
-		
-		
-		DctmPropertyMap pm=null;
-		
-		ByteArrayInputStream content=null;
-		
-		int size=0;
-		byte[] bufContent;
-		
-		//ISession dctmSes = getIdctmses();
-		ISysObject dctmSysObj = null;
-		IFormat dctmForm = null;
-		IDctmValue val=null;
-		ITime itime=null;
-		
-		
+		ResultSet resu=null;
 		
 		query=makeCheckpointQuery(unboundedTraversalQuery);
 		System.out.println("query vaut "+unboundedTraversalQuery);
 		System.out.println("query vaut "+query);
-		col=execQuery(query);
-		
-		resu=new DctmResultSet(); 
-		
-		while (col.next()){
-			pm=new DctmPropertyMap();
-			
-			crID = col.getValue("i_chronicle_id").asString();
-			int rep_Id=col.getValue("i_chronicle_id").getDataType();
-			
-			vlID=new DctmValue(ValueType.STRING,crID);
-			pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_DOCID,vlID));
-			
-			// System.out.println("r_modify_date "+col.getValue("r_modify_date"));
-			
-			/*
-			 modifDate = col.getValue("r_modify_date").asString();
-			 vlDate=new DctmSimpleValue(ValueType.DATE,modifDate);
-			 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
-			 */
-			
-			
-			val=(IDctmValue)col.getValue("r_modify_date");
-			int rep=val.getDataType();
-			itime=val.asTime();
-			modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
-			Date mydate=itime.getDate();
-			///System.out.println("modifdate vaut "+modifDate);
-			vlDate=new DctmValue(ValueType.DATE,modifDate);
-			pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
-			
-			dctmSysObj = (IDctmSysObject)session.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
-			dctmForm = (IDctmFormat)dctmSysObj.getFormat();
-			
-			if(dctmForm.canIndex()){
-				content=dctmSysObj.getContent();
-				mimetype=dctmForm.getMIMEType();
-				size=new Long(dctmSysObj.getContentSize()).intValue();
-			
-				bufContent = new byte[size];
-				ByteArrayOutputStream output=new ByteArrayOutputStream(); 
-				try{
-					
-					while ((count = content.read(bufContent)) > -1){
-						
-						output.write(bufContent, 0, count);
-					}
-					content.close();
-				}catch(IOException ie){
-					System.out.println(ie.getMessage());
-				}
-				//content.
-				DctmValue vlCont=null;
-				if(bufContent.length>0){
-					vlCont=new DctmValue(ValueType.BINARY,bufContent);
-					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-				}else{
-					vlCont=new DctmValue(ValueType.BINARY,"");
-					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-				}
-			}
-			
-			vlMime=new DctmValue(ValueType.STRING,mimetype);
-			pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
-			resu.add(pm);	 
-		}
-		int nb=resu.size();	
-		
-		System.out.println("nb vaut "+nb);
+		resu=execQuery(query);
 		return resu; 
 	}
 	
@@ -236,38 +140,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		
 		System.out.println("checkpoint vaut "+checkPoint);
 		//{"uuid":"0900045780030e40","lastModified":"2006-09-27"}
-		DctmResultSet resu=null;
 		JSONObject jo = null;
-		IQuery query=null;
-		ICollection col=null;
-		byte[]buf=null;
-		int count;
-		int rep_Id = 0;
-		int rep=0;
-		Date mydate=null;
-		
-		String modifDate=null;
-		String crID=null;
-		String mimetype=null;
-		
-		DctmValue vlDate=null;
-		DctmValue vlID=null;
-		DctmValue vlMime=null;
-		DctmValue vlCont=null;
-		
-		DctmPropertyMap pm=null;
-		
-		
-		ByteArrayInputStream content=null;
-		
-		int size=0;
-		byte[] bufContent;
-		
-		//ISession dctmSes = getIdctmses();
-		ISysObject dctmSysObj = null;
-		IFormat dctmForm = null;
-		IDctmValue val=null;
-		ITime itime=null;
+		ResultSet resu=null;
+
 		try {
 			jo = new JSONObject(checkPoint);
 		} catch (JSONException e) {
@@ -279,98 +154,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		String queryString = makeCheckpointQueryString(uuid, c);
 		System.out.println("queryString vaut "+queryString);
 		
-		query=makeCheckpointQuery(queryString);
-		col=execQuery(query);
-		resu=new DctmResultSet();
-		while (col.next()){
-			pm=new DctmPropertyMap();
-			
-			crID = col.getValue("i_chronicle_id").asString();
-			///rep_Id=col.getValue("i_chronicle_id").getDataType();
-			
-			vlID=new DctmValue(ValueType.STRING,crID);
-			pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_DOCID,vlID));
-			
-			// System.out.println("r_modify_date "+col.getValue("r_modify_date"));
-			
-			/*
-			 modifDate = col.getValue("r_modify_date").asString();
-			 vlDate=new DctmSimpleValue(ValueType.DATE,modifDate);
-			 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
-			 */
-			
-			
-			val=(IDctmValue)col.getValue("r_modify_date");
-			///rep=val.getDataType();
-			itime=val.asTime();
-			modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
-			mydate=itime.getDate();
-			
-			System.out.println("crID vaut "+crID+" : modifdate vaut "+modifDate);
-			vlDate=new DctmValue(ValueType.DATE,modifDate);
-			pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
-			
-			dctmSysObj = (IDctmSysObject)session.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
-			
-			dctmForm = (IDctmFormat)dctmSysObj.getFormat();
-			
-			if(dctmForm.canIndex()){
-				
-				content=dctmSysObj.getContent();
-				
-				mimetype=dctmForm.getMIMEType();
-				///size=new Long(dctmSysObj.getContentSize()).intValue();
-				size= content.available();
-				
-				///System.out.println("taille vaut "+size+" available vaut "+truc);
-				
-				System.out.println("taille vaut "+size);
-				
-				bufContent = new byte[size];
-				
-				ByteArrayOutputStream output=new ByteArrayOutputStream(); 
-				
-				
-						
-				try{
-					count = 0;
-					
-					while ((count = content.read(bufContent)) > -1){
-						
-						output.write(bufContent, 0, count);
-						
-					}
-					int taille_output=output.size();
-					System.out.println("taill output vaut "+taille_output);
-					content.close();
-				}catch(IOException ie){
-					System.out.println(ie.getMessage());
-				}
-				//content.
-				
-				if(bufContent.length>0){
-					///ligne qui plante
-					
-					vlCont=new DctmValue(ValueType.BINARY,bufContent);
-					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-					///pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,new DctmValue(ValueType.BINARY,bufContent)));
-				}else{
-					vlCont=new DctmValue(ValueType.BINARY,"");
-					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-				}
-				
-			}
-			
-			vlMime=new DctmValue(ValueType.STRING,mimetype);
-			pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
-			
-			
-			resu.add(pm);
-			System.out.println("dans boucle : nb vaut "+resu.size());
-		}
-		int nb=resu.size();	
-		
-		System.out.println("nb vaut "+nb);
+		IQuery query=makeCheckpointQuery(queryString);
+		resu=execQuery(query);
 
 		return resu; 
 	}
@@ -430,11 +215,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	
 	
 	
-	public ICollection execQuery(IQuery query) {
+	public ResultSet execQuery(IQuery query) {
 		ICollection dctmCollection = null; // Collection for the result
 		//dctmCollection = query.execute(session, IDctmQuery.DF_READ_QUERY);
 		dctmCollection = query.execute(session, 0);
-		return dctmCollection;
+		ResultSet rs = dctmCollection.buildResulSetFromCollection(session);
+		return rs;
 	}
 	
 	

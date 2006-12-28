@@ -30,11 +30,11 @@ public class DctmSession implements Session{
 			ISessionManager dctmsessionmanager=null;
 			ISession dctmsession=null;
 		  	*/
-		  	client = new IDctmClient();
+		  	client = new IDctmClient();/*todo jey*/
 		  	docbase = "gsadctm";
 		  	localClient = client.getLocalClientEx();
 		  	sessionManager = localClient.newSessionManager(); 
-		  	dctmLoginInfo = new IDctmLoginInfo();
+		  	dctmLoginInfo = new IDctmLoginInfo();/*todo jey*/
 		  	dctmLoginInfo.setUser("user1");
 		  	dctmLoginInfo.setPassword("p@ssw0rd");
 		  	sessionManager.setIdentity(docbase,dctmLoginInfo);
