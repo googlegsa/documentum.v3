@@ -38,7 +38,7 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 		
 		
 		String ticket = session.getLoginTicketForUser(username);
-		ILoginInfo logInfo = new IDctmLoginInfo();
+		ILoginInfo logInfo = new IDctmLoginInfo();/*todo jey*/
 		logInfo.setUser(username);
 		logInfo.setPassword(ticket);
 		ISession sessionUser = client.newSession(session.getDocbaseName(),logInfo);

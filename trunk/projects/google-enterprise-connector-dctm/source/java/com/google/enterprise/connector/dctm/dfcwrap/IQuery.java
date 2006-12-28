@@ -1,6 +1,8 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
 import com.documentum.fc.client.IDfQuery;
+import com.google.enterprise.connector.dctm.DctmResultSet;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface IQuery {
 	

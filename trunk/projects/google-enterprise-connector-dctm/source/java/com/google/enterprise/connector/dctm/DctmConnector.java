@@ -71,7 +71,7 @@ public class DctmConnector implements Connector{
 	}
 	public DctmConnector(){
 		//test avant mise en place de Spring
-		this.client=new IDctmClient();
+		this.client=new IDctmClient();/*todo jey*/
 	}
 	
 	public Session login() throws LoginException{

@@ -17,7 +17,7 @@ public interface ISession{
 	public String getDocbaseName();
 
 
-	//IDfSession machin =new IDctmSession(); 
+	//IDfSession machin =new IDctmSession(); /*todo jey*/
 /*
 	public void abortTrans();
 
