@@ -3,7 +3,9 @@ package com.google.enterprise.connector.dctm;
 import java.io.ByteArrayInputStream;
 
 
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
+import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
@@ -20,6 +22,9 @@ public class DctmConnector implements Connector{
 	private String repoName;
 	private String login;
 	private String password;
+	public String docbase;
+	public IClient client;
+	
 	
 	public void setRepository(String repoName) {
 	   this.repoName=repoName;
@@ -32,6 +37,15 @@ public class DctmConnector implements Connector{
 	public void setPassword(String password) {
 		   this.password=password;
 	}
+	
+	public void setClient(IClient client) {
+		this.client = client;
+	}
+	
+	public void setDocbase(String docbase) {
+		this.docbase = docbase;
+	}
+	
 
 	public String getRepository(){
 		return repoName;
@@ -45,11 +59,27 @@ public class DctmConnector implements Connector{
 		return password;
 	}
 	
+
+	public IClient getClient() {
+		return client;
+	}
+
+
+
+	public String getDocbase() {
+		return docbase;
+	}
+	public DctmConnector(){
+		//test avant mise en place de Spring
+		this.client=new IDctmClient();
+	}
+	
 	public Session login() throws LoginException{
 		Session sess = null;
 		sess = new DctmSession();
 		return (sess);
 	}
+
 	
 //	public static void main(String[] args){
 //		DctmConnector myconn=new DctmConnector();

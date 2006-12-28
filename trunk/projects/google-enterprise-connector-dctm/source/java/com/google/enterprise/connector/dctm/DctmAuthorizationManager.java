@@ -41,7 +41,7 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 		ILoginInfo logInfo = new IDctmLoginInfo();
 		logInfo.setUser(username);
 		logInfo.setPassword(ticket);
-		ISession sessionUser = client.newSession("gdoc",logInfo);
+		ISession sessionUser = client.newSession(session.getDocbaseName(),logInfo);
 		
 		
 		for(i=0;i<docidList.size()-1;i++){
