@@ -30,14 +30,14 @@ public class DctmQueryTraversalUtilCall {
 		AuthenticationManager authenticateManager = null;
 		AuthorizationManager authoriseManager = null;
 		List idList = new ArrayList(3);
-		idList.add("0900045780030dae");
-		idList.add("0900045780030def");
-		idList.add("0900045780030db9");
+		idList.add("0900000180003328");
+		idList.add("090000018000333a");
+		idList.add("0900000180003321");
 		myconn=new DctmConnector();
 		
-		((DctmConnector)myconn).setLogin("emilie");
-		((DctmConnector)myconn).setPassword("emilie2");
-		//((DctmConnector)myconn).setDocbase("gdoc");
+		((DctmConnector)myconn).setLogin("user1");
+		((DctmConnector)myconn).setPassword("p@ssw0rd");
+		//((DctmConnector)myconn).setDocbase("gsadctm");
 		
 		
 		
@@ -48,10 +48,10 @@ public class DctmQueryTraversalUtilCall {
 			//qtm= new DctmQueryTraversalManager();n
 			//qtm=(DctmQueryTraversalManager)sess.getQueryTraversalManager(); 
 			authenticateManager = sess.getAuthenticationManager();
-			authenticateManager.authenticate("raph","raphie");
-			authenticateManager.authenticate("raph","raph");
+			authenticateManager.authenticate("user2","p@ssword");
+			authenticateManager.authenticate("user2","p@ssw0rd");
 			authoriseManager = sess.getAuthorizationManager();
-			ResultSet result = authoriseManager.authorizeDocids((List)idList,"raph");
+			ResultSet result = authoriseManager.authorizeDocids((List)idList,"user2");
 			Iterator iter = result.iterator();
 			PropertyMap propMap = null;
 			Iterator iterProp = null;

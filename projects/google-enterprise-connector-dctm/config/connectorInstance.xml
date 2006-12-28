@@ -3,8 +3,8 @@
 <beans>
 	<bean id="DctmConnectorInstance"
 		class="com.google.enterprise.connector.dctm.DctmConnector">
-		<property name="repository" value="gdoc" />
-		<property name="login" value="emilie" />
-		<property name="password" value="emilie2" />
+		<property name="repository" value="gsadctm" />
+		<property name="login" value="user1" />
+		<property name="password" value="p@ssw0rd" />
 	</bean>
 </beans>

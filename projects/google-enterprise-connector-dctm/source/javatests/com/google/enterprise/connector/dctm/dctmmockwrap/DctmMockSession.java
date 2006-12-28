@@ -22,10 +22,6 @@ public class DctmMockSession implements ISession {
 		return null;
 	}
 	
-	public void authenticate(ILoginInfo loginInfo){
-		;
-	}
-	
 	public ISysObject getObject(IId objectId){
 		MockRepositoryDocument mrD = mockRep.getStore().getDocByID(objectId.toString());
 		return new DctmMockRepositoryDocument(mrD);
@@ -35,17 +31,17 @@ public class DctmMockSession implements ISession {
 		return mockRep.getStore();
 	}
 
-	public String getSessionId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public String getLoginTicketForUser(String username) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getDocbaseName() {
+//		 TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getSessionId() {
 		// TODO Auto-generated method stub
 		return null;
 	}
