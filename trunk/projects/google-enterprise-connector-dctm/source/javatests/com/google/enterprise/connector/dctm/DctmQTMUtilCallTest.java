@@ -6,6 +6,7 @@ import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.dctm.*;
+import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -18,7 +19,7 @@ public class DctmQTMUtilCallTest extends TestCase {
 	public static void testmain(String[] args) {
 		
 		QueryTraversalUtil qtu=new QueryTraversalUtil();
-		Session sess=null;
+		DctmSession sess=null;
 		Connector myconn=null;
 		QueryTraversalManager qtm=null;
 		
@@ -26,7 +27,12 @@ public class DctmQTMUtilCallTest extends TestCase {
 		
 		try{
 			sess=(DctmSession)myconn.login();
+<<<<<<< .mine
+			IClient client = sess.getClient();
+			qtm= new DctmQueryTraversalManager(client, "WhatIsSessionIDFor");
+=======
 		
+>>>>>>> .r76
 			qtm=(DctmQueryTraversalManager)sess.getQueryTraversalManager(); 
 			
 			

@@ -30,6 +30,23 @@ public class DctmMockSession implements ISession {
 	public MockRepositoryDocumentStore getStore(){
 		return mockRep.getStore();
 	}
+<<<<<<< .mine
+
+	public String getSessionId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getLoginTicketForUser(String username) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getDocbaseName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+=======
 
 	public String getLoginTicketForUser(String username) {
 		// TODO Auto-generated method stub
@@ -45,4 +62,5 @@ public class DctmMockSession implements ISession {
 		// TODO Auto-generated method stub
 		return null;
 	}
+>>>>>>> .r76
 }
