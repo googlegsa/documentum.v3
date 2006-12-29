@@ -37,6 +37,7 @@ import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmValue;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
@@ -79,7 +80,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	  	IDctmClient dctmClient=new IDctmClient();
 	  	IDctmLocalClient dctmLocalClient=(IDctmLocalClient)dctmClient.getLocalClientEx();
 	  	IDctmSessionManager dctmsessionmanager=(IDctmSessionManager)dctmLocalClient.newSessionManager(); 
-	  	IDctmLoginInfo dctmLoginInfodctmLoginInfo=new IDctmLoginInfo();
+	  	ILoginInfo dctmLoginInfodctmLoginInfo = dctmClient.getLoginInfo();
 	  	dctmLoginInfodctmLoginInfo.setUser("emilie");
 	  	dctmLoginInfodctmLoginInfo.setPassword("emilie2");
 	  	dctmsessionmanager.setIdentity("gdoc", dctmLoginInfodctmLoginInfo);

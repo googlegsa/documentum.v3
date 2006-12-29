@@ -1,9 +1,8 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import com.google.enterprise.connector.dctm.DctmResultSet;
+
 import com.google.enterprise.connector.dctm.dfcwrap.*;
 import com.google.enterprise.connector.jcradaptor.SpiResultSetFromJcr;
-import com.google.enterprise.connector.mock.jcr.*;
 import com.google.enterprise.connector.spi.ResultSet;
 
 import javax.jcr.query.QueryResult;
@@ -85,6 +84,11 @@ public class DctmMockCollection implements ICollection {
 	}
 
 	public String getString(String colName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ResultSet buildResulSetFromCollection(ISession session) {
 		// TODO Auto-generated method stub
 		return null;
 	}

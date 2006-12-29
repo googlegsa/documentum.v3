@@ -67,7 +67,7 @@ public class DctmQueryTraversalUtilCall {
 				
 			}
 			
-			//QueryTraversalUtil.runTraversal(qtm, 15);
+			QueryTraversalUtil.runTraversal(qtm, 15);
 			
 			//sess.getAuthorizationManager();
 			

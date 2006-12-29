@@ -81,9 +81,6 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	
 	
 	
-	
-	
-	
 	public DctmQueryTraversalManager(IClient client,String sessionID) {
 		setClient(client);
 		setSessionID(sessionID);

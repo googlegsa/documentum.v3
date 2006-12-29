@@ -5,7 +5,6 @@ public interface IClient{
 	
 	public ILocalClient getLocalClientEx();
 
-	public String getSessionForUser(String userName);
 	
 	public IQuery getQuery();
 	
@@ -15,6 +14,10 @@ public interface IClient{
 
 	public void authenticate(String docbaseName, ILoginInfo loginInfo);
 
-	
+
+	public IId getId(String value);
+
+
+		
 	
 }

@@ -9,6 +9,7 @@ import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 
@@ -40,17 +41,17 @@ public class IDctmClient implements IClient{
 	}
 	
 		
-	public String getSessionForUser(String userName){
-		String ticket = null;
-		try {
-			ticket = idfSession.getLoginTicketForUser(userName);
-			
-		} catch (DfException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ticket;
-	}
+//	public String getSessionForUser(String userName){
+//		String ticket = null;
+//		try {
+//			ticket = idfSession.getLoginTicketForUser(userName);
+//			
+//		} catch (DfException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return ticket;
+//	}
 	
 	
 
@@ -94,6 +95,11 @@ public class IDctmClient implements IClient{
 
 	public ILoginInfo getLoginInfo() {
 		return new IDctmLoginInfo(idfClientX.getLoginInfo());
+	}
+
+	public IId getId(String value) {	
+		
+		return new IDctmId(this.idfClientX.getId(value));
 	}
 	
 

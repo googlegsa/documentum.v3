@@ -36,7 +36,6 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	public boolean authenticate(String username, String password)
     throws LoginException, RepositoryException{
 		setLoginInfo(username,password);
-		System.out.println("docbaseName "  + session.getDocbaseName());
 		client.authenticate (session.getDocbaseName(),getLoginInfo());
 		
 //		setLoginInfo(username,password);

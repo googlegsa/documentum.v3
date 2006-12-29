@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
@@ -14,7 +15,7 @@ public class DctmMockClient implements IClient, ILocalClient {
 	
 	private MockRepository mockRep;
 	private MockJcrRepository mockJcrRep;
-	
+
 	private DctmMockQuery query;
 	
 	DctmMockClient(MockJcrRepository mock, DctmMockQuery query){
@@ -72,6 +73,16 @@ public class DctmMockClient implements IClient, ILocalClient {
 
 	public void setQuery(DctmMockQuery query) {
 		this.query = query;
+	}
+
+	public ILoginInfo getLoginInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IId getId(String value) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
