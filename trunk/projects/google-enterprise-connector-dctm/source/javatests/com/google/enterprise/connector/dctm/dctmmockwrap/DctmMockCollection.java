@@ -77,7 +77,7 @@ public class DctmMockCollection implements ICollection {
 			return null;
 		}
 	}
-<<<<<<< .mine
+
 
 	public IId getObjectId() {
 		// TODO Auto-generated method stub
@@ -88,17 +88,5 @@ public class DctmMockCollection implements ICollection {
 		// TODO Auto-generated method stub
 		return null;
 	}
-=======
 
-	public IId getObjectId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
-	public String getString(String colName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
->>>>>>> .r76
 }

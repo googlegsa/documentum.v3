@@ -11,13 +11,14 @@ import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.MockRepositoryEventList;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
+import com.google.enterprise.connector.mock.jcr.MockJcrSession;
 
 public class DctmMockSession implements ISession {
 	
 	private MockRepository mockRep;
 	private MockRepositoryEventList mrel;
 	private QueryManager qm;
-	
+	private MockJcrSession mockJcrSession;
 	public ISysObject getObjectByQualification(String qualification){
 		return null;
 	}
@@ -30,7 +31,7 @@ public class DctmMockSession implements ISession {
 	public MockRepositoryDocumentStore getStore(){
 		return mockRep.getStore();
 	}
-<<<<<<< .mine
+
 
 	public String getSessionId() {
 		// TODO Auto-generated method stub
@@ -43,24 +44,21 @@ public class DctmMockSession implements ISession {
 	}
 
 	public String getDocbaseName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-=======
-
-	public String getLoginTicketForUser(String username) {
-		// TODO Auto-generated method stub
+		mockJcrSession.getRepository();
 		return null;
 	}
 
-	public String getDocbaseName() {
-//		 TODO Auto-generated method stub
-		return null;
+	public MockJcrSession getMockJcrSession() {
+		return mockJcrSession;
 	}
 
-	public String getSessionId() {
-		// TODO Auto-generated method stub
-		return null;
+	public void setMockJcrSession(MockJcrSession mockJcrSession) {
+		this.mockJcrSession = mockJcrSession;
 	}
->>>>>>> .r76
+
+
+	
+
+	
+	
 }
