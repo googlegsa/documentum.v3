@@ -64,19 +64,19 @@ public class DctmConnector implements Connector{
 		return client;
 	}
 
-
+	public DctmConnector(){;}
 
 	public String getDocbase() {
 		return docbase;
 	}
-	public DctmConnector(){
-		//test avant mise en place de Spring
-		this.client=new IDctmClient();/*todo jey*/
-	}
 	
 	public Session login() throws LoginException{
 		Session sess = null;
-		sess = new DctmSession();
+		if (!(client==null||login==null||password==null||docbase==null)){
+			sess = new DctmSession(client,login,password,docbase);
+		} else {
+			sess = new DctmSession();
+		}
 		return (sess);
 	}
 
