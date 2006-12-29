@@ -22,10 +22,10 @@ public class DctmSession implements Session{
 	String docbase;
 	
 	
-	
+	//Constructor never called except for tests
 	public DctmSession(){
 		ILoginInfo dctmLoginInfo=null;
-		client = new IDctmClient();/*todo jey*/
+		client = new IDctmClient();
 		docbase = "gsadctm";
 		localClient = client.getLocalClientEx();
 		sessionManager = localClient.newSessionManager(); 
@@ -53,8 +53,7 @@ public class DctmSession implements Session{
 	public QueryTraversalManager getQueryTraversalManager(){
 		
 		DctmQueryTraversalManager DctmQtm=new DctmQueryTraversalManager(client,session.getSessionId());
-		
-		///DctmQtm.setIDctmSession((IDctmSession)dctmsession);
+
 		return DctmQtm;
 	}
 	
