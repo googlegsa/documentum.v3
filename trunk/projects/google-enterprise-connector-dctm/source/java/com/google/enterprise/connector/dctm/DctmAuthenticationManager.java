@@ -76,7 +76,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	}
 	
 	public void setLoginInfo(String username,String password){
-		loginInfo = new IDctmLoginInfo();/*todo jey*/
+		loginInfo = client.getLoginInfo();
 		loginInfo.setUser(username);
 		System.out.println("logininfo:"+username);
 		loginInfo.setPassword(password);
@@ -115,8 +115,6 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		}catch(RepositoryException Re){
 			System.out.println("login exception vaut "+Re);
 		}
-		
-		// TODO Auto-generated method stub
 
 	}
 	*/

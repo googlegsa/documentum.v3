@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.documentum.com.IDfClientX;
 import com.documentum.fc.client.DfClient;
 import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfClient;
@@ -19,6 +20,7 @@ import com.google.enterprise.connector.spi.LoginException;
 
 public class IDctmClient implements IClient{
 	IDfClient idfClient;
+	IDfClientX idfClientX;
 	
 	IDfSession idfSession = null;
 	
@@ -88,6 +90,10 @@ public class IDctmClient implements IClient{
 			}
 		}
 		
+	}
+
+	public ILoginInfo getLoginInfo() {
+		return new IDctmLoginInfo(idfClientX.getLoginInfo());
 	}
 	
 

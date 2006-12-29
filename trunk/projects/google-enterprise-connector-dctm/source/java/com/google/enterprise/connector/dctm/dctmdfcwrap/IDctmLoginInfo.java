@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -8,8 +7,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 public class IDctmLoginInfo implements ILoginInfo{
 	IDfLoginInfo idfLoginInfo=null;
 	
-	public IDctmLoginInfo(){
-		idfLoginInfo=new DfLoginInfo();
+	public IDctmLoginInfo(IDfLoginInfo tmp){
+		idfLoginInfo=tmp;
 	}
 	
 	public void setUser(String u){
