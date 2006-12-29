@@ -1,11 +1,14 @@
 package com.google.enterprise.connector.dctm;
 
 
+import java.io.ByteArrayInputStream;
+
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.pusher.DocPusher;
+import com.google.enterprise.connector.pusher.MockPusher;
 import com.google.enterprise.connector.pusher.Pusher;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
@@ -20,13 +23,22 @@ import com.google.enterprise.connector.spi.ValueType;
 
 public class DctmPusher implements Pusher {
 
+	private MockPusher mockPusher;
 	private DocPusher docPusher;
 	private ISession session;
 	private IClient client;
 	
+	
+	public DctmPusher(){
+//		MockFeedConnection mockFeedConnection = new MockFeedConnection();
+
+		//docPusher = new DocPusher(new GsaFeedConnection("swp-srv-gsa",19900));
+		docPusher = new DocPusher(new DctmFeedConnection());
+		
+	}
+	
 	public void take(PropertyMap pm, String connectorName) {
 		docPusher.take(pm,connectorName);
-
 	}
 
 	
@@ -35,11 +47,20 @@ public class DctmPusher implements Pusher {
 		try {
 		prop = pm.getProperty(SpiConstants.PROPNAME_DOCID);
 		IId myId = client.getId(prop.getValue().getString());
+		System.out.println(prop.getValue().getString() + " "+SpiConstants.PROPNAME_DOCID);
         IDctmSysObject sysObj = (IDctmSysObject)session.getObject(myId);
         prop = pm.getProperty(SpiConstants.PROPNAME_CONTENT);
         pm.remove(prop);
-        pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT, new DctmValue(ValueType.BINARY,sysObj.getContent())));
-        
+        ByteArrayInputStream array = sysObj.getContent();
+        DctmValue val = null;
+        if(array == null){
+        	val = new DctmValue(ValueType.BINARY,new ByteArrayInputStream(new byte[1]));
+        }else{
+        	val = new DctmValue(ValueType.BINARY,array);
+        }
+        pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT, val));
+        prop = pm.getProperty(SpiConstants.PROPNAME_DOCID);
+       
         take(pm,"dctm");
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
@@ -48,12 +69,12 @@ public class DctmPusher implements Pusher {
 
 	}
 	
-	public DocPusher getDocPusher() {
-		return docPusher;
+	public MockPusher getDocPusher() {
+		return mockPusher;
 	}
 
-	public void setDocPusher(DocPusher docPusher) {
-		this.docPusher = docPusher;
+	public void setDocPusher(MockPusher docPusher) {
+		this.mockPusher = docPusher;
 	}
 
 

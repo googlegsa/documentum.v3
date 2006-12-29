@@ -1,21 +1,11 @@
 package com.google.enterprise.connector.dctm;
 
-import java.io.ByteArrayInputStream;
 
-
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
-import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
-import com.google.enterprise.connector.spi.SimpleProperty;
-import com.google.enterprise.connector.spi.SimplePropertyMap;
-import com.google.enterprise.connector.spi.SimpleResultSet;
-import com.google.enterprise.connector.spi.SimpleValue;
-import com.google.enterprise.connector.spi.SpiConstants;
+
 
 public class DctmConnector implements Connector{
 
@@ -73,6 +63,7 @@ public class DctmConnector implements Connector{
 	public Session login() throws LoginException{
 		Session sess = null;
 		if (!(client==null||login==null||password==null||docbase==null)){
+			
 			sess = new DctmSession(client,login,password,docbase);
 		} else {
 			sess = new DctmSession();

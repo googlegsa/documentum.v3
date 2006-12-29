@@ -52,7 +52,7 @@ public class DctmSession implements Session{
 	
 	public QueryTraversalManager getQueryTraversalManager(){
 		
-		DctmQueryTraversalManager DctmQtm=new DctmQueryTraversalManager(client,session.getSessionId());
+		DctmQueryTraversalManager DctmQtm = new DctmQueryTraversalManager(client,session.getSessionId());
 
 		return DctmQtm;
 	}

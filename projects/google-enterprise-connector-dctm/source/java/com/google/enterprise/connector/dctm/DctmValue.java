@@ -134,10 +134,10 @@ public class DctmValue implements Value {
    */
   public InputStream getStream() throws IllegalArgumentException,
       IllegalStateException, RepositoryException {
-    if (byteArrayValue.length > 0) {
-      return new ByteArrayInputStream(byteArrayValue);
-    }
-    return new ByteArrayInputStream(stringValue.getBytes());
+//    if (byteArrayValue.length > 0) {
+//      return new ByteArrayInputStream(byteArrayValue);
+//    }
+    return input;
   }
 
   /*
