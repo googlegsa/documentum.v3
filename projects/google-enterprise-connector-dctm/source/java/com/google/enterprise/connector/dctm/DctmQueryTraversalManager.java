@@ -118,7 +118,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		System.out.println("query vaut "+unboundedTraversalQuery);
 		System.out.println("query vaut "+query);
 		resu=execQuery(query);
-		return resu; 
+		return resu;
 	}
 	
 	

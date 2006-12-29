@@ -8,6 +8,8 @@ public interface IClient{
 	public String getSessionForUser(String userName);
 	
 	public IQuery getQuery();
+	
+	public ILoginInfo getLoginInfo();
 
 	public ISession newSession(String string, ILoginInfo logInfo);
 
