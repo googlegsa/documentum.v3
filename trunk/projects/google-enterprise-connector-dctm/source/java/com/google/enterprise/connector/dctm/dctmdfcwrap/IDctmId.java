@@ -8,7 +8,7 @@ public class IDctmId implements IId{
 	IDfId idfId;
 	
 	public IDctmId(String id){
-		this.idfId=new DfId(id);
+		this.idfId = new DfId(id);
 	}
 
 	public IDctmId(IDfId idfId){

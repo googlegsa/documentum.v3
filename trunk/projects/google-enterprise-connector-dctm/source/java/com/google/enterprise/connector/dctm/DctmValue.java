@@ -37,17 +37,20 @@ public class DctmValue implements Value {
   private final ValueType type;
   private final String stringValue;
   private final byte[] byteArrayValue;
+  private final ByteArrayInputStream input;
 
   public DctmValue(ValueType t, String v) {
     this.type = t;
     this.stringValue = v;
     this.byteArrayValue = new byte[] {};
+    this.input = null;
   }
 
   public DctmValue(ValueType t, byte[] v) {
     this.type = t;
     this.stringValue = null;
     this.byteArrayValue = v;
+    this.input = null;
     
     ///this.byteArrayValue = (byte[])v.clone();
     /*
@@ -60,6 +63,13 @@ public class DctmValue implements Value {
     
     
   }
+  
+  public DctmValue(ValueType t, ByteArrayInputStream v) {
+	    this.type = t;
+	    this.stringValue = null;
+	    this.byteArrayValue = new byte[] {};
+	    this.input = v;
+	  }
 
   /*
    * (non-Javadoc)

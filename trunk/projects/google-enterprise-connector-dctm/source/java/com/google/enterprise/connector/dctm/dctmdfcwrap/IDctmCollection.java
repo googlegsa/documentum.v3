@@ -1,10 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Date;
-
 import com.google.enterprise.connector.dctm.DctmProperty;
 import com.google.enterprise.connector.dctm.DctmPropertyMap;
 import com.google.enterprise.connector.dctm.DctmResultSet;
@@ -12,10 +7,8 @@ import com.google.enterprise.connector.dctm.DctmValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
-import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -92,69 +85,36 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection{
 	}
 
 	public ResultSet buildResulSetFromCollection(ISession session) {
-		String modifDate=null;
-		String crID=null;
-		String mimetype=null;		
-		DctmValue vlDate=null;
-		DctmValue vlID=null;
-		DctmValue vlMime=null;
-		DctmPropertyMap pm=null;
-		ByteArrayInputStream content=null;
-		int size=0;
-		byte[] bufContent;
-		//ISession dctmSes = getIdctmses();
+		String modifDate = null;
+		String crID = null;
+		String mimetype = null;		
+		DctmPropertyMap pm = null;
 		ISysObject dctmSysObj = null;
 		IFormat dctmForm = null;
-		IDctmValue val=null;
-		ITime itime=null;
-		DctmResultSet resu=new DctmResultSet(); 
+		IDctmValue val = null;
+		DctmResultSet resu = new DctmResultSet(); 
 		//Building the IDctmCollection for error management only
 		ICollection col = new IDctmCollection(idfCollection);
 		try{
 			while (col.next()){
 				pm=new DctmPropertyMap();
 				crID = col.getValue("i_chronicle_id").asString();
-				int rep_Id=col.getValue("i_chronicle_id").getDataType();
-				vlID=new DctmValue(ValueType.STRING,crID);
-				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_DOCID,vlID));
-				
+				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_DOCID,new DctmValue(ValueType.STRING,crID)));
 				val=(IDctmValue)col.getValue("r_modify_date");
-				int rep=val.getDataType();
-				itime=val.asTime();
-				modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
-				Date mydate=itime.getDate();
-				///System.out.println("modifdate vaut "+modifDate);
-				vlDate=new DctmValue(ValueType.DATE,modifDate);
-				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate));
+				
+				
+				modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN45);
+				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_LASTMODIFY,new DctmValue(ValueType.DATE,modifDate)));
+				
 				dctmSysObj = (IDctmSysObject)session.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
 				dctmForm = (IDctmFormat)dctmSysObj.getFormat();
+				
 				if(dctmForm.canIndex()){
-					content=dctmSysObj.getContent();
-					mimetype=dctmForm.getMIMEType();
-					size=new Long(dctmSysObj.getContentSize()).intValue();
-					bufContent = new byte[size];
-					ByteArrayOutputStream output=new ByteArrayOutputStream(); 
-					try{
-						int count=-2;
-						while ((count = content.read(bufContent)) > -1){
-							output.write(bufContent, 0, count);
-						}
-						content.close();
-					}catch(IOException ie){
-						System.out.println(ie.getMessage());
-					}
-					
-					DctmValue vlCont=null;
-					if(bufContent.length>0){
-						vlCont=new DctmValue(ValueType.BINARY,bufContent);
-						pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-					}else{
-						vlCont=new DctmValue(ValueType.BINARY,"");
-						pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-					}
+					mimetype = dctmForm.getMIMEType();
+					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,new DctmValue(ValueType.BINARY,"")));
+					pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_MIMETYPE,new DctmValue(ValueType.STRING,mimetype)));
 				}
-				vlMime=new DctmValue(ValueType.STRING,mimetype);
-				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
+				
 				resu.add(pm);
 			}
 		}catch(RepositoryException re){
@@ -164,4 +124,79 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection{
 		System.out.println("nb vaut "+nb);
 		return resu;
 	}
+	
+//	public ResultSet buildResulSetFromCollection(ISession session) {
+//		String modifDate=null;
+//		String crID=null;
+//		String mimetype=null;		
+//		DctmValue vlDate=null;
+//		DctmValue vlID=null;
+//		DctmValue vlMime=null;
+//		DctmPropertyMap pm=null;
+//		ByteArrayInputStream content=null;
+//		int size=0;
+//		byte[] bufContent;
+//		//ISession dctmSes = getIdctmses();
+//		ISysObject dctmSysObj = null;
+//		IFormat dctmForm = null;
+//		IDctmValue val=null;
+//		ITime itime=null;
+//		DctmResultSet resu=new DctmResultSet(); 
+//		//Building the IDctmCollection for error management only
+//		ICollection col = new IDctmCollection(idfCollection);
+//		try{
+//			while (col.next()){
+//				pm=new DctmPropertyMap();
+//				crID = col.getValue("i_chronicle_id").asString();
+//				int rep_Id=col.getValue("i_chronicle_id").getDataType();
+//				vlID=new DctmValue(ValueType.STRING,crID);
+//				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_DOCID,vlID));
+//				
+//				val=(IDctmValue)col.getValue("r_modify_date");
+//				int rep=val.getDataType();
+//				itime=val.asTime();
+//				modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
+//				Date mydate=itime.getDate();
+//				///System.out.println("modifdate vaut "+modifDate);
+//				vlDate=new DctmValue(ValueType.DATE,modifDate);
+//				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate));
+//				dctmSysObj = (IDctmSysObject)session.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
+//				dctmForm = (IDctmFormat)dctmSysObj.getFormat();
+//				if(dctmForm.canIndex()){
+//					content=dctmSysObj.getContent();
+//					mimetype=dctmForm.getMIMEType();
+//					size=new Long(dctmSysObj.getContentSize()).intValue();
+//					bufContent = new byte[size];
+//					ByteArrayOutputStream output=new ByteArrayOutputStream(); 
+//					try{
+//						int count=-2;
+//						while ((count = content.read(bufContent)) > -1){
+//							output.write(bufContent, 0, count);
+//						}
+//						content.close();
+//					}catch(IOException ie){
+//						System.out.println(ie.getMessage());
+//					}
+//					
+//					DctmValue vlCont=null;
+//					if(bufContent.length>0){
+//						vlCont=new DctmValue(ValueType.BINARY,bufContent);
+//						pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
+//					}else{
+//						vlCont=new DctmValue(ValueType.BINARY,"");
+//						pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
+//					}
+//				}
+//				vlMime=new DctmValue(ValueType.STRING,mimetype);
+//				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
+//				resu.add(pm);
+//			}
+//		}catch(RepositoryException re){
+//			System.out.println(re.getMessage());
+//		}
+//		int nb=resu.size();
+//		System.out.println("nb vaut "+nb);
+//		return resu;
+//	}
+//}
 }
