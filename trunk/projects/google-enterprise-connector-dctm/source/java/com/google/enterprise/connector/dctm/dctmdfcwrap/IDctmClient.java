@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.documentum.com.DfClientX;
 import com.documentum.com.IDfClientX;
 import com.documentum.fc.client.DfClient;
 import com.documentum.fc.client.DfQuery;
@@ -27,7 +28,8 @@ public class IDctmClient implements IClient{
 	
 	public IDctmClient(){
 		try {
-			idfClient = new DfClient();
+			idfClientX = new DfClientX();
+			idfClient = idfClientX.getLocalClient();
 		} catch (DfException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

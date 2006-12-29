@@ -88,6 +88,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 		DctmInstantiator.initialize();
 		this.unboundedTraversalQuery = DctmInstantiator.QUERY_STRING_UNBOUNDED_DEFAULT;
 		this.boundedTraversalQuery = DctmInstantiator.QUERY_STRING_BOUNDED_DEFAULT;
+		
 	}
 	
 

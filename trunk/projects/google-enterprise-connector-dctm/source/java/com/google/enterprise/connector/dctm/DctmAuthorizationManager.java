@@ -2,7 +2,6 @@ package com.google.enterprise.connector.dctm;
 
 import java.util.List;
 
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
