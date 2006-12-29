@@ -18,18 +18,7 @@ public class DctmMockLoginInfo implements ILoginInfo {
 	public void setPassword(String pwd){
 		this.password=pwd;
 	}
-<<<<<<< .mine
 
-	public String getUser() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getPassword() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-=======
 
 	public String getUser() {
 		return user;
@@ -38,5 +27,5 @@ public class DctmMockLoginInfo implements ILoginInfo {
 	public String getPassword() {
 		return password;
 	}
->>>>>>> .r76
+
 }

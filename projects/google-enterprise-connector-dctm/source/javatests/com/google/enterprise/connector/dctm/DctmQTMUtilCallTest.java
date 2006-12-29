@@ -27,12 +27,10 @@ public class DctmQTMUtilCallTest extends TestCase {
 		
 		try{
 			sess=(DctmSession)myconn.login();
-<<<<<<< .mine
+
 			IClient client = sess.getClient();
 			qtm= new DctmQueryTraversalManager(client, "WhatIsSessionIDFor");
-=======
-		
->>>>>>> .r76
+
 			qtm=(DctmQueryTraversalManager)sess.getQueryTraversalManager(); 
 			
 			
