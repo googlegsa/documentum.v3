@@ -48,8 +48,6 @@ public class DctmQueryTraversalManager implements QueryTraversalManager{
 	
 	ISession session;
 	
-	public static String QUERY_CLASS_NAME="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery";
-	
 	private String unboundedTraversalQuery;
 	private String boundedTraversalQuery;
 	

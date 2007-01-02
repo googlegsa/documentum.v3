@@ -5,7 +5,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 
 public class DctmInstantiator {
-	private static final boolean isDFCavailable=true;//How to detect that?
+	private static final boolean isDFCavailable=false;//How to detect that?
 	
 	public static String QUERY_STRING_UNBOUNDED_DEFAULT;
 	
