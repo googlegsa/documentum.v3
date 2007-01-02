@@ -103,6 +103,13 @@ public class IDctmClient implements IClient{
 		
 		return new IDctmId(this.idfClientX.getId(value));
 	}
+
+	public ISession getSession() {
+		return new IDctmSession(idfSession);
+	}
+
+	public void setSession(ISession session) {				
+	}
 	
 
 }
