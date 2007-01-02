@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import java.util.Hashtable;
+
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
@@ -20,6 +22,8 @@ public class DctmMockClient implements IClient, ILocalClient {
 	private DctmMockQuery query;
 	
 	private ILoginInfo iLI;
+	
+	private ISession session;
 	
 	public DctmMockClient(){
 		this.mockRep = null;
@@ -61,8 +65,7 @@ public class DctmMockClient implements IClient, ILocalClient {
 	
 
 	public ISession findSession(String dfcSessionId) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.session;
 	}
 
 	public MockRepository getMockRep() {
@@ -92,6 +95,15 @@ public class DctmMockClient implements IClient, ILocalClient {
 	public IId getId(String value) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public ISession getSession() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setSession(ISession iS) {
+		this.session = iS;
 	}
 
 }

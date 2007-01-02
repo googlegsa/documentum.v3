@@ -18,6 +18,7 @@ public class DctmMockSession implements ISession {
 	
 	private MockJcrRepository mockRep;
 	private MockJcrSession mockJcrSession;
+	private String sessionID;
 	
 	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS){
 		this.mockRep = mjR;
@@ -39,8 +40,7 @@ public class DctmMockSession implements ISession {
 
 
 	public String getSessionId() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	public String getLoginTicketForUser(String username) {
