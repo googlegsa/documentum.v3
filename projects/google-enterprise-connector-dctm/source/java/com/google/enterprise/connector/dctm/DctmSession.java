@@ -39,13 +39,14 @@ public class DctmSession implements Session{
 	public DctmSession(IClient client, String login, String password, String docbase){
 		ILoginInfo dctmLoginInfo=null;
 		setClient(client);
-		localClient=client.getLocalClientEx();
+		localClient=this.client.getLocalClientEx();
 		sessionManager=localClient.newSessionManager(); 
-		dctmLoginInfo = client.getLoginInfo();
+		dctmLoginInfo = this.client.getLoginInfo();
 		dctmLoginInfo.setUser(login);
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
 		session=sessionManager.newSession(docbase);
+		this.client.setSession(session);
 	}
 	
 	
