@@ -11,25 +11,30 @@ import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.MockRepositoryEventList;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
+import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
 
 public class DctmMockSession implements ISession {
 	
-	private MockRepository mockRep;
-	private MockRepositoryEventList mrel;
-	private QueryManager qm;
+	private MockJcrRepository mockRep;
 	private MockJcrSession mockJcrSession;
+	
+	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS){
+		this.mockRep = mjR;
+		this.mockJcrSession = mjS;
+	}
+	
 	public ISysObject getObjectByQualification(String qualification){
 		return null;
 	}
 	
 	public ISysObject getObject(IId objectId){
-		MockRepositoryDocument mrD = mockRep.getStore().getDocByID(objectId.toString());
+		MockRepositoryDocument mrD = mockRep.getRepo().getStore().getDocByID(objectId.toString());
 		return new DctmMockRepositoryDocument(mrD);
 	}
 	
 	public MockRepositoryDocumentStore getStore(){
-		return mockRep.getStore();
+		return mockRep.getRepo().getStore();
 	}
 
 

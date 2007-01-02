@@ -3,11 +3,14 @@ package com.google.enterprise.connector.dctm;
 import java.io.IOException;
 import java.util.Iterator;
 
+import com.google.enterprise.connector.pusher.Pusher;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.ResultSet;
+import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 
 import junit.framework.Assert;
@@ -33,26 +36,26 @@ public class DctmQTMUtilCallTest {
 		}
 		QueryTraversalManager qtm=null;
 		try{
-			DctmSession sess=(DctmSession)conn.login();			
-			qtm=(DctmQueryTraversalManager)sess.getQueryTraversalManager();
+			DctmSession sess=(DctmSession) conn.login();
+			qtm=sess.getQueryTraversalManager();
 			qtm.setBatchHint(5);
 			
 			ResultSet set = qtm.startTraversal();
 			Iterator iter = set.iterator();
-			DctmPropertyMap prop;
+			PropertyMap prop;
 			DctmPusher push = new DctmPusher();
 			push.setClient(sess.getClient());
 			push.setSession(sess.getSession());
 			while(iter.hasNext()){
-				prop = (DctmPropertyMap)iter.next();
-				push.take(prop);
+				prop = (PropertyMap) iter.next();
+				push.take(prop,"dctm");
 			}
-			try {
+			/*try {
 				push.opS.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 			
 			
 		}catch(LoginException le){
