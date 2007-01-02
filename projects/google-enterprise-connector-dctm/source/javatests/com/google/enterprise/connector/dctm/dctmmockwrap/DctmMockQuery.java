@@ -6,14 +6,20 @@ import javax.jcr.query.QueryResult;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 
 public class DctmMockQuery implements IQuery {
 	String query;
 	private int DF_READ_QUERY;
 	
+	public DctmMockQuery(){
+		query="";
+	}
+	
 	public ICollection execute(ISession session, int queryType){
 		try{
+			MockRepositoryDocumentStore a = null;
 			MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(((DctmMockSession)session).getStore());
 			Query q = mrQueryMger.createQuery(this.query,"mockQueryLanguage");
 			QueryResult qr = q.execute();
