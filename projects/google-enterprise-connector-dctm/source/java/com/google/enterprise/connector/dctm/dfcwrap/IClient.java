@@ -17,6 +17,9 @@ public interface IClient{
 
 	public IId getId(String value);
 
+	public ISession getSession();
+	
+	public void setSession(ISession session);
 
 		
 	
