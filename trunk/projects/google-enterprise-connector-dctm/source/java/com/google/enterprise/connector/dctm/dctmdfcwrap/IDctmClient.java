@@ -108,7 +108,9 @@ public class IDctmClient implements IClient{
 		return new IDctmSession(idfSession);
 	}
 
-	public void setSession(ISession session) {				
+	public void setSession(ISession session) {		
+		IDctmSession sess = (IDctmSession)session;
+		idfSession = sess.getDfSession();
 	}
 	
 
