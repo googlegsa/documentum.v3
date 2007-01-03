@@ -18,6 +18,40 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 
 public class DctmQueryTraversalUtil {
 	
+	public static void main(String[] args) {
+		if (args.length!=4){
+			System.out.println("Illegal number of arguments. <ClientClass_Path> <DocbaseName> <SuperUserLogin> <SuperUserPwd>");
+			return;
+		}		
+		Connector conn=null;
+		try {
+			conn = (DctmConnector)createConnectorInstance(args);
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		if (conn==null){
+			System.out.println("Connector instance not created correctly. Exiting.");
+			return;
+		}
+		QueryTraversalManager qtm=null;
+		try{
+			DctmSession sess = (DctmSession) conn.login();
+			qtm = sess.getQueryTraversalManager();			
+		}catch(LoginException le){
+			le.getMessage();
+		}catch(RepositoryException re){
+			re.getMessage();
+		}
+		try {
+			runTraversal(qtm,5);
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//Assert.assertEquals(qtm.getClass().getName(),"DctmQueryTraversalManager");
+	}
+	
 	public static void runTraversal(QueryTraversalManager queryTraversalManager,
 			int batchHint) throws RepositoryException {
 		
@@ -88,84 +122,38 @@ public class DctmQueryTraversalUtil {
 	}
 	
 	
-//	public static void main(String[] args) {
-//		if (args.length!=4){
-//			System.out.println("Illegal number of arguments. <ClientClass_Path> <DocbaseName> <SuperUserLogin> <SuperUserPwd>");
-//			return;
-//		}		
-//		Connector conn=null;
-//		try {
-//			conn = (DctmConnector)createConnectorInstance(args);
-//		} catch (RepositoryException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}		
-//		if (conn==null){
-//			System.out.println("Connector instance not created correctly. Exiting.");
-//			return;
-//		}
-//		QueryTraversalManager qtm=null;
-//		try{
-//
-//			
-//			
-//			DctmSession sess = (DctmSession) conn.login();
-//			qtm = sess.getQueryTraversalManager();
-//			qtm.setBatchHint(5);
-//			
-//			ResultSet set = qtm.startTraversal();
-//
-//			Iterator iter = set.iterator();
-//			PropertyMap prop;
-//			DctmPusher push = new DctmPusher();
-//			push.setClient(sess.getClient());
-//			System.out.println("dans main" + sess.getClient().getSession().getSessionId());
-//			while(iter.hasNext()){
-//				prop = (DctmPropertyMap)iter.next();
-//				push.take(prop,"dctm");
-//			}
-//
-//			
-//		}catch(LoginException le){
-//			le.getMessage();
-//		}catch(RepositoryException re){
-//			re.getMessage();
-//		}	
-//		//Assert.assertEquals(qtm.getClass().getName(),"DctmQueryTraversalManager");
-//	}
-//	
 	/**
 	 * 
 	 * @param args
 	 * @return
 	 * @throws RepositoryException
 	 */
-//	private static Connector createConnectorInstance(String[] args) throws RepositoryException{
-//		DctmConnector currentConnector = new DctmConnector();
-//		
-//		IClient cl = null;
-//		try {
-//			cl = (IClient) Class.forName(args[0]).newInstance();
-//		} catch (InstantiationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IllegalAccessException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (ClassNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		if (cl == null) throw new RepositoryException("The path of the client class cannot be resolved.");
-//		currentConnector.setClient(cl);
-//		currentConnector.setDocbase(args[1]);
-//		currentConnector.setLogin(args[2]);
-//		currentConnector.setPassword(args[3]);
-//		currentConnector.setRepository(args[1]);
-//		
-//		return currentConnector;
-//	}
+	private static Connector createConnectorInstance(String[] args) throws RepositoryException{
+		DctmConnector currentConnector = new DctmConnector();
+		
+		IClient cl = null;
+		try {
+			cl = (IClient) Class.forName(args[0]).newInstance();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (cl == null) throw new RepositoryException("The path of the client class cannot be resolved.");
+		currentConnector.setClient(cl);
+		currentConnector.setDocbase(args[1]);
+		currentConnector.setLogin(args[2]);
+		currentConnector.setPassword(args[3]);
+		currentConnector.setRepository(args[1]);
+		
+		return currentConnector;
+	}
 	
 	
 	
