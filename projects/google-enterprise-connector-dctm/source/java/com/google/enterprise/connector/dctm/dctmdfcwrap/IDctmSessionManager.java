@@ -10,7 +10,6 @@ import com.documentum.fc.common.IDfLoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.RepositoryException;
 
 public class IDctmSessionManager implements ISessionManager{
 	IDfSessionManager dfSessionManager;
@@ -52,7 +51,7 @@ public class IDctmSessionManager implements ISessionManager{
 		IDfSession idfSession=null;
 		String error=null;
 		try{
-			idfSession=dfSessionManager.newSession(docbase);	
+			idfSession = dfSessionManager.newSession(docbase);	
 		}catch(DfIdentityException di){
 			error=di.getMessage();
 		}catch(DfAuthenticationException da){

@@ -1,7 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.client.IDfSysObject;
-import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfTime;
 import com.documentum.fc.common.IDfValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;

@@ -6,13 +6,11 @@ import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
-import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 
 public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
+	
 	IDfSysObject idfSysObject;
 	
 	public IDctmSysObject(IDfSysObject idfSysObject){
@@ -21,19 +19,21 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	}
 	
 	public IFormat getFormat(){
-		IDfFormat idfFormat=null;
+		IDfFormat idfFormat = null;
 		try{
-			idfFormat=idfSysObject.getFormat();
+			idfFormat = idfSysObject.getFormat();
+			
 		}catch(DfException de){
-			de.getMessage();
+			System.out.println(de.getMessage());
 		}
+		
 		return new IDctmFormat(idfFormat);
 	}
 	
 	public long getContentSize(){
-		long contentSize=0;
+		long contentSize = 0;
 		try{
-			contentSize=idfSysObject.getContentSize();
+			contentSize = idfSysObject.getContentSize();
 		}catch(DfException de){
 			de.getMessage();
 		}
@@ -42,7 +42,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	}
 	
 	public ByteArrayInputStream getContent(){
-		ByteArrayInputStream content=null;
+		ByteArrayInputStream content = null;
 		try{
 			content=idfSysObject.getContent();
 		}catch(DfException de){
@@ -52,9 +52,9 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	}
 	
 	public int getPermitEx(String name){
-		int perm=0;
+		int perm = 0;
 		try{
-			perm=idfSysObject.getPermitEx(name);
+			perm = idfSysObject.getPermitEx(name);
 		}catch(DfException de){
 			de.getMessage();
 		}
