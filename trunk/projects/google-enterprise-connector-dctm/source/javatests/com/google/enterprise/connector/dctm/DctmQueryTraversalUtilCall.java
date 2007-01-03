@@ -21,9 +21,12 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 
 		connector = new DctmConnector();
 
-		((DctmConnector) connector).setLogin("user1");
-		((DctmConnector) connector).setPassword("p@ssw0rd");
 		
+		/**
+		 * Simulation of the setters used by Instance.xml
+		 */
+		((DctmConnector) connector).setLogin("user1");
+		((DctmConnector) connector).setPassword("p@ssw0rd");		
 		IClient cl = null;
 		try {
 			cl = (IClient) Class.forName("com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient").newInstance();
@@ -38,6 +41,11 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 			e.printStackTrace();
 		}
 		((DctmConnector) connector).setClient(cl);
+		/**
+		 * End simulation
+		 */
+		
+		
 		try {
 			session = (DctmSession) connector.login();
 			qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();
