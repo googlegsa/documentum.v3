@@ -37,17 +37,12 @@ public class DctmMockCollection implements ICollection {
 	public ITypedObject getTypedObject(){
 		return null;
 	}
-	
-	public ResultSet buildResultSet(){
-		if (currentNode==null)currentNode=collection.nextNode();
-		return new SpiResultSetFromJcr(currentNode , collection);
-	}
 
 	//Needed as getValue() is called in DctmQTM. Will no longer be needed soon:
 	//BuildResSet method intends to avoid the necessity of parsing the collection
 	//in a class common to DFC and Mock but rather in the Collection object (this)
 	public IValue getValue(String attrName){
-		if (currentNode==null){
+		/*if (currentNode==null){
 			return null;
 		}else {
 			String mockArg = "";
@@ -72,9 +67,9 @@ public class DctmMockCollection implements ICollection {
 			} catch (RepositoryException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 			return null;
-		}
+		//}
 	}
 
 
@@ -89,8 +84,7 @@ public class DctmMockCollection implements ICollection {
 	}
 
 	public ResultSet buildResulSetFromCollection(ISession session) {
-		// TODO Auto-generated method stub
-		return null;
+		return new SpiResultSetFromJcr(collection);
 	}
 
 }
