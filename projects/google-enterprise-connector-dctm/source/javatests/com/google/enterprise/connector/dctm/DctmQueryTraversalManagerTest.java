@@ -126,57 +126,57 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		  
 		  resu=new SimpleResultSet(); 
 		  
-			  while (col.next()){
-				  pm=new SimplePropertyMap();
-				 
-				  crID = col.getValue("i_chronicle_id").asString();
-				  vlID=new SimpleValue(ValueType.STRING,crID);
-				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,vlID));
-				
-				  System.out.println(col.getValue("r_modify_date").toString());
-				  //modifDate = col.getValue("r_modify_date").asString();
-				  modifDate = col.getValue("r_modify_date").toString();
-				  
-				  vlDate=new SimpleValue(ValueType.DATE,modifDate);
-				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
-				  
-				  dctmSysObj = (IDctmSysObject)idctmses.getObjectByQualification("dm_document where i_chronicle_id = '" + crID + "'");
-				  dctmForm = (IDctmFormat)dctmSysObj.getFormat();
-				  
-				  if(dctmForm.canIndex()){
-					  content=dctmSysObj.getContent();
-					  mimetype=dctmForm.getMIMEType();
-					  size=new Long(dctmSysObj.getContentSize()).intValue();
-						 
-					   bufContent = new byte[size];
-						ByteArrayOutputStream output=new ByteArrayOutputStream(); 
-						 try{
-							 
-							 while ((count = content.read(bufContent)) > -1){
-							 
-								 output.write(bufContent, 0, count);
-							 }
-							 content.close();
-						 }catch(IOException ie){
-							 System.out.println(ie.getMessage());
-						 }
-						 //content.
-						 if(bufContent.length>0){
-							 vlCont=new SimpleValue(ValueType.BINARY,bufContent);
-							 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-						 }else{
-							 vlCont=new SimpleValue(ValueType.BINARY,"");
-							 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
-						 }
-				  }
-				  
-				  vlMime=new SimpleValue(ValueType.STRING,mimetype);
-				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
-				  resu.add(pm); 
-			  }
-		  assertNotNull(resu); 
-		  
-		
+//			  while (col.next()){
+//				  pm=new SimplePropertyMap();
+//				 
+//				  crID = col.getValue("i_chronicle_id").asString();
+//				  vlID=new SimpleValue(ValueType.STRING,crID);
+//				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,vlID));
+//				
+//				  System.out.println(col.getValue("r_modify_date").toString());
+//				  //modifDate = col.getValue("r_modify_date").asString();
+//				  modifDate = col.getValue("r_modify_date").toString();
+//				  
+//				  vlDate=new SimpleValue(ValueType.DATE,modifDate);
+//				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate)); 
+//				  
+//				  dctmSysObj = (IDctmSysObject)idctmses.getObject("dm_document where i_chronicle_id = '" + crID + "'");
+//				  dctmForm = (IDctmFormat)dctmSysObj.getFormat();
+//				  
+//				  if(dctmForm.canIndex()){
+//					  content=dctmSysObj.getContent();
+//					  mimetype=dctmForm.getMIMEType();
+//					  size=new Long(dctmSysObj.getContentSize()).intValue();
+//						 
+//					   bufContent = new byte[size];
+//						ByteArrayOutputStream output=new ByteArrayOutputStream(); 
+//						 try{
+//							 
+//							 while ((count = content.read(bufContent)) > -1){
+//							 
+//								 output.write(bufContent, 0, count);
+//							 }
+//							 content.close();
+//						 }catch(IOException ie){
+//							 System.out.println(ie.getMessage());
+//						 }
+//						 //content.
+//						 if(bufContent.length>0){
+//							 vlCont=new SimpleValue(ValueType.BINARY,bufContent);
+//							 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
+//						 }else{
+//							 vlCont=new SimpleValue(ValueType.BINARY,"");
+//							 pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_CONTENT,vlCont));
+//						 }
+//				  }
+//				  
+//				  vlMime=new SimpleValue(ValueType.STRING,mimetype);
+//				  pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_MIMETYPE,vlMime));
+//				  resu.add(pm); 
+//			  }
+//		  assertNotNull(resu); 
+//		  
+//		
 	}
 	
 	
