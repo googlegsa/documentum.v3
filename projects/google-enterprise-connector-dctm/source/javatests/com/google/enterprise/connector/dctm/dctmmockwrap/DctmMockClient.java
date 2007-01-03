@@ -1,6 +1,11 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.jcr.Credentials;
+import javax.jcr.RepositoryException;
+import javax.jcr.SimpleCredentials;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -10,100 +15,175 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepository;
+import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryEventList;
+import com.google.enterprise.connector.mock.MockRepositoryProperty;
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
+import com.google.enterprise.connector.mock.jcr.MockJcrSession;
+import com.google.enterprise.connector.spi.LoginException;
 
-public class DctmMockClient implements IClient, ILocalClient {
+//Implements three interfaces to simulate the session pool.
+//Does not manage multiple sessions for the same docbase (for the moment) 
+public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 
-	
-	private MockRepository mockRep;
-	private MockRepositoryEventList mockRepEL;
+	private ISession currentSession;
+	private Hashtable sessMgerCreds=new Hashtable(1,1);
+	private Hashtable sessMgerSessions=new Hashtable(1,1);
 
-	private DctmMockQuery query;
-	
-	private ILoginInfo iLI;
-	
-	private ISession session;
-	
 	public DctmMockClient(){
-		this.mockRep = null;
-		this.query = null;
 	}
-	
-	DctmMockClient(MockRepository mock, DctmMockQuery query){
-		this.mockRep = mock;
-		this.query = query;
-	}
-	
+
 	public ILocalClient getLocalClientEx(){
 		return this;
 	}
-	
+
 	public ISessionManager newSessionManager(){
-		return new DctmMockSessionManager();
+		return this;
 	}
 
-	
+	/**
+	 * Factory method for an IDfQuery object. Constructs an new query 
+	 * object to use for sending DQL queries to Documentum servers.
+	 */
 	public IQuery getQuery() {
-		if (query!=null) return query;
-		else return new DctmMockQuery();
+		return new DctmMockQuery();
 	}
 
-	
-	
+	public void authenticate(String docbaseName, ILoginInfo loginInfo)
+	throws LoginException {
+		MockRepositoryEventList mrel =
+	        new MockRepositoryEventList(docbaseName);		
+	    MockRepository repo = new MockRepository(mrel);
+	    
+        String userID = loginInfo.getUser();
+        String password = loginInfo.getPassword();
+        
+        if(userID == null || userID.length() < 1)
+            throw new LoginException("No user Defined");
+        MockRepositoryDocument doc = repo.getStore().getDocByID("users");
+        if(doc == null)
+            throw new LoginException("No user Defined");
+        MockRepositoryProperty property = doc.getProplist().getProperty("acl");
+        if(property == null)
+            throw new LoginException("No user Defined");
+        String values[] = property.getValues();
+        for(int i = 0; i < values.length; i++)
+            if(values[i].equals(userID))
+                if (userID.equals(password)) return;//succes
 
-	public void authenticate(String docbaseName, ILoginInfo loginInfo) {
-		// TODO Auto-generated method stub
-		
+        throw new LoginException("No user Defined");
 	}
 
-	public ISession newSession(String string, ILoginInfo logInfo) {
-		
-		return null;
+	/**
+	 * Not advised
+	 */
+	public ISession newSession(String docbase, ILoginInfo logInfo) {
+		setIdentity(docbase , logInfo);
+		return newSession(docbase);
 	}
-
 	
-
+	/**
+	 * ILocalClient's method
+	 */
 	public ISession findSession(String dfcSessionId) {
-		return this.session;
+		return this.currentSession;
 	}
-
-	public MockRepository getMockRep() {
-		return mockRep;
-	}
-
-	public String getSessionForUser(String userName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	
-	public void setMockRep(MockRepository mockRep) {
-		this.mockRep = mockRep;
-	}
-
-
-	public void setQuery(DctmMockQuery query) {
-		this.query = query;
-	}
-
+	/**
+	 * Factory method for an IDfLoginInfo object.
+	 * Constructs a new empty object to set with login details
+	 * prior to connecting to Documentum servers.
+	 */
 	public ILoginInfo getLoginInfo() {
-		if (iLI!=null)return iLI;
-		else return new DctmMockLoginInfo();
+		return new DctmMockLoginInfo();
 	}
 
+	/**
+	 * ClientX' method.
+	 */
 	public IId getId(String value) {
-		// TODO Auto-generated method stub
-		return null;
+		return new DctmMockId(value);
 	}
 
+	/**
+	 * IClient's method. Returns current session. Implemented so as to retrieve the session within the
+	 * DocPusher assuming the client instance remained unchanged. Otherwise a user and a password would 
+	 * be to provide with Pusher's instance.
+	 */
 	public ISession getSession() {
-		// TODO Auto-generated method stub
-		return null;
+		return currentSession;
+	}
+	
+	/**
+	 * Session Manager's method. Sets current session as well
+	 */
+	public ISession getSession(String docbase){
+		if (!sessMgerSessions.containsKey(docbase)) return this.newSession(docbase);//DFC javadoc. If session not existing, created. 
+		else {
+			return (ISession) sessMgerSessions.get(docbase);
+		}
 	}
 
-	public void setSession(ISession iS) {
-		this.session = iS;
+	public ISession newSession(String docbase){
+		if (sessMgerCreds.containsKey(docbase)){
+				try {
+					currentSession = createAuthenticatedSession(docbase ,(ILoginInfo) sessMgerCreds.get(docbase));
+					if (!sessMgerSessions.containsKey(docbase)) sessMgerSessions.put(docbase, currentSession);
+					else {
+						sessMgerSessions.remove(docbase);
+						sessMgerSessions.put(docbase, currentSession);
+					}
+					return currentSession;
+				} catch (LoginException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return null;
+				}
+		}
+		else return null;
 	}
 
+	/**
+	 * SessionManager's method - do not set the identified session as current
+	 * This method only stores credentials.
+	 * Authentication is performed later, through a newSession(docbase) call.
+	 */
+	public void setIdentity(String docbase,ILoginInfo identity){
+		if (!sessMgerCreds.containsKey(docbase)) sessMgerCreds.put(docbase, identity);
+		else {
+			sessMgerCreds.remove(docbase);
+			sessMgerCreds.put(docbase, identity);
+		}
+	}
+	
+	/**
+	 * Authenticates the same way the SpiRepositoryFromJcr connector does.
+	 * private then we manage sessions synchronisation within the class that called this method, not here.
+	 * @param db
+	 * @param iLI
+	 * @return
+	 * @throws LoginException
+	 */
+	private ISession createAuthenticatedSession(String db, ILoginInfo iLI) throws LoginException{
+		MockRepositoryEventList mrel =
+	        new MockRepositoryEventList(db);
+		
+	    MockJcrRepository repo = 
+	    	new MockJcrRepository(new MockRepository(mrel));
+	    
+	    Credentials creds = new SimpleCredentials(iLI.getUser(), iLI.getPassword().toCharArray());
+	    
+	    MockJcrSession sess = null;
+	    try {
+			sess = (MockJcrSession) repo.login(creds);
+		} catch (javax.jcr.LoginException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new DctmMockSession(repo,sess);
+		
+	}
 }

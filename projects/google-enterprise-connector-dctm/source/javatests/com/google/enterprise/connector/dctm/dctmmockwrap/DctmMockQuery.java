@@ -22,7 +22,7 @@ public class DctmMockQuery implements IQuery {
 			MockRepositoryDocumentStore a = null;
 			a=((DctmMockSession)session).getStore();
 			MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
-			Query q = mrQueryMger.createQuery(this.query,"mockQueryLanguage");
+			Query q = mrQueryMger.createQuery(this.query,"xpath");
 			QueryResult qr = q.execute();
 			return new DctmMockCollection(qr);
 		}catch (javax.jcr.RepositoryException re){
