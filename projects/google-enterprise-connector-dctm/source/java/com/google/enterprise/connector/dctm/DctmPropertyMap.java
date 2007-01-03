@@ -28,7 +28,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
  */
 public class DctmPropertyMap extends HashMap implements PropertyMap {
 
-  /*
+   /**
    * (non-Javadoc)
    * 
    * @see com.google.enterprise.connector.spi.PropertyMap#getProperties()

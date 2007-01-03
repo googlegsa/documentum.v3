@@ -7,7 +7,6 @@ import java.io.IOException;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.pusher.DocPusher;
 import com.google.enterprise.connector.pusher.Pusher;
 import com.google.enterprise.connector.spi.Property;

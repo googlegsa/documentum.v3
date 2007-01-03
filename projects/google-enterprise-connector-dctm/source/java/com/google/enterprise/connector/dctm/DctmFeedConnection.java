@@ -18,15 +18,10 @@ public class DctmFeedConnection implements FeedConnection {
 	
 	public String sendData(InputStream data) throws IOException {
 		number++;
-		System.out.println(number);
 		try {
-			fileOutputStream = new FileOutputStream("C:/_dev/gsa/crawl/out"
-					+ number + ".txt");
+			fileOutputStream = new FileOutputStream("testdata/crawl/out" + number + ".txt");
 			byte[] buffer = new byte[1000];
 			int readCount = 0;
-			if (data == null) {
-				System.out.println("null");
-			}
 			while ((readCount = data.read(buffer)) != -1) {
 				if (readCount < 1000) {
 					fileOutputStream.write(buffer, 0, readCount);

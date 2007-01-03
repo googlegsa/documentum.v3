@@ -1,7 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -34,6 +33,7 @@ public class DctmSession implements Session{
 		dctmLoginInfo.setPassword("p@ssw0rd");
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
 		session = sessionManager.newSession(docbase);
+		//this.client.setSession(session);
 	}
 	
 	public DctmSession(IClient client, String login, String password, String docbase){
@@ -46,7 +46,7 @@ public class DctmSession implements Session{
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
 		session=sessionManager.newSession(docbase);
-		this.client.setSession(session);
+		//this.client.setSession(session);
 	}
 	
 	
@@ -54,6 +54,7 @@ public class DctmSession implements Session{
 	public QueryTraversalManager getQueryTraversalManager(){
 		
 		DctmQueryTraversalManager DctmQtm = new DctmQueryTraversalManager(client,session.getSessionId());
+		client.setSession(session);
 
 		return DctmQtm;
 	}
