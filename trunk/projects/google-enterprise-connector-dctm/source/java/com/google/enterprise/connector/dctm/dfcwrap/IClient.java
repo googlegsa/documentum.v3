@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
+import com.google.enterprise.connector.spi.LoginException;
+
 public interface IClient{
 	
 	
@@ -12,7 +14,7 @@ public interface IClient{
 
 	public ISession newSession(String string, ILoginInfo logInfo);
 
-	public void authenticate(String docbaseName, ILoginInfo loginInfo);
+	public void authenticate(String docbaseName, ILoginInfo loginInfo) throws LoginException;
 
 
 	public IId getId(String value);
