@@ -45,7 +45,6 @@ public class DctmQTMUtilCallTest {
 			PropertyMap prop;
 			DctmPusher push = new DctmPusher();
 			push.setClient(sess.getClient());
-			push.setSession(sess.getSession());
 			while(iter.hasNext()){
 				prop = (PropertyMap) iter.next();
 				push.take(prop,"dctm");
