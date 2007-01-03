@@ -25,12 +25,9 @@ public class DctmMockSession implements ISession {
 		this.mockJcrSession = mjS;
 	}
 	
-	public ISysObject getObjectByQualification(String qualification){
-		return null;
-	}
-	
 	public ISysObject getObject(IId objectId){
-		MockRepositoryDocument mrD = mockRep.getRepo().getStore().getDocByID(objectId.toString());
+		DctmMockId id = (DctmMockId) objectId;
+		MockRepositoryDocument mrD = mockRep.getRepo().getStore().getDocByID(id.getValue());
 		return new DctmMockRepositoryDocument(mrD);
 	}
 	
