@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
-import com.google.enterprise.connector.dctm.DctmResultSet;
 import com.google.enterprise.connector.spi.ResultSet;
 
 public interface ICollection{
