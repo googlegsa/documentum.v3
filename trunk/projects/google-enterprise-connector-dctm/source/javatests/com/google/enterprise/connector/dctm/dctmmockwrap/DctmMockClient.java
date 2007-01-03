@@ -186,4 +186,9 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 		return new DctmMockSession(repo,sess);
 		
 	}
+
+	public void setSession(ISession session) {
+		// TODO Auto-generated method stub
+		
+	}
 }
