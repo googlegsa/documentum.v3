@@ -106,7 +106,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	public ResultSet resumeTraversal(String checkPoint)
 			throws RepositoryException {
 
-		//System.out.println("checkpoint vaut "+checkPoint);
+		System.out.println("checkpoint vaut "+checkPoint);
 		//{"uuid":"0900045780030e40","lastModified":"2006-09-27"}
 		JSONObject jo = null;
 		ResultSet resu = null;
@@ -120,7 +120,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		String uuid = extractDocidFromCheckpoint(jo, checkPoint);
 		Calendar c = extractCalendarFromCheckpoint(jo, checkPoint);
 		String queryString = makeCheckpointQueryString(uuid, c);
-		//System.out.println("queryString vaut "+queryString);
+		System.out.println("queryString vaut "+queryString);
 
 		IQuery query = makeCheckpointQuery(queryString);
 		resu = execQuery(query);
@@ -150,9 +150,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	public String checkpoint(PropertyMap pm) throws RepositoryException {
 		String uuid = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
+		
 		Calendar c = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_LASTMODIFY).getDate();
-		String dateString = DctmValue.calendarToIso8601(c);
+		
+		String dateString = DctmSimpleValue.calendarToIso8601(c);
 		String result = null;
 		try {
 			JSONObject jo = new JSONObject();
@@ -204,15 +206,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private IQuery makeCheckpointQuery(String queryString)
 			throws RepositoryException {
 		IQuery query = null;
-
-		//query=(IQuery)Class.forName(QUERY_CLASS_NAME).newInstance();
-
-		//query=DctmInstantiator.getIQueryObject();
-		//query.setDQL(queryString);
-
 		query = client.getQuery();
 		query.setDQL(queryString);
-
 		return query;
 	}
 
@@ -238,7 +233,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		}
 		Calendar c = null;
 		try {
-			c = DctmValue.iso8601ToCalendar(dateString);
+			c = DctmSimpleValue.iso8601ToCalendar(dateString);
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(
 					"could not parse date string from checkPoint string: "
@@ -250,7 +245,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private String makeCheckpointQueryString(String uuid, Calendar c)
 			throws RepositoryException {
 
-		String time = DctmValue.calendarToIso8601(c);
+		String time = DctmSimpleValue.calendarToIso8601(c);
 		Object[] arguments = { time };
 		//System.out.println(boundedTraversalQuery);
 		String statement = MessageFormat.format(boundedTraversalQuery,
