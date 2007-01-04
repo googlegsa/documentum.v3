@@ -3,7 +3,7 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 import com.google.enterprise.connector.dctm.DctmProperty;
 import com.google.enterprise.connector.dctm.DctmPropertyMap;
 import com.google.enterprise.connector.dctm.DctmResultSet;
-import com.google.enterprise.connector.dctm.DctmValue;
+import com.google.enterprise.connector.dctm.DctmSimpleValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -90,7 +90,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		String crID = null;
 		String mimetype = null;
 		DctmPropertyMap pm = null;
-		ISysObject dctmSysObj = null;
+		IDctmSysObject dctmSysObj = null;
 		IFormat dctmForm = null;
 		IDctmValue val = null;
 		DctmResultSet resu = new DctmResultSet();
@@ -101,13 +101,18 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 				pm = new DctmPropertyMap();
 				crID = col.getValue("i_chronicle_id").asString();
 				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_DOCID,
-						new DctmValue(ValueType.STRING, crID)));
+						new DctmSimpleValue(ValueType.STRING, crID)));
 				val = (IDctmValue) col.getValue("r_modify_date");
 
 				modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN45);
 				pm.putProperty(new DctmProperty(
-						SpiConstants.PROPNAME_LASTMODIFY, new DctmValue(
+						SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
 								ValueType.DATE, modifDate)));
+				
+//				modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
+				// Date mydate=itime.getDate();
+				//System.out.println("modifdate vaut "+modifDate);
+				// vlDate=new DctmValue(ValueType.DATE,modifDate);
 
 				dctmSysObj = (IDctmSysObject) session
 						.getObject(new IDctmId(crID));
@@ -116,14 +121,15 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 
 				if (dctmForm.canIndex()) {
 					mimetype = dctmForm.getMIMEType();
+					
+					
 					pm.putProperty(new DctmProperty(
-							SpiConstants.PROPNAME_CONTENT, new DctmValue(
-									ValueType.BINARY, "")));
-					pm.putProperty(new DctmProperty(
-							SpiConstants.PROPNAME_MIMETYPE, new DctmValue(
+							SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 									ValueType.STRING, mimetype)));
 				}
-
+				pm.putProperty(new DctmProperty(
+						SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
+								ValueType.BINARY, dctmSysObj)));
 				resu.add(pm);
 			}
 		} catch (RepositoryException re) {
