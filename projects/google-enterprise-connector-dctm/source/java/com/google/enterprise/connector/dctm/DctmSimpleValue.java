@@ -14,16 +14,16 @@
 
 package com.google.enterprise.connector.dctm;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
+import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.SimpleValue;
 import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.ValueType;
 
@@ -32,195 +32,122 @@ import com.google.enterprise.connector.spi.ValueType;
  * class is not part of the spi - it is provided for developers to assist in
  * implementations of the spi.
  */
-public class DctmSimpleValue implements Value {
+public class DctmSimpleValue extends SimpleValue implements Value {
 
-  private final ValueType type;
-  private final String stringValue;
-  private final byte[] byteArrayValue;
+	private final ISysObject sysObject;
+	private static final SimpleDateFormat ISO8601_DATE_FORMAT_MILLIS = new SimpleDateFormat(
+	"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-  public DctmSimpleValue(ValueType t, String v) {
-    this.type = t;
-    this.stringValue = v;
-    this.byteArrayValue = new byte[] {};
-  }
+private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS = new SimpleDateFormat(
+	"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-  public DctmSimpleValue(ValueType t, byte[] v) {
-    this.type = t;
-    this.stringValue = null;
-    this.byteArrayValue = new byte[v.length];
-    for (int i=0; i<v.length; i++) {
-      this.byteArrayValue[i] = v[i];
-    }
-  }
+private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat(
+	"yyyy-MM-dd");
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.enterprise.connector.spi.Value#getBoolean()
-   */
-  public boolean getBoolean() throws IllegalArgumentException,
-      RepositoryException {
-    if (stringValue.equalsIgnoreCase("t")
-        || stringValue.equalsIgnoreCase("true")) {
-      return true;
-    }
-    return false;
-  }
+	public DctmSimpleValue(ValueType t, String v) {
+		super(t, v);
+		sysObject = null;
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.enterprise.connector.spi.Value#getDate()
-   */
-  public Calendar getDate() throws IllegalArgumentException,
-      RepositoryException {
-    Calendar c;
-    try {
-      c = iso8601ToCalendar(stringValue);
-    } catch (ParseException e) {
-      throw new IllegalArgumentException("Can't parse stringValue as date: "
-          + e.getMessage());
-    }
-    return c;
-  }
+	public DctmSimpleValue(ValueType t, byte[] v) {
+		super(t, v);
+		sysObject = null;
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.enterprise.connector.spi.Value#getDouble()
-   */
-  public double getDouble() throws IllegalArgumentException,
-      RepositoryException {
-    Double d;
-    d = Double.valueOf(stringValue);
-    return d.doubleValue();
-  }
+	public DctmSimpleValue(ValueType t, ISysObject v) {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.enterprise.connector.spi.Value#getLong()
-   */
-  public long getLong() throws IllegalArgumentException, RepositoryException {
-    Long l;
-    l = Long.valueOf(stringValue);
-    return l.longValue();
-  }
+		super(t, "");
+		sysObject = v;
+	}
 
-  
-  
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.enterprise.connector.spi.Value#getStream()
-   */
-  public InputStream getStream() throws IllegalArgumentException,
-      IllegalStateException, RepositoryException {
-    if (byteArrayValue.length > 0) {
-      return new ByteArrayInputStream(byteArrayValue);
-    }
-    return new ByteArrayInputStream(stringValue.getBytes());
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.google.enterprise.connector.spi.Value#getStream()
+	 */
+	public InputStream getStream() throws IllegalArgumentException,
+			IllegalStateException, RepositoryException {
+		if (sysObject == null) {
+			return super.getStream();
+		} else {
+			InputStream str = sysObject.getContent();
+			if(str == null){
+				str = new ByteArrayInputStream(new byte [1]);
+			}
+			return str;
+		}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.enterprise.connector.spi.Value#getString()
-   */
-  public String getString() throws IllegalArgumentException,
-      RepositoryException {
-    return stringValue;
-  }
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.google.enterprise.connector.spi.Value#getType()
-   */
-  public ValueType getType() throws RepositoryException {
-    return type;
-  }
 
-  private static final TimeZone TIME_ZONE_GMT = TimeZone.getTimeZone("GMT+0");
-  private static final Calendar GMT_CALENDAR =
-      Calendar.getInstance(TIME_ZONE_GMT);
-  private static final SimpleDateFormat ISO8601_DATE_FORMAT_MILLIS =
-      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-  private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS =
-      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-  private static final SimpleDateFormat ISO8601_DATE_FORMAT =
-      new SimpleDateFormat("yyyy-MM-dd");
-  public static final SimpleDateFormat RFC822_DATE_FORMAT =
-      new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss z");
+	private static Date iso8601ToDate(String s) throws ParseException {
+		Date d = null;
+		try {
+			d = ISO8601_DATE_FORMAT_MILLIS.parse(s);
+			return d;
+		} catch (ParseException e) {
+			// this is just here so we can try another format
+		}
+		try {
+			d = ISO8601_DATE_FORMAT_SECS.parse(s);
+		} catch (ParseException e) {
+			// this is just here so we can try another format
+		}
+		try {
+			d = ISO8601_DATE_FORMAT.parse(s);
+		} catch (ParseException e) {
+			// this is just here so we can try another format
+		}
+		return d;
+	}
 
-  static {
-    ISO8601_DATE_FORMAT_MILLIS.setCalendar(GMT_CALENDAR);
-    ISO8601_DATE_FORMAT_MILLIS.setLenient(true);
-    ISO8601_DATE_FORMAT_SECS.setCalendar(GMT_CALENDAR);
-    ISO8601_DATE_FORMAT_SECS.setLenient(true);
-    RFC822_DATE_FORMAT.setCalendar(GMT_CALENDAR);
-    RFC822_DATE_FORMAT.setLenient(true);
-    RFC822_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-  }
+	public Calendar getDate() throws IllegalArgumentException,
+			RepositoryException {
+		Calendar c;
+		try {
+			c = iso8601ToCalendar(super.getString());
+		} catch (ParseException e) {
+			throw new IllegalArgumentException(
+					"Can't parse stringValue as date: " + e.getMessage());
+		}
+		return c;
+	}
+	
+	/**
+	 * Parses a String in ISO-8601 format (GMT zone) and returns an equivalent
+	 * java.util.Calendar object.
+	 * 
+	 * @param s
+	 * @return a Calendar object
+	 * @throws ParseException
+	 *             if the the String can not be parsed
+	 */
+	public static Calendar iso8601ToCalendar(String s) throws ParseException {
+		Date d = iso8601ToDate(s);
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		return c;
+	}
 
-  /**
-   * Formats a calendar object as RFC 822.
-   * 
-   * @param c
-   * @return a String in RFC 822 format - always in GMT zone
-   */
-  public static String calendarToRfc822(Calendar c) {
-    Date d = c.getTime();
-    String isoString = RFC822_DATE_FORMAT.format(d);
-    return isoString;
-  }
+	public String getString() throws IllegalArgumentException, RepositoryException {
+		return super.getString();
+	}
 
-  /**
-   * Formats a calendar object as ISO-8601.
-   * 
-   * @param c
-   * @return a String in ISO-8601 format - always in GMT zone
-   */
-  public static String calendarToIso8601(Calendar c) {
-    Date d = c.getTime();
-    String isoString = ISO8601_DATE_FORMAT_MILLIS.format(d);
-    return isoString;
-  }
+	public long getLong() throws IllegalArgumentException, RepositoryException {
+		return super.getLong();
+	}
 
-  private static Date iso8601ToDate(String s) throws ParseException {
-    Date d = null;
-    try {
-      d = ISO8601_DATE_FORMAT_MILLIS.parse(s);
-      return d;
-    } catch (ParseException e) {
-      // this is just here so we can try another format
-    }
-    try {
-    d = ISO8601_DATE_FORMAT_SECS.parse(s);
-    } catch (ParseException e) {
-      // this is just here so we can try another format
-    }
-    try {
-        d = ISO8601_DATE_FORMAT.parse(s);
-        } catch (ParseException e) {
-          // this is just here so we can try another format
-        }
-    return d;
-  }
+	public double getDouble() throws IllegalArgumentException, RepositoryException {
+		return super.getDouble();
+	}
 
-  /**
-   * Parses a String in ISO-8601 format (GMT zone) and returns an equivalent
-   * java.util.Calendar object.
-   * 
-   * @param s
-   * @return a Calendar object
-   * @throws ParseException if the the String can not be parsed
-   */
-  public static Calendar iso8601ToCalendar(String s) throws ParseException {
-    Date d = iso8601ToDate(s);
-    Calendar c = Calendar.getInstance();
-    c.setTime(d);
-    return c;
-  }
+	public boolean getBoolean() throws IllegalArgumentException, RepositoryException {
+		return false;
+	}
+
+	public ValueType getType() throws RepositoryException {
+		return super.getType();
+	}
+
 
 }
