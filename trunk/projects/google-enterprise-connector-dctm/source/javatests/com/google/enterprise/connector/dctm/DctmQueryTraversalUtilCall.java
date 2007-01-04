@@ -12,8 +12,24 @@ import com.google.enterprise.connector.spi.Session;
 //import com.google.enterprise.connector.test.QueryTraversalUtil;
 
 public class DctmQueryTraversalUtilCall extends TestCase {
+	
+	private final boolean DFC = false;
+	private String user, password, client, docbase;
 
-	public void testTraversal() {
+	public void testTraversal() {		
+		if (DFC) {
+			DctmInstantiator.isDFCavailable=true;
+			user="user1";
+			password="p@ssw0rd";
+			client="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient";
+			docbase="gsadctm";
+		} else {
+			DctmInstantiator.isDFCavailable=false;
+			user="mark";
+			password="mark";
+			client="com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockClient";
+			docbase="MockRepositoryEventLog7.txt";
+		}
 
 		Session session = null;
 		Connector connector = null;
@@ -25,11 +41,12 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		/**
 		 * Simulation of the setters used by Instance.xml
 		 */
-		((DctmConnector) connector).setLogin("user1");
-		((DctmConnector) connector).setPassword("p@ssw0rd");		
+		((DctmConnector) connector).setLogin(user);
+		((DctmConnector) connector).setPassword(password);
+		((DctmConnector) connector).setDocbase(docbase);
 		IClient cl = null;
 		try {
-			cl = (IClient) Class.forName("com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient").newInstance();
+			cl = (IClient) Class.forName(client).newInstance();
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
