@@ -135,6 +135,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		} catch (RepositoryException re) {
 			System.out.println(re.getMessage());
 		}
+		
 		return resu;
 	}
 
