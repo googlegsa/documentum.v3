@@ -3,7 +3,7 @@ package com.google.enterprise.connector.dctm;
 public class DctmInstantiator {
 	//This class simulates an acces to the ressources provided by Spring.
 
-	public static boolean isDFCavailable = false;
+	public static boolean isDFCavailable = true;
 
 	public static String QUERY_STRING_UNBOUNDED_DEFAULT;
 	

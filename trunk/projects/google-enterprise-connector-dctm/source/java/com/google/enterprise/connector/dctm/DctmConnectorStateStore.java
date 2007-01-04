@@ -6,8 +6,6 @@ import com.google.enterprise.connector.persist.ConnectorStateStore;
 
 public class DctmConnectorStateStore extends HashMap implements ConnectorStateStore {
 	
-	private static final long serialVersionUID = 1L;
-	
 	public String getConnectorState(String connectorName) {
 		return (String) this.get(connectorName);
 	}
