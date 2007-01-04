@@ -1,7 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.google.enterprise.connector.dctm.DctmProperty;
-import com.google.enterprise.connector.dctm.DctmPropertyMap;
 import com.google.enterprise.connector.dctm.DctmResultSet;
 import com.google.enterprise.connector.dctm.DctmSimpleValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -12,6 +10,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.ResultSet;
+import com.google.enterprise.connector.spi.SimpleProperty;
+import com.google.enterprise.connector.spi.SimplePropertyMap;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.ValueType;
 import com.documentum.fc.client.IDfCollection;
@@ -88,7 +88,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		String modifDate = null;
 		String crID = null;
 		String mimetype = null;
-		DctmPropertyMap pm = null;
+		SimplePropertyMap pm = null;
 		IDctmSysObject dctmSysObj = null;
 		IFormat dctmForm = null;
 		IDctmValue val = null;
@@ -97,14 +97,14 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		ICollection col = new IDctmCollection(idfCollection);
 		try {
 			while (col.next()) {
-				pm = new DctmPropertyMap();
+				pm = new SimplePropertyMap();
 				crID = col.getValue("i_chronicle_id").asString();
-				pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_DOCID,
+				pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 						new DctmSimpleValue(ValueType.STRING, crID)));
 				val = (IDctmValue) col.getValue("r_modify_date");
 
 				modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN45);
-				pm.putProperty(new DctmProperty(
+				pm.putProperty(new SimpleProperty(
 						SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
 								ValueType.DATE, modifDate)));
 				
@@ -122,11 +122,11 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 					mimetype = dctmForm.getMIMEType();
 					
 					
-					pm.putProperty(new DctmProperty(
+					pm.putProperty(new SimpleProperty(
 							SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 									ValueType.STRING, mimetype)));
 				}
-				pm.putProperty(new DctmProperty(
+				pm.putProperty(new SimpleProperty(
 						SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
 								ValueType.BINARY, dctmSysObj)));
 				resu.add(pm);
