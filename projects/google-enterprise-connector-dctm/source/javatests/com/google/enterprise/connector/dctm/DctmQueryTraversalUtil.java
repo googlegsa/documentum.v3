@@ -4,6 +4,7 @@ package com.google.enterprise.connector.dctm;
 import java.util.Iterator;
 
 
+import com.google.enterprise.connector.pusher.DocPusher;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.PropertyMap;
@@ -42,14 +43,14 @@ public class DctmQueryTraversalUtil {
 			return;
 		}
 		
-		DctmPusher push = new DctmPusher();
-		push.setClient(dctmQTM.getClient());
+		DocPusher push = new DocPusher(new DctmFeedConnection());
+		
 		while (true) {
 			int counter = 0;
 			
 			PropertyMap pm = null;
 			for (Iterator iter = resultSet.iterator(); iter.hasNext();) {
-				//pm = ;
+				pm = (PropertyMap)iter.next ();
 				counter++;
 				
 				if (counter == batchHint) {
@@ -57,13 +58,11 @@ public class DctmQueryTraversalUtil {
 					// this test program only takes batchHint results from each
 					// resultSet. The real connector manager may take fewer - for
 					// example, if it receives a shutdown request
-					//suggestion d'ajout : counter = 0;	
 					
 					break;
-				}else{
-					push.take((PropertyMap) iter.next (),"dctm");
 				}
-				
+				push.take(pm ,"dctm");
+							
 			}
 			
 			if (counter == 0) {
@@ -71,7 +70,9 @@ public class DctmQueryTraversalUtil {
 				// the real connector Manager might wait a while, then try again
 				break;
 			}
-			
+			if(pm==null){
+				System.out.println("pm null");
+			}
 			String checkPointString = dctmQTM.checkpoint(pm);
 							
 			resultSet = dctmQTM.resumeTraversal(checkPointString);

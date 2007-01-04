@@ -13,7 +13,7 @@ import com.google.enterprise.connector.spi.Session;
 
 public class DctmQueryTraversalUtilCall extends TestCase {
 	
-	private final boolean DFC = false;
+	private final boolean DFC = true;
 	private String user, password, client, docbase;
 
 	public void testTraversal() {		
@@ -66,7 +66,7 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		try {
 			session = (DctmSession) connector.login();
 			qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();
-			DctmQueryTraversalUtil.runTraversal(qtm, 20000);
+			DctmQueryTraversalUtil.runTraversal(qtm, 15);
 
 		} catch (LoginException le) {
 			le.getMessage();
