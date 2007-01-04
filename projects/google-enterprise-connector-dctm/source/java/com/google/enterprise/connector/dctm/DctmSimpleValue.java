@@ -35,14 +35,15 @@ import com.google.enterprise.connector.spi.ValueType;
 public class DctmSimpleValue extends SimpleValue implements Value {
 
 	private final ISysObject sysObject;
+
 	private static final SimpleDateFormat ISO8601_DATE_FORMAT_MILLIS = new SimpleDateFormat(
-	"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS = new SimpleDateFormat(
-	"yyyy-MM-dd'T'HH:mm:ss'Z'");
+	private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat(
-	"yyyy-MM-dd");
+	private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat(
+			"yyyy-MM-dd");
 
 	public DctmSimpleValue(ValueType t, String v) {
 		super(t, v);
@@ -71,14 +72,13 @@ private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat
 			return super.getStream();
 		} else {
 			InputStream str = sysObject.getContent();
-			if(str == null){
-				str = new ByteArrayInputStream(new byte [1]);
+			if (str == null) {
+				str = new ByteArrayInputStream(new byte[1]);
 			}
 			return str;
 		}
 
 	}
-
 
 	private static Date iso8601ToDate(String s) throws ParseException {
 		Date d = null;
@@ -108,7 +108,7 @@ private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat
 		}
 		return c;
 	}
-	
+
 	/**
 	 * Parses a String in ISO-8601 format (GMT zone) and returns an equivalent
 	 * java.util.Calendar object.
@@ -125,7 +125,8 @@ private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat
 		return c;
 	}
 
-	public String getString() throws IllegalArgumentException, RepositoryException {
+	public String getString() throws IllegalArgumentException,
+			RepositoryException {
 		return super.getString();
 	}
 
@@ -133,17 +134,22 @@ private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat
 		return super.getLong();
 	}
 
-	public double getDouble() throws IllegalArgumentException, RepositoryException {
+	public double getDouble() throws IllegalArgumentException,
+			RepositoryException {
 		return super.getDouble();
 	}
 
-	public boolean getBoolean() throws IllegalArgumentException, RepositoryException {
+	public boolean getBoolean() throws IllegalArgumentException,
+			RepositoryException {
 		return super.getBoolean();
 	}
 
 	public ValueType getType() throws RepositoryException {
 		return super.getType();
 	}
-
-
+	public static String calendarToIso8601(Calendar c) {
+	    Date d = c.getTime();
+	    String isoString = ISO8601_DATE_FORMAT.format(d);
+	    return isoString;
+	  }
 }
