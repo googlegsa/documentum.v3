@@ -93,11 +93,7 @@ private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat
 		} catch (ParseException e) {
 			// this is just here so we can try another format
 		}
-		try {
-			d = ISO8601_DATE_FORMAT.parse(s);
-		} catch (ParseException e) {
-			// this is just here so we can try another format
-		}
+		d = ISO8601_DATE_FORMAT.parse(s);
 		return d;
 	}
 
@@ -142,7 +138,7 @@ private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat
 	}
 
 	public boolean getBoolean() throws IllegalArgumentException, RepositoryException {
-		return false;
+		return super.getBoolean();
 	}
 
 	public ValueType getType() throws RepositoryException {
