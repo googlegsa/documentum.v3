@@ -43,6 +43,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	
 	public ByteArrayInputStream getContent(){
 		ByteArrayInputStream content = null;
+		System.out.println("getContent");
 		try{
 			content=idfSysObject.getContent();
 		}catch(DfException de){
