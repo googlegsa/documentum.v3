@@ -30,7 +30,7 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 	throws RepositoryException{
 		int i=0;
 		DctmResultSet resultSet = null;
-		DctmPropertyMap docmap = null;
+		SimplePropertyMap docmap = null;
 		IQuery query = this.getClient().getQuery();
 		String dqlQuery ="select r_object_id from dm_document where r_object_id in (";
 		ICollection collec = null;
@@ -57,7 +57,7 @@ public class DctmAuthorizationManager implements AuthorizationManager{
 		resultSet = new DctmResultSet();
 		for(i = 0; i < docidList.size() ; i++){
 			System.out.println("index " + i);
-			docmap = new DctmPropertyMap();
+			docmap = new SimplePropertyMap();
 			docmap.putProperty(new DctmProperty("PROPNAME_DOCID",docidList.get(i).toString()));
 			docmap.putProperty(new DctmProperty("PROPNAME_AUTH_VIEWPERMIT", (ids.indexOf(docidList.get(i).toString()) != -1)));
 			resultSet.add(docmap);

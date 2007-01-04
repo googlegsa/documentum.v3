@@ -181,9 +181,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	}
 
 	public ResultSet execQuery(IQuery query) {
-		ICollection dctmCollection = null; // Collection for the result
-		//dctmCollection = query.execute(session, IDctmQuery.DF_READ_QUERY);
-		dctmCollection = query.execute(session, 0);
+		ICollection dctmCollection = null; 
+		dctmCollection = query.execute(session, IQuery.DF_READ_QUERY);
 		ResultSet rs = dctmCollection.buildResulSetFromCollection(session);
 		return rs;
 	}
@@ -247,7 +246,6 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 		String time = DctmSimpleValue.calendarToIso8601(c);
 		Object[] arguments = { time };
-		//System.out.println(boundedTraversalQuery);
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
 		return statement;
