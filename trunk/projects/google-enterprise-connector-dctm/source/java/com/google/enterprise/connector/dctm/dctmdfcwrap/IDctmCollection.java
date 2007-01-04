@@ -8,7 +8,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;

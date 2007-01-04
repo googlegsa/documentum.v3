@@ -147,6 +147,7 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 	public ValueType getType() throws RepositoryException {
 		return super.getType();
 	}
+	
 	public static String calendarToIso8601(Calendar c) {
 	    Date d = c.getTime();
 	    String isoString = ISO8601_DATE_FORMAT.format(d);
