@@ -25,22 +25,22 @@ import com.google.enterprise.connector.spi.LoginException;
 //Implements three interfaces to simulate the session pool.
 //Does not manage multiple sessions for the same docbase (for the moment) 
 public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
-
+	
 	private ISession currentSession;
 	private Hashtable sessMgerCreds=new Hashtable(1,1);
 	private Hashtable sessMgerSessions=new Hashtable(1,1);
-
+	
 	public DctmMockClient(){
 	}
-
+	
 	public ILocalClient getLocalClientEx(){
 		return this;
 	}
-
+	
 	public ISessionManager newSessionManager(){
 		return this;
 	}
-
+	
 	/**
 	 * Factory method for an IDfQuery object. Constructs an new query 
 	 * object to use for sending DQL queries to Documentum servers.
@@ -48,36 +48,37 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	public IQuery getQuery() {
 		return new DctmMockQuery();
 	}
-
+	
 	public void authenticate(String docbaseName, ILoginInfo loginInfo)
 	throws LoginException {
 		MockRepositoryEventList mrel =
-	        new MockRepositoryEventList(docbaseName);		
-	    MockRepository repo = new MockRepository(mrel);
-	    
-        String userID = loginInfo.getUser();
-        String password = loginInfo.getPassword();
-        
-        if(userID == null || userID.length() < 1)
-            throw new LoginException("No user Defined");
-        MockRepositoryDocument doc = repo.getStore().getDocByID("users");
-        if(doc == null)
-            throw new LoginException("No user Defined");
-        MockRepositoryProperty property = doc.getProplist().getProperty("acl");
-        if(property == null)
-            throw new LoginException("No user Defined");
-        String values[] = property.getValues();
-        for(int i = 0; i < values.length; i++)
-            if(values[i].equals(userID))
-                if (userID.equals(password)) return;//succes
-
-        throw new LoginException("No user Defined");
+			new MockRepositoryEventList(docbaseName);		
+		MockRepository repo = new MockRepository(mrel);
+		
+		String userID = loginInfo.getUser();
+		String password = loginInfo.getPassword();
+		
+		if(userID == null || userID.length() < 1)
+			throw new LoginException("No user Defined");
+		MockRepositoryDocument doc = repo.getStore().getDocByID("users");
+		if(doc == null)
+			throw new LoginException("No user Defined");
+		MockRepositoryProperty property = doc.getProplist().getProperty("acl");
+		if(property == null)
+			throw new LoginException("No user Defined");
+		String values[] = property.getValues();
+		for(int i = 0; i < values.length; i++)
+			if(values[i].equals(userID))
+				if (userID.equals(password)) return;//succes
+		
+		throw new LoginException("No user Defined");
 	}
-
+	
 	/**
 	 * Not advised
+	 * @throws com.google.enterprise.connector.spi.RepositoryException 
 	 */
-	public ISession newSession(String docbase, ILoginInfo logInfo) {
+	public ISession newSession(String docbase, ILoginInfo logInfo) throws com.google.enterprise.connector.spi.RepositoryException {
 		setIdentity(docbase , logInfo);
 		return newSession(docbase);
 	}
@@ -97,14 +98,14 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	public ILoginInfo getLoginInfo() {
 		return new DctmMockLoginInfo();
 	}
-
+	
 	/**
 	 * ClientX' method.
 	 */
 	public IId getId(String value) {
 		return new DctmMockId(value);
 	}
-
+	
 	/**
 	 * IClient's method. Returns current session. Implemented so as to retrieve the session within the
 	 * DocPusher assuming the client instance remained unchanged. Otherwise a user and a password would 
@@ -116,33 +117,31 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	
 	/**
 	 * Session Manager's method. Sets current session as well
+	 * @throws com.google.enterprise.connector.spi.RepositoryException 
 	 */
-	public ISession getSession(String docbase){
+	public ISession getSession(String docbase) throws com.google.enterprise.connector.spi.RepositoryException{
 		if (!sessMgerSessions.containsKey(docbase)) return this.newSession(docbase);//DFC javadoc. If session not existing, created. 
 		else {
 			return (ISession) sessMgerSessions.get(docbase);
 		}
 	}
-
-	public ISession newSession(String docbase){
+	
+	/**
+	 * 
+	 */
+	public ISession newSession(String docbase) throws com.google.enterprise.connector.spi.RepositoryException{
 		if (sessMgerCreds.containsKey(docbase)){
-				try {
-					currentSession = createAuthenticatedSession(docbase ,(ILoginInfo) sessMgerCreds.get(docbase));
-					if (!sessMgerSessions.containsKey(docbase)) sessMgerSessions.put(docbase, currentSession);
-					else {
-						sessMgerSessions.remove(docbase);
-						sessMgerSessions.put(docbase, currentSession);
-					}
-					return currentSession;
-				} catch (LoginException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return null;
-				}
+			currentSession = createAuthenticatedSession(docbase ,(ILoginInfo) sessMgerCreds.get(docbase));
+			if (!sessMgerSessions.containsKey(docbase)) sessMgerSessions.put(docbase, currentSession);
+			else {
+				sessMgerSessions.remove(docbase);
+				sessMgerSessions.put(docbase, currentSession);
+			}
+			return currentSession;
 		}
 		else return null;
 	}
-
+	
 	/**
 	 * SessionManager's method - do not set the identified session as current
 	 * This method only stores credentials.
@@ -155,40 +154,40 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 			sessMgerCreds.put(docbase, identity);
 		}
 	}
-	
+
 	/**
 	 * Authenticates the same way the SpiRepositoryFromJcr connector does.
 	 * private then we manage sessions synchronisation within the class that called this method, not here.
 	 * @param db
 	 * @param iLI
 	 * @return
-	 * @throws LoginException
+	 * @throws com.google.enterprise.connector.spi.RepositoryException
 	 */
-	private ISession createAuthenticatedSession(String db, ILoginInfo iLI) throws LoginException{
+	private ISession createAuthenticatedSession(String db, ILoginInfo iLI) throws com.google.enterprise.connector.spi.RepositoryException{
 		MockRepositoryEventList mrel =
-	        new MockRepositoryEventList(db);
+			new MockRepositoryEventList(db);
 		
-	    MockJcrRepository repo = 
-	    	new MockJcrRepository(new MockRepository(mrel));
-	    
-	    Credentials creds = new SimpleCredentials(iLI.getUser(), iLI.getPassword().toCharArray());
-	    
-	    MockJcrSession sess = null;
-	    try {
+		MockJcrRepository repo = 
+			new MockJcrRepository(new MockRepository(mrel));
+		
+		Credentials creds = new SimpleCredentials(iLI.getUser(), iLI.getPassword().toCharArray());
+		
+		MockJcrSession sess = null;
+		try {
 			sess = (MockJcrSession) repo.login(creds);
 		} catch (javax.jcr.LoginException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LoginException re = new LoginException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		} catch (javax.jcr.RepositoryException e) {
+			com.google.enterprise.connector.spi.RepositoryException re = new com.google.enterprise.connector.spi.RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
 		}
 		return new DctmMockSession(repo,sess);
 		
 	}
-
+	
 	public void setSession(ISession session) {
-		// TODO Auto-generated method stub
-		
 	}
 }

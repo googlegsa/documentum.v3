@@ -1,26 +1,26 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import com.google.enterprise.connector.dctm.dfcwrap.*;
-import com.google.enterprise.connector.jcradaptor.SpiResultSetFromJcr;
-import com.google.enterprise.connector.spi.ResultSet;
-
-import javax.jcr.query.QueryResult;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
+import javax.jcr.query.QueryResult;
+
+import com.google.enterprise.connector.dctm.dfcwrap.*;
+import com.google.enterprise.connector.jcradaptor.SpiResultSetFromJcr;
+import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.ResultSet;
 
 public class DctmMockCollection implements ICollection {
 	private NodeIterator collection;
 	private Node currentNode;
-	public DctmMockCollection(QueryResult mjQueryResult){
-		try {
-			collection = mjQueryResult.getNodes();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public DctmMockCollection(QueryResult mjQueryResult) throws RepositoryException{
+			try {
+				collection = mjQueryResult.getNodes();
+			} catch (javax.jcr.RepositoryException e) {
+				RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+				re.setStackTrace(e.getStackTrace());
+				throw re;
+			}
 	}
 	
 	//Needed as next() is called in DctmQTM. Will no longer be needed soon:
@@ -37,25 +37,27 @@ public class DctmMockCollection implements ICollection {
 	//Needed as getValue() is called in DctmQTM. Will no longer be needed soon:
 	//BuildResSet method intends to avoid the necessity of parsing the collection
 	//in a class common to DFC and Mock but rather in the Collection object (this)
-	public IValue getValue(String attrName){
+	public IValue getValue(String attrName) throws RepositoryException{
 		if (currentNode==null){
 			return null;
 		}else {
-			Property py=null;
-			try {
-				py = currentNode.getProperty(attrName);
-			} catch (PathNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (RepositoryException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			javax.jcr.Property py=null;
+					try {
+						py = currentNode.getProperty(attrName);
+					} catch (PathNotFoundException e) {
+						RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+						re.setStackTrace(e.getStackTrace());
+						throw re;
+					} catch (javax.jcr.RepositoryException e) {
+						RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+						re.setStackTrace(e.getStackTrace());
+						throw re;
+					}
 			return new DctmMockValue(py);
 		}
 	}
 	
-	public ResultSet buildResulSetFromCollection(ISession session) {
+	public ResultSet buildResulSetFromCollection(ISession session) throws RepositoryException {
 		SpiResultSetFromJcr test = new SpiResultSetFromJcr(collection);
 		return test;
 	}

@@ -2,11 +2,10 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.*;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
-import com.google.enterprise.connector.mock.MockRepositoryDateTime;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 import org.json.JSONObject;
 
@@ -22,13 +21,14 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 		mrDocument = new MockRepositoryDocument(jo);
 	}
 	
-	public ByteArrayInputStream getContent() {
+	public ByteArrayInputStream getContent() throws RepositoryException {
 		ByteArrayInputStream is = null;
 		try {
 			is = (ByteArrayInputStream) mrDocument.getContentStream();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
 		}
 		return is;
 	}
