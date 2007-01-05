@@ -12,6 +12,10 @@ public interface ISession{
 	public String getLoginTicketForUser(String username) throws RepositoryException;
 
 	public String getDocbaseName() throws RepositoryException;
+	
+	public void setServerUrl(String url);
+	
+	public String getServerUrl();
 
 
 
