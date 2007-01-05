@@ -36,14 +36,7 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 
 	private final ISysObject sysObject;
 
-	private static final SimpleDateFormat ISO8601_DATE_FORMAT_MILLIS = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-	private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss'Z'");
-
-	private static final SimpleDateFormat ISO8601_DATE_FORMAT = new SimpleDateFormat(
-			"yyyy-MM-dd");
 
 	public DctmSimpleValue(ValueType t, String v) {
 		super(t, v);
@@ -61,11 +54,6 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 		sysObject = v;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.google.enterprise.connector.spi.Value#getStream()
-	 */
 	public InputStream getStream() throws IllegalArgumentException,
 			IllegalStateException, RepositoryException {
 		if (sysObject == null) {
@@ -80,50 +68,7 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 
 	}
 
-	private static Date iso8601ToDate(String s) throws ParseException {
-		Date d = null;
-		try {
-			d = ISO8601_DATE_FORMAT_MILLIS.parse(s);
-			return d;
-		} catch (ParseException e) {
-			// this is just here so we can try another format
-		}
-		try {
-			d = ISO8601_DATE_FORMAT_SECS.parse(s);
-		} catch (ParseException e) {
-			// this is just here so we can try another format
-		}
-		d = ISO8601_DATE_FORMAT.parse(s);
-		return d;
-	}
 
-	public Calendar getDate() throws IllegalArgumentException,
-			RepositoryException {
-		Calendar c;
-		try {
-			c = iso8601ToCalendar(super.getString());
-		} catch (ParseException e) {
-			throw new IllegalArgumentException(
-					"Can't parse stringValue as date: " + e.getMessage());
-		}
-		return c;
-	}
-
-	/**
-	 * Parses a String in ISO-8601 format (GMT zone) and returns an equivalent
-	 * java.util.Calendar object.
-	 * 
-	 * @param s
-	 * @return a Calendar object
-	 * @throws ParseException
-	 *             if the the String can not be parsed
-	 */
-	public static Calendar iso8601ToCalendar(String s) throws ParseException {
-		Date d = iso8601ToDate(s);
-		Calendar c = Calendar.getInstance();
-		c.setTime(d);
-		return c;
-	}
 
 	public String getString() throws IllegalArgumentException,
 			RepositoryException {
@@ -148,9 +93,5 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 		return super.getType();
 	}
 	
-	public static String calendarToIso8601(Calendar c) {
-	    Date d = c.getTime();
-	    String isoString = ISO8601_DATE_FORMAT.format(d);
-	    return isoString;
-	  }
+
 }
