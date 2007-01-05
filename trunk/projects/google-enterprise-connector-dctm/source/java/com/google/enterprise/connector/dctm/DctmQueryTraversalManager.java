@@ -31,6 +31,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private String unboundedTraversalQuery;
 
 	private String boundedTraversalQuery;
+	
+	private String serverUrl;
 
 	protected void setClient(IClient client) {
 		this.client = client;
@@ -64,6 +66,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		DctmInstantiator.initialize();
 		this.unboundedTraversalQuery = DctmInstantiator.QUERY_STRING_UNBOUNDED_DEFAULT;
 		this.boundedTraversalQuery = DctmInstantiator.QUERY_STRING_BOUNDED_DEFAULT;
+		this.serverUrl = DctmInstantiator.WEBTOP_SERVER_URL;
 
 	}
 
@@ -182,6 +185,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	public ResultSet execQuery(IQuery query) throws RepositoryException {
 		ICollection dctmCollection = null; 
+		session.setServerUrl(serverUrl);
 		dctmCollection = query.execute(session, IQuery.DF_READ_QUERY);
 		ResultSet rs = dctmCollection.buildResulSetFromCollection(session);
 		return rs;
@@ -249,6 +253,22 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
 		return statement;
+	}
+
+	public String getBoundedTraversalQuery() {
+		return boundedTraversalQuery;
+	}
+
+	public void setBoundedTraversalQuery(String boundedTraversalQuery) {
+		this.boundedTraversalQuery = boundedTraversalQuery;
+	}
+
+	public String getUnboundedTraversalQuery() {
+		return unboundedTraversalQuery;
+	}
+
+	public void setUnboundedTraversalQuery(String unboundedTraversalQuery) {
+		this.unboundedTraversalQuery = unboundedTraversalQuery;
 	}
 
 }
