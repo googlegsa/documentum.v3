@@ -1,10 +1,8 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import java.util.Hashtable;
-import java.util.Vector;
 
 import javax.jcr.Credentials;
-import javax.jcr.RepositoryException;
 import javax.jcr.SimpleCredentials;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;

@@ -12,7 +12,7 @@ public class DctmMockSession implements ISession {
 	
 	private MockJcrRepository mockRep;
 	private MockJcrSession mockJcrSession;
-	private String sessionID;
+	private String sessionID;//is it worth implementing it?
 	
 	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS){
 		this.mockRep = mjR;
