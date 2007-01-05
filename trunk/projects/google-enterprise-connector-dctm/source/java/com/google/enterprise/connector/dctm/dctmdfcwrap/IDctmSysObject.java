@@ -84,6 +84,27 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 		if (attrs!=null) return(attrs);
 		return new StringTokenizer("");
 	}
+
+	public String getACLDomain() throws RepositoryException{
+		try {
+			return idfSysObject.getACLDomain();
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+		
+	}
+
+	public String getACLName() throws RepositoryException{
+		try {
+			return idfSysObject.getACLName();
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+	}
 	
 	
 }

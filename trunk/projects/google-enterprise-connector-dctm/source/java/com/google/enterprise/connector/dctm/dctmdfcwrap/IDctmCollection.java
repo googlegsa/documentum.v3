@@ -28,6 +28,7 @@ import com.documentum.fc.common.IDfValue;
 public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	
 	IDfCollection idfCollection;
+	private String serverUrl;
 	
 	public IDctmCollection(IDfCollection idfCollection) {
 		super(idfCollection);
@@ -121,11 +122,6 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 						SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
 								ValueType.DATE, modifDate)));
 				
-//				modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
-				// Date mydate=itime.getDate();
-				//System.out.println("modifdate vaut "+modifDate);
-				// vlDate=new DctmValue(ValueType.DATE,modifDate);
-				
 				dctmSysObj = (IDctmSysObject) session
 				.getObject(new IDctmId(crID));
 				dctmForm = (IDctmFormat) dctmSysObj.getFormat();
@@ -133,8 +129,6 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 				
 				if (dctmForm.canIndex()) {
 					mimetype = dctmForm.getMIMEType();
-					
-					
 					pm.putProperty(new SimpleProperty(
 							SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 									ValueType.STRING, mimetype)));
@@ -142,16 +136,25 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 				pm.putProperty(new SimpleProperty(
 						SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
 								ValueType.BINARY, dctmSysObj)));
-				
+				pm
+				.putProperty(new SimpleProperty(
+						SpiConstants.PROPNAME_DISPLAYURL, new DctmSimpleValue(
+								ValueType.STRING,
+								session.getServerUrl()+crID)));
+				pm
+				.putProperty(new SimpleProperty(
+						SpiConstants.PROPNAME_SECURITYTOKEN, new DctmSimpleValue(
+								ValueType.STRING,
+								dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName())));
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
-				Enumeration metas = dctmSysObj.enumAttrs();															//
-				while (metas.hasMoreElements()){																	//
-					IDfAttr curAttr = (IDfAttr) metas.nextElement();												//
-					if (!(curAttr.getDataType()==IDfAttr.DM_ID || curAttr.getDataType()==IDfAttr.DM_TIME)){			//
-						pm.putProperty(new SimpleProperty(curAttr.getName(),										//
-								new DctmSimpleValue(ValueType.STRING, curAttr.toString())));						//
-					}																								//
-				}																									//
+//				Enumeration metas = dctmSysObj.enumAttrs();															//
+//				while (metas.hasMoreElements()){																	//
+//					IDfAttr curAttr = (IDfAttr) metas.nextElement();												//
+//					if (!(curAttr.getDataType()==IDfAttr.DM_ID || curAttr.getDataType()==IDfAttr.DM_TIME)){			//
+//						pm.putProperty(new SimpleProperty(curAttr.getName(),										//
+//								new DctmSimpleValue(ValueType.STRING, curAttr.toString())));						//
+//					}																								//
+//				}																									//
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 				
 				resu.add(pm);
@@ -159,6 +162,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		
 		return resu;
 	}
+
 	
 	// public ResultSet buildResulSetFromCollection(ISession session) {
 	// String modifDate=null;
