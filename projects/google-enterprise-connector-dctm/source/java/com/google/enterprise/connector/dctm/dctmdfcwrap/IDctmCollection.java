@@ -117,7 +117,8 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 						new DctmSimpleValue(ValueType.STRING, crID)));
 				val = (IDctmValue) col.getValue("r_modify_date");
 				
-				modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN45);
+				modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN26);
+				modifDate = modifDate.replaceAll("/","-");
 				pm.putProperty(new SimpleProperty(
 						SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
 								ValueType.DATE, modifDate)));
