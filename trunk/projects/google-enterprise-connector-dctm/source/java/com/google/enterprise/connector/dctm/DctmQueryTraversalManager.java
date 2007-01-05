@@ -158,6 +158,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 				SpiConstants.PROPNAME_LASTMODIFY).getDate();
 		
 		String dateString = DctmSimpleValue.calendarToIso8601(c);
+		
 		String result = null;
 		try {
 			JSONObject jo = new JSONObject();
@@ -191,7 +192,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return rs;
 	}
 
-	private Value fetchAndVerifyValueForCheckpoint(PropertyMap pm, String pName)
+	public Value fetchAndVerifyValueForCheckpoint(PropertyMap pm, String pName)
 			throws RepositoryException {
 		Property property = pm.getProperty(pName);
 		if (property == null) {
@@ -214,7 +215,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return query;
 	}
 
-	String extractDocidFromCheckpoint(JSONObject jo, String checkPoint) {
+	public String extractDocidFromCheckpoint(JSONObject jo, String checkPoint) {
 		String uuid = null;
 		try {
 			uuid = jo.getString("uuid");
@@ -225,7 +226,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return uuid;
 	}
 
-	Calendar extractCalendarFromCheckpoint(JSONObject jo, String checkPoint) {
+	public Calendar extractCalendarFromCheckpoint(JSONObject jo, String checkPoint) {
 		String dateString = null;
 		try {
 			dateString = jo.getString("lastModified");
@@ -245,10 +246,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return c;
 	}
 
-	private String makeCheckpointQueryString(String uuid, Calendar c)
+	public String makeCheckpointQueryString(String uuid, Calendar c)
 			throws RepositoryException {
 
 		String time = DctmSimpleValue.calendarToIso8601(c);
+		time=time.replace('T',' ');
+		time=time.substring(0,time.indexOf('Z'));
+		
 		Object[] arguments = { time };
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
