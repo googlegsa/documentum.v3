@@ -7,6 +7,8 @@ import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 public class IDctmSession implements ISession {
 
@@ -16,18 +18,20 @@ public class IDctmSession implements ISession {
 		this.idfSession = DfSession;
 	}
 
-	public String getSessionId() {
+	public String getSessionId() throws RepositoryException {
 		String iDSess = null;
 		try {
 			iDSess = idfSession.getSessionId();
 		} catch (DfException de) {
-			de.getMessage();
+			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+			re.setStackTrace(de.getStackTrace());
+			throw re;
 		}
 		return iDSess;
 
 	}
 
-	public ISysObject getObject(IId objectId) {
+	public ISysObject getObject(IId objectId) throws RepositoryException {
 		if (!(objectId instanceof IDctmId)) {
 			throw new IllegalArgumentException();
 		}
@@ -37,7 +41,9 @@ public class IDctmSession implements ISession {
 		try {
 			idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
 		} catch (DfException de) {
-			de.getMessage();
+			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+			re.setStackTrace(de.getStackTrace());
+			throw re;
 		}
 		return new IDctmSysObject(idfSysObject);
 	}
@@ -79,24 +85,26 @@ public class IDctmSession implements ISession {
 		idfSession = dfSession;
 	}
 
-	public String getLoginTicketForUser(String username) {
+	public String getLoginTicketForUser(String username) throws RepositoryException {
 		String ticket = null;
 		try {
 			ticket = this.idfSession.getLoginTicketForUser(username);
-		} catch (DfException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (DfException de) {
+			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+			re.setStackTrace(de.getStackTrace());
+			throw re;
 		}
 		return ticket;
 	}
 
-	public String getDocbaseName() {
+	public String getDocbaseName() throws RepositoryException {
 		String docbaseName = null;
 		try {
 			docbaseName = this.idfSession.getDocbaseName();
-		} catch (DfException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (DfException de) {
+			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+			re.setStackTrace(de.getStackTrace());
+			throw re;
 		}
 		return docbaseName;
 	}

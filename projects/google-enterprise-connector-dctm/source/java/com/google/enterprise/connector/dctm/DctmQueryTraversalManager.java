@@ -48,7 +48,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return sessionID;
 	}
 
-	private void setSession() {
+	private void setSession() throws RepositoryException {
 		ILocalClient localClient = client.getLocalClientEx();
 		session = localClient.findSession(sessionID);
 	}
@@ -57,7 +57,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return session;
 	}
 
-	public DctmQueryTraversalManager(IClient client, String sessionID) {
+	public DctmQueryTraversalManager(IClient client, String sessionID) throws RepositoryException {
 		setClient(client);
 		setSessionID(sessionID);
 		setSession();
@@ -80,7 +80,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 *           exceptional condition.
 	 */
 
-	public ResultSet startTraversal() throws RepositoryException {
+	public ResultSet startTraversal() throws com.google.enterprise.connector.spi.RepositoryException {
 		IQuery query = null;
 		ResultSet resu = null;
 
@@ -180,7 +180,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		;
 	}
 
-	public ResultSet execQuery(IQuery query) {
+	public ResultSet execQuery(IQuery query) throws RepositoryException {
 		ICollection dctmCollection = null; 
 		dctmCollection = query.execute(session, IQuery.DF_READ_QUERY);
 		ResultSet rs = dctmCollection.buildResulSetFromCollection(session);

@@ -18,6 +18,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 
 public class IDctmClient implements IClient{
@@ -26,13 +27,14 @@ public class IDctmClient implements IClient{
 	
 	IDfSession idfSession = null;
 	
-	public IDctmClient(){
+	public IDctmClient() throws RepositoryException{
 		try {
 			idfClientX = new DfClientX();
 			idfClient = idfClientX.getLocalClient();
-		} catch (DfException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (DfException de) {
+			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+			re.setStackTrace(de.getStackTrace());
+			throw re;
 		}
 	}
 	
@@ -62,16 +64,17 @@ public class IDctmClient implements IClient{
 	}
 
 
-	public ISession newSession(String docbase, ILoginInfo logInfo) {
+	public ISession newSession(String docbase, ILoginInfo logInfo) throws RepositoryException {
 		IDfSession sessionUser = null;
 		IDfLoginInfo idfLogInfo= new DfLoginInfo();
 		idfLogInfo.setUser(logInfo.getUser());
 		idfLogInfo.setPassword(logInfo.getPassword());
 		try {
 			sessionUser = idfClient.newSession(docbase,idfLogInfo);
-		} catch (DfException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (DfException de) {
+			LoginException re = new LoginException(de.getMessage(),de.getCause());
+			re.setStackTrace(de.getStackTrace());
+			throw re;
 		}
 		return new IDctmSession(sessionUser);
 	}
