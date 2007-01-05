@@ -9,4 +9,6 @@ public interface ISysObject{
 	public long getContentSize() throws RepositoryException;
 	public ByteArrayInputStream getContent() throws RepositoryException;
 	public int getPermitEx(String name) throws RepositoryException;
+	public String getACLDomain() throws RepositoryException;
+	public String getACLName() throws RepositoryException;
 }
