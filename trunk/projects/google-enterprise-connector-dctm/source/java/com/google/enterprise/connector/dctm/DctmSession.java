@@ -37,7 +37,15 @@ public class DctmSession implements Session{
 		//this.client.setSession(session);
 	}
 	
-	public DctmSession(IClient client, String login, String password, String docbase) throws LoginException{
+	/**
+	 * 
+	 * @param client
+	 * @param login
+	 * @param password
+	 * @param docbase
+	 * @throws RepositoryException
+	 */
+	public DctmSession(IClient client, String login, String password, String docbase) throws RepositoryException{
 		ILoginInfo dctmLoginInfo=null;
 		setClient(client);
 		localClient=this.client.getLocalClientEx();
