@@ -52,4 +52,14 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	public String getACLDomain() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getACLName() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

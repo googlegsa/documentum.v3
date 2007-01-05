@@ -52,6 +52,16 @@ public class DctmMockSession implements ISession {
 		this.mockJcrSession = mockJcrSession;
 	}
 
+	public void setServerUrl(String url) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getServerUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 	
 
