@@ -1,15 +1,17 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
+import com.google.enterprise.connector.spi.RepositoryException;
+
 
 public interface ISession{
 	
-	public ISysObject getObject(IId objectId);
+	public ISysObject getObject(IId objectId) throws RepositoryException;
 	
-	public String getSessionId();
+	public String getSessionId() throws RepositoryException;
 
-	public String getLoginTicketForUser(String username);
+	public String getLoginTicketForUser(String username) throws RepositoryException;
 
-	public String getDocbaseName();
+	public String getDocbaseName() throws RepositoryException;
 
 
 

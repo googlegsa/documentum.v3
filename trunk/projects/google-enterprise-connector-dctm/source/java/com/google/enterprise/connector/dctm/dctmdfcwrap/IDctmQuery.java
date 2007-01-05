@@ -8,6 +8,8 @@ import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 public class IDctmQuery implements IQuery{
 	IDfQuery idfQuery;
@@ -21,7 +23,7 @@ public class IDctmQuery implements IQuery{
 		this.idfQuery=new DfQuery();
 	}
 	
-	public ICollection execute(ISession session, int queryType){	
+	public ICollection execute(ISession session, int queryType) throws RepositoryException{	
 		if (!(session instanceof IDctmSession)) {
 			throw new IllegalArgumentException();
 		}
@@ -32,7 +34,9 @@ public class IDctmQuery implements IQuery{
 		try{
 			DfCollection=idfQuery.execute(idfSession,queryType);
 		}catch(DfException de){
-			System.out.println(de.getMessage());
+			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+			re.setStackTrace(de.getStackTrace());
+			throw re;
 		}
 		return new IDctmCollection(DfCollection);
 	}

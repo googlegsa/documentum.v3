@@ -8,6 +8,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
+import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
@@ -22,7 +23,7 @@ public class DctmSession implements Session{
 	
 	
 	//Constructor never called except for tests
-	public DctmSession(){
+	public DctmSession() throws RepositoryException{
 		ILoginInfo dctmLoginInfo=null;
 		client = new IDctmClient();
 		docbase = "gsadctm";
@@ -36,7 +37,7 @@ public class DctmSession implements Session{
 		//this.client.setSession(session);
 	}
 	
-	public DctmSession(IClient client, String login, String password, String docbase){
+	public DctmSession(IClient client, String login, String password, String docbase) throws LoginException{
 		ILoginInfo dctmLoginInfo=null;
 		setClient(client);
 		localClient=this.client.getLocalClientEx();
@@ -51,7 +52,7 @@ public class DctmSession implements Session{
 	
 	
 	
-	public QueryTraversalManager getQueryTraversalManager(){
+	public QueryTraversalManager getQueryTraversalManager() throws RepositoryException{
 		
 		DctmQueryTraversalManager DctmQtm = new DctmQueryTraversalManager(client,session.getSessionId());
 		client.setSession(session);

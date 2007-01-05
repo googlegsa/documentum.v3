@@ -4,6 +4,7 @@ package com.google.enterprise.connector.dctm;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
 
@@ -60,7 +61,7 @@ public class DctmConnector implements Connector{
 		return docbase;
 	}
 	
-	public Session login() throws LoginException{
+	public Session login() throws RepositoryException{
 		Session sess = null;
 		if (!(client==null||login==null||password==null||docbase==null)){
 			
