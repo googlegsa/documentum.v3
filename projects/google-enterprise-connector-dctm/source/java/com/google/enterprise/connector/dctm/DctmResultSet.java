@@ -24,6 +24,16 @@ public class DctmResultSet extends LinkedList implements ResultSet{
 		ListIterator iterator = listIterator(0);
 		return iterator;
 	}
+
+//	public boolean equals(DctmResultSet result) {
+//		Iterator iterartor = this.iterator();
+//		Iterator iter = result.iterator();
+//		while(iterartor.hasNext()){
+//			PropertyMap porp = (PropertyMap)iterartor.next();
+//		}
+//		return super.equals(result);
+//	}
+	
 	
 	
 	

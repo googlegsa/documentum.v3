@@ -30,7 +30,7 @@ public class DctmSession implements Session{
 		localClient = client.getLocalClientEx();
 		sessionManager = localClient.newSessionManager(); 
 		dctmLoginInfo = client.getLoginInfo();
-		dctmLoginInfo.setUser("user1");
+		dctmLoginInfo.setUser("queryUser");
 		dctmLoginInfo.setPassword("p@ssw0rd");
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
 		session = sessionManager.newSession(docbase);
