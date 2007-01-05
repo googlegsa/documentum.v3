@@ -13,6 +13,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class IDctmSession implements ISession {
 
 	IDfSession idfSession;
+	private String serverUrl;
 
 	public IDctmSession(IDfSession DfSession) {
 		this.idfSession = DfSession;
@@ -107,6 +108,14 @@ public class IDctmSession implements ISession {
 			throw re;
 		}
 		return docbaseName;
+	}
+	
+	public void setServerUrl(String url){
+		serverUrl = url;
+	}
+	
+	public String getServerUrl(){
+		return serverUrl;
 	}
 
 	/*
