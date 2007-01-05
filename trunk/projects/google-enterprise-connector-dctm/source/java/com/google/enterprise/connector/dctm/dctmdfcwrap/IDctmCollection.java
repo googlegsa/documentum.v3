@@ -28,7 +28,6 @@ import com.documentum.fc.common.IDfValue;
 public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	
 	IDfCollection idfCollection;
-	private String serverUrl;
 	
 	public IDctmCollection(IDfCollection idfCollection) {
 		super(idfCollection);
@@ -119,6 +118,8 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 				
 				modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN26);
 				modifDate = modifDate.replaceAll("/","-");
+				modifDate = modifDate.replaceFirst(" ","T");
+				modifDate += "Z";
 				pm.putProperty(new SimpleProperty(
 						SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
 								ValueType.DATE, modifDate)));
