@@ -9,6 +9,7 @@ public class IDctmTime implements ITime{
 	
 	private IDfTime idfTime;
 	public static String DF_TIME_PATTERN45 = IDfTime.DF_TIME_PATTERN45;
+	public static String DF_TIME_PATTERN26 = IDfTime.DF_TIME_PATTERN26;
 	
 	public IDctmTime(IDfTime idfTime){
 		this.idfTime = idfTime;
