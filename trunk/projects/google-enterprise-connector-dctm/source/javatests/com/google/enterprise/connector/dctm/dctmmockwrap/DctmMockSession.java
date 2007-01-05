@@ -1,16 +1,10 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import javax.jcr.query.QueryManager;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
-import com.google.enterprise.connector.mock.MockRepository;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
-import com.google.enterprise.connector.mock.MockRepositoryEventList;
-import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
 

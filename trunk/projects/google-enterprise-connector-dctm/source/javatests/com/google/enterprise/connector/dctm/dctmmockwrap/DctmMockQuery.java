@@ -8,6 +8,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DctmMockQuery implements IQuery {
 	String query;
@@ -17,17 +18,19 @@ public class DctmMockQuery implements IQuery {
 		query="";
 	}
 	
-	public ICollection execute(ISession session, int queryType){
+	public ICollection execute(ISession session, int queryType) throws RepositoryException{
 		try{
 			MockRepositoryDocumentStore a = null;
 			a=((DctmMockSession)session).getStore();
 			MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
 			Query q = mrQueryMger.createQuery(this.query,"xpath");
 			QueryResult qr = q.execute();
-			return new DctmMockCollection(qr);
-		}catch (javax.jcr.RepositoryException re){
-			//TODO exeptions for real
-			return null;
+			DctmMockCollection co = new DctmMockCollection(qr);
+			return co;
+		}catch (javax.jcr.RepositoryException e){
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
 		}
 	}
 	public int getDF_READ_QUERY(){
