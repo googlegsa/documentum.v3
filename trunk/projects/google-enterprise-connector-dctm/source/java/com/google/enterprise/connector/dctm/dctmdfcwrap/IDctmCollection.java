@@ -1,7 +1,7 @@
-package com.google.enterprise.connector.dctm.dctmdfcwrap;
+                                                        package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.Vector;
 
 import com.google.enterprise.connector.dctm.DctmResultSet;
 import com.google.enterprise.connector.dctm.DctmSimpleValue;
@@ -9,7 +9,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -19,8 +18,8 @@ import com.google.enterprise.connector.spi.SimplePropertyMap;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.ValueType;
 import com.documentum.fc.client.IDfCollection;
-import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.client.IDfTypedObject;
+import com.documentum.fc.common.DfAttr;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfAttr;
 import com.documentum.fc.common.IDfValue;
@@ -107,8 +106,11 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		IFormat dctmForm = null;
 		IDctmValue val = null;
 		DctmResultSet resu = new DctmResultSet();
-		// Building the IDctmCollection for error management only
 		ICollection col = new IDctmCollection(idfCollection);
+		
+		Vector notCustomMeta = getSysMeta();
+		Vector specifiedMeta = getSpecMeta();
+		
 			while (col.next()) {
 				pm = new SimplePropertyMap();
 				crID = col.getValue("i_chronicle_id").asString();
@@ -149,20 +151,126 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 								ValueType.STRING,
 								dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName())));
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
-//				Enumeration metas = dctmSysObj.enumAttrs();															//
-//				while (metas.hasMoreElements()){																	//
-//					IDfAttr curAttr = (IDfAttr) metas.nextElement();												//
-//					if (!(curAttr.getDataType()==IDfAttr.DM_ID || curAttr.getDataType()==IDfAttr.DM_TIME)){			//
-//						pm.putProperty(new SimpleProperty(curAttr.getName(),										//
-//								new DctmSimpleValue(ValueType.STRING, curAttr.toString())));						//
-//					}																								//
-//				}																									//
+				Enumeration metas = dctmSysObj.enumAttrs();
+				while (metas.hasMoreElements()){
+					IDfAttr curAttr = (IDfAttr) metas.nextElement();
+					String name = curAttr.getName();
+					if (!notCustomMeta.contains(name) || specifiedMeta.contains(name)){
+						pm.putProperty(new SimpleProperty(curAttr.getName(),
+								new DctmSimpleValue(ValueType.STRING, curAttr.toString())));
+					}
+				}
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 				
 				resu.add(pm);
 			}
 		
 		return resu;
+	}
+	
+	private Vector getSpecMeta(){
+		Vector specProps = new Vector();
+		specProps.addElement("object_name");
+		specProps.addElement("r_object_type");
+		specProps.addElement("title");
+		specProps.addElement("subject");
+		specProps.addElement("keywords");
+		specProps.addElement("authors");
+		specProps.addElement("r_creation_date");
+		return specProps;
+	}
+	
+	private Vector getSysMeta(){
+		Vector sysObjectProps = new Vector();
+		sysObjectProps.addElement("object_name");
+		sysObjectProps.addElement("r_object_type");
+		sysObjectProps.addElement("title");
+		sysObjectProps.addElement("subject");
+		sysObjectProps.addElement("keywords");
+		sysObjectProps.addElement("authors");
+		sysObjectProps.addElement("i_vstamp");
+		sysObjectProps.addElement("i_is_replica");
+		sysObjectProps.addElement("i_retainer_id");
+		sysObjectProps.addElement("r_aspect_name");
+		sysObjectProps.addElement("i_retain_until");
+		sysObjectProps.addElement("a_last_review_date");
+		sysObjectProps.addElement("a_is_signed");
+		sysObjectProps.addElement("a_extended_properties");
+		sysObjectProps.addElement("r_full_content_size");
+		sysObjectProps.addElement("a_controlling_app");
+		sysObjectProps.addElement("a_is_template");
+		sysObjectProps.addElement("language_code");
+		sysObjectProps.addElement("a_category");
+		sysObjectProps.addElement("a_effective_flag");
+		sysObjectProps.addElement("a_effective_flag");
+		sysObjectProps.addElement("a_effective_label");
+		sysObjectProps.addElement("a_publish_formats");
+		sysObjectProps.addElement("a_expiration_date");
+		sysObjectProps.addElement("a_effective_date");
+		sysObjectProps.addElement("r_alias_set_id");
+		sysObjectProps.addElement("r_current_state");
+		sysObjectProps.addElement("r_resume_state");
+		sysObjectProps.addElement("r_policy_id");
+		sysObjectProps.addElement("r_is_public");
+		sysObjectProps.addElement("r_creator_name");
+		sysObjectProps.addElement("a_special_app");
+		sysObjectProps.addElement("i_is_reference");
+		sysObjectProps.addElement("acl_name");
+		sysObjectProps.addElement("acl_domain");
+		sysObjectProps.addElement("r_has_events");
+		sysObjectProps.addElement("r_frozen_flag");
+		sysObjectProps.addElement("r_immutable_flag");
+		sysObjectProps.addElement("i_branch_cnt");
+		sysObjectProps.addElement("i_direct_dsc");
+		sysObjectProps.addElement("r_version_label");
+		sysObjectProps.addElement("log_entry");
+		sysObjectProps.addElement("r_lock_machine");
+		sysObjectProps.addElement("r_lock_date");
+		sysObjectProps.addElement("r_lock_owner");
+		sysObjectProps.addElement("i_latest_flag");
+		sysObjectProps.addElement("i_chronicle_id");
+		sysObjectProps.addElement("group_permit");
+		sysObjectProps.addElement("world_permit");
+		sysObjectProps.addElement("object_name");
+		sysObjectProps.addElement("i_antecedent_id");
+		sysObjectProps.addElement("group_name");
+		sysObjectProps.addElement("owner_permit");
+		sysObjectProps.addElement("owner_name");
+		sysObjectProps.addElement("i_cabinet_id");
+		sysObjectProps.addElement("a_storage_type");
+		sysObjectProps.addElement("object_name");
+		sysObjectProps.addElement("a_full_text");
+		sysObjectProps.addElement("r_content_size");
+		sysObjectProps.addElement("r_page_cnt");
+		sysObjectProps.addElement("a_content_type");
+		sysObjectProps.addElement("i_contents_id");
+		sysObjectProps.addElement("r_is_virtual_doc");
+		sysObjectProps.addElement("resolution_label");
+		sysObjectProps.addElement("r_has_frzn_assembly");
+		sysObjectProps.addElement("r_frzn_assembly_cnt");
+		sysObjectProps.addElement("r_assembled_from_id");
+		sysObjectProps.addElement("r_link_high_cnt");
+		sysObjectProps.addElement("r_link_cnt");
+		sysObjectProps.addElement("r_order_no");
+		sysObjectProps.addElement("r_composite_label");
+		sysObjectProps.addElement("r_component_label");
+		sysObjectProps.addElement("r_composite_id");
+		sysObjectProps.addElement("i_folder_id");
+		sysObjectProps.addElement("i_has_folder");
+		sysObjectProps.addElement("a_link_resolved");
+		sysObjectProps.addElement("i_reference_cnt");
+		sysObjectProps.addElement("a_compound_architecture");
+		sysObjectProps.addElement("a_archive");
+		sysObjectProps.addElement("i_is_deleted");
+		sysObjectProps.addElement("a_retention_date");
+		sysObjectProps.addElement("a_is_hidden");
+		sysObjectProps.addElement("r_access_date");
+		sysObjectProps.addElement("r_modifier");
+		sysObjectProps.addElement("r_modify_date");
+		sysObjectProps.addElement("r_creation_date");
+		sysObjectProps.addElement("a_status");
+		sysObjectProps.addElement("a_application_type");
+		return sysObjectProps;
 	}
 
 	
