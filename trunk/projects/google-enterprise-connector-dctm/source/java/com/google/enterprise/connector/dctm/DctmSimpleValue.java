@@ -35,28 +35,31 @@ import com.google.enterprise.connector.spi.ValueType;
 public class DctmSimpleValue extends SimpleValue implements Value {
 
 	private final ISysObject sysObject;
-	private static final SimpleDateFormat ISO8601_DATE_FORMAT_MILLIS =
-	      new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-	 private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS =
-	      new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	private static final SimpleDateFormat ISO8601_DATE_FORMAT_MILLIS = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss.SSS");
+
+	private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss");
 	
+	private final String stringValue;
 
 	public DctmSimpleValue(ValueType t, String v) {
 		super(t, v);
-		stringValue=v;
+		stringValue = v;
 		sysObject = null;
 	}
 
 	public DctmSimpleValue(ValueType t, byte[] v) {
 		super(t, v);
-		stringValue="";
+		stringValue = "";
 		sysObject = null;
 	}
 
 	public DctmSimpleValue(ValueType t, ISysObject v) {
 
 		super(t, "");
-		stringValue="";
+		stringValue = "";
 		sysObject = v;
 	}
 
@@ -68,13 +71,12 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 			InputStream str = sysObject.getContent();
 			if (str == null) {
 				str = new ByteArrayInputStream(new byte[1]);
+				System.out.println("content empty");
 			}
 			return str;
 		}
 
 	}
-
-
 
 	public String getString() throws IllegalArgumentException,
 			RepositoryException {
@@ -98,54 +100,49 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 	public ValueType getType() throws RepositoryException {
 		return super.getType();
 	}
-	
+
 	
 	public static String calendarToIso8601(Calendar c) {
-	
-	    Date d = c.getTime();
-	    String isoString = ISO8601_DATE_FORMAT_MILLIS.format(d);
-	    return isoString;
-	    
-		
-	  }
 
-	  private static Date iso8601ToDate(String s) throws ParseException {
-	    Date d = null;
-	    try {
-	      d = ISO8601_DATE_FORMAT_MILLIS.parse(s);
-	      return d;
-	    } catch (ParseException e) {
-	      // this is just here so we can try another format
-	    }
-	    d = ISO8601_DATE_FORMAT_SECS.parse(s);
-	    return d;
-	  }
-	  
-	  public static Calendar iso8601ToCalendar(String s) throws ParseException {
-		    Date d = iso8601ToDate(s);
-		    Calendar c = Calendar.getInstance();
-		    c.setTime(d);
-		    return c;
-		  }
-	  
+		Date d = c.getTime();
+		String isoString = ISO8601_DATE_FORMAT_MILLIS.format(d);
+		return isoString;
+
+	}
+
+	private static Date iso8601ToDate(String s) throws ParseException {
+		Date d = null;
+		try {
+			d = ISO8601_DATE_FORMAT_MILLIS.parse(s);
+			return d;
+		} catch (ParseException e) {
+			// this is just here so we can try another format
+		}
+		d = ISO8601_DATE_FORMAT_SECS.parse(s);
+		return d;
+	}
+
+	public static Calendar iso8601ToCalendar(String s) throws ParseException {
+		Date d = iso8601ToDate(s);
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		return c;
+	}
 
 	public Calendar getDate() throws IllegalArgumentException,
-      RepositoryException {
+			RepositoryException {
+
+		Calendar c;
+		try {
+			c = iso8601ToCalendar(stringValue);
+		} catch (ParseException e) {
+			throw new IllegalArgumentException(
+					"Can't parse stringValue as date: " + e.getMessage());
+		}
+		return c;
+
+	}
+
 	
-    Calendar c;
-    try {
-      c = iso8601ToCalendar(stringValue);
-    } catch (ParseException e) {
-      throw new IllegalArgumentException("Can't parse stringValue as date: "
-          + e.getMessage());
-    }
-    return c;
-    
-  }
-	  
-
-	  private final String stringValue;
-
-
 
 }

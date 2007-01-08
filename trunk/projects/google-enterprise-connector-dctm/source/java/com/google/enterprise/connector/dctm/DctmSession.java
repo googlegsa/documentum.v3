@@ -8,7 +8,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
-import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
@@ -102,7 +101,7 @@ public class DctmSession implements Session{
 	 * @throws RepositoryException
 	 */
 	public AuthorizationManager getAuthorizationManager(){
-		AuthorizationManager DctmAzm=new DctmAuthorizationManager(getSession(),getClient());
+		AuthorizationManager DctmAzm = new DctmAuthorizationManager(getSession(),getClient());
 		return DctmAzm;
 	}
 	
@@ -122,5 +121,13 @@ public class DctmSession implements Session{
 	
 	public void setSession(ISession session) {
 		this.session = session;
+	}
+
+	public String getDocbase() {
+		return docbase;
+	}
+
+	public void setDocbase(String docbase) {
+		this.docbase = docbase;
 	}
 }
