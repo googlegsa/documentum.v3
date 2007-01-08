@@ -250,8 +250,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 			throws RepositoryException {
 
 		String time = DctmSimpleValue.calendarToIso8601(c);
+		/*
 		time=time.replace('T',' ');
 		time=time.substring(0,time.indexOf('Z'));
+		*/
 		
 		Object[] arguments = { time };
 		String statement = MessageFormat.format(boundedTraversalQuery,
