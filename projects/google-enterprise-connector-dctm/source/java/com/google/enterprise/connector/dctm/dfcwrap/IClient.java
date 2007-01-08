@@ -15,7 +15,7 @@ public interface IClient{
 
 	public ISession newSession(String string, ILoginInfo logInfo) throws RepositoryException;
 
-	public void authenticate(String docbaseName, ILoginInfo loginInfo) throws LoginException;
+	public boolean authenticate(String docbaseName, ILoginInfo loginInfo) throws LoginException;
 
 
 	public IId getId(String value);
