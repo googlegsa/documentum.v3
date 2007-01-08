@@ -61,7 +61,6 @@ import com.google.enterprise.connector.spi.ValueType;
 import junit.framework.TestCase;
 
 public class DctmQueryTraversalManagerTest extends TestCase {
-	IDctmSession idctmses;
 
 	/*
 	 * Test method for
@@ -115,7 +114,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		String uuid="090000018000e100";
 		String statement="";
 		try{
-			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T13:58:10Z");
+			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T13:58:10Z");
+			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
 		}catch(ParseException pe){
 			pe.printStackTrace();
 		}
@@ -154,7 +154,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	}
 
 	public void testExtractCalendarFromCheckpoint() {
-		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:58:10Z\"}";
+		///String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:58:10Z\"}";
+		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
 		String uuid = null;
 		JSONObject jo = null;
 		Calendar modifDate=null;
@@ -168,7 +169,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		
 		modifDate=qtm.extractCalendarFromCheckpoint(jo,checkPoint);
 		try{
-			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T13:58:10Z");
+			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T13:58:10Z");
+			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
 		}catch(ParseException pe){
 			pe.printStackTrace();	
 		}
@@ -189,8 +191,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		try{
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 				new DctmSimpleValue(ValueType.STRING, "0900000180010b17")));
-		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
-						ValueType.DATE, "2007-01-02T14:19:29Z")));
+		///pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02T14:19:29Z")));
+		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02 14:19:29")));
 		}catch(RepositoryException re){
 			re.printStackTrace();
 		}
@@ -214,8 +216,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		try{
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 				new DctmSimpleValue(ValueType.STRING, "0900000180010b17")));
-		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
-						ValueType.DATE, "2007-01-02T14:19:29Z")));
+		///pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02T14:19:29Z")));
+		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02 14:19:29")));
 		}catch(RepositoryException re){
 			re.printStackTrace();
 		}
@@ -223,7 +225,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,SpiConstants.PROPNAME_LASTMODIFY).getDate();
 		
 		try{
-			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T14:19:29Z");
+			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T14:19:29Z");
+			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 14:19:29");
 		}catch(ParseException pe){
 				pe.printStackTrace();
 		}
@@ -241,8 +244,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		try{
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 				new DctmSimpleValue(ValueType.STRING, "0900000180010b17")));
-		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
-						ValueType.DATE, "2007-01-02T14:19:29Z")));
+		///pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02T14:19:29Z")));
+		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02 14:19:29")));
 		}catch(RepositoryException re){
 			re.printStackTrace();
 		}
@@ -256,7 +259,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		
 		//String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
 		assertNotNull(checkPoint);
-		assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02T14:19:29.000Z\"}");
+		///assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02T14:19:29.000Z\"}");
+		assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29.000\"}");
 		
 	}
 	
@@ -290,7 +294,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		ResultSet myResu=null;
 		PropertyMap propertyMap=null;
 		//String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:58:10.000Z\"}";
-		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:00:00.000Z\"}";
+		///String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:00:00.000Z\"}";
+		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:00:00.000\"}";
 		try{
 			myResu=qtm.resumeTraversal(checkPoint);
 		}catch(RepositoryException re){
