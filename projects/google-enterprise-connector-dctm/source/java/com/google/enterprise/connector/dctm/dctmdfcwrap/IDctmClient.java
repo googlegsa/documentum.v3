@@ -79,7 +79,7 @@ public class IDctmClient implements IClient{
 		return new IDctmSession(sessionUser);
 	}
 
-	public void authenticate(String docbaseName, ILoginInfo loginInfo) {
+	public boolean authenticate(String docbaseName, ILoginInfo loginInfo) {
 		if (!(loginInfo instanceof IDctmLoginInfo)) {
 			throw new IllegalArgumentException();
 		}
@@ -87,14 +87,17 @@ public class IDctmClient implements IClient{
 		IDfLoginInfo idfLoginInfo=dctmLoginInfo.getIdfLoginInfo();
 		try {
 			this.idfClient.authenticate(docbaseName, idfLoginInfo);
+			
 		} catch (DfException e) {
-			try {
-				throw new LoginException(e.getMessage());
-			} catch (LoginException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			return false;
+//			try {
+//				throw new LoginException(e.getMessage());
+//			} catch (LoginException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
 		}
+		return true;
 		
 	}
 
