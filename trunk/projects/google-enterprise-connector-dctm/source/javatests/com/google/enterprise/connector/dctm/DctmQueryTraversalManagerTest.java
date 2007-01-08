@@ -1,12 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -22,40 +17,15 @@ import org.json.JSONObject;
  import com.documentum.fc.common.DfLoginInfo;
  import com.documentum.fc.common.IDfLoginInfo;
  */
-import com.documentum.fc.client.IDfCollection;
-import com.documentum.fc.client.IDfSession;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmCollection;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmFormat;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLocalClient;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSessionManager;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSysObject;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmTime;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmValue;
-import com.google.enterprise.connector.dctm.dfcwrap.IClient;
-import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
-import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
-import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
-import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
-import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Connector;
-import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
-import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleProperty;
 import com.google.enterprise.connector.spi.SimplePropertyMap;
-import com.google.enterprise.connector.spi.SimpleResultSet;
-import com.google.enterprise.connector.spi.SimpleValue;
 import com.google.enterprise.connector.spi.SpiConstants;
-import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.ValueType;
 
 import junit.framework.TestCase;
@@ -67,15 +37,15 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	 * 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.startTraversal()'
 	 */
 
-	private static final String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_creator_name!='user1' order by r_modify_date, i_chronicle_id";
-
-	private static final String QUERY_STRING_BOUNDED_DEFAULT = "select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_creator_name!=''user1'' and r_modify_date >= "
-			+ "''{0}'' " + "order by i_chronicle_id, r_modify_date";
-
-	private String unboundedTraversalQuery;
-
-	private String boundedTraversalQuery;
-	
+//	private static final String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_creator_name!='user1' order by r_modify_date, i_chronicle_id";
+//
+//	private static final String QUERY_STRING_BOUNDED_DEFAULT = "select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_creator_name!=''user1'' and r_modify_date >= "
+//			+ "''{0}'' " + "order by i_chronicle_id, r_modify_date";
+//
+//	private String unboundedTraversalQuery;
+//
+//	private String boundedTraversalQuery;
+//	
 	Session session = null;
 
 	Connector connector = null;
@@ -154,12 +124,11 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	}
 
 	public void testExtractCalendarFromCheckpoint() {
-		///String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:58:10Z\"}";
+
 		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
-		String uuid = null;
 		JSONObject jo = null;
-		Calendar modifDate=null;
-		Calendar calDate=null;
+		Calendar modifDate = null;
+		Calendar calDate = null;
 		try {
 			jo = new JSONObject(checkPoint);
 		} catch (JSONException e) {
@@ -167,10 +136,11 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 					"checkPoint string does not parse as JSON: " + checkPoint);
 		}
 		
-		modifDate=qtm.extractCalendarFromCheckpoint(jo,checkPoint);
+		modifDate = qtm.extractCalendarFromCheckpoint(jo,checkPoint);
 		try{
-			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T13:58:10Z");
+
 			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
+
 		}catch(ParseException pe){
 			pe.printStackTrace();	
 		}

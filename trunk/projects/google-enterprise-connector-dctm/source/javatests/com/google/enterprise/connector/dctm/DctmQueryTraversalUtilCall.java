@@ -19,7 +19,7 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 	public void testTraversal() {		
 		if (DFC) {
 			DctmInstantiator.isDFCavailable=true;
-			user="user1";
+			user="queryUser";
 			password="p@ssw0rd";
 			client="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient";
 			docbase="gsadctm";
@@ -66,7 +66,7 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		try {
 			session = (DctmSession) connector.login();
 			qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();
-			DctmQueryTraversalUtil.runTraversal(qtm, 15);
+			DctmQueryTraversalUtil.runTraversal(qtm, 21000);
 
 		} catch (LoginException le) {
 			le.getMessage();

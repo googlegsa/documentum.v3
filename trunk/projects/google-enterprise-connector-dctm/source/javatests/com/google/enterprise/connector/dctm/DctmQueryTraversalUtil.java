@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 
 import com.google.enterprise.connector.pusher.DocPusher;
+import com.google.enterprise.connector.pusher.GsaFeedConnection;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.PropertyMap;
@@ -25,6 +26,7 @@ public class DctmQueryTraversalUtil {
 		
 		DctmQueryTraversalManager dctmQTM = (DctmQueryTraversalManager) queryTraversalManager;
 		dctmQTM.setBatchHint(batchHint);
+		System.out.println(batchHint);
 		
 		ResultSet resultSet = dctmQTM.startTraversal();
 //		int nb=resultSet.size();
@@ -43,7 +45,7 @@ public class DctmQueryTraversalUtil {
 			return;
 		}
 		
-		DocPusher push = new DocPusher(new DctmFeedConnection());
+		DocPusher push = new DocPusher(new GsaFeedConnection("swp-srv-gsa2",19900));
 		
 		while (true) {
 			int counter = 0;
