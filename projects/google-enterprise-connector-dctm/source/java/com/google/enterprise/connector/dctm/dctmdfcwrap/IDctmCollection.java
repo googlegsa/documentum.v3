@@ -112,7 +112,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		
 		while (col.next()) {
 			pm = new SimplePropertyMap();
-			crID = col.getValue("i_chronicle_id").asString();
+			crID = col.getValue("r_object_id").asString();
 			pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 					new DctmSimpleValue(ValueType.STRING, crID)));
 			val = (IDctmValue) col.getValue("r_modify_date");
@@ -150,15 +150,17 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 							ValueType.STRING,
 							dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName())));
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
-			Enumeration metas = dctmSysObj.enumAttrs();
-			while (metas.hasMoreElements()){
-				IDfAttr curAttr = (IDfAttr) metas.nextElement();
-				String name = curAttr.getName();
-				if (!notCustomMeta.contains(name) || specifiedMeta.contains(name)){
-					pm.putProperty(new SimpleProperty(curAttr.getName(),
-							new DctmSimpleValue(ValueType.STRING, curAttr.toString())));
+
+				Enumeration metas = dctmSysObj.enumAttrs();
+				while (metas.hasMoreElements()){
+					IDfAttr curAttr = (IDfAttr) metas.nextElement();
+					String name = curAttr.getName();
+					if (!notCustomMeta.contains(name) || specifiedMeta.contains(name)){
+						pm.putProperty(new SimpleProperty(curAttr.getName(),
+								new DctmSimpleValue(ValueType.STRING, curAttr.toString())));
+					}
 				}
-			}
+
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 			
 			resu.add(pm);
