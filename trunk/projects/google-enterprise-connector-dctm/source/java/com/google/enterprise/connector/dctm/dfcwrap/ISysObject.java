@@ -11,4 +11,10 @@ public interface ISysObject{
 	public int getPermitEx(String name) throws RepositoryException;
 	public String getACLDomain() throws RepositoryException;
 	public String getACLName() throws RepositoryException;
+	public String getString(String name) throws RepositoryException;
+	public int getInt(String name) throws RepositoryException;
+	public IId getId(String name) throws RepositoryException;
+	public ITime getTime(String name) throws RepositoryException;
+	public double getDouble(String name) throws RepositoryException;
+	public boolean getBoolean(String name) throws RepositoryException;
 }
