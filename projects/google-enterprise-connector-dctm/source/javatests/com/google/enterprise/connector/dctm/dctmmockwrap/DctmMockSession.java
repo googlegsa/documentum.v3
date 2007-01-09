@@ -12,11 +12,12 @@ public class DctmMockSession implements ISession {
 	
 	private MockJcrRepository mockRep;
 	private MockJcrSession mockJcrSession;
-	private String sessionID;//is it worth implementing it?
+	private String sessionID;
 	
-	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS){
+	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS, String sessID){
 		this.mockRep = mjR;
 		this.mockJcrSession = mjS;
+		this.sessionID=sessID;
 	}
 	
 	public ISysObject getObject(IId objectId){
@@ -31,7 +32,7 @@ public class DctmMockSession implements ISession {
 
 
 	public String getSessionId() {
-		return "";
+		return sessionID;
 	}
 
 	public String getLoginTicketForUser(String username) {

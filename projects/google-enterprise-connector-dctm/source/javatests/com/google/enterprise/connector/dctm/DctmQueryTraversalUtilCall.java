@@ -48,14 +48,11 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		try {
 			cl = (IClient) Class.forName(client).newInstance();
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Root Cause : " + e.getCause() + " ; Message : " + e.getMessage());
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Root Cause : " + e.getCause() + " ; Message : " + e.getMessage());
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Root Cause : " + e.getCause() + " ; Message : " + e.getMessage());
 		}
 		((DctmConnector) connector).setClient(cl);
 		/**
@@ -69,9 +66,9 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 			DctmQueryTraversalUtil.runTraversal(qtm, 21000);
 
 		} catch (LoginException le) {
-			le.getMessage();
+			System.out.println("Root Cause : " + le.getCause() + " ; Message : " + le.getMessage());
 		} catch (RepositoryException re) {
-			re.getMessage();
+			System.out.println("Root Cause : " + re.getCause() + " ; Message : " + re.getMessage());
 		}
 
 	}

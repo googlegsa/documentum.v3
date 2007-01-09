@@ -17,7 +17,6 @@ import org.json.JSONObject;
  import com.documentum.fc.common.DfLoginInfo;
  import com.documentum.fc.common.IDfLoginInfo;
  */
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -80,7 +79,6 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 
 	
 	public void testMakeCheckpointQueryString(){
-		Calendar calDate=null;
 		String uuid="090000018000e100";
 		String statement="";
 		/*try{
@@ -309,7 +307,6 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
 		JSONObject jo = null;
 		String modifDate = null;
-		Calendar calDate = null;
 		try {
 			jo = new JSONObject(checkPoint);
 		} catch (JSONException e) {
