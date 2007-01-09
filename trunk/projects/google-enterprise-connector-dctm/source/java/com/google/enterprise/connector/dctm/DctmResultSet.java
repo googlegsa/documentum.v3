@@ -11,6 +11,7 @@ import com.google.enterprise.connector.spi.ResultSet;
 
 public class DctmResultSet extends LinkedList implements ResultSet{
 
+	private static final long serialVersionUID = 9081981L;
 
 	public DctmResultSet(){
 		super();

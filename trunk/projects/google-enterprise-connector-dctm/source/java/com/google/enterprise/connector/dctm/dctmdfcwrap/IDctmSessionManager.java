@@ -11,7 +11,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.LoginException;
-import com.google.enterprise.connector.spi.RepositoryException;
 
 public class IDctmSessionManager implements ISessionManager{
 	IDfSessionManager dfSessionManager;
