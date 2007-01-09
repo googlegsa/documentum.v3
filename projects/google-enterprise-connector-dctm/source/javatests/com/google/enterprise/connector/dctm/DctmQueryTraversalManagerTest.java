@@ -83,14 +83,14 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		Calendar calDate=null;
 		String uuid="090000018000e100";
 		String statement="";
-		try{
+		/*try{
 			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T13:58:10Z");
 			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
 		}catch(ParseException pe){
 			pe.printStackTrace();
-		}
+		}*/
 		try{
-			statement=qtm.makeCheckpointQueryString(uuid,calDate);
+			statement=qtm.makeCheckpointQueryString(uuid,"2007-01-02 13:58:10");
 		}catch(RepositoryException re){
 			re.printStackTrace();
 		}
@@ -123,7 +123,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		assertEquals(uuid, "090000018000e100");
 	}
 
-	public void testExtractCalendarFromCheckpoint() {
+	/*public void testExtractCalendarFromCheckpoint() {
 
 		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
 		JSONObject jo = null;
@@ -152,7 +152,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		assertEquals(modifDate.getTimeInMillis(),calDate.getTimeInMillis());
 		
 		
-	}
+	}*/
 	
 	public void testIDfetchAndVerifyValueForCheckpoint() throws RepositoryException{
 		SimplePropertyMap pm = null;
@@ -304,7 +304,36 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	*/
 	
 	
-	
+	public void testExtractNativeDateFromCheckpoint() {
+
+		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
+		JSONObject jo = null;
+		String modifDate = null;
+		Calendar calDate = null;
+		try {
+			jo = new JSONObject(checkPoint);
+		} catch (JSONException e) {
+			throw new IllegalArgumentException(
+					"checkPoint string does not parse as JSON: " + checkPoint);
+		}
+		
+		modifDate = qtm.extractNativeDateFromCheckpoint(jo,checkPoint);
+		/*try{
+
+			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
+
+		}catch(ParseException pe){
+			pe.printStackTrace();	
+		}*/
+		
+		System.out.println("modifDate vaut "+modifDate);
+		
+		assertNotNull(modifDate);
+		assertEquals(modifDate,"2007-01-02 13:58:10");
+		//assertEquals(modifDate.getTimeInMillis(),calDate.getTimeInMillis());
+		
+		
+	}
 
 	
 
