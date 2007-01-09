@@ -121,7 +121,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 					"checkPoint string does not parse as JSON: " + checkPoint);
 		}
 		String uuid = extractDocidFromCheckpoint(jo, checkPoint);
-		Calendar c = extractCalendarFromCheckpoint(jo, checkPoint);
+		String c = extractNativeDateFromCheckpoint(jo, checkPoint);
 		String queryString = makeCheckpointQueryString(uuid, c);
 		System.out.println("queryString vaut "+queryString);
 
@@ -154,10 +154,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		String uuid = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
 		
-		Calendar c = fetchAndVerifyValueForCheckpoint(pm,
-				SpiConstants.PROPNAME_LASTMODIFY).getDate();
+		String nativeFormatDate = fetchAndVerifyValueForCheckpoint(pm,
+				SpiConstants.PROPNAME_LASTMODIFY).getString();
 		
-		String dateString = DctmSimpleValue.calendarToIso8601(c);
+		String dateString = nativeFormatDate;//DctmSimpleValue.calendarToIso8601(c);
 		
 		String result = null;
 		try {
@@ -226,7 +226,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return uuid;
 	}
 
-	public Calendar extractCalendarFromCheckpoint(JSONObject jo, String checkPoint) {
+	public String extractNativeDateFromCheckpoint(JSONObject jo, String checkPoint) {
 		String dateString = null;
 		try {
 			dateString = jo.getString("lastModified");
@@ -235,27 +235,27 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 					"could not get lastmodify from checkPoint string: "
 							+ checkPoint);
 		}
-		Calendar c = null;
+		/*Calendar c = null;
 		try {
 			c = DctmSimpleValue.iso8601ToCalendar(dateString);
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(
 					"could not parse date string from checkPoint string: "
 							+ dateString);
-		}
-		return c;
+		}*/
+		return dateString;
 	}
 
-	public String makeCheckpointQueryString(String uuid, Calendar c)
+	public String makeCheckpointQueryString(String uuid, String c)
 			throws RepositoryException {
 
-		String time = DctmSimpleValue.calendarToIso8601(c);
+		//String time = DctmSimpleValue.calendarToIso8601(c);
 		/*
 		time=time.replace('T',' ');
 		time=time.substring(0,time.indexOf('Z'));
 		*/
 		
-		Object[] arguments = { time };
+		Object[] arguments = { c };
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
 		return statement;
