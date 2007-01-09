@@ -1,8 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.Calendar;
 
 import org.json.JSONException;
 import org.json.JSONObject;

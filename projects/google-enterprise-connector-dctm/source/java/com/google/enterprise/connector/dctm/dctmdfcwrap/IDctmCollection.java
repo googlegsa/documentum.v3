@@ -19,7 +19,6 @@ import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.ValueType;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfTypedObject;
-import com.documentum.fc.common.DfAttr;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfAttr;
 import com.documentum.fc.common.IDfValue;
