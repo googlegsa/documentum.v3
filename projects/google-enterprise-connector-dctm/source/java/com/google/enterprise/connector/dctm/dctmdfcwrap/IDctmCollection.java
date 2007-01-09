@@ -4,6 +4,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.google.enterprise.connector.dctm.DctmResultSet;
+import com.google.enterprise.connector.dctm.DctmSimpleProperty;
 import com.google.enterprise.connector.dctm.DctmSimpleValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
@@ -13,7 +14,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.ResultSet;
-import com.google.enterprise.connector.spi.SimpleProperty;
 import com.google.enterprise.connector.spi.SimplePropertyMap;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.ValueType;
@@ -113,7 +113,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		while (col.next()) {
 			pm = new SimplePropertyMap();
 			crID = col.getValue("r_object_id").asString();
-			pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
+			pm.putProperty(new DctmSimpleProperty(SpiConstants.PROPNAME_DOCID,
 					new DctmSimpleValue(ValueType.STRING, crID)));
 			val = (IDctmValue) col.getValue("r_modify_date");
 			
@@ -121,7 +121,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 			modifDate = modifDate.replaceAll("/","-");
 			/*modifDate = modifDate.replaceFirst(" ","T");
 			 modifDate += "Z";*/
-			pm.putProperty(new SimpleProperty(
+			pm.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
 							ValueType.DATE, modifDate)));
 			
@@ -132,32 +132,34 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 			
 			if (dctmForm.canIndex()) {
 				mimetype = dctmForm.getMIMEType();
-				pm.putProperty(new SimpleProperty(
+				pm.putProperty(new DctmSimpleProperty(
 						SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 								ValueType.STRING, mimetype)));
 			}
-			pm.putProperty(new SimpleProperty(
+			pm.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
 							ValueType.BINARY, dctmSysObj)));
 			pm
-			.putProperty(new SimpleProperty(
+			.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_DISPLAYURL, new DctmSimpleValue(
 							ValueType.STRING,
 							session.getServerUrl()+crID)));
 			pm
-			.putProperty(new SimpleProperty(
+			.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_SECURITYTOKEN, new DctmSimpleValue(
 							ValueType.STRING,
 							dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName())));
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 
 				Enumeration metas = dctmSysObj.enumAttrs();
+				
 				while (metas.hasMoreElements()){
 					IDfAttr curAttr = (IDfAttr) metas.nextElement();
 					String name = curAttr.getName();
 					if (!notCustomMeta.contains(name) || specifiedMeta.contains(name)){
-						pm.putProperty(new SimpleProperty(curAttr.getName(),
+						pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
 								new DctmSimpleValue(ValueType.STRING, curAttr.toString())));
+						
 					}
 				}
 
