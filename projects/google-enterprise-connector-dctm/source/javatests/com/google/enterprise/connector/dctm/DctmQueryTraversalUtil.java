@@ -63,6 +63,7 @@ public class DctmQueryTraversalUtil {
 					
 					break;
 				}
+				System.out.println("counter " +counter);
 				push.take(pm ,"dctm");
 							
 			}
