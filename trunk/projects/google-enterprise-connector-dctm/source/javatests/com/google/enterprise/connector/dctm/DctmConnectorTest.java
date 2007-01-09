@@ -1,7 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.Session;
 
 import junit.framework.TestCase;
 

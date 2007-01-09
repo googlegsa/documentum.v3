@@ -2,9 +2,6 @@ package com.google.enterprise.connector.dctm;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -19,7 +16,6 @@ public class DctmSimpleValueTest extends TestCase {
 	 * Test method for 'com.google.enterprise.connector.dctm.DctmSimpleValue.iso8601ToCalendar(String)'
 	 */
 	public void testIso8601ToCalendar() {
-		Date d = null;
 		String s ="2007-01-04T00:00:00Z";
 		
 		String waitedString = "Thu Jan 04 00:00:00 CET 2007";

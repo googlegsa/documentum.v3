@@ -27,6 +27,7 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	private ISession currentSession;
 	private Hashtable sessMgerCreds=new Hashtable(1,1);
 	private Hashtable sessMgerSessions=new Hashtable(1,1);
+	private Hashtable sessMgerIDs=new Hashtable(1,1);
 	
 	public DctmMockClient(){
 	}
@@ -85,7 +86,8 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	 * ILocalClient's method
 	 */
 	public ISession findSession(String dfcSessionId) {
-		return this.currentSession;
+		String dbName = (String) this.sessMgerIDs.get(dfcSessionId);
+		return (ISession) this.sessMgerSessions.get(dbName);
 	}
 	
 	/**
@@ -182,8 +184,22 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
-		return new DctmMockSession(repo,sess);
+		//If not caught any error, authentication successful
+		String sessID = createNewId();
+		sessMgerIDs.put(sessID,db);
+		return new DctmMockSession(repo,sess,sessID);
 		
+	}
+	
+	private String createNewId(){
+		String uniqueID = "";
+		int i=0;
+		while (true){
+			if (!sessMgerIDs.containsKey(Integer.toBinaryString(i))) break;
+			i++;
+		}
+		uniqueID=Integer.toBinaryString(i);
+		return uniqueID;
 	}
 	
 	public void setSession(ISession session) {
