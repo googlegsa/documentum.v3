@@ -152,16 +152,60 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 
 				Enumeration metas = dctmSysObj.enumAttrs();
-				
+				DctmSimpleValue dctmSimpleValue;
 				while (metas.hasMoreElements()){
 					IDfAttr curAttr = (IDfAttr) metas.nextElement();
 					String name = curAttr.getName();
 					if (!notCustomMeta.contains(name) || specifiedMeta.contains(name)){
-						pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
-								new DctmSimpleValue(ValueType.STRING, curAttr.toString())));
+						
+						
+						if (curAttr.getDataType() == IDfAttr.DM_BOOLEAN) {
+							
+							boolean bool = dctmSysObj.getBoolean(curAttr.getName());
+							
+	                       dctmSimpleValue = new DctmSimpleValue(ValueType.BOOLEAN, bool? "true":"false");
+	                       pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
+									dctmSimpleValue));
+	                       
+	                    } else if (curAttr.getDataType() == IDfAttr.DM_DOUBLE) {
+							
+	                    	dctmSimpleValue = new DctmSimpleValue(ValueType.DOUBLE, dctmSysObj.getDouble(curAttr.getName())+"");
+	                    	pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
+									dctmSimpleValue));
+	                        
+	                    } else if (curAttr.getDataType() == IDfAttr.DM_ID) {
+							
+	                    	dctmSimpleValue = new DctmSimpleValue(ValueType.STRING, dctmSysObj.getId(curAttr.getName()).toString());
+	                    	pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
+									dctmSimpleValue));
+	                        
+	                    } else if (curAttr.getDataType() == IDfAttr.DM_INTEGER) {
+							dctmSimpleValue = new DctmSimpleValue(ValueType.LONG, dctmSysObj.getInt(curAttr.getName())+"");
+	                    	pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
+									dctmSimpleValue));
+	                        
+	                    } else if (curAttr.getDataType() == IDfAttr.DM_STRING) {
+	                    	String str = dctmSysObj.getString(curAttr.getName());
+							if(str != null){
+								dctmSimpleValue = new DctmSimpleValue(ValueType.STRING, dctmSysObj.getString(curAttr.getName()));
+								pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
+									dctmSimpleValue));
+							}
+	                    } else if (curAttr.getDataType() == IDfAttr.DM_TIME) {
+	                    	IDctmTime time = (IDctmTime) dctmSysObj.getTime(curAttr.getName());
+	                    	if(time != null){
+								dctmSimpleValue = new DctmSimpleValue(ValueType.STRING, dctmSysObj.getTime(curAttr.getName()).asString(IDctmTime.DF_TIME_PATTERN45));
+								
+	                    	}
+	                       
+	                    } else { //Unknown type
+	                       dctmSimpleValue = new DctmSimpleValue(ValueType.STRING," ");
+	                    } 
+						
 						
 					}
 				}
+				
 
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 			
