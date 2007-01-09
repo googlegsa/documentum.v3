@@ -53,9 +53,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		resultSet = new DctmResultSet();
 		for (i = 0; i < docidList.size(); i++) {
 			docmap = new SimplePropertyMap();
-			docmap.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID, docidList
+			docmap.putProperty(new DctmSimpleProperty(SpiConstants.PROPNAME_DOCID, docidList
 					.get(i).toString()));
-			docmap.putProperty(new SimpleProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT,
+			docmap.putProperty(new DctmSimpleProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT,
 					(ids.indexOf(docidList.get(i).toString()) != -1)));
 			resultSet.add(docmap);
 		}
