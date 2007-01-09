@@ -27,27 +27,8 @@ public class DctmAuthorizationManagerTest extends TestCase {
 	 */
 	public final void testAuthorizeDocids() throws RepositoryException{
 		
-//		List idList;
 		DctmAuthorizationManager authorizationManager;
-//		DctmResultSet expectedResults;
-//		idList = new ArrayList(3);
-//		idList.add("0900000180007e71");
-//		idList.add("0900000180007f9f");
-//		idList.add("0900000180007e85");
 		authorizationManager = null;
-//		expectedResults = new DctmResultSet();
-//		SimplePropertyMap propMap = new SimplePropertyMap();
-//		propMap.putProperty(new SimpleProperty("PROPNAME_AUTH_VIEWPERMIT",false));
-//		propMap.putProperty(new SimpleProperty("PROPNAME_DOCID","0900000180007e71"));
-//		expectedResults.add(propMap);
-//		propMap = new SimplePropertyMap();
-//		propMap.putProperty(new SimpleProperty("PROPNAME_AUTH_VIEWPERMIT",true));
-//		propMap.putProperty(new SimpleProperty("PROPNAME_DOCID","0900000180007f9f"));
-//		expectedResults.add(propMap);
-//		propMap = new SimplePropertyMap();
-//		propMap.putProperty(new SimpleProperty("PROPNAME_AUTH_VIEWPERMIT",true));
-//		propMap.putProperty(new SimpleProperty("PROPNAME_DOCID","0900000180007e85"));
-//		expectedResults.add(propMap);
 		Connector myconn=new DctmConnector();
 		
 		((DctmConnector)myconn).setLogin("user1");
