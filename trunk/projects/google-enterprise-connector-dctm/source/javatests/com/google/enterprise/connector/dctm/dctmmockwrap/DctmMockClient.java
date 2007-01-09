@@ -47,7 +47,7 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 		return new DctmMockQuery();
 	}
 	
-	public void authenticate(String docbaseName, ILoginInfo loginInfo)
+	public boolean authenticate(String docbaseName, ILoginInfo loginInfo)
 	throws LoginException {
 		MockRepositoryEventList mrel =
 			new MockRepositoryEventList(docbaseName);		
@@ -67,7 +67,7 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 		String values[] = property.getValues();
 		for(int i = 0; i < values.length; i++)
 			if(values[i].equals(userID))
-				if (userID.equals(password)) return;//succes
+				if (userID.equals(password)) return true;//succes
 		
 		throw new LoginException("No user Defined");
 	}
