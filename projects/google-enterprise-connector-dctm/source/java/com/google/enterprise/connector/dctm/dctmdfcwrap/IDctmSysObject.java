@@ -8,8 +8,11 @@ import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.IDfAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
@@ -99,6 +102,68 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	public String getACLName() throws RepositoryException{
 		try {
 			return idfSysObject.getACLName();
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+	}
+	
+	public String getString(String name) throws RepositoryException{
+		try {
+			return idfSysObject.getString(name);
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+		
+	}
+
+	public boolean getBoolean(String name) throws RepositoryException{
+		try {
+			return idfSysObject.getBoolean(name);
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+		
+	}
+
+	public double getDouble(String name) throws RepositoryException{
+		try {
+			return idfSysObject.getDouble(name);
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+	}
+
+	public IId getId(String name) throws RepositoryException{
+		try {
+			return new IDctmId(idfSysObject.getId(name));
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+	}
+
+	public int getInt(String name) throws RepositoryException{
+		try {
+			return idfSysObject.getInt(name);
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+	}
+
+	public ITime getTime(String name) throws RepositoryException{
+		try {
+			return new IDctmTime(idfSysObject.getTime(name));
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
 			re.setStackTrace(e.getStackTrace());
