@@ -68,10 +68,11 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 		if (sysObject == null) {
 			return super.getStream();
 		} else {
-			InputStream str = sysObject.getContent();
-			if (str == null) {
+			InputStream str = null;
+			if(sysObject.getContentSize() != 0){
+				str = sysObject.getContent();
+			}else{
 				str = new ByteArrayInputStream(new byte[1]);
-				System.out.println("content empty");
 			}
 			return str;
 		}
