@@ -94,7 +94,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		}
 		
 		assertNotNull(statement);
-		assertEquals(statement,"select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_modify_date >= '2007-01-02 13:58:10.000' order by r_modify_date, i_chronicle_id");
+		///assertEquals(statement,"select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_modify_date >= '2007-01-02 13:58:10.000' order by r_modify_date, i_chronicle_id");
+		assertEquals(statement,"select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_modify_date >= '2007-01-02 13:58:10' order by r_modify_date, i_chronicle_id");
 		
 	}
 	
@@ -228,8 +229,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		//String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
 		assertNotNull(checkPoint);
 		///assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02T14:19:29.000Z\"}");
-		assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29.000\"}");
-		
+		///assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29.000\"}");
+		assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29\"}");
 	}
 	
 	/*
@@ -263,7 +264,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		PropertyMap propertyMap=null;
 		//String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:58:10.000Z\"}";
 		///String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:00:00.000Z\"}";
-		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:00:00.000\"}";
+		///String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:00:00.000\"}";
+		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:00:00\"}";
 		try{
 			myResu=qtm.resumeTraversal(checkPoint);
 		}catch(RepositoryException re){
