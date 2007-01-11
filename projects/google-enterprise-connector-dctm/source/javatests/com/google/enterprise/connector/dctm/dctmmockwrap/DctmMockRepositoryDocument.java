@@ -62,4 +62,34 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public String getString(String name) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public int getInt(String name) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public IId getId(String name) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ITime getTime(String name) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public double getDouble(String name) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public boolean getBoolean(String name) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
