@@ -9,6 +9,7 @@
 				<value>Password</value>
 				<value>Color</value>
 				<value>RepositoryFile</value>
+				<value>BiduleChouette</value>
 			</list>
 		</property>
 	</bean>

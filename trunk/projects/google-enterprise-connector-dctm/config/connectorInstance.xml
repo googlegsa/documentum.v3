@@ -4,7 +4,7 @@
 	<bean id="DctmConnectorInstance"
 		class="com.google.enterprise.connector.dctm.DctmConnector">
 		<property name="repository" value="gsadctm" />
-		<property name="login" value="user1" />
+		<property name="login" value="queryUser" />
 		<property name="password" value="p@ssw0rd" />
 	</bean>
 </beans>
