@@ -13,7 +13,7 @@ public class DctmConnector implements Connector{
 	private String login;
 	private String password;
 	public String docbase;
-	public IClient client;
+	public String client;
 	
 	public void setLogin(String login) {
 		this.login=login;
@@ -24,7 +24,7 @@ public class DctmConnector implements Connector{
 	}
 	
 	public void setClient(String client) throws RepositoryException {
-		boolean repoExcep = false;
+		/*boolean repoExcep = false;
 		Throwable rootCause=null;
 		String message="";
 		StackTraceElement[] stack = null;
@@ -48,11 +48,11 @@ public class DctmConnector implements Connector{
 			stack=e.getStackTrace();
 		}
 		if (repoExcep) {
-			RepositoryException re = new LoginException(message,rootCause);
+			RepositoryException re = new RepositoryException(message,rootCause);
 			re.setStackTrace(stack);
 			throw re;
-		}
-		this.client = cl;
+		}*/
+		this.client = client;
 	}
 	
 	public void setDocbase(String docbase) {
@@ -69,7 +69,7 @@ public class DctmConnector implements Connector{
 	
 	
 	public String getClient() {
-		return client.getClass().getName();
+		return client/*.getClass().getName()*/;
 	}
 	
 	public DctmConnector(){;}
