@@ -44,7 +44,7 @@ public class DctmSession implements Session{
 	 * @param docbase
 	 * @throws RepositoryException
 	 */
-	public DctmSession(IClient client, String login, String password, String docbase) throws RepositoryException{
+	public DctmSession(String client, String login, String password, String docbase) throws RepositoryException{
 		ILoginInfo dctmLoginInfo=null;
 		setClient(client);
 		localClient=this.client.getLocalClientEx();
@@ -110,8 +110,36 @@ public class DctmSession implements Session{
 	}
 	
 	
-	public void setClient(IClient client) {
-		this.client = client;
+	public void setClient(String client) throws RepositoryException {
+	boolean repoExcep = false;
+	Throwable rootCause=null;
+	String message="";
+	StackTraceElement[] stack = null;
+	IClient cl = null;
+	try {
+		cl = (IClient) Class.forName(client).newInstance();
+	} catch (InstantiationException e) {
+		repoExcep=true;
+		rootCause=e.getCause();
+		message=e.getMessage();
+		stack=e.getStackTrace();
+	} catch (IllegalAccessException e) {
+		repoExcep=true;
+		rootCause=e.getCause();
+		message=e.getMessage();
+		stack=e.getStackTrace();
+	} catch (ClassNotFoundException e) {
+		repoExcep=true;
+		rootCause=e.getCause();
+		message=e.getMessage();
+		stack=e.getStackTrace();
+	}
+	if (repoExcep) {
+		RepositoryException re = new RepositoryException(message,rootCause);
+		re.setStackTrace(stack);
+		throw re;
+	}
+		this.client = cl;
 	}
 	
 	public ISession getSession() {
