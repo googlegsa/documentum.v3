@@ -44,17 +44,11 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		((DctmConnector) connector).setLogin(user);
 		((DctmConnector) connector).setPassword(password);
 		((DctmConnector) connector).setDocbase(docbase);
-		IClient cl = null;
 		try {
-			cl = (IClient) Class.forName(client).newInstance();
-		} catch (InstantiationException e) {
-			System.out.println("Root Cause : " + e.getCause() + " ; Message : " + e.getMessage());
-		} catch (IllegalAccessException e) {
-			System.out.println("Root Cause : " + e.getCause() + " ; Message : " + e.getMessage());
-		} catch (ClassNotFoundException e) {
-			System.out.println("Root Cause : " + e.getCause() + " ; Message : " + e.getMessage());
+			((DctmConnector) connector).setClient(client);
+		} catch (RepositoryException re) {
+			System.out.println("Root Cause : " + re.getCause() + " ; Message : " + re.getMessage());
 		}
-		((DctmConnector) connector).setClient(cl);
 		/**
 		 * End simulation
 		 */
