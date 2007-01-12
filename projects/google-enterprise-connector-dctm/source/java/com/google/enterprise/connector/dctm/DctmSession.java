@@ -60,7 +60,6 @@ public class DctmSession implements Session{
 	
 	
 	public QueryTraversalManager getQueryTraversalManager() throws RepositoryException{
-		
 		DctmQueryTraversalManager DctmQtm = new DctmQueryTraversalManager(client,session.getSessionId());
 		client.setSession(session);
 
