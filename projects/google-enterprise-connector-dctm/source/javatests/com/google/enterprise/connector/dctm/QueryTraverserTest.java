@@ -20,6 +20,7 @@ import java.io.PrintStream;
 
 import com.google.enterprise.connector.persist.ConnectorStateStore;
 import com.google.enterprise.connector.persist.MockConnectorStateStore;
+import com.google.enterprise.connector.pusher.GsaFeedConnection;
 import com.google.enterprise.connector.pusher.Pusher;
 import com.google.enterprise.connector.pusher.DocPusher;
 import com.google.enterprise.connector.pusher.MockPusher;
@@ -80,14 +81,14 @@ public class QueryTraverserTest extends TestCase {
 		
 		QueryTraversalManager qtm = sess.getQueryTraversalManager();
 		
-		/*String connectorName = "livelink";
+		String connectorName = "DctmConnector";
 		PrintStream out =
 			//System.out;
 			new PrintStream(new FileOutputStream("traverser-test.log"));
 		Pusher pusher =
 			//new MockPusher(System.out);
 			//new DocPusher(new MockFeedConnection());
-			new DocPusher(new MockFileFeedConnection(out));
+			new DocPusher(new GsaFeedConnection("swp-srv-gsa2",19900));
 		ConnectorStateStore connectorStateStore = new MockConnectorStateStore();
 		
 		Traverser traverser =
@@ -105,8 +106,8 @@ public class QueryTraverserTest extends TestCase {
 			System.out.println("Batch# " + batchNumber + " docs " + docsProcessed +
 					" checkpoint " + connectorStateStore.getConnectorState(connectorName));
 			batchNumber++;
-		}*/
-		Assert.assertEquals(380,380/*totalDocsProcessed*/);
+		}
+		Assert.assertEquals(380,totalDocsProcessed);
 	}
 	
 }
