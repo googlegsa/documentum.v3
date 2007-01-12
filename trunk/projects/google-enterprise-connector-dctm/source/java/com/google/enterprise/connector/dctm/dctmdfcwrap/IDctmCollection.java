@@ -174,19 +174,24 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 									dctmSimpleValue));
 	                        
 	                    } else if (curAttr.getDataType() == IDfAttr.DM_ID) {
-							
-	                    	dctmSimpleValue = new DctmSimpleValue(ValueType.STRING, dctmSysObj.getId(curAttr.getName()).toString());
-	                    	pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
-									dctmSimpleValue));
+	                    	String id = dctmSysObj.getId(curAttr.getName()).toString();
+							System.out.println(id);
+							if(id != null && id!=""){
+		                    	dctmSimpleValue = new DctmSimpleValue(ValueType.STRING,id );
+		                    	pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
+										dctmSimpleValue));
+							}
 	                        
 	                    } else if (curAttr.getDataType() == IDfAttr.DM_INTEGER) {
-							dctmSimpleValue = new DctmSimpleValue(ValueType.LONG, dctmSysObj.getInt(curAttr.getName())+"");
+	                    	long l = dctmSysObj.getInt(curAttr.getName());
+	                    	System.out.println(l);
+							dctmSimpleValue = new DctmSimpleValue(ValueType.LONG, l+"");
 	                    	pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
 									dctmSimpleValue));
 	                        
 	                    } else if (curAttr.getDataType() == IDfAttr.DM_STRING) {
 	                    	String str = dctmSysObj.getString(curAttr.getName());
-							if(str != null){
+	                    	if(! (str == null || str.length() <= 0)){
 								dctmSimpleValue = new DctmSimpleValue(ValueType.STRING, dctmSysObj.getString(curAttr.getName()));
 								pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
 									dctmSimpleValue));
