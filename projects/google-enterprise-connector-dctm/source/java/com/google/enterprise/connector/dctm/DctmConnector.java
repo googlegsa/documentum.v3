@@ -9,17 +9,17 @@ import com.google.enterprise.connector.spi.Session;
 
 public class DctmConnector implements Connector{
 
-	private String repoName;
+//	private String repoName;
 	private String login;
 	private String password;
 	public String docbase;
 	public IClient client;
 	
 	
-	public void setRepository(String repoName) {
-	   this.repoName=repoName;
-	}
-	
+//	public void setRepository(String repoName) {
+//	   this.repoName=repoName;
+//	}
+//	
 	public void setLogin(String login) {
 		   this.login=login;
 	}
@@ -37,9 +37,9 @@ public class DctmConnector implements Connector{
 	}
 	
 
-	public String getRepository(){
-		return repoName;
-	}
+//	public String getRepository(){
+//		return repoName;
+//	}
 	
 	public String getLogin(){
 		return login;
