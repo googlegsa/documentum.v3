@@ -82,9 +82,9 @@ public class QueryTraverserTest extends TestCase {
 		QueryTraversalManager qtm = sess.getQueryTraversalManager();
 		
 		String connectorName = "DctmConnector";
-		PrintStream out =
+		/*PrintStream out =
 			//System.out;
-			new PrintStream(new FileOutputStream("traverser-test.log"));
+			new PrintStream(new FileOutputStream("traverser-test.log"));*/
 		Pusher pusher =
 			//new MockPusher(System.out);
 			//new DocPusher(new MockFeedConnection());
