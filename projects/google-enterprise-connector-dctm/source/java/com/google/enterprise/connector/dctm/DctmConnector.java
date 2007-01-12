@@ -68,8 +68,8 @@ public class DctmConnector implements Connector{
 	}
 	
 	
-	public IClient getClient() {
-		return client;
+	public String getClient() {
+		return client.getClass().getName();
 	}
 	
 	public DctmConnector(){;}
