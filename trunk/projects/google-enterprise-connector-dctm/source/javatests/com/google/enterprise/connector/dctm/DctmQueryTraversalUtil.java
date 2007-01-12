@@ -5,6 +5,8 @@ import java.util.Iterator;
 
 
 import com.google.enterprise.connector.pusher.DocPusher;
+import com.google.enterprise.connector.pusher.GsaFeedConnection;
+import com.google.enterprise.connector.pusher.MockFeedConnection;
 import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -39,7 +41,9 @@ public class DctmQueryTraversalUtil {
 			return;
 		}
 		
-		DocPusher push = new DocPusher(new DctmFeedConnection(/*"swp-srv-gsa2",19900*/));
+//		new FeedConnection("swp-srv-gsa2",19900)
+//		new MockFeedConnection("swp-srv-gsa2",19900)
+		DocPusher push = new DocPusher(new GsaFeedConnection("swp-srv-gsa2",19900));
 		
 		while (true) {
 			int counter = 0;
