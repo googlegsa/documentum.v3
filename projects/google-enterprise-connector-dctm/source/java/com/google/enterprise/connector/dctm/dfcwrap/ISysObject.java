@@ -17,4 +17,5 @@ public interface ISysObject{
 	public ITime getTime(String name) throws RepositoryException;
 	public double getDouble(String name) throws RepositoryException;
 	public boolean getBoolean(String name) throws RepositoryException;
+	public String getTitle() throws RepositoryException;
 }
