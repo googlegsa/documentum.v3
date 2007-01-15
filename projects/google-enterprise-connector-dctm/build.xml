@@ -64,11 +64,11 @@
 			<classpath>
 				<pathelement location="${spi.jar.dir}/connector.jar" />
 				<pathelement location="${spi.jar.dir}/connector_tests.jar" />
-				<pathelement location="${jarfile}" />
 				<pathelement location="${spi.jarfile}" />
 				<pathelement location="${junit.jarfile}" />
 				<pathelement location="${json.jarfile}" />
 				<pathelement location="${jcr.jarfile}" />
+				<pathelement location="${classes}" />
 				
 			</classpath>
 		</javac>
