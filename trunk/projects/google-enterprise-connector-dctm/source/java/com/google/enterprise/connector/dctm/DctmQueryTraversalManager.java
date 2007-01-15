@@ -95,12 +95,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	
 	private String lopQuery(){
 		String q = "";
-		if (batchInt!=-12){
-			Object[] top = { Integer.toString(batchInt) };
-			q=MessageFormat.format(unboundedTraversalQuery,top);
-		} else {
-			q=unboundedTraversalQuery;
-		}
+		if (batchInt!=-12 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
+			q = unboundedTraversalQuery+" ENABLE (return_top " + Integer.toString(batchInt) + ")";
+		}	
 		return q;
 	}
 
@@ -268,7 +265,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		Object[] arguments = { c };
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
-		if (batchInt!=-12){
+		if (batchInt!=-12 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
 			statement = statement+" ENABLE (return_top " + Integer.toString(batchInt) + ")";
 		}		
 		return statement;
