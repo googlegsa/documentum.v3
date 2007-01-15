@@ -41,12 +41,7 @@ public class myDctmQueryTraversalUtilCall {
 		((DctmConnector) connector).setLogin(user);
 		((DctmConnector) connector).setPassword(password);
 		((DctmConnector) connector).setDocbase(docbase);
-		try {
-			((DctmConnector) connector).setClient(client);
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		((DctmConnector) connector).setClient(client);
 		/**
 		 * End simulation
 		 */
