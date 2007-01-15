@@ -31,6 +31,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private String boundedTraversalQuery;
 	
 	private String serverUrl;
+	
+	private int batchInt=-12;
 
 	protected void setClient(IClient client) {
 		this.client = client;
@@ -84,12 +86,22 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	public ResultSet startTraversal() throws com.google.enterprise.connector.spi.RepositoryException {
 		IQuery query = null;
 		ResultSet resu = null;
-
-		query = makeCheckpointQuery(unboundedTraversalQuery);
+		query = makeCheckpointQuery(lopQuery());
 //				System.out.println("query vaut "+unboundedTraversalQuery);
 //				System.out.println("query vaut "+query);
 		resu = execQuery(query);
 		return resu;
+	}
+	
+	private String lopQuery(){
+		String q = "";
+		if (batchInt!=-12){
+			Object[] top = { Integer.toString(batchInt) };
+			q=MessageFormat.format(unboundedTraversalQuery,top);
+		} else {
+			q=unboundedTraversalQuery;
+		}
+		return q;
 	}
 
 	/**
@@ -179,10 +191,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 * @throws RepositoryException
 	 */
 	public void setBatchHint(int batchHint) throws RepositoryException {
-		;
+		this.batchInt = batchHint;
 	}
 
-	public ResultSet execQuery(IQuery query) throws RepositoryException {
+	private ResultSet execQuery(IQuery query) throws RepositoryException {
 		ICollection dctmCollection = null; 
 		session.setServerUrl(serverUrl);
 		dctmCollection = query.execute(session, IQuery.DF_READ_QUERY);
@@ -256,6 +268,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		Object[] arguments = { c };
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
+		if (batchInt!=-12){
+			statement = statement+" ENABLE (return_top " + Integer.toString(batchInt) + ")";
+		}		
 		return statement;
 	}
 
