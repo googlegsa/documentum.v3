@@ -13,7 +13,9 @@ public class DctmInstantiator {
 	public static String QUERY_STRING_AUTHORISE_DEFAULT = "select r_object_id from dm_sysobject where r_object_id in (";
 	public static String ATTRIBUTE_NAME = "r_object_id";
 
-	
+	/**
+	 * For tests classes only
+	 */
 	public static void initialize(){
 		if (isDFCavailable) {
 			QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' " +

@@ -6,9 +6,7 @@ import java.util.List;
 
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SimpleProperty;
-import com.google.enterprise.connector.spi.SimpleValue;
 import com.google.enterprise.connector.spi.Value;
-import com.google.enterprise.connector.spi.ValueType;
 
 public class DctmSimpleProperty extends SimpleProperty{
 
