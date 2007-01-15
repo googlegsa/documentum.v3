@@ -13,6 +13,10 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	ISession session;
 
 	IClient client;
+	
+	private String ATTRIBUTE_NAME;
+	
+	private String QUERY_STRING_AUTHORISE_DEFAULT;
 
 	/**
 	 * @param args
@@ -21,10 +25,19 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	}
 
-	public DctmAuthorizationManager(ISession session, IClient client) {
+	public DctmAuthorizationManager(ISession session, IClient client, String qsad, String attrName) {
 		setSession(session);
 		setClient(client);
+		/*set*/QUERY_STRING_AUTHORISE_DEFAULT=qsad;
+		/*set*/ATTRIBUTE_NAME=attrName;
 	}
+	
+	/*public void setAttributeName(String an){
+		ATTRIBUTE_NAME=an;
+	}	
+	public void setQUERY_STRING_AUTHORISE_DEFAULT(String qsad){
+		QUERY_STRING_AUTHORISE_DEFAULT=qsad;
+	}*/
 
 	public ResultSet authorizeDocids(List docidList, String username)
 			throws RepositoryException {
@@ -48,7 +61,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		collec = (ICollection) query.execute(sessionUser, IQuery.DF_READ_QUERY);
 		String ids = "";
 		while (collec != null && collec.next()) {
-			ids += collec.getString(DctmInstantiator.ATTRIBUTE_NAME) + " ";
+			ids += collec.getString(/*DctmInstantiator.*/ATTRIBUTE_NAME) + " ";
 		}
 		resultSet = new DctmResultSet();
 		for (i = 0; i < docidList.size(); i++) {
@@ -66,7 +79,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	private String buildQuery(List docidList, String dqlQuery) {
 		int i;
-		dqlQuery = DctmInstantiator.QUERY_STRING_AUTHORISE_DEFAULT;
+		dqlQuery = /*DctmInstantiator.*/QUERY_STRING_AUTHORISE_DEFAULT;
 		System.out.println(dqlQuery);
 		for (i = 0; i < docidList.size() - 1; i++) {
 			dqlQuery += "'" + docidList.get(i).toString() + "', ";

@@ -17,6 +17,7 @@ public class DctmSession implements Session{
 	ILocalClient localClient;
 	ISessionManager sessionManager;
 	ISession session;
+	private String QUERY_STRING_UNBOUNDED_DEFAULT,QUERY_STRING_BOUNDED_DEFAULT,QUERY_STRING_AUTHORISE_DEFAULT,WEBTOP_SERVER_URL,ATTRIBUTE_NAME;
 	
 	String docbase;
 	
@@ -44,7 +45,8 @@ public class DctmSession implements Session{
 	 * @param docbase
 	 * @throws RepositoryException
 	 */
-	public DctmSession(String client, String login, String password, String docbase) throws RepositoryException{
+	public DctmSession(String client, String login, String password, String docbase, String qsud, 
+			String qsbd, String qsad, String an, String wsu) throws RepositoryException{
 		ILoginInfo dctmLoginInfo=null;
 		setClient(client);
 		localClient=this.client.getLocalClientEx();
@@ -54,13 +56,19 @@ public class DctmSession implements Session{
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
 		session=sessionManager.newSession(docbase);
+		QUERY_STRING_UNBOUNDED_DEFAULT = qsud;
+		QUERY_STRING_BOUNDED_DEFAULT = qsbd;
+		QUERY_STRING_AUTHORISE_DEFAULT = qsad;
+		WEBTOP_SERVER_URL = wsu;
+		ATTRIBUTE_NAME = an;
 		//this.client.setSession(session);
 	}
 	
 	
 	
 	public QueryTraversalManager getQueryTraversalManager() throws RepositoryException{
-		DctmQueryTraversalManager DctmQtm = new DctmQueryTraversalManager(client,session.getSessionId());
+		DctmQueryTraversalManager DctmQtm = new DctmQueryTraversalManager(client,session.getSessionId(),
+				QUERY_STRING_UNBOUNDED_DEFAULT,QUERY_STRING_BOUNDED_DEFAULT,WEBTOP_SERVER_URL);
 		client.setSession(session);
 
 		return DctmQtm;
@@ -100,7 +108,8 @@ public class DctmSession implements Session{
 	 * @throws RepositoryException
 	 */
 	public AuthorizationManager getAuthorizationManager(){
-		AuthorizationManager DctmAzm = new DctmAuthorizationManager(getSession(),getClient());
+		AuthorizationManager DctmAzm = new DctmAuthorizationManager(getSession(),getClient(),
+				QUERY_STRING_AUTHORISE_DEFAULT,ATTRIBUTE_NAME);
 		return DctmAzm;
 	}
 	

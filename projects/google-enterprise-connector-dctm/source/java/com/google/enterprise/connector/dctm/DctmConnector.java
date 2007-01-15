@@ -1,9 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
-
-import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.spi.Connector;
-import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
@@ -12,18 +9,42 @@ public class DctmConnector implements Connector{
 	
 	private String login;
 	private String password;
-	public String docbase;
-	public String client;
+	private String docbase;
+	private String client;
+	private String QUERY_STRING_UNBOUNDED_DEFAULT;
+	private String QUERY_STRING_BOUNDED_DEFAULT;
+	private String QUERY_STRING_AUTHORISE_DEFAULT;
+	private String ATTRIBUTE_NAME;
+	private String WEBTOP_SERVER_URL;
 	
-	public void setLogin(String login) {
-		this.login=login;
-	}
+	/**
+	 * Setters and getters for the data retrieved from Spring
+	 */	
+	public void setLogin(String login) {this.login=login;}
+	public String getLogin(){return login;}
 	
-	public void setPassword(String password) {
-		this.password=password;
-	}
+	public void setPassword(String password) {this.password=password;}
+	public String getPassword(){return password;}
 	
-	public void setClient(String client) throws RepositoryException {
+	public void setDocbase(String docbase) {this.docbase = docbase;}
+	public String getDocbase() {return docbase;}
+	
+	public void setQUERY_STRING_UNBOUNDED_DEFAULT(String qsud) {this.QUERY_STRING_UNBOUNDED_DEFAULT = qsud;}
+	public String getQUERY_STRING_UNBOUNDED_DEFAULT() {return QUERY_STRING_UNBOUNDED_DEFAULT;}
+	
+	public void setQUERY_STRING_BOUNDED_DEFAULT(String qsbd) {this.QUERY_STRING_BOUNDED_DEFAULT = qsbd;}
+	public String getQUERY_STRING_BOUNDED_DEFAULT() {return QUERY_STRING_BOUNDED_DEFAULT;}
+	
+	public void setQUERY_STRING_AUTHORISE_DEFAULT(String qsad) {this.QUERY_STRING_AUTHORISE_DEFAULT = qsad;}
+	public String getQUERY_STRING_AUTHORISE_DEFAULT() {return QUERY_STRING_AUTHORISE_DEFAULT;}
+	
+	public void setWEBTOP_SERVER_URL(String wsu) {this.WEBTOP_SERVER_URL = wsu;}
+	public String getWEBTOP_SERVER_URL() {return WEBTOP_SERVER_URL;}
+	
+	public void setATTRIBUTE_NAME(String an) {this.ATTRIBUTE_NAME = an;}
+	public String getATTRIBUTE_NAME() {return ATTRIBUTE_NAME;}
+	
+	public void setClient(String client) /*throws RepositoryException*/ {
 		/*boolean repoExcep = false;
 		Throwable rootCause=null;
 		String message="";
@@ -53,36 +74,21 @@ public class DctmConnector implements Connector{
 			throw re;
 		}*/
 		this.client = client;
-	}
-	
-	public void setDocbase(String docbase) {
-		this.docbase = docbase;
-	}
-	
-	public String getLogin(){
-		return login;
-	}
-	
-	public String getPassword(){
-		return password;
-	}
-	
-	
-	public String getClient() {
-		return client/*.getClass().getName()*/;
-	}
+	}	
+	public String getClient() {return client/*.getClass().getName()*/;}
 	
 	public DctmConnector(){;}
-	
-	public String getDocbase() {
-		return docbase;
-	}
 	
 	public Session login() throws RepositoryException{
 		Session sess = null;
 		if (!(client==null||login==null||password==null||docbase==null)){
 			
-			sess = new DctmSession(client,login,password,docbase);
+			sess = new DctmSession(client,login,password,docbase,
+					QUERY_STRING_UNBOUNDED_DEFAULT,
+					QUERY_STRING_BOUNDED_DEFAULT,
+					QUERY_STRING_AUTHORISE_DEFAULT,
+					ATTRIBUTE_NAME,
+					WEBTOP_SERVER_URL);
 		} else {
 			sess = new DctmSession();
 		}
