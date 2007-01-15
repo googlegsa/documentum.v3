@@ -92,4 +92,10 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public String getTitle() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }
