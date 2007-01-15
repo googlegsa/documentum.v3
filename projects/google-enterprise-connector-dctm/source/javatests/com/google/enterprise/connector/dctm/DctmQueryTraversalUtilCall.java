@@ -44,11 +44,11 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		((DctmConnector) connector).setLogin(user);
 		((DctmConnector) connector).setPassword(password);
 		((DctmConnector) connector).setDocbase(docbase);
-		try {
+		//try {
 			((DctmConnector) connector).setClient(client);
-		} catch (RepositoryException re) {
+		/*} catch (RepositoryException re) {
 			System.out.println("Root Cause : " + re.getCause() + " ; Message : " + re.getMessage());
-		}
+		}*/
 		/**
 		 * End simulation
 		 */
