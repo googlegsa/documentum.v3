@@ -52,6 +52,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	}
 	
 	public ByteArrayInputStream getContent() throws RepositoryException{
+		System.out.println("--- IDctmSysObject getContent ---");
 		ByteArrayInputStream content = null;
 		try{
 			content=idfSysObject.getContent();
@@ -65,6 +66,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	
 	public int getPermitEx(String name) throws RepositoryException{
 		int perm = 0;
+		System.out.println("--- IDctmSysObject getPermitEx ---");
 		try{
 			perm = idfSysObject.getPermitEx(name);
 		}catch(DfException e){
@@ -77,6 +79,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	
 	public Enumeration enumAttrs() throws RepositoryException{
 		Enumeration attrs=null;
+		System.out.println("--- IDctmSysObject enumAttrs ---");
 			try {
 				attrs = idfSysObject.enumAttrs();
 			} catch (DfException e) {
@@ -164,6 +167,16 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	public ITime getTime(String name) throws RepositoryException{
 		try {
 			return new IDctmTime(idfSysObject.getTime(name));
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+			re.setStackTrace(e.getStackTrace());
+			throw re;
+		}
+	}
+	
+	public String getTitle() throws RepositoryException{
+		try {
+			return idfSysObject.getTitle();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
 			re.setStackTrace(e.getStackTrace());
