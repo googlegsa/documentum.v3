@@ -47,7 +47,7 @@ public class DocRetrievalTest extends TestCase {
 					"Check initial values. (" + e.getMessage() + " ; " + e.getCause() + ")");
 		}
 		
-		outputPerformances.calibrate();
+		OutputPerformances.calibrate();
 		assertEquals("com.google.enterprise.connector.dctm.DctmQueryTraversalManager",qtm.getClass().getName());
 	}
 }
