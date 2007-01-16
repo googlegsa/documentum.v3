@@ -26,36 +26,36 @@ public class OutputPerformances {
 	public static void calibrate(){
 		//TODO jpn : process set/end calls without doing anything between the two calls in order to evaluate residual weight of the process
 		//Plus : Analyse the influence of the number of elements in the hashtables 
-		OutputPerformances.setPerfFlag(new StringBuffer(""),"Free load test #1");
-		OutputPerformances.endFlag(new StringBuffer(""),"Free load test #1");
-		OutputPerformances.setPerfFlag("".getClass(),"Free load test #2");
-		OutputPerformances.endFlag("".getClass(),"Free load test #2");
-		OutputPerformances.setPerfFlag(new StringBuffer(""),"Free load test #3");
-		OutputPerformances.endFlag(new StringBuffer(""),"Free load test #3");
-		OutputPerformances.setPerfFlag("".getClass(),"Free load test #4");
-		OutputPerformances.endFlag("".getClass(),"Free load test #4");
+		OutputPerformances.setPerfFlag("LOG1","Free load test #1");
+		OutputPerformances.endFlag("LOG1","Free load test #1");
+		OutputPerformances.setPerfFlag("LOG2","Free load test #2");
+		OutputPerformances.endFlag("LOG2","Free load test #2");
+		OutputPerformances.setPerfFlag("LOG1","Free load test #3");
+		OutputPerformances.endFlag("LOG1","Free load test #3");
+		OutputPerformances.setPerfFlag("LOG2","Free load test #4");
+		OutputPerformances.endFlag("LOG2","Free load test #4");
 		
 
-		OutputPerformances.setPerfFlag(new StringBuffer(""),"Free load test keeping hashtables #1");
-		OutputPerformances.setPerfFlag("".getClass(),"Free load test keeping hashtables #2");
-		OutputPerformances.setPerfFlag(velocityFlags.getClass(),"Free load test keeping hashtables #3");
-		OutputPerformances.setPerfFlag((new ArrayList()).getClass(),"Free load test keeping hashtables #4");
-		OutputPerformances.setPerfFlag((new Vector()).getClass(),"Free load test keeping hashtables #5");
-		OutputPerformances.setPerfFlag((new HashMap()).getClass(),"Free load test keeping hashtables #6");
-		OutputPerformances.setPerfFlag((new ByteArray()).getClass(),"Free load test keeping hashtables #7");
-		OutputPerformances.setPerfFlag((new DctmConnector()).getClass(),"Free load test keeping hashtables #8");
-		OutputPerformances.setPerfFlag((new DctmInstantiator()).getClass(),"Free load test keeping hashtables #9");
-		OutputPerformances.setPerfFlag((new DctmResultSet()).getClass(),"Free load test keeping hashtables #10");
-		OutputPerformances.endFlag((new DctmResultSet()).getClass(),"Free load test keeping hashtables #10");
-		OutputPerformances.endFlag(new StringBuffer(""),"Free load test keeping hashtables #1");
-		OutputPerformances.endFlag("".getClass(),"Free load test keeping hashtables #2");
-		OutputPerformances.endFlag(velocityFlags.getClass(),"Free load test keeping hashtables #3");
-		OutputPerformances.endFlag((new ArrayList()).getClass(),"Free load test keeping hashtables #4");
-		OutputPerformances.endFlag((new Vector()).getClass(),"Free load test keeping hashtables #5");
-		OutputPerformances.endFlag((new HashMap()).getClass(),"Free load test keeping hashtables #6");
-		OutputPerformances.endFlag((new ByteArray()).getClass(),"Free load test keeping hashtables #7");
-		OutputPerformances.endFlag((new DctmConnector()).getClass(),"Free load test keeping hashtables #8");
-		OutputPerformances.endFlag((new DctmInstantiator()).getClass(),"Free load test keeping hashtables #9");
+		OutputPerformances.setPerfFlag("LOG1","Free load test keeping hashtables #1");
+		OutputPerformances.setPerfFlag("LOG2","Free load test keeping hashtables #2");
+		OutputPerformances.setPerfFlag("LOG3","Free load test keeping hashtables #3");
+		OutputPerformances.setPerfFlag("LOG4","Free load test keeping hashtables #4");
+		OutputPerformances.setPerfFlag("LOG5","Free load test keeping hashtables #5");
+		OutputPerformances.setPerfFlag("LOG6","Free load test keeping hashtables #6");
+		OutputPerformances.setPerfFlag("LOG7","Free load test keeping hashtables #7");
+		OutputPerformances.setPerfFlag("LOG8","Free load test keeping hashtables #8");
+		OutputPerformances.setPerfFlag("LOG9","Free load test keeping hashtables #9");
+		OutputPerformances.setPerfFlag("LOG10","Free load test keeping hashtables #10");
+		OutputPerformances.endFlag("LOG10","Free load test keeping hashtables #10");
+		OutputPerformances.endFlag("LOG9","Free load test keeping hashtables #1");
+		OutputPerformances.endFlag("LOG8","Free load test keeping hashtables #2");
+		OutputPerformances.endFlag("LOG1","Free load test keeping hashtables #3");
+		OutputPerformances.endFlag("LOG2","Free load test keeping hashtables #4");
+		OutputPerformances.endFlag("LOG3","Free load test keeping hashtables #5");
+		OutputPerformances.endFlag("LOG4","Free load test keeping hashtables #6");
+		OutputPerformances.endFlag("LOG5","Free load test keeping hashtables #7");
+		OutputPerformances.endFlag("LOG6","Free load test keeping hashtables #8");
+		OutputPerformances.endFlag("LOG7","Free load test keeping hashtables #9");
 	}
 	
 	public static void setPerfFlag(Object loc, String message) {
