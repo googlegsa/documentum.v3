@@ -6,6 +6,7 @@ import javax.jcr.query.QueryResult;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -41,5 +42,10 @@ public class DctmMockQuery implements IQuery {
 	}
 	public void setDQL(String dqlStatement){
 		this.query=dqlStatement;
+	}
+
+	public ICollection execute(ISessionManager sessionManager, int queryType) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
