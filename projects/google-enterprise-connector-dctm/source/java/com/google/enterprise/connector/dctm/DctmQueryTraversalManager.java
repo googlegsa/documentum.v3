@@ -10,6 +10,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
@@ -22,11 +23,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	private IClient client;
 	private String sessionID;
-	private ISession session;
+//	private ISession session;
 	private String unboundedTraversalQuery;
 	private String boundedTraversalQuery;
 	private String serverUrl;
 	private int batchInt=-1;
+	private ISessionManager sessionManager;
 	
 	protected void setClient(IClient client) {
 		this.client = client;
@@ -42,20 +44,23 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return sessionID;
 	}
 
-	private void setSession() throws RepositoryException {
-		ILocalClient localClient = client.getLocalClientEx();
-		session = localClient.findSession(sessionID);
-	}
-	protected ISession getSession() {
-		return session;
-	}
+//	private void setSession() throws RepositoryException {
+//		
+////		ILocalClient localClient = client.getLocalClientEx();
+////		session = localClient.findSession(sessionID);
+//	}
+//	protected ISession getSession() {
+//		return session;
+//	}
 
-	public DctmQueryTraversalManager(IClient client, String sessionID, String QUERY_STRING_UNBOUNDED_DEFAULT, String QUERY_STRING_BOUNDED_DEFAULT, String WEBTOP_SERVER_URL) throws RepositoryException {
+	public DctmQueryTraversalManager(IClient client, String QUERY_STRING_UNBOUNDED_DEFAULT, String QUERY_STRING_BOUNDED_DEFAULT, String WEBTOP_SERVER_URL) throws RepositoryException {
 		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"Valuate IClient");
 		setClient(client);
 		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"Valuate IClient");
-		setSessionID(sessionID);
-		setSession();
+//		setSessionID(sessionID);
+//		setSession();
+		setSessionManager(client.getSessionManager());
+		
 		DctmInstantiator.initialize();//TODO to remove.
 		this.unboundedTraversalQuery = /*DctmInstantiator.*/QUERY_STRING_UNBOUNDED_DEFAULT;
 		this.boundedTraversalQuery = /*DctmInstantiator.*/QUERY_STRING_BOUNDED_DEFAULT;
@@ -77,6 +82,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 */
 
 	public ResultSet startTraversal() throws com.google.enterprise.connector.spi.RepositoryException {
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!test startTraversal");
 		IQuery query = null;
 		ResultSet resu = null;
 		query = makeCheckpointQuery(lopQuery());
@@ -185,13 +191,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	private ResultSet execQuery(IQuery query) throws RepositoryException {
 		ICollection dctmCollection = null; 
-		session.setServerUrl(serverUrl);
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"Processing query");
-		dctmCollection = query.execute(session, IQuery.DF_READ_QUERY);
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"Collection retrieved.");
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"About to build ResultSet.");
-		ResultSet rs = dctmCollection.buildResulSetFromCollection(session);
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"ResultSet built.");
+		sessionManager.setServerUrl(serverUrl);
+		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"Processing query");}
+		dctmCollection = query.execute(sessionManager, IQuery.DF_READ_QUERY);
+		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"Collection retrieved.");}
+		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"About to build ResultSet.");}
+		ResultSet rs = dctmCollection.buildResulSetFromCollection(sessionManager);
+		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"ResultSet built.");}
 		return rs;
 	}
 
@@ -265,6 +271,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 			statement = statement+" ENABLE (return_top " + Integer.toString(batchInt) + ")";
 		}
 		return statement;
+	}
+	public ISessionManager getSessionManager() {
+		return sessionManager;
+	}
+	public void setSessionManager(ISessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 
 	/*public String getBoundedTraversalQuery() {

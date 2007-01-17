@@ -6,6 +6,7 @@ import com.documentum.fc.client.DfClient;
 import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
@@ -13,6 +14,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 
@@ -25,7 +27,7 @@ public class IDctmClient implements IClient{
 	IDfClient idfClient;
 	IDfClientX idfClientX;
 	
-	IDfSession idfSession = null;
+	IDctmSessionManager idctmSessionManager = null;
 	
 	public IDctmClient() throws RepositoryException{
 		try {
@@ -110,14 +112,15 @@ public class IDctmClient implements IClient{
 		return new IDctmId(this.idfClientX.getId(value));
 	}
 
-	public ISession getSession() {
-		return new IDctmSession(idfSession);
+	public ISessionManager getSessionManager() {
+		return idctmSessionManager;//new IDctmSessionManager(idfSessionManager);
 	}
 
-	public void setSession(ISession session) {		
-		IDctmSession sess = (IDctmSession)session;
-		idfSession = sess.getDfSession();
+	public void setSessionManager(ISessionManager sessionManager) {		
+		idctmSessionManager = (IDctmSessionManager)sessionManager;
 	}
+
+	
 	
 
 }

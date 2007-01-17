@@ -8,6 +8,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SimpleProperty;
 import com.google.enterprise.connector.spi.Value;
 
+
 public class DctmSimpleProperty extends SimpleProperty{
 
 	  public DctmSimpleProperty(String name, Value value) {

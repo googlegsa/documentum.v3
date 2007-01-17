@@ -7,10 +7,11 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.*;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
-	ISession session;
+	ISessionManager sessionManager;
 
 	IClient client;
 	
@@ -25,8 +26,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	}
 
-	public DctmAuthorizationManager(ISession session, IClient client, String qsad, String attrName) {
-		setSession(session);
+	public DctmAuthorizationManager(IClient client, String qsad, String attrName) {
+//		setSession(session);
 		setClient(client);
 		/*set*/QUERY_STRING_AUTHORISE_DEFAULT=qsad;
 		/*set*/ATTRIBUTE_NAME=attrName;
@@ -47,18 +48,21 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		IQuery query = this.getClient().getQuery();
 		String dqlQuery = ""; 
 		ICollection collec = null;
-
+		ISession session = sessionManager.getSession(sessionManager.getDocbaseName());
+		ISessionManager sessionManagerUser = client.getLocalClientEx().newSessionManager();
 		String ticket = session.getLoginTicketForUser(username);
 		ILoginInfo logInfo = client.getLoginInfo();
 		logInfo.setUser(username);
 		logInfo.setPassword(ticket);
-		ISession sessionUser = client.newSession(session.getDocbaseName(),
-				logInfo);
+		sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),logInfo);
+		sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
+//		ISession sessionUser = client.newSession(session.getDocbaseName(),
+//				logInfo);
 
 		dqlQuery = buildQuery(docidList, dqlQuery);
 		System.out.println(dqlQuery);
 		query.setDQL(dqlQuery);
-		collec = (ICollection) query.execute(sessionUser, IQuery.DF_READ_QUERY);
+		collec = (ICollection) query.execute(sessionManagerUser, IQuery.DF_READ_QUERY);
 		String ids = "";
 		while (collec != null && collec.next()) {
 			ids += collec.getString(/*DctmInstantiator.*/ATTRIBUTE_NAME) + " ";
@@ -95,9 +99,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		return responses;
 	}
 
-	public void setSession(ISession session) {
-		this.session = session;
-	}
+//	public void setSession(ISession session) {
+//		this.session = session;
+//	}
 
 	public IClient getClient() {
 		return client;

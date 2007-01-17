@@ -9,6 +9,6 @@ public interface ICollection{
 	public ITypedObject getTypedObject() throws RepositoryException;
 	public IId getObjectId() throws RepositoryException;
 	public String getString(String colName) throws RepositoryException;
-	public ResultSet buildResulSetFromCollection(ISession session) throws RepositoryException;
+	public ResultSet buildResulSetFromCollection(ISessionManager sessionManager) throws RepositoryException;
 
 }

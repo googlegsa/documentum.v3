@@ -20,9 +20,9 @@ public interface IClient{
 
 	public IId getId(String value);
 
-	public ISession getSession();
+	public ISessionManager getSessionManager();
 	
-	public void setSession(ISession session);
+	public void setSessionManager(ISessionManager session);
 
 		
 	

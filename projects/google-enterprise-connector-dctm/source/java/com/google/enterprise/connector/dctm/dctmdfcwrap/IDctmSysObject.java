@@ -79,7 +79,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	
 	public Enumeration enumAttrs() throws RepositoryException{
 		Enumeration attrs=null;
-		System.out.println("--- IDctmSysObject enumAttrs ---");
+//		System.out.println("--- IDctmSysObject enumAttrs ---");
 			try {
 				attrs = idfSysObject.enumAttrs();
 			} catch (DfException e) {
