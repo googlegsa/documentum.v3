@@ -53,19 +53,65 @@ public class QueryTraverserTest extends TestCase {
 	 * @throws InterruptedException 
 	 */
 	public final void testRunBatch() throws IOException, LoginException, RepositoryException, InterruptedException {
-		
+		//We have 100000 docs then we can keep the same QueryTraverser instance (and then resume traversal instead 
+		//of starting it each time) as far as the addition of docs processed remains lower than 100000.
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 1");
 		runTestBatches(1);
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 1");
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 5");
 		runTestBatches(5);
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 5");
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 25");
 		runTestBatches(25);
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 25");
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 125");
 		runTestBatches(125);
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 125");
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 625");
 		runTestBatches(625);
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 625");
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 3.125");
 		runTestBatches(3125);
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 3.125");
+		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 15.625");
 		//runTestBatches(15625); MileStone#2
+		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 15.625");
+		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 78.125");
 		//runTestBatches(78125); MileStone#2
+		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 78.125");
+		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 100.000");
+		//emptyDocBaseThreeTimesInARow(); MileStone#2
+		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 100.000");
 		
 	}
 	
-	private void runTestBatches(int batchSize) throws IOException, LoginException, RepositoryException, InterruptedException {
+	private int runTestBatches(int batchSize) throws IOException, LoginException, RepositoryException, InterruptedException {
+		
+		DctmConnector conn = new DctmConnector();
+		conn.setClient("com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient");
+		conn.setDocbase("gsadctm");
+		conn.setLogin("queryUser");
+		conn.setPassword("p@ssw0rd");
+		
+		Session sess = conn.login();
+		
+		QueryTraversalManager qtm = sess.getQueryTraversalManager();
+		qtm.setBatchHint(batchSize);//What is BatchHint for exactly? setBatchHint is called only in the QueryTraversalUtil which is supposed
+		//to simulate ConnectorManager. Then if it's purpose is only to get tests faster, we should process our queries with taking that parameter
+		//into consideration because we would obtain a collection quicker than in reality.
+		
+		String connectorName = "DctmConnector";
+		Pusher pusher =
+			new DocPusher(new GsaFeedConnection("swp-srv-gsa2",19900));
+		ConnectorStateStore connectorStateStore = new MockConnectorStateStore();
+		
+		Traverser traverser =
+			new QueryTraverser(pusher, qtm, connectorStateStore, connectorName);
+		
+		return traverser.runBatch(batchSize);
+	}
+	
+	private void emptyDocBaseThreeTimesInARow() throws IOException, LoginException, RepositoryException, InterruptedException {
 		
 		DctmConnector conn = new DctmConnector();
 		conn.setClient("com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient");
@@ -79,8 +125,8 @@ public class QueryTraverserTest extends TestCase {
 		
 		String connectorName = "DctmConnector";
 		/*PrintStream out =
-			//System.out;
-			new PrintStream(new FileOutputStream("traverser-test.log"));*/
+		 //System.out;
+		  new PrintStream(new FileOutputStream("traverser-test.log"));*/
 		Pusher pusher =
 			//new MockPusher(System.out);
 			//new DocPusher(new MockFeedConnection());
@@ -91,19 +137,26 @@ public class QueryTraverserTest extends TestCase {
 			new QueryTraverser(pusher, qtm, connectorStateStore, connectorName);
 		
 		System.out.println();
-		System.out.println("Running batch test batchsize " + batchSize);
+		System.out.println("Running batch test batchsize till whole docbase is pushed");
 		
 		int docsProcessed = -1;
 		int totalDocsProcessed = 0;
-		int batchNumber = 0;
 		while (docsProcessed != 0) {
-			docsProcessed = traverser.runBatch(batchSize);
+			docsProcessed = traverser.runBatch(1000);
 			totalDocsProcessed += docsProcessed;
-			System.out.println("Batch# " + batchNumber + " docs " + docsProcessed +
-					" checkpoint " + connectorStateStore.getConnectorState(connectorName));
-			batchNumber++;
 		}
-		Assert.assertEquals(380,totalDocsProcessed);
+		docsProcessed = -1;
+		totalDocsProcessed = 0;
+		while (docsProcessed != 0) {
+			docsProcessed = traverser.runBatch(10000);
+			totalDocsProcessed += docsProcessed;
+		}
+		docsProcessed = -1;
+		totalDocsProcessed = 0;
+		while (docsProcessed != 0) {
+			docsProcessed = traverser.runBatch(100005);
+			totalDocsProcessed += docsProcessed;
+		}
 	}
 	
 }
