@@ -70,7 +70,9 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 		} else {
 			InputStream str = null;
 			if(sysObject.getContentSize() != 0){
+				System.out.println("--- DctmSimpleValue getStream - avant getContent ---");
 				str = sysObject.getContent();
+				System.out.println("--- DctmSimpleValue getStream - après getContent ---");
 			}else{
 				str = new ByteArrayInputStream(new byte[1]);
 			}
