@@ -76,5 +76,10 @@ public class DctmMockCollection implements ICollection {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public ResultSet buildResulSetFromCollection(ISessionManager sessionManager) throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
