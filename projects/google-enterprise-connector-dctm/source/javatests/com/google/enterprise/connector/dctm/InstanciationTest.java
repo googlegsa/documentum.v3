@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;

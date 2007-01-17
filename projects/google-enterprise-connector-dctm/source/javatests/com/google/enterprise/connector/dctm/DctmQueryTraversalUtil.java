@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import com.google.enterprise.connector.pusher.DocPusher;
 import com.google.enterprise.connector.pusher.GsaFeedConnection;
-import com.google.enterprise.connector.pusher.MockFeedConnection;
 import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
