@@ -137,7 +137,9 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 			System.out.println("--- IDctmCollection buildResulSetFromCollection after dctmSysObj.getFormat()");
 			
 			if (dctmForm.canIndex()) {
+				System.out.println("--- IDctmCollection buildResulSetFromCollection - canIndex vaut true ---");
 				mimetype = dctmForm.getMIMEType();
+				System.out.println("--- IDctmCollection buildResulSetFromCollection - mimetype vaut "+mimetype+" ---");
 				pm.putProperty(new DctmSimpleProperty(
 						SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 								ValueType.STRING, mimetype)));
