@@ -15,14 +15,18 @@ import com.google.enterprise.connector.spi.LoginException;
 public class IDctmSessionManager implements ISessionManager{
 	IDfSessionManager dfSessionManager;
 	
+	private String docbaseName;
+	private String serverUrl;
+	
 	public IDctmSessionManager (IDfSessionManager DfSessionManager){
+		
 		this.dfSessionManager=DfSessionManager;
 	}
 	
 	public ISession getSession(String docbase) throws LoginException{
 		IDfSession DfSession=null;
 		try{
-			DfSession=dfSessionManager.getSession(docbase);
+			DfSession = dfSessionManager.getSession(docbase);
 		}catch(DfIdentityException iE){
 			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
 			le.setStackTrace(iE.getStackTrace());
@@ -85,6 +89,33 @@ public class IDctmSessionManager implements ISessionManager{
 			return null;
 		}
 		return new IDctmSession(idfSession);
+	}
+
+	public void release(ISession session) {
+		this.dfSessionManager.release(((IDctmSession)session).getDfSession());
+		
+	}
+
+	public IDfSessionManager getDfSessionManager() {
+		return dfSessionManager;
+	}
+
+	public void setServerUrl(String serverUrl) {
+		this.serverUrl = serverUrl;
+		
+	}
+
+	public String getDocbaseName() {
+		
+		return docbaseName;
+	}
+	
+	public void setDocbaseName(String docbaseName){
+		this.docbaseName = docbaseName;
+	}
+
+	public String getServerUrl() {
+		return serverUrl;
 	}
 	
 	

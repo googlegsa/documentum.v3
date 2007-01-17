@@ -4,14 +4,16 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.*;
+import com.google.enterprise.connector.spi.AuthenticationManager;
+import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 
 
 public class DctmAuthenticationManager implements AuthenticationManager {
-	ISession session;
+	ISessionManager sessionManager;
 	IClient client;
-	ISessionManager sMgr;
+//	ISessionManager sMgr;
 	ILoginInfo loginInfo;
 	/**
 	 * @param args
@@ -21,29 +23,29 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	}
 	
 	
-	public DctmAuthenticationManager(ISession session,IClient client){
-		setSession(session);
+	public DctmAuthenticationManager(IClient client){
+//		setSession(session);
 		setClient(client);
 	}
 	
 	
-	public ISession getSession(){
-		return session;
-	}
+//	public ISession getSession(){
+//		return session;
+//	}
 	
 	
 	public boolean authenticate(String username, String password)
     throws LoginException, RepositoryException{
 		setLoginInfo(username,password);
 		boolean authenticate = false;
-		authenticate = client.authenticate (session.getDocbaseName(),getLoginInfo());
+		authenticate = client.authenticate (sessionManager.getDocbaseName(),getLoginInfo());
 		return authenticate;
 	}
 	
 	
-	public void setSession(ISession session){
-		this.session=session;
-	}
+//	public void setSession(ISession session){
+//		this.session=session;
+//	}
 	
 	public void setLoginInfo(String username,String password){
 		loginInfo = client.getLoginInfo();

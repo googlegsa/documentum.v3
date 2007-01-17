@@ -7,4 +7,9 @@ public interface ISessionManager{
 	 public ISession getSession(String docbase) throws LoginException, RepositoryException; 
 	 public ISession newSession(String docbase) throws LoginException, RepositoryException;
 	 public void setIdentity(String docbase,ILoginInfo identity) throws LoginException;
+	public void release(ISession session);
+	public void setServerUrl(String serverUrl);
+	public String getDocbaseName();
+	public void setDocbaseName(String docbaseName);
+	public String getServerUrl();
 }

@@ -34,6 +34,7 @@ public class DctmSession implements Session{
 		dctmLoginInfo.setPassword("p@ssw0rd");
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
 		session = sessionManager.newSession(docbase);
+		sessionManager.release(session);
 		//this.client.setSession(session);
 	}
 	
@@ -48,42 +49,51 @@ public class DctmSession implements Session{
 	public DctmSession(String client, String login, String password, String docbase, String qsud, 
 			String qsbd, String qsad, String an, String wsu) throws RepositoryException{
 		ILoginInfo dctmLoginInfo=null;
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- builds an IClient");
+		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds an IClient");}
 		setClient(client);
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- builds an ILocalClient");
+		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
+		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds an ILocalClient");}
 		localClient=this.client.getLocalClientEx();
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- builds an ISessionManager");
+		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
+		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds an ISessionManager");}
 		sessionManager=localClient.newSessionManager();
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- builds credential objects");
+		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
+		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds credential objects");}
 		dctmLoginInfo = this.client.getLoginInfo();
 		dctmLoginInfo.setUser(login);
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- opens an authenticated ISession");
+		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
+		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- opens an authenticated ISession");}
 		session=sessionManager.newSession(docbase);
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
+		sessionManager.release(session);
+		this.client.setSessionManager(sessionManager);
+		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
 		QUERY_STRING_UNBOUNDED_DEFAULT = qsud;
 		QUERY_STRING_BOUNDED_DEFAULT = qsbd;
 		QUERY_STRING_AUTHORISE_DEFAULT = qsad;
 		WEBTOP_SERVER_URL = wsu;
 		ATTRIBUTE_NAME = an;
+		sessionManager.setDocbaseName(docbase);
+		sessionManager.setServerUrl(wsu);
 		//this.client.setSession(session);
 	}
 	
 	
 	
 	public QueryTraversalManager getQueryTraversalManager() throws RepositoryException{
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"DctmQueryTraversalManager's instantiation");
-		DctmQueryTraversalManager DctmQtm = new DctmQueryTraversalManager(client,session.getSessionId(),
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!test getQueryTraversal");
+		DctmQueryTraversalManager dctmQtm = null;
+//		session = sessionManager.getSession(docbase);
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"DctmQueryTraversalManager's instantiation");{
+			
+			dctmQtm = new DctmQueryTraversalManager(client,
 				QUERY_STRING_UNBOUNDED_DEFAULT,QUERY_STRING_BOUNDED_DEFAULT,WEBTOP_SERVER_URL);
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"DctmQueryTraversalManager's instantiation");
-		client.setSession(session);
-
-		return DctmQtm;
+		}
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"DctmQueryTraversalManager's instantiation");{
+			client.setSessionManager(sessionManager);
+		}
+		return dctmQtm;
 	}
 	
 	
@@ -102,7 +112,7 @@ public class DctmSession implements Session{
 	 * @throws RepositoryException
 	 */
 	public AuthenticationManager getAuthenticationManager() {
-		AuthenticationManager DctmAm = new DctmAuthenticationManager(getSession(),getClient());
+		AuthenticationManager DctmAm = new DctmAuthenticationManager(getClient());
 		return DctmAm;
 	}
 	
@@ -120,7 +130,7 @@ public class DctmSession implements Session{
 	 * @throws RepositoryException
 	 */
 	public AuthorizationManager getAuthorizationManager(){
-		AuthorizationManager DctmAzm = new DctmAuthorizationManager(getSession(),getClient(),
+		AuthorizationManager DctmAzm = new DctmAuthorizationManager(getClient(),
 				QUERY_STRING_AUTHORISE_DEFAULT,ATTRIBUTE_NAME);
 		return DctmAzm;
 	}
@@ -163,13 +173,13 @@ public class DctmSession implements Session{
 		this.client = cl;
 	}
 	
-	public ISession getSession() {
-		return session;
-	}
-	
-	public void setSession(ISession session) {
-		this.session = session;
-	}
+//	public ISession getSession() {
+//		return session;
+//	}
+//	
+//	public void setSession(ISession session) {
+//		this.session = session;
+//	}
 
 	public String getDocbase() {
 		return docbase;

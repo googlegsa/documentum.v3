@@ -10,6 +10,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -96,7 +97,8 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		}
 	}
 	
-	public ResultSet buildResulSetFromCollection(ISession session) throws RepositoryException {
+	public ResultSet buildResulSetFromCollection(ISessionManager sessionManager) throws RepositoryException {
+		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!test buildResultSet");
 		String modifDate = null;
 		String crID = null;
 		String mimetype = null;
@@ -106,7 +108,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		IDctmValue val = null;
 		DctmResultSet resu = new DctmResultSet();
 		ICollection col = new IDctmCollection(idfCollection);
-		
+		IDctmSession session = (IDctmSession) sessionManager.getSession(sessionManager.getDocbaseName());
 		Vector notCustomMeta = getSysMeta();
 		Vector specifiedMeta = getSpecMeta();
 		
@@ -156,8 +158,6 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 					IDfAttr curAttr = (IDfAttr) metas.nextElement();
 					String name = curAttr.getName();
 					if (!notCustomMeta.contains(name) || specifiedMeta.contains(name)){
-						
-						
 						if (curAttr.getDataType() == IDfAttr.DM_BOOLEAN) {
 							
 							boolean bool = dctmSysObj.getBoolean(curAttr.getName());
@@ -215,7 +215,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 			
 			resu.add(pm);
 		}
-		
+		sessionManager.release(session);
 		return resu;
 	}
 	
