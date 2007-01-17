@@ -80,6 +80,7 @@ public class DctmConnector implements Connector{
 	public DctmConnector(){;}
 	
 	public Session login() throws RepositoryException{
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"DctmConnector.login()");
 		Session sess = null;
 		if (!(client==null||login==null||password==null||docbase==null)){
 			
@@ -92,6 +93,7 @@ public class DctmConnector implements Connector{
 		} else {
 			sess = new DctmSession();
 		}
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"return Session from DctmConnector.login()");
 		return (sess);
 	}
 	
