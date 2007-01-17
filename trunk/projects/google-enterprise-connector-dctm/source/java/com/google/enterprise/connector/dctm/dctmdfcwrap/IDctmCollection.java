@@ -144,23 +144,41 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 						SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 								ValueType.STRING, mimetype)));
 			}
+			
+			System.out.println("--- IDctmCollection buildResulSetFromCollection - avant affectation de PROPNAME_CONTENT");
+			/*
+			String test = "tralalala youpi !!!!";
+			pm.putProperty(new DctmSimpleProperty(
+					SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
+							ValueType.BINARY, test.getBytes())));
+			*/
 			pm.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
 							ValueType.BINARY, dctmSysObj)));
+			System.out.println("--- IDctmCollection buildResulSetFromCollection - après affectation de PROPNAME_CONTENT");
+			
 			pm
 			.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_DISPLAYURL, new DctmSimpleValue(
 							ValueType.STRING,
 							session.getServerUrl()+crID)));
+			
+			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_DISPLAYURL vaut "+session.getServerUrl()+crID+" ---");
+			
 			pm
 			.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_SECURITYTOKEN, new DctmSimpleValue(
 							ValueType.STRING,
 							dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName())));
+			
+			
+			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_SECURITYTOKEN vaut "+dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName()+" ---");
+			
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 
 				Enumeration metas = dctmSysObj.enumAttrs();
 				DctmSimpleValue dctmSimpleValue;
+				System.out.println("--- IDctmCollection buildResulSetFromCollection - après enumAttrs ---");
 				while (metas.hasMoreElements()){
 					IDfAttr curAttr = (IDfAttr) metas.nextElement();
 					String name = curAttr.getName();
