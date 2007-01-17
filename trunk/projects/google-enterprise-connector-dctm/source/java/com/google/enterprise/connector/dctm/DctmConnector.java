@@ -80,6 +80,7 @@ public class DctmConnector implements Connector{
 	public DctmConnector(){;}
 	
 	public Session login() throws RepositoryException{
+		System.out.println("--- DctmConnector login ---");
 		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"DctmConnector.login() :\n\t\t\t\t Instantiates a new DctmSession from 9 String (~250 chars) and :");
 		Session sess = null;
 		
