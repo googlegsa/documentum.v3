@@ -14,17 +14,13 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import com.google.enterprise.connector.persist.ConnectorStateStore;
 import com.google.enterprise.connector.persist.MockConnectorStateStore;
 import com.google.enterprise.connector.pusher.GsaFeedConnection;
 import com.google.enterprise.connector.pusher.Pusher;
 import com.google.enterprise.connector.pusher.DocPusher;
-import com.google.enterprise.connector.pusher.MockPusher;
-import com.google.enterprise.connector.pusher.MockFeedConnection;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
