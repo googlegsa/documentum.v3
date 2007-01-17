@@ -82,7 +82,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 */
 
 	public ResultSet startTraversal() throws com.google.enterprise.connector.spi.RepositoryException {
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!test startTraversal");
+		System.out.println("--- DctmQueryTraversalManager startTraversal ---");
+		System.out.println("--- DctmQueryTraversalManager startTraversal- unboundedTraversalQuery vaut "+unboundedTraversalQuery+" ---");
+		
 		IQuery query = null;
 		ResultSet resu = null;
 		query = makeCheckpointQuery(lopQuery());
@@ -115,6 +117,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	public ResultSet resumeTraversal(String checkPoint)
 			throws RepositoryException {
 		System.out.println("checkpoint vaut "+checkPoint);
+		System.out.println("--- DctmQueryTraversalManager resumeTraversal !!! ---");
 		//{"uuid":"0900045780030e40","lastModified":"2006-09-27"}
 		JSONObject jo = null;
 		ResultSet resu = null;
@@ -190,7 +193,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	}
 
 	private ResultSet execQuery(IQuery query) throws RepositoryException {
+		System.out.println("--- DctmQueryTraversalManager execQuery ---");
 		ICollection dctmCollection = null; 
+		System.out.println("--- DctmQueryTraversalManager serverurl vaut "+serverUrl+" ---");
 		sessionManager.setServerUrl(serverUrl);
 		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"Processing query");}
 		dctmCollection = query.execute(sessionManager, IQuery.DF_READ_QUERY);

@@ -24,6 +24,7 @@ public class DctmSession implements Session{
 	
 	//Constructor never called except for tests
 	public DctmSession() throws RepositoryException{
+		System.out.println("--- DctmSession constructor without arguments---");
 		ILoginInfo dctmLoginInfo=null;
 		client = new IDctmClient();
 		docbase = "gsadctm";
@@ -48,6 +49,7 @@ public class DctmSession implements Session{
 	 */
 	public DctmSession(String client, String login, String password, String docbase, String qsud, 
 			String qsbd, String qsad, String an, String wsu) throws RepositoryException{
+		System.out.println("--- DctmSession constructor with arguments---");
 		ILoginInfo dctmLoginInfo=null;
 		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds an IClient");}
 		setClient(client);
@@ -82,7 +84,7 @@ public class DctmSession implements Session{
 	
 	
 	public QueryTraversalManager getQueryTraversalManager() throws RepositoryException{
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!test getQueryTraversal");
+		System.out.println("--- DctmSession getQueryTraversalManager---");
 		DctmQueryTraversalManager dctmQtm = null;
 //		session = sessionManager.getSession(docbase);
 		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"DctmQueryTraversalManager's instantiation");{
@@ -93,6 +95,9 @@ public class DctmSession implements Session{
 		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"DctmQueryTraversalManager's instantiation");{
 			client.setSessionManager(sessionManager);
 		}
+		
+		System.out.println("--- DctmSession getQueryTraversalManager client vaut"+client.getClass()+"---");
+		
 		return dctmQtm;
 	}
 	
