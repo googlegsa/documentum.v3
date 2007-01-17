@@ -54,7 +54,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		setClient(client);
 		setSessionID(sessionID);
 		setSession();
-		DctmInstantiator.initialize();
+		DctmInstantiator.initialize();//TODO to remove.
 		this.unboundedTraversalQuery = /*DctmInstantiator.*/QUERY_STRING_UNBOUNDED_DEFAULT;
 		this.boundedTraversalQuery = /*DctmInstantiator.*/QUERY_STRING_BOUNDED_DEFAULT;
 		this.serverUrl = /*DctmInstantiator.*/WEBTOP_SERVER_URL;
@@ -184,8 +184,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private ResultSet execQuery(IQuery query) throws RepositoryException {
 		ICollection dctmCollection = null; 
 		session.setServerUrl(serverUrl);
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"Processing query");
 		dctmCollection = query.execute(session, IQuery.DF_READ_QUERY);
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"Collection retrieved.");
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"About to build ResultSet.");
 		ResultSet rs = dctmCollection.buildResulSetFromCollection(session);
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"ResultSet built.");
 		return rs;
 	}
 
