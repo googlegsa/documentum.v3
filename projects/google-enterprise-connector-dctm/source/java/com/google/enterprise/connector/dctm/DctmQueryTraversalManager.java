@@ -51,7 +51,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	}
 
 	public DctmQueryTraversalManager(IClient client, String sessionID, String QUERY_STRING_UNBOUNDED_DEFAULT, String QUERY_STRING_BOUNDED_DEFAULT, String WEBTOP_SERVER_URL) throws RepositoryException {
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"Valuate IClient");
 		setClient(client);
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"Valuate IClient");
 		setSessionID(sessionID);
 		setSession();
 		DctmInstantiator.initialize();//TODO to remove.
@@ -261,7 +263,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 				arguments);
 		if (batchInt!=-1 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
 			statement = statement+" ENABLE (return_top " + Integer.toString(batchInt) + ")";
-		}		
+		}
 		return statement;
 	}
 
