@@ -1,13 +1,15 @@
 package com.google.enterprise.connector.dctm;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
 import org.apache.log4j.*;
 
-import com.documentum.thirdparty.javassist.bytecode.ByteArray;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmACL;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmFormat;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmId;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery;
 
 /**
  * Class that outputs memory usage and process velocity.
@@ -21,44 +23,72 @@ public class OutputPerformances {
 	
 	private static Hashtable velocityFlags = new Hashtable(1,1);
 	private static Hashtable memoryFlags = new Hashtable(1,1);
-	//private static final Logger root = Logger.getRootLogger();
 	
+	/**
+	 * Class that highlights the effects of the instatiation of theobjects needed to output results on memory and on processing speed
+	 */
 	public static void calibrate(){
-		//TODO jpn : process set/end calls without doing anything between the two calls in order to evaluate residual weight of the process
-		//Plus : Analyse the influence of the number of elements in the hashtables 
-		OutputPerformances.setPerfFlag("LOG1","Free load test #1");
-		OutputPerformances.endFlag("LOG1","Free load test #1");
-		OutputPerformances.setPerfFlag("LOG2","Free load test #2");
-		OutputPerformances.endFlag("LOG2","Free load test #2");
-		OutputPerformances.setPerfFlag("LOG1","Free load test #3");
-		OutputPerformances.endFlag("LOG1","Free load test #3");
-		OutputPerformances.setPerfFlag("LOG2","Free load test #4");
-		OutputPerformances.endFlag("LOG2","Free load test #4");
-		
+		try{
+			Logger tmpLOG = Logger.getLogger(OutputPerformances.class);
+			System.runFinalization();
+			System.gc();
+			PropertyConfigurator.configure("GSALogs.properties");
+			tmpLOG.info("********BEGIN - Successive tests - Highlights unreleased objects memory effects********************************************************");
+			for (int i=1 ; i<5000 ; i=i+2){
+				int j=i+1;
+				OutputPerformances.setPerfFlag((new String()),"Free load test #" + i);
+				OutputPerformances.endFlag((new String()),"Free load test #" + i);
+				OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test #" + j);
+				OutputPerformances.endFlag((new StringBuffer()),"Free load test #" + j);
+			}
+			tmpLOG.info("********END - Successive tests - Highlights unreleased objects memory effects********************************************************");
+			
 
-		OutputPerformances.setPerfFlag("LOG1","Free load test keeping hashtables #1");
-		OutputPerformances.setPerfFlag("LOG2","Free load test keeping hashtables #2");
-		OutputPerformances.setPerfFlag("LOG3","Free load test keeping hashtables #3");
-		OutputPerformances.setPerfFlag("LOG4","Free load test keeping hashtables #4");
-		OutputPerformances.setPerfFlag("LOG5","Free load test keeping hashtables #5");
-		OutputPerformances.setPerfFlag("LOG6","Free load test keeping hashtables #6");
-		OutputPerformances.setPerfFlag("LOG7","Free load test keeping hashtables #7");
-		OutputPerformances.setPerfFlag("LOG8","Free load test keeping hashtables #8");
-		OutputPerformances.setPerfFlag("LOG9","Free load test keeping hashtables #9");
-		OutputPerformances.setPerfFlag("LOG10","Free load test keeping hashtables #10");
-		OutputPerformances.endFlag("LOG10","Free load test keeping hashtables #10");
-		OutputPerformances.endFlag("LOG9","Free load test keeping hashtables #1");
-		OutputPerformances.endFlag("LOG8","Free load test keeping hashtables #2");
-		OutputPerformances.endFlag("LOG1","Free load test keeping hashtables #3");
-		OutputPerformances.endFlag("LOG2","Free load test keeping hashtables #4");
-		OutputPerformances.endFlag("LOG3","Free load test keeping hashtables #5");
-		OutputPerformances.endFlag("LOG4","Free load test keeping hashtables #6");
-		OutputPerformances.endFlag("LOG5","Free load test keeping hashtables #7");
-		OutputPerformances.endFlag("LOG6","Free load test keeping hashtables #8");
-		OutputPerformances.endFlag("LOG7","Free load test keeping hashtables #9");
+			tmpLOG.info("********BEGIN - Successive tests - Highlights outputing objects memory amount (typically Hashtables memory cost)********************************************************");
+			tmpLOG.info("********BEGIN - Successive tests - Load/Unload test******************************");
+			OutputPerformances.setPerfFlag((new String()),"Free load test keeping hashtables #1");
+			OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test keeping hashtables #2");
+			OutputPerformances.setPerfFlag((new Vector()),"Free load test keeping hashtables #3");
+			OutputPerformances.setPerfFlag((new Hashtable()),"Free load test keeping hashtables #4");
+			OutputPerformances.setPerfFlag((new IDctmLoginInfo(null)),"Free load test keeping hashtables #5");
+			OutputPerformances.setPerfFlag((new DctmConnector()),"Free load test keeping hashtables #6");
+			OutputPerformances.setPerfFlag((new IDctmQuery()),"Free load test keeping hashtables #7");
+			OutputPerformances.setPerfFlag((new IDctmACL()),"Free load test keeping hashtables #8");
+			OutputPerformances.setPerfFlag((new IDctmFormat(null)),"Free load test keeping hashtables #9");
+			OutputPerformances.setPerfFlag((new IDctmId("")),"Free load test keeping hashtables #10");
+			OutputPerformances.endFlag((new IDctmId("")),"Free load test keeping hashtables #10");
+			OutputPerformances.endFlag((new IDctmFormat(null)),"Free load test keeping hashtables #1");
+			OutputPerformances.endFlag((new IDctmACL()),"Free load test keeping hashtables #2");
+			OutputPerformances.endFlag((new String()),"Free load test keeping hashtables #3");
+			OutputPerformances.endFlag((new StringBuffer()),"Free load test keeping hashtables #4");
+			OutputPerformances.endFlag((new Vector()),"Free load test keeping hashtables #5");
+			OutputPerformances.endFlag((new Hashtable()),"Free load test keeping hashtables #6");
+			OutputPerformances.endFlag((new IDctmLoginInfo(null)),"Free load test keeping hashtables #7");
+			OutputPerformances.endFlag((new DctmConnector()),"Free load test keeping hashtables #8");
+			OutputPerformances.endFlag((new IDctmQuery()),"Free load test keeping hashtables #9");
+			tmpLOG.info("********END - Successive tests - Load/Unload test******************************");
+			tmpLOG.info("********BEGIN - Successive tests - Hashtables test******************************");
+			Hashtable h = new Hashtable(1,1);
+			OutputPerformances.setPerfFlag(new DctmInstantiator(),"Global load test");
+			for (int i=0 ; i<10000 ; i++){
+				OutputPerformances.setPerfFlag(new OutputPerformances(),"Iteration "+i);
+				if (true) {
+					String o = "##" + i;
+					long l = System.currentTimeMillis();
+					h.put(o,Long.toString(l));
+				}
+				OutputPerformances.endFlag(new OutputPerformances(),"Iteration "+i);
+			}
+			OutputPerformances.endFlag(new DctmInstantiator(),"Global load test");
+			tmpLOG.info("********END - Successive tests - Hashtables test******************************");
+			tmpLOG.info("********END - Successive tests - Highlights outputing objects memory amount********************************************************");
+		}catch (Exception e){
+			//too bad
+		}
 	}
 	
 	public static void setPerfFlag(Object loc, String message) {
+		Logger logz = Logger.getLogger(loc.getClass());
 		//First release memory as far as possible.
 		//Running finalization waits till it's done then let's process it prior to speed measurement
 		System.runFinalization();
@@ -67,25 +97,24 @@ public class OutputPerformances {
 		long free = rt.freeMemory();
 		long tot = rt.totalMemory();
 		free = (tot-free)/1024;
-		Logger curLog = Logger.getLogger(loc.getClass());
-		curLog.debug("Begin process : " + message);
-		OutputPerformances.memoryFlags.put((Object) loc.getClass().getName(),
+		logz.debug("Begin process : " + message);
+		OutputPerformances.memoryFlags.put((Object) loc.getClass(),
 				(Object) Long.toString(free));
 		
 		
-		curLog.debug("Begin process : " + message);
-		OutputPerformances.velocityFlags.put((Object) loc.getClass().getName(),
+		OutputPerformances.velocityFlags.put((Object) loc.getClass(),
 				(Object) Long.toString(System.currentTimeMillis()));
 	}
 	
 	public static Object[] endFlag(Object loc, String message){
+		Logger logz = Logger.getLogger(loc.getClass());
 		long elapsed;
 		if (true) {
-			long began = Long.parseLong((String) OutputPerformances.velocityFlags.get(loc.getClass().getName()));
-			OutputPerformances.velocityFlags.remove(loc.getClass().getName());
+			long began = Long.parseLong((String) OutputPerformances.velocityFlags.get(loc.getClass()));
+			OutputPerformances.velocityFlags.remove(loc.getClass());
 			elapsed = System.currentTimeMillis() - began;//Time valuated, speed performances are no longer impacted by local treatment
-			Logger curLog = Logger.getLogger(loc.getClass());
-			curLog.debug("End process : " + message + "\nTime elapsed : " + elapsed);
+			logz.debug("End process : " + message + ".");
+			logz.debug("Time elapsed : " + elapsed + " ms");
 		}
 		System.runFinalization();
 		System.gc();
@@ -93,14 +122,13 @@ public class OutputPerformances {
 		long free = rt.freeMemory();
 		long tot = rt.totalMemory();
 		free = (tot-free)/1024;
-		long initialMem = Long.parseLong((String) OutputPerformances.memoryFlags.get(loc.getClass().getName()));
-		OutputPerformances.memoryFlags.remove(loc.getClass().getName());
+		long initialMem = Long.parseLong((String) OutputPerformances.memoryFlags.get(loc.getClass()));
+		OutputPerformances.memoryFlags.remove(loc.getClass());
 		Object[] results = new Object[2];
 		results[0]=Long.toString(elapsed);
 		long used = free-initialMem;
 		results[1]=Long.toString(used);
-		Logger curLog = Logger.getLogger(loc.getClass());
-		curLog.debug("\n\tMemory required : " + used);
+		logz.debug("Memory spent : " + used + " kO");
 		return results;
 	}
 }
