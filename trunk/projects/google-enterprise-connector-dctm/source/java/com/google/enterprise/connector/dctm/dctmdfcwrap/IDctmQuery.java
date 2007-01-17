@@ -55,6 +55,7 @@ public class IDctmQuery implements IQuery{
 	}
 
 	public ICollection execute(ISessionManager sessionManager, int queryType) throws RepositoryException {
+		System.out.println("--- IDctmQuery execute ---");
 		if (!(sessionManager instanceof IDctmSessionManager)) {
 			throw new IllegalArgumentException();
 		}
@@ -65,6 +66,7 @@ public class IDctmQuery implements IQuery{
 		try{
 			DfCollection=idfQuery.execute(idfSession,queryType);
 		}catch(DfException de){
+			System.out.println("--- IDctmQuery Exception  ---");
 			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
 			re.setStackTrace(de.getStackTrace());
 			throw re;

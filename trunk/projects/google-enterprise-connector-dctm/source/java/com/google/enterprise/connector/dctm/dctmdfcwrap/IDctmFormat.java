@@ -18,6 +18,8 @@ public class IDctmFormat implements IFormat {
 		try {
 			if(idfFormat != null){
 				rep = idfFormat.canIndex();
+			}else{
+				rep = false;
 			}
 			
 		} catch (DfException de) {
@@ -31,7 +33,11 @@ public class IDctmFormat implements IFormat {
 	public String getMIMEType() {
 		String rep = null;
 		try {
-			rep = idfFormat.getMIMEType();
+			if(idfFormat != null){
+				rep = idfFormat.getMIMEType();
+			}else{
+				rep="";
+			}
 		} catch (DfException de) {
 			de.getMessage();
 		}

@@ -25,6 +25,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	}
 	
 	public IFormat getFormat() throws RepositoryException{
+		System.out.println("--- IDctmSysObject getFormat ---");
 		IDfFormat idfFormat = null;
 		try{
 			idfFormat = idfSysObject.getFormat();

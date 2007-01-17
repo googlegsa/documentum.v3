@@ -76,6 +76,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	public IId getObjectId() throws RepositoryException {
+		System.out.println("--- IDctmCollection getObjectId ---");
 		IId id = null;
 		try {
 			id = new IDctmId(this.idfCollection.getObjectId());
@@ -98,7 +99,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	public ResultSet buildResulSetFromCollection(ISessionManager sessionManager) throws RepositoryException {
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!test buildResultSet");
+		System.out.println("--- IDctmCollection buildResulSetFromCollection ---");
 		String modifDate = null;
 		String crID = null;
 		String mimetype = null;
@@ -111,16 +112,19 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		IDctmSession session = (IDctmSession) sessionManager.getSession(sessionManager.getDocbaseName());
 		Vector notCustomMeta = getSysMeta();
 		Vector specifiedMeta = getSpecMeta();
-		
+		System.out.println("--- IDctmCollection buildResulSetFromCollection after getSpecMeta---");
 		while (col.next()) {
+			System.out.println("--- IDctmCollection buildResulSetFromCollection in while---");
 			pm = new SimplePropertyMap();
 			crID = col.getValue("r_object_id").asString();
+			System.out.println("--- IDctmCollection buildResulSetFromCollection crID vaut "+crID+"---");
 			pm.putProperty(new DctmSimpleProperty(SpiConstants.PROPNAME_DOCID,
 					new DctmSimpleValue(ValueType.STRING, crID)));
 			val = (IDctmValue) col.getValue("r_modify_date");
 			
 			modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN26);
 			modifDate = modifDate.replaceAll("/","-");
+			System.out.println("--- IDctmCollection buildResulSetFromCollection modifDate vaut "+modifDate+"---");
 			
 			pm.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
@@ -128,8 +132,9 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 			
 			dctmSysObj = (IDctmSysObject) session
 			.getObject(new IDctmId(crID));
+			System.out.println("--- IDctmCollection buildResulSetFromCollection after getObjectByQualification de crID vaut "+crID);
 			dctmForm = (IDctmFormat) dctmSysObj.getFormat();
-			
+			System.out.println("--- IDctmCollection buildResulSetFromCollection after dctmSysObj.getFormat()");
 			
 			if (dctmForm.canIndex()) {
 				mimetype = dctmForm.getMIMEType();
@@ -220,6 +225,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	private Vector getSpecMeta(){
+		System.out.println("--- IDctmCollection getSpecMeta ---");
 		Vector specProps = new Vector();
 		specProps.addElement("object_name");
 		specProps.addElement("r_object_type");
@@ -232,6 +238,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	private Vector getSysMeta(){
+		System.out.println("--- IDctmCollection getSysMeta ---");
 		Vector sysObjectProps = new Vector();
 		sysObjectProps.addElement("object_name");
 		sysObjectProps.addElement("r_object_type");

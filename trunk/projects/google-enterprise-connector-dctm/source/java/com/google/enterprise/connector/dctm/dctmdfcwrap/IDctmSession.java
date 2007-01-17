@@ -20,6 +20,7 @@ public class IDctmSession implements ISession {
 	}
 
 	public String getSessionId() throws RepositoryException {
+		System.out.println("--- IDctmSession getSessionId ---");
 		String iDSess = null;
 		try {
 			iDSess = idfSession.getSessionId();
@@ -33,11 +34,14 @@ public class IDctmSession implements ISession {
 	}
 
 	public ISysObject getObject(IId objectId) throws RepositoryException {
+		System.out.println("--- IDctmSession getObject ---");
 		if (!(objectId instanceof IDctmId)) {
 			throw new IllegalArgumentException();
 		}
 		IDctmId dctmId = (IDctmId) objectId;
+		System.out.println("--- IDctmSession getObject avant dctmId.getidfId() ---");
 		IDfId idfId = dctmId.getidfId();
+		System.out.println("--- IDctmSession getObject - idfId vaut "+idfId.getId()+" ---");
 		IDfSysObject idfSysObject = null;
 		try {
 			idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
