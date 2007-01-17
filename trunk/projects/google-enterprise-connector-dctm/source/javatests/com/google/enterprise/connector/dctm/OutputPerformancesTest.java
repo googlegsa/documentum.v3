@@ -25,6 +25,7 @@ public class OutputPerformancesTest extends TestCase {
 	 * This is not really a UNITTest. It aims to evaluate prcoessing time and memory costs.
 	 */
 	public void testCalibrate(){
+		PropertyConfigurator.configure("GSALogs.properties");
 		OutputPerformances.setPerfFlag(this,"Instantiation cost test");
 		String user, password, client, docbase;
 		user="user1";
@@ -73,7 +74,6 @@ public class OutputPerformancesTest extends TestCase {
 			Logger tmpLOG = Logger.getLogger(OutputPerformances.class);
 			System.runFinalization();
 			System.gc();
-			PropertyConfigurator.configure("GSALogs.properties");
 			tmpLOG.info("********BEGIN - Successive tests - Highlights unreleased objects memory effects********************************************************");
 			OutputPerformances.setPerfFlag((new Vector()),"Global load test");
 			for (int i=1 ; i<5000 ; i=i+2){

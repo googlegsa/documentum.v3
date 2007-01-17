@@ -73,15 +73,15 @@ public class QueryTraverserTest extends TestCase {
 		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 3.125");
 		runTestBatches(3125);
 		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 3.125");
-		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 15.625");
-		//runTestBatches(15625); MileStone#2
-		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 15.625");
-		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 78.125");
-		//runTestBatches(78125); MileStone#2
-		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 78.125");
-		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 100.000");
-		//emptyDocBaseThreeTimesInARow(); MileStone#2
-		//OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 100.000");
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 15.625");
+		runTestBatches(15625);//MileStone#2
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 15.625");
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 78.125");
+		runTestBatches(78125);//MileStone#2
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 78.125");
+		OutputPerformances.setPerfFlag(this,"Whole QueryTraverser test - BatchHint = 100.000");
+		emptyDocBaseThreeTimesInARow();//MileStone#2
+		OutputPerformances.endFlag(this,"Whole QueryTraverser test - BatchHint = 100.000");
 		
 	}
 	
@@ -96,9 +96,7 @@ public class QueryTraverserTest extends TestCase {
 		Session sess = conn.login();
 		
 		QueryTraversalManager qtm = sess.getQueryTraversalManager();
-		qtm.setBatchHint(batchSize);//What is BatchHint for exactly? setBatchHint is called only in the QueryTraversalUtil which is supposed
-		//to simulate ConnectorManager. Then if it's purpose is only to get tests faster, we should process our queries with taking that parameter
-		//into consideration because we would obtain a collection quicker than in reality.
+		qtm.setBatchHint(batchSize);//Should do it itself
 		
 		String connectorName = "DctmConnector";
 		Pusher pusher =
@@ -141,22 +139,31 @@ public class QueryTraverserTest extends TestCase {
 		
 		int docsProcessed = -1;
 		int totalDocsProcessed = 0;
+		qtm.setBatchHint(1000);
+		OutputPerformances.setPerfFlag(new QueryTraverser(null,null,null,""),"QueryTraverser test - BatchHint = 100.000 - 1000 per 1000");
 		while (docsProcessed != 0) {
 			docsProcessed = traverser.runBatch(1000);
 			totalDocsProcessed += docsProcessed;
 		}
+		OutputPerformances.endFlag(new QueryTraverser(null,null,null,""),"QueryTraverser test - BatchHint = 100.000 - 1000 per 1000");
 		docsProcessed = -1;
 		totalDocsProcessed = 0;
+		qtm.setBatchHint(10000);
+		OutputPerformances.setPerfFlag(new QueryTraverser(null,null,null,""),"QueryTraverser test - BatchHint = 100.000 - 1000 per 10000");
 		while (docsProcessed != 0) {
 			docsProcessed = traverser.runBatch(10000);
 			totalDocsProcessed += docsProcessed;
 		}
+		OutputPerformances.endFlag(new QueryTraverser(null,null,null,""),"QueryTraverser test - BatchHint = 100.000 - 1000 per 10000");
 		docsProcessed = -1;
 		totalDocsProcessed = 0;
+		qtm.setBatchHint(100000);
+		OutputPerformances.setPerfFlag(new QueryTraverser(null,null,null,""),"QueryTraverser test - BatchHint = 100.000 - one run");
 		while (docsProcessed != 0) {
 			docsProcessed = traverser.runBatch(100005);
 			totalDocsProcessed += docsProcessed;
 		}
+		OutputPerformances.endFlag(new QueryTraverser(null,null,null,""),"QueryTraverser test - BatchHint = 100.000 - one run");
 	}
 	
 }
