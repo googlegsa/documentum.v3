@@ -16,6 +16,7 @@ import com.google.enterprise.connector.mock.MockRepository;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryEventList;
 import com.google.enterprise.connector.mock.MockRepositoryProperty;
+
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
 import com.google.enterprise.connector.spi.LoginException;
@@ -24,10 +25,12 @@ import com.google.enterprise.connector.spi.LoginException;
 //Does not manage multiple sessions for the same docbase (for the moment) 
 public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	
+
 	private ISession currentSession;
 	private Hashtable sessMgerCreds=new Hashtable(1,1);
 	private Hashtable sessMgerSessions=new Hashtable(1,1);
 	private Hashtable sessMgerIDs=new Hashtable(1,1);
+	
 	
 	public DctmMockClient(){
 	}
@@ -68,9 +71,13 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 		String values[] = property.getValues();
 		for(int i = 0; i < values.length; i++)
 			if(values[i].equals(userID))
-				if (userID.equals(password)) return true;//succes
+				if (userID.equals(password)){
+					return true;//succes
+				}
+
+
 		
-		throw new LoginException("No user Defined");
+		return false;
 	}
 	
 	/**
@@ -86,6 +93,7 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	 * ILocalClient's method
 	 */
 	public ISession findSession(String dfcSessionId) {
+
 		String dbName = (String) this.sessMgerIDs.get(dfcSessionId);
 		return (ISession) this.sessMgerSessions.get(dbName);
 	}
@@ -106,15 +114,16 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 		return new DctmMockId(value);
 	}
 	
+
 	/**
 	 * IClient's method. Returns current session. Implemented so as to retrieve the session within the
 	 * DocPusher assuming the client instance remained unchanged. Otherwise a user and a password would 
 	 * be to provide with Pusher's instance.
 	 */
-	public ISession getSession() {
-		return currentSession;
-	}
-	
+//	public ISession getSession() {
+//		return currentSession;
+//	}
+//	
 	/**
 	 * Session Manager's method. Sets current session as well
 	 * @throws com.google.enterprise.connector.spi.RepositoryException 
@@ -204,4 +213,41 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	
 	public void setSession(ISession session) {
 	}
+
+	public void setSessionManager(ISessionManager session) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void release(ISession session) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setServerUrl(String serverUrl) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getDocbaseName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setDocbaseName(String docbaseName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getServerUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ISessionManager getSessionManager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }
