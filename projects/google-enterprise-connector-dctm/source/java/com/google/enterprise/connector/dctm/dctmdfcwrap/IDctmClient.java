@@ -41,6 +41,7 @@ public class IDctmClient implements IClient{
 	}
 	
 	public ILocalClient getLocalClientEx(){
+		System.out.println("--- IDctmClient getLocalClientEx ---");
 		IDfClient idfClient=null;
 		idfClient=DfClient.getLocalClientEx();
 		return new IDctmLocalClient(idfClient);
@@ -67,6 +68,7 @@ public class IDctmClient implements IClient{
 
 
 	public ISession newSession(String docbase, ILoginInfo logInfo) throws RepositoryException {
+		System.out.println("--- IDctmClient newSession ---");
 		IDfSession sessionUser = null;
 		IDfLoginInfo idfLogInfo= new DfLoginInfo();
 		idfLogInfo.setUser(logInfo.getUser());
