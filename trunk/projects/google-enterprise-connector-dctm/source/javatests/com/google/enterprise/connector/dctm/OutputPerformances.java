@@ -34,6 +34,7 @@ public class OutputPerformances {
 			System.gc();
 			PropertyConfigurator.configure("GSALogs.properties");
 			tmpLOG.info("********BEGIN - Successive tests - Highlights unreleased objects memory effects********************************************************");
+			OutputPerformances.setPerfFlag(new DctmInstantiator(),"Global load test");
 			for (int i=1 ; i<5000 ; i=i+2){
 				int j=i+1;
 				OutputPerformances.setPerfFlag((new String()),"Free load test #" + i);
@@ -41,11 +42,12 @@ public class OutputPerformances {
 				OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test #" + j);
 				OutputPerformances.endFlag((new StringBuffer()),"Free load test #" + j);
 			}
-			tmpLOG.info("********END - Successive tests - Highlights unreleased objects memory effects********************************************************");
+			OutputPerformances.endFlag(new DctmInstantiator(),"Global load test");
+			tmpLOG.info("********END - Successive tests - Highlights unreleased objects memory effects********************************************************\n\n");
 			
 
 			tmpLOG.info("********BEGIN - Successive tests - Highlights outputing objects memory amount (typically Hashtables memory cost)********************************************************");
-			tmpLOG.info("********BEGIN - Successive tests - Load/Unload test******************************");
+			tmpLOG.info("********BEGIN - Successive tests - Load/Unload test (symetry test)******************************");
 			OutputPerformances.setPerfFlag((new String()),"Free load test keeping hashtables #1");
 			OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test keeping hashtables #2");
 			OutputPerformances.setPerfFlag((new Vector()),"Free load test keeping hashtables #3");
@@ -57,16 +59,16 @@ public class OutputPerformances {
 			OutputPerformances.setPerfFlag((new IDctmFormat(null)),"Free load test keeping hashtables #9");
 			OutputPerformances.setPerfFlag((new IDctmId("")),"Free load test keeping hashtables #10");
 			OutputPerformances.endFlag((new IDctmId("")),"Free load test keeping hashtables #10");
-			OutputPerformances.endFlag((new IDctmFormat(null)),"Free load test keeping hashtables #1");
-			OutputPerformances.endFlag((new IDctmACL()),"Free load test keeping hashtables #2");
-			OutputPerformances.endFlag((new String()),"Free load test keeping hashtables #3");
-			OutputPerformances.endFlag((new StringBuffer()),"Free load test keeping hashtables #4");
-			OutputPerformances.endFlag((new Vector()),"Free load test keeping hashtables #5");
-			OutputPerformances.endFlag((new Hashtable()),"Free load test keeping hashtables #6");
-			OutputPerformances.endFlag((new IDctmLoginInfo(null)),"Free load test keeping hashtables #7");
-			OutputPerformances.endFlag((new DctmConnector()),"Free load test keeping hashtables #8");
-			OutputPerformances.endFlag((new IDctmQuery()),"Free load test keeping hashtables #9");
-			tmpLOG.info("********END - Successive tests - Load/Unload test******************************");
+			OutputPerformances.endFlag((new IDctmFormat(null)),"Free load test keeping hashtables #9");
+			OutputPerformances.endFlag((new IDctmACL()),"Free load test keeping hashtables #8");
+			OutputPerformances.endFlag((new IDctmQuery()),"Free load test keeping hashtables #7");
+			OutputPerformances.endFlag((new DctmConnector()),"Free load test keeping hashtables #6");
+			OutputPerformances.endFlag((new IDctmLoginInfo(null)),"Free load test keeping hashtables #5");
+			OutputPerformances.endFlag((new Hashtable()),"Free load test keeping hashtables #4");
+			OutputPerformances.endFlag((new Vector()),"Free load test keeping hashtables #3");
+			OutputPerformances.endFlag((new StringBuffer()),"Free load test keeping hashtables #2");
+			OutputPerformances.endFlag((new String()),"Free load test keeping hashtables #1");
+			tmpLOG.info("********END - Successive tests - Load/Unload test (symetry test)******************************\n\n");
 			tmpLOG.info("********BEGIN - Successive tests - Hashtables test******************************");
 			Hashtable h = new Hashtable(1,1);
 			OutputPerformances.setPerfFlag(new DctmInstantiator(),"Global load test");
@@ -79,7 +81,7 @@ public class OutputPerformances {
 				}
 				OutputPerformances.endFlag(new OutputPerformances(),"Iteration "+i);
 			}
-			OutputPerformances.endFlag(new DctmInstantiator(),"Global load test");
+			OutputPerformances.endFlag(new DctmInstantiator(),"Global load test - Added 10.000 elements in an Hashtable : ");
 			tmpLOG.info("********END - Successive tests - Hashtables test******************************");
 			tmpLOG.info("********END - Successive tests - Highlights outputing objects memory amount********************************************************");
 		}catch (Exception e){
