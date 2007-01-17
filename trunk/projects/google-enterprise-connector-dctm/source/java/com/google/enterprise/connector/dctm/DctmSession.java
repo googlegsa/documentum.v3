@@ -48,14 +48,24 @@ public class DctmSession implements Session{
 	public DctmSession(String client, String login, String password, String docbase, String qsud, 
 			String qsbd, String qsad, String an, String wsu) throws RepositoryException{
 		ILoginInfo dctmLoginInfo=null;
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- builds an IClient");
 		setClient(client);
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- builds an ILocalClient");
 		localClient=this.client.getLocalClientEx();
-		sessionManager=localClient.newSessionManager(); 
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- builds an ISessionManager");
+		sessionManager=localClient.newSessionManager();
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- builds credential objects");
 		dctmLoginInfo = this.client.getLoginInfo();
 		dctmLoginInfo.setUser(login);
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"- opens an authenticated ISession");
 		session=sessionManager.newSession(docbase);
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"");
 		QUERY_STRING_UNBOUNDED_DEFAULT = qsud;
 		QUERY_STRING_BOUNDED_DEFAULT = qsbd;
 		QUERY_STRING_AUTHORISE_DEFAULT = qsad;
@@ -67,8 +77,10 @@ public class DctmSession implements Session{
 	
 	
 	public QueryTraversalManager getQueryTraversalManager() throws RepositoryException{
+		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"DctmQueryTraversalManager's instantiation");
 		DctmQueryTraversalManager DctmQtm = new DctmQueryTraversalManager(client,session.getSessionId(),
 				QUERY_STRING_UNBOUNDED_DEFAULT,QUERY_STRING_BOUNDED_DEFAULT,WEBTOP_SERVER_URL);
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"DctmQueryTraversalManager's instantiation");
 		client.setSession(session);
 
 		return DctmQtm;
