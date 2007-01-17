@@ -6,11 +6,11 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmACL;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmFormat;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmId;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmLoginInfo;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmQuery;
+import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockFormat;
+import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockId;
+import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockLoginInfo;
+import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockQuery;
+import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockValue;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
@@ -75,7 +75,7 @@ public class OutputPerformancesTest extends TestCase {
 			System.gc();
 			PropertyConfigurator.configure("GSALogs.properties");
 			tmpLOG.info("********BEGIN - Successive tests - Highlights unreleased objects memory effects********************************************************");
-			OutputPerformances.setPerfFlag(new DctmInstantiator(),"Global load test");
+			OutputPerformances.setPerfFlag((new Vector()),"Global load test");
 			for (int i=1 ; i<5000 ; i=i+2){
 				int j=i+1;
 				OutputPerformances.setPerfFlag((new String()),"Free load test #" + i);
@@ -83,7 +83,7 @@ public class OutputPerformancesTest extends TestCase {
 				OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test #" + j);
 				OutputPerformances.endFlag((new StringBuffer()),"Free load test #" + j);
 			}
-			OutputPerformances.endFlag(new DctmInstantiator(),"Global load test");
+			OutputPerformances.endFlag((new Vector()),"Global load test");
 			tmpLOG.info("********END - Successive tests - Highlights unreleased objects memory effects********************************************************\n\n");
 			
 
@@ -93,18 +93,18 @@ public class OutputPerformancesTest extends TestCase {
 			OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test keeping hashtables #2");
 			OutputPerformances.setPerfFlag((new Vector()),"Free load test keeping hashtables #3");
 			OutputPerformances.setPerfFlag((new Hashtable()),"Free load test keeping hashtables #4");
-			OutputPerformances.setPerfFlag((new IDctmLoginInfo(null)),"Free load test keeping hashtables #5");
+			OutputPerformances.setPerfFlag((new DctmMockLoginInfo()),"Free load test keeping hashtables #5");
 			OutputPerformances.setPerfFlag((new DctmConnector()),"Free load test keeping hashtables #6");
-			OutputPerformances.setPerfFlag((new IDctmQuery()),"Free load test keeping hashtables #7");
-			OutputPerformances.setPerfFlag((new IDctmACL()),"Free load test keeping hashtables #8");
-			OutputPerformances.setPerfFlag((new IDctmFormat(null)),"Free load test keeping hashtables #9");
-			OutputPerformances.setPerfFlag((new IDctmId("")),"Free load test keeping hashtables #10");
-			OutputPerformances.endFlag((new IDctmId("")),"Free load test keeping hashtables #10");
-			OutputPerformances.endFlag((new IDctmFormat(null)),"Free load test keeping hashtables #9");
-			OutputPerformances.endFlag((new IDctmACL()),"Free load test keeping hashtables #8");
-			OutputPerformances.endFlag((new IDctmQuery()),"Free load test keeping hashtables #7");
+			OutputPerformances.setPerfFlag((new DctmMockQuery()),"Free load test keeping hashtables #7");
+			OutputPerformances.setPerfFlag((new DctmMockValue(null)),"Free load test keeping hashtables #8");
+			OutputPerformances.setPerfFlag((new DctmMockFormat()),"Free load test keeping hashtables #9");
+			OutputPerformances.setPerfFlag((new DctmMockId("")),"Free load test keeping hashtables #10");
+			OutputPerformances.endFlag((new DctmMockId("")),"Free load test keeping hashtables #10");
+			OutputPerformances.endFlag((new DctmMockFormat()),"Free load test keeping hashtables #9");
+			OutputPerformances.endFlag((new DctmMockValue(null)),"Free load test keeping hashtables #8");
+			OutputPerformances.endFlag((new DctmMockQuery()),"Free load test keeping hashtables #7");
 			OutputPerformances.endFlag((new DctmConnector()),"Free load test keeping hashtables #6");
-			OutputPerformances.endFlag((new IDctmLoginInfo(null)),"Free load test keeping hashtables #5");
+			OutputPerformances.endFlag((new DctmMockLoginInfo()),"Free load test keeping hashtables #5");
 			OutputPerformances.endFlag((new Hashtable()),"Free load test keeping hashtables #4");
 			OutputPerformances.endFlag((new Vector()),"Free load test keeping hashtables #3");
 			OutputPerformances.endFlag((new StringBuffer()),"Free load test keeping hashtables #2");
@@ -112,7 +112,7 @@ public class OutputPerformancesTest extends TestCase {
 			tmpLOG.info("********END - Successive tests - Load/Unload test (symetry test)******************************\n\n");
 			tmpLOG.info("********BEGIN - Successive tests - Hashtables test******************************");
 			Hashtable h = new Hashtable(1,1);
-			OutputPerformances.setPerfFlag(new DctmInstantiator(),"Global load test");
+			OutputPerformances.setPerfFlag((new Vector()),"Global load test");
 			for (int i=0 ; i<10000 ; i++){
 				OutputPerformances.setPerfFlag(new OutputPerformances(),"Iteration "+i);
 				if (true) {
@@ -122,7 +122,7 @@ public class OutputPerformancesTest extends TestCase {
 				}
 				OutputPerformances.endFlag(new OutputPerformances(),"Iteration "+i);
 			}
-			OutputPerformances.endFlag(new DctmInstantiator(),"Global load test - Added 10.000 elements in an Hashtable : ");
+			OutputPerformances.endFlag((new Vector()),"Global load test - Added 10.000 elements in an Hashtable : ");
 			tmpLOG.info("********END - Successive tests - Hashtables test******************************");
 			tmpLOG.info("********END - Successive tests - Highlights outputing objects memory amount********************************************************");
 		}catch (Exception e){
