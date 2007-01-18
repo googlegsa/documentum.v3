@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import java.io.ByteArrayInputStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -144,17 +145,21 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 						SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 								ValueType.STRING, mimetype)));
 			}
+
 			
 			System.out.println("--- IDctmCollection buildResulSetFromCollection - avant affectation de PROPNAME_CONTENT");
 			/*
-			String test = "tralalala youpi !!!!";
+			String test = "Nespresso. What else?";
+
 			pm.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
 							ValueType.BINARY, test.getBytes())));
+
 			*/
 			pm.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
 							ValueType.BINARY, dctmSysObj)));
+
 			System.out.println("--- IDctmCollection buildResulSetFromCollection - après affectation de PROPNAME_CONTENT");
 			
 			pm
@@ -170,6 +175,12 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 					SpiConstants.PROPNAME_SECURITYTOKEN, new DctmSimpleValue(
 							ValueType.STRING,
 							dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName())));
+			
+			pm
+			.putProperty(new DctmSimpleProperty(
+					SpiConstants.PROPNAME_ISPUBLIC, new DctmSimpleValue(
+							ValueType.BOOLEAN,
+							"false")));
 			
 			
 			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_SECURITYTOKEN vaut "+dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName()+" ---");
