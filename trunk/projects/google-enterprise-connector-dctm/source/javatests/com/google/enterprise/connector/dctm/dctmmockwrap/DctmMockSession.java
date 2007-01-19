@@ -13,11 +13,13 @@ public class DctmMockSession implements ISession {
 	private MockJcrRepository mockRep;
 	private MockJcrSession mockJcrSession;
 	private String sessionID;
+	private String sessionFileNameSuffix;
 	
-	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS, String sessID){
+	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS, String sessID,String dbFileName){
 		this.mockRep = mjR;
 		this.mockJcrSession = mjS;
 		this.sessionID=sessID;
+		this.sessionFileNameSuffix = dbFileName;
 	}
 	
 	public ISysObject getObject(IId objectId){
@@ -36,13 +38,15 @@ public class DctmMockSession implements ISession {
 	}
 
 	public String getLoginTicketForUser(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		//this assumes that Mock authenticated the session by
+		//checking username==paswword (which was the case at least till
+		//2007/01/19 but it is so aukward that I thought it could
+		//be changed anytime...)
+		return mockJcrSession.getUserID();//The only security here is inherent to the fact that if authentication failed, Session==null the returning getUserId instead of directly retuning username would throw a nullPointerException
 	}
 
 	public String getDocbaseName() {
-		mockJcrSession.getRepository();
-		return null;
+		return this.sessionFileNameSuffix;
 	}
 
 	public MockJcrSession getMockJcrSession() {
@@ -51,16 +55,6 @@ public class DctmMockSession implements ISession {
 
 	public void setMockJcrSession(MockJcrSession mockJcrSession) {
 		this.mockJcrSession = mockJcrSession;
-	}
-
-	public void setServerUrl(String url) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public String getServerUrl() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 
