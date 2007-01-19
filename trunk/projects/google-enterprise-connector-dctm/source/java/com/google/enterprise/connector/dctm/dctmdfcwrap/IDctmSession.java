@@ -13,14 +13,13 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class IDctmSession implements ISession {
 
 	IDfSession idfSession;
-	private String serverUrl;
 
 	public IDctmSession(IDfSession DfSession) {
 		this.idfSession = DfSession;
 	}
 
 	public String getSessionId() throws RepositoryException {
-		System.out.println("--- IDctmSession getSessionId ---");
+//		System.out.println("--- IDctmSession getSessionId ---");
 		String iDSess = null;
 		try {
 			iDSess = idfSession.getSessionId();
@@ -34,14 +33,14 @@ public class IDctmSession implements ISession {
 	}
 
 	public ISysObject getObject(IId objectId) throws RepositoryException {
-		System.out.println("--- IDctmSession getObject ---");
+//		System.out.println("--- IDctmSession getObject ---");
 		if (!(objectId instanceof IDctmId)) {
 			throw new IllegalArgumentException();
 		}
 		IDctmId dctmId = (IDctmId) objectId;
-		System.out.println("--- IDctmSession getObject avant dctmId.getidfId() ---");
+//		System.out.println("--- IDctmSession getObject avant dctmId.getidfId() ---");
 		IDfId idfId = dctmId.getidfId();
-		System.out.println("--- IDctmSession getObject - idfId vaut "+idfId.getId()+" ---");
+//		System.out.println("--- IDctmSession getObject - idfId vaut "+idfId.getId()+" ---");
 		IDfSysObject idfSysObject = null;
 		try {
 			idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
@@ -113,24 +112,7 @@ public class IDctmSession implements ISession {
 		}
 		return docbaseName;
 	}
-	
-	public void setServerUrl(String url){
-		serverUrl = url;
-	}
-	
-	public String getServerUrl(){
-		return serverUrl;
-	}
 
-	/*
-	 * public IDctmSession(String docbase){ client =
-	 * DfClient.getLocalClientEx(); //.getClientNetworkLocations
-	 * IDfSessionManager sMgr = client.newSessionManager(); try{ IDfSession
-	 * myses=sMgr.getSession(docbase); }catch(DfAuthenticationException dae){
-	 * dae.getMessage(); }catch(DfIdentityException di){ di.getMessage();
-	 * }catch(DfPrincipalException dfp){ dfp.getMessage();
-	 * }catch(DfServiceException dfse){ dfse.getMessage(); } }
-	 */
 
 	/*
 	 * void addDynamicGroup(String groupName); boolean apiExec(String cmd,

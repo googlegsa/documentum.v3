@@ -24,7 +24,7 @@ public class IDctmSessionManager implements ISessionManager{
 	}
 	
 	public ISession getSession(String docbase) throws LoginException{
-		System.out.println("--- IDctmSessionManager getSession ---");
+//		System.out.println("--- IDctmSessionManager getSession ---");
 		IDfSession DfSession=null;
 		try{
 			DfSession = dfSessionManager.getSession(docbase);
