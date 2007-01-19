@@ -77,7 +77,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	public IId getObjectId() throws RepositoryException {
-		System.out.println("--- IDctmCollection getObjectId ---");
+//		System.out.println("--- IDctmCollection getObjectId ---");
 		IId id = null;
 		try {
 			id = new IDctmId(this.idfCollection.getObjectId());
@@ -113,19 +113,19 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		IDctmSession session = (IDctmSession) sessionManager.getSession(sessionManager.getDocbaseName());
 		Vector notCustomMeta = getSysMeta();
 		Vector specifiedMeta = getSpecMeta();
-		System.out.println("--- IDctmCollection buildResulSetFromCollection after getSpecMeta---");
+//		System.out.println("--- IDctmCollection buildResulSetFromCollection after getSpecMeta---");
 		while (col.next()) {
-			System.out.println("--- IDctmCollection buildResulSetFromCollection in while---");
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection in while---");
 			pm = new SimplePropertyMap();
 			crID = col.getValue("r_object_id").asString();
-			System.out.println("--- IDctmCollection buildResulSetFromCollection crID vaut "+crID+"---");
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection crID vaut "+crID+"---");
 			pm.putProperty(new DctmSimpleProperty(SpiConstants.PROPNAME_DOCID,
 					new DctmSimpleValue(ValueType.STRING, crID)));
 			val = (IDctmValue) col.getValue("r_modify_date");
 			
 			modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN26);
 			modifDate = modifDate.replaceAll("/","-");
-			System.out.println("--- IDctmCollection buildResulSetFromCollection modifDate vaut "+modifDate+"---");
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection modifDate vaut "+modifDate+"---");
 			
 			pm.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
@@ -133,21 +133,21 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 			
 			dctmSysObj = (IDctmSysObject) session
 			.getObject(new IDctmId(crID));
-			System.out.println("--- IDctmCollection buildResulSetFromCollection after getObjectByQualification de crID vaut "+crID);
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection after getObjectByQualification de crID vaut "+crID);
 			dctmForm = (IDctmFormat) dctmSysObj.getFormat();
-			System.out.println("--- IDctmCollection buildResulSetFromCollection after dctmSysObj.getFormat()");
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection after dctmSysObj.getFormat()");
 			
 			if (dctmForm.canIndex()) {
-				System.out.println("--- IDctmCollection buildResulSetFromCollection - canIndex vaut true ---");
+//				System.out.println("--- IDctmCollection buildResulSetFromCollection - canIndex vaut true ---");
 				mimetype = dctmForm.getMIMEType();
-				System.out.println("--- IDctmCollection buildResulSetFromCollection - mimetype vaut "+mimetype+" ---");
+//				System.out.println("--- IDctmCollection buildResulSetFromCollection - mimetype vaut "+mimetype+" ---");
 				pm.putProperty(new DctmSimpleProperty(
 						SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 								ValueType.STRING, mimetype)));
 			}
 
 			
-			System.out.println("--- IDctmCollection buildResulSetFromCollection - avant affectation de PROPNAME_CONTENT");
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection - avant affectation de PROPNAME_CONTENT");
 			/*
 			String test = "Nespresso. What else?";
 
@@ -160,15 +160,15 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 					SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
 							ValueType.BINARY, dctmSysObj)));
 
-			System.out.println("--- IDctmCollection buildResulSetFromCollection - après affectation de PROPNAME_CONTENT");
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection - après affectation de PROPNAME_CONTENT");
 			
 			pm
 			.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_DISPLAYURL, new DctmSimpleValue(
 							ValueType.STRING,
-							session.getServerUrl()+crID)));
+							sessionManager.getServerUrl()+crID)));
 			
-			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_DISPLAYURL vaut "+session.getServerUrl()+crID+" ---");
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_DISPLAYURL vaut "+session.getServerUrl()+crID+" ---");
 			
 			pm
 			.putProperty(new DctmSimpleProperty(
@@ -183,13 +183,13 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 							"false")));
 			
 			
-			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_SECURITYTOKEN vaut "+dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName()+" ---");
+//			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_SECURITYTOKEN vaut "+dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName()+" ---");
 			
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 
 				Enumeration metas = dctmSysObj.enumAttrs();
 				DctmSimpleValue dctmSimpleValue;
-				System.out.println("--- IDctmCollection buildResulSetFromCollection - après enumAttrs ---");
+//				System.out.println("--- IDctmCollection buildResulSetFromCollection - après enumAttrs ---");
 				while (metas.hasMoreElements()){
 					IDfAttr curAttr = (IDfAttr) metas.nextElement();
 					String name = curAttr.getName();
@@ -210,7 +210,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	                        
 	                    } else if (curAttr.getDataType() == IDfAttr.DM_ID) {
 	                    	String id = dctmSysObj.getId(curAttr.getName()).toString();
-							System.out.println(id);
+//							System.out.println(id);
 							if(id != null && id!=""){
 		                    	dctmSimpleValue = new DctmSimpleValue(ValueType.STRING,id );
 		                    	pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
@@ -219,7 +219,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	                        
 	                    } else if (curAttr.getDataType() == IDfAttr.DM_INTEGER) {
 	                    	long l = dctmSysObj.getInt(curAttr.getName());
-	                    	System.out.println(l);
+//	                    	System.out.println(l);
 							dctmSimpleValue = new DctmSimpleValue(ValueType.LONG, l+"");
 	                    	pm.putProperty(new DctmSimpleProperty(curAttr.getName(),
 									dctmSimpleValue));
@@ -256,7 +256,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	private Vector getSpecMeta(){
-		System.out.println("--- IDctmCollection getSpecMeta ---");
+//		System.out.println("--- IDctmCollection getSpecMeta ---");
 		Vector specProps = new Vector();
 		specProps.addElement("object_name");
 		specProps.addElement("r_object_type");
@@ -269,7 +269,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	private Vector getSysMeta(){
-		System.out.println("--- IDctmCollection getSysMeta ---");
+//		System.out.println("--- IDctmCollection getSysMeta ---");
 		Vector sysObjectProps = new Vector();
 		sysObjectProps.addElement("object_name");
 		sysObjectProps.addElement("r_object_type");
