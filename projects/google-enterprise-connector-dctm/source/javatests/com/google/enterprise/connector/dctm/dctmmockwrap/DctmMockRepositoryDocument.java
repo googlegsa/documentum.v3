@@ -45,6 +45,9 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 		return 6;
 	}
 
+	/**
+	 * delete in interface
+	 */
 	public IId getObjectId(){
 		return new DctmMockId(mrDocument.getDocID());
 	}
