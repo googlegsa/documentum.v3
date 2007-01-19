@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.jcr.Credentials;
@@ -74,9 +75,6 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 				if (userID.equals(password)){
 					return true;//succes
 				}
-
-
-		
 		return false;
 	}
 	
@@ -93,7 +91,6 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	 * ILocalClient's method
 	 */
 	public ISession findSession(String dfcSessionId) {
-
 		String dbName = (String) this.sessMgerIDs.get(dfcSessionId);
 		return (ISession) this.sessMgerSessions.get(dbName);
 	}
@@ -173,6 +170,8 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	 * @throws com.google.enterprise.connector.spi.RepositoryException
 	 */
 	private ISession createAuthenticatedSession(String db, ILoginInfo iLI) throws com.google.enterprise.connector.spi.RepositoryException{
+		//db is actually the suffix of the filename that is used to create the eventlist.
+		//As there is no way we can retrieve it, we will store it in the DctmMockSession we create.
 		MockRepositoryEventList mrel =
 			new MockRepositoryEventList(db);
 		
@@ -196,7 +195,7 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 		//If not caught any error, authentication successful
 		String sessID = createNewId();
 		sessMgerIDs.put(sessID,db);
-		return new DctmMockSession(repo,sess,sessID);
+		return new DctmMockSession(repo,sess,sessID,db);
 		
 	}
 	
@@ -212,41 +211,46 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	}
 	
 	public void setSession(ISession session) {
+		currentSession = session;
 	}
 
 	public void setSessionManager(ISessionManager session) {
-		// TODO Auto-generated method stub
-		
+		//IClient and ISessionManager are both implemented by the DctmMockClient then nothing to do. 
 	}
 
 	public void release(ISession session) {
-		// TODO Auto-generated method stub
-		
+		//No need to do anything regarding Mock sessions.		
 	}
 
 	public void setServerUrl(String serverUrl) {
-		// TODO Auto-generated method stub
-		
+		//Wait for Google to ask me to do it
 	}
 
 	public String getDocbaseName() {
-		// TODO Auto-generated method stub
+		Enumeration e = sessMgerSessions.keys();
+		while (e.hasMoreElements()) {
+			Object n = e.nextElement();
+			if (sessMgerSessions.get(n).equals(currentSession)){
+				return (String) n;
+			}
+		}
 		return null;
 	}
 
+	/**
+	 * This method sets current session's docbase name.
+	 * Substitute IDs based session management
+	 */
 	public void setDocbaseName(String docbaseName) {
-		// TODO Auto-generated method stub
-		
+		currentSession = (ISession) sessMgerSessions.get((Object) docbaseName);		
 	}
 
 	public String getServerUrl() {
-		// TODO Auto-generated method stub
-		return null;
+		return "http://localhost:8080/connector-manager/ok.jsp";
 	}
 
 	public ISessionManager getSessionManager() {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 
