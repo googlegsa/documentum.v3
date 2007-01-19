@@ -7,9 +7,7 @@ import org.json.JSONObject;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
-import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
@@ -27,7 +25,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private String unboundedTraversalQuery;
 	private String boundedTraversalQuery;
 	private String serverUrl;
-	private int batchInt=-1;
+	private int batchHint=-1;
 	private ISessionManager sessionManager;
 	
 	protected void setClient(IClient client) {
@@ -96,8 +94,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	
 	private String lopQuery(){
 		String q = unboundedTraversalQuery;
-		if (batchInt!=-1 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
-			q += " ENABLE (return_top " + Integer.toString(batchInt) + ")";
+		if (batchHint!=-1 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
+			q += " ENABLE (return_top " + Integer.toString(batchHint) + ")";
 		}	
 		return q;
 	}
@@ -189,7 +187,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 * @throws RepositoryException
 	 */
 	public void setBatchHint(int batchHint) throws RepositoryException {
-		this.batchInt = batchHint;
+		this.batchHint = batchHint;
 	}
 
 	private ResultSet execQuery(IQuery query) throws RepositoryException {
@@ -272,8 +270,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		Object[] arguments = { c };
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
-		if (batchInt!=-1 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
-			statement = statement+" ENABLE (return_top " + Integer.toString(batchInt) + ")";
+		if (batchHint!=-1 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
+			statement = statement+" ENABLE (return_top " + Integer.toString(batchHint) + ")";
 		}
 		return statement;
 	}

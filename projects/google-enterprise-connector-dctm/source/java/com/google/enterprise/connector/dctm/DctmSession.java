@@ -1,6 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
-import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
+//import com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -24,7 +24,7 @@ public class DctmSession implements Session{
 	
 	//Constructor never called except for tests
 	public DctmSession() throws RepositoryException{
-		System.out.println("--- DctmSession constructor without arguments---");
+		/*System.out.println("--- DctmSession constructor without arguments---");
 		ILoginInfo dctmLoginInfo=null;
 		client = new IDctmClient();
 		docbase = "gsadctm";
@@ -35,7 +35,7 @@ public class DctmSession implements Session{
 		dctmLoginInfo.setPassword("p@ssw0rd");
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
 		session = sessionManager.newSession(docbase);
-		sessionManager.release(session);
+		sessionManager.release(session);*/
 		//this.client.setSession(session);
 	}
 	
