@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -10,7 +11,6 @@ import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockFormat;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockId;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockLoginInfo;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockQuery;
-import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockValue;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
@@ -96,12 +96,12 @@ public class OutputPerformancesTest extends TestCase {
 			OutputPerformances.setPerfFlag((new DctmMockLoginInfo()),"Free load test keeping hashtables #5");
 			OutputPerformances.setPerfFlag((new DctmConnector()),"Free load test keeping hashtables #6");
 			OutputPerformances.setPerfFlag((new DctmMockQuery()),"Free load test keeping hashtables #7");
-			OutputPerformances.setPerfFlag((new DctmMockValue(null)),"Free load test keeping hashtables #8");
+			OutputPerformances.setPerfFlag((new HashMap()),"Free load test keeping hashtables #8");
 			OutputPerformances.setPerfFlag((new DctmMockFormat()),"Free load test keeping hashtables #9");
 			OutputPerformances.setPerfFlag((new DctmMockId("")),"Free load test keeping hashtables #10");
 			OutputPerformances.endFlag((new DctmMockId("")),"Free load test keeping hashtables #10");
 			OutputPerformances.endFlag((new DctmMockFormat()),"Free load test keeping hashtables #9");
-			OutputPerformances.endFlag((new DctmMockValue(null)),"Free load test keeping hashtables #8");
+			OutputPerformances.endFlag((new HashMap()),"Free load test keeping hashtables #8");
 			OutputPerformances.endFlag((new DctmMockQuery()),"Free load test keeping hashtables #7");
 			OutputPerformances.endFlag((new DctmConnector()),"Free load test keeping hashtables #6");
 			OutputPerformances.endFlag((new DctmMockLoginInfo()),"Free load test keeping hashtables #5");

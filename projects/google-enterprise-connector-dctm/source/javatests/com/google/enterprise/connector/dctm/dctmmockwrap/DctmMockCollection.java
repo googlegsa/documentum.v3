@@ -37,8 +37,9 @@ public class DctmMockCollection implements ICollection {
 	//Needed as getValue() is called in DctmQTM. Will no longer be needed soon:
 	//BuildResSet method intends to avoid the necessity of parsing the collection
 	//in a class common to DFC and Mock but rather in the Collection object (this)
+	//Here we are, no longer needed
 	public IValue getValue(String attrName) throws RepositoryException{
-		if (currentNode==null){
+		/*if (currentNode==null){
 			return null;
 		}else {
 			javax.jcr.Property py=null;
@@ -54,7 +55,8 @@ public class DctmMockCollection implements ICollection {
 						throw re;
 					}
 			return new DctmMockValue(py);
-		}
+		}*/
+		return null;
 	}
 	
 	public ResultSet buildResulSetFromCollection(ISession session) throws RepositoryException {
