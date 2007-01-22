@@ -12,7 +12,6 @@ public class InstanciationTest extends TestCase {
 	public void testAcceptanceTests(){
 		//Correct DFC instantiationpackage com.google.enterprise.connector.dctm;
 		boolean errorCaught=false;
-		DctmInstantiator.isDFCavailable=true;
 		Session session = null;
 		Connector connector = null;
 		QueryTraversalManager qtm = null;
@@ -41,7 +40,6 @@ public class InstanciationTest extends TestCase {
 		
 		//Correct Mock instantiation
 		errorCaught=false;
-		DctmInstantiator.isDFCavailable=false;
 		connector = new DctmConnector();
 		((DctmConnector) connector).setLogin("mark");
 		((DctmConnector) connector).setPassword("mark");
@@ -67,7 +65,6 @@ public class InstanciationTest extends TestCase {
 		//Eroneous credentials DFC instantiation
 		errorCaught=false;
 		boolean loginExcept=false;
-		DctmInstantiator.isDFCavailable=true;
 		connector = new DctmConnector();
 		((DctmConnector) connector).setLogin("queryUser");
 		((DctmConnector) connector).setPassword("passw0rd");//Bad password
@@ -93,7 +90,6 @@ public class InstanciationTest extends TestCase {
 		//Eroneous credentials Mock instantiation
 		errorCaught=false;
 		loginExcept=false;
-		DctmInstantiator.isDFCavailable=false;
 		connector = new DctmConnector();
 		((DctmConnector) connector).setLogin("mark");
 		((DctmConnector) connector).setPassword("jean-hubert");//Bad password
@@ -120,7 +116,6 @@ public class InstanciationTest extends TestCase {
 		errorCaught=false;
 		loginExcept=false;
 		boolean repExcept=false;
-		DctmInstantiator.isDFCavailable=true;
 		connector = new DctmConnector();
 		((DctmConnector) connector).setLogin("queryUser");
 		((DctmConnector) connector).setPassword("p@ssw0rd");
@@ -149,7 +144,6 @@ public class InstanciationTest extends TestCase {
 		errorCaught=false;
 		loginExcept=false;
 		repExcept=false;
-		DctmInstantiator.isDFCavailable=false;
 		connector = new DctmConnector();
 		((DctmConnector) connector).setLogin("mark");
 		((DctmConnector) connector).setPassword("mark");
@@ -176,7 +170,6 @@ public class InstanciationTest extends TestCase {
 		
 		//Eroneous client class path DFC instantiation
 		errorCaught=false;
-		DctmInstantiator.isDFCavailable=true;
 		connector = new DctmConnector();
 		((DctmConnector) connector).setLogin("user1");
 		((DctmConnector) connector).setPassword("p@ssword");
