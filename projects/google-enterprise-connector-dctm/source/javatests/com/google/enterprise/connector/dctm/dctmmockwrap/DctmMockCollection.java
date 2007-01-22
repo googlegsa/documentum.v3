@@ -58,11 +58,6 @@ public class DctmMockCollection implements ICollection {
 		}*/
 		return null;
 	}
-	
-	public ResultSet buildResulSetFromCollection(ISession session) throws RepositoryException {
-		SpiResultSetFromJcr test = new SpiResultSetFromJcr(collection);
-		return test;
-	}
 
 	/**
 	 * delete in interface
@@ -86,8 +81,8 @@ public class DctmMockCollection implements ICollection {
 	}
 
 	public ResultSet buildResulSetFromCollection(ISessionManager sessionManager) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
+		SpiResultSetFromJcr test = new SpiResultSetFromJcr(collection);
+		return test;
 	}
 	
 }
