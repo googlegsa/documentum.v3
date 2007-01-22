@@ -7,7 +7,6 @@ import javax.jcr.Credentials;
 import javax.jcr.SimpleCredentials;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
-import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
@@ -102,13 +101,6 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	 */
 	public ILoginInfo getLoginInfo() {
 		return new DctmMockLoginInfo();
-	}
-	
-	/**
-	 * ClientX' method.
-	 */
-	public IId getId(String value) {
-		return new DctmMockId(value);
 	}
 	
 

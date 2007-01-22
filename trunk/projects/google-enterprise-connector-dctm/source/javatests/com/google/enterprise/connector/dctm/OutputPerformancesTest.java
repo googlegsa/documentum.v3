@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -7,8 +8,6 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockFormat;
-import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockId;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockLoginInfo;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockQuery;
 import com.google.enterprise.connector.spi.Connector;
@@ -97,10 +96,10 @@ public class OutputPerformancesTest extends TestCase {
 			OutputPerformances.setPerfFlag((new DctmConnector()),"Free load test keeping hashtables #6");
 			OutputPerformances.setPerfFlag((new DctmMockQuery()),"Free load test keeping hashtables #7");
 			OutputPerformances.setPerfFlag((new HashMap()),"Free load test keeping hashtables #8");
-			OutputPerformances.setPerfFlag((new DctmMockFormat()),"Free load test keeping hashtables #9");
-			OutputPerformances.setPerfFlag((new DctmMockId("")),"Free load test keeping hashtables #10");
-			OutputPerformances.endFlag((new DctmMockId("")),"Free load test keeping hashtables #10");
-			OutputPerformances.endFlag((new DctmMockFormat()),"Free load test keeping hashtables #9");
+			OutputPerformances.setPerfFlag((new Exception()),"Free load test keeping hashtables #9");
+			OutputPerformances.setPerfFlag((new FileNotFoundException()),"Free load test keeping hashtables #10");
+			OutputPerformances.endFlag((new Exception()),"Free load test keeping hashtables #10");
+			OutputPerformances.endFlag((new NumberFormatException()),"Free load test keeping hashtables #9");
 			OutputPerformances.endFlag((new HashMap()),"Free load test keeping hashtables #8");
 			OutputPerformances.endFlag((new DctmMockQuery()),"Free load test keeping hashtables #7");
 			OutputPerformances.endFlag((new DctmConnector()),"Free load test keeping hashtables #6");

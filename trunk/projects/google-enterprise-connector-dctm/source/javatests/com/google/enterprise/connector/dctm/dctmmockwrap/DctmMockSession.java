@@ -22,12 +22,6 @@ public class DctmMockSession implements ISession {
 		this.sessionFileNameSuffix = dbFileName;
 	}
 	
-	public ISysObject getObject(IId objectId){
-		DctmMockId id = (DctmMockId) objectId;
-		MockRepositoryDocument mrD = mockRep.getRepo().getStore().getDocByID(id.getValue());
-		return new DctmMockRepositoryDocument(mrD);
-	}
-	
 	public MockRepositoryDocumentStore getStore(){
 		return mockRep.getRepo().getStore();
 	}
