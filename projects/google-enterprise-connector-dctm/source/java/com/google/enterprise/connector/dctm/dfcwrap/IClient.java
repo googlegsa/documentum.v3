@@ -17,9 +17,6 @@ public interface IClient{
 
 	public boolean authenticate(String docbaseName, ILoginInfo loginInfo) throws LoginException;
 
-
-	public IId getId(String value);
-
 	public ISessionManager getSessionManager();
 	
 	public void setSessionManager(ISessionManager session);
