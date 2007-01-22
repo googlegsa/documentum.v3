@@ -1,9 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
-import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
@@ -12,13 +9,13 @@ public class DctmMockSession implements ISession {
 	
 	private MockJcrRepository mockRep;
 	private MockJcrSession mockJcrSession;
-	private String sessionID;
+//	private String sessionID;
 	private String sessionFileNameSuffix;
 	
-	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS, String sessID,String dbFileName){
+	public DctmMockSession(MockJcrRepository mjR , MockJcrSession mjS, String dbFileName){
 		this.mockRep = mjR;
 		this.mockJcrSession = mjS;
-		this.sessionID=sessID;
+//		this.sessionID=sessID;
 		this.sessionFileNameSuffix = dbFileName;
 	}
 	
@@ -27,9 +24,9 @@ public class DctmMockSession implements ISession {
 	}
 
 
-	public String getSessionId() {
-		return sessionID;
-	}
+//	public String getSessionId() {
+//		return sessionID;
+//	}
 
 	public String getLoginTicketForUser(String username) {
 		//this assumes that Mock authenticated the session by

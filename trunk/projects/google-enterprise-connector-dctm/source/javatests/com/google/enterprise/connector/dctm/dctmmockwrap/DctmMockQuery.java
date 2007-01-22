@@ -13,7 +13,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DctmMockQuery implements IQuery {
 	String query;
-	private int DF_READ_QUERY;
+//	private int DF_READ_QUERY;
 	
 	public DctmMockQuery(){
 		query="";
@@ -34,12 +34,12 @@ public class DctmMockQuery implements IQuery {
 			throw re;
 		}
 	}
-	public int getDF_READ_QUERY(){
-		return DF_READ_QUERY;
-	}
-	public void setDF_READ_QUERY(int i){
-		DF_READ_QUERY=i;
-	}
+//	public int getDF_READ_QUERY(){
+//		return DF_READ_QUERY;
+//	}
+//	public void setDF_READ_QUERY(int i){
+//		DF_READ_QUERY=i;
+//	}
 	public void setDQL(String dqlStatement){
 		this.query=dqlStatement;
 	}

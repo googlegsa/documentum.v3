@@ -89,10 +89,10 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 	/**
 	 * ILocalClient's method
 	 */
-	public ISession findSession(String dfcSessionId) {
-		String dbName = (String) this.sessMgerIDs.get(dfcSessionId);
-		return (ISession) this.sessMgerSessions.get(dbName);
-	}
+//	public ISession findSession(String dfcSessionId) {
+//		String dbName = (String) this.sessMgerIDs.get(dfcSessionId);
+//		return (ISession) this.sessMgerSessions.get(dbName);
+//	}
 	
 	/**
 	 * Factory method for an IDfLoginInfo object.
@@ -187,7 +187,7 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 		//If not caught any error, authentication successful
 		String sessID = createNewId();
 		sessMgerIDs.put(sessID,db);
-		return new DctmMockSession(repo,sess,sessID,db);
+		return new DctmMockSession(repo,sess,db);
 		
 	}
 	
