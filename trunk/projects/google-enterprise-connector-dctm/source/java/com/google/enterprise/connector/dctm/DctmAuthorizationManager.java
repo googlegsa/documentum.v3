@@ -14,9 +14,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	ISessionManager sessionManager;
 
 	IClient client;
-	
+
 	private String ATTRIBUTE_NAME;
-	
+
 	private String QUERY_STRING_AUTHORISE_DEFAULT;
 
 	/**
@@ -27,55 +27,70 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	}
 
 	public DctmAuthorizationManager(IClient client, String qsad, String attrName) {
-//		setSession(session);
+		// setSession(session);
 		setClient(client);
-		/*set*/QUERY_STRING_AUTHORISE_DEFAULT=qsad;
-		/*set*/ATTRIBUTE_NAME=attrName;
+		/* set */QUERY_STRING_AUTHORISE_DEFAULT = qsad;
+		/* set */ATTRIBUTE_NAME = attrName;
+		sessionManager = client.getSessionManager();
 	}
-	
-	/*public void setAttributeName(String an){
-		ATTRIBUTE_NAME=an;
-	}	
-	public void setQUERY_STRING_AUTHORISE_DEFAULT(String qsad){
-		QUERY_STRING_AUTHORISE_DEFAULT=qsad;
-	}*/
+
+	/*
+	 * public void setAttributeName(String an){ ATTRIBUTE_NAME=an; } public void
+	 * setQUERY_STRING_AUTHORISE_DEFAULT(String qsad){
+	 * QUERY_STRING_AUTHORISE_DEFAULT=qsad; }
+	 */
 
 	public ResultSet authorizeDocids(List docidList, String username)
 			throws RepositoryException {
+		System.out.println("DCTMAuthorize method authorizeDocids");
 		int i = 0;
 		DctmResultSet resultSet = null;
 		SimplePropertyMap docmap = null;
 		IQuery query = this.getClient().getQuery();
-		String dqlQuery = ""; 
+		String dqlQuery = "";
 		ICollection collec = null;
-		ISession session = sessionManager.getSession(sessionManager.getDocbaseName());
-		ISessionManager sessionManagerUser = client.getLocalClientEx().newSessionManager();
-		String ticket = session.getLoginTicketForUser(username);
-		ILoginInfo logInfo = client.getLoginInfo();
-		logInfo.setUser(username);
-		logInfo.setPassword(ticket);
-		sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),logInfo);
-		sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
-//		ISession sessionUser = client.newSession(session.getDocbaseName(),
-//				logInfo);
+		ISession session;
+		
+			session = sessionManager
+					.getSession(sessionManager.getDocbaseName());
 
-		dqlQuery = buildQuery(docidList, dqlQuery);
-		System.out.println(dqlQuery);
-		query.setDQL(dqlQuery);
-		collec = (ICollection) query.execute(sessionManagerUser, IQuery.DF_READ_QUERY);
-		String ids = "";
-		while (collec != null && collec.next()) {
-			ids += collec.getString(/*DctmInstantiator.*/ATTRIBUTE_NAME) + " ";
-		}
-		resultSet = new DctmResultSet();
-		for (i = 0; i < docidList.size(); i++) {
-			docmap = new SimplePropertyMap();
-			docmap.putProperty(new DctmSimpleProperty(SpiConstants.PROPNAME_DOCID, docidList
-					.get(i).toString()));
-			docmap.putProperty(new DctmSimpleProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT,
-					(ids.indexOf(docidList.get(i).toString()) != -1)));
-			resultSet.add(docmap);
-		}
+			ISessionManager sessionManagerUser = client.getLocalClientEx()
+					.newSessionManager();
+			String ticket = session.getLoginTicketForUser(username);
+			ILoginInfo logInfo = client.getLoginInfo();
+			logInfo.setUser(username);
+			logInfo.setPassword(ticket);
+			sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
+					logInfo);
+			sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
+			// ISession sessionUser =
+			// client.newSession(session.getDocbaseName(),
+			// logInfo);
+			
+			dqlQuery = buildQuery(docidList, dqlQuery);
+			System.out.println("dql " + dqlQuery);
+			query.setDQL(dqlQuery);
+			collec = (ICollection) query.execute(sessionManagerUser,
+					IQuery.DF_READ_QUERY);
+			String ids = "";
+			while (collec != null && collec.next()) {
+				ids += collec.getString(/* DctmInstantiator. */ATTRIBUTE_NAME)
+						+ " ";
+			}
+			System.out.println("hasRight?  " + docidList.size());
+			resultSet = new DctmResultSet();
+			for (i = 0; i < docidList.size(); i++) {
+				docmap = new SimplePropertyMap();
+				docmap.putProperty(new DctmSimpleProperty(
+						SpiConstants.PROPNAME_DOCID, docidList.get(i)
+								.toString()));
+				docmap.putProperty(new DctmSimpleProperty(
+						SpiConstants.PROPNAME_AUTH_VIEWPERMIT, (ids
+								.indexOf(docidList.get(i).toString()) != -1)));
+				System.out.println("hasRight?  "
+						+ (ids.indexOf(docidList.get(i).toString()) != -1));
+				resultSet.add(docmap);
+			}
 		
 		return resultSet;
 
@@ -83,7 +98,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	private String buildQuery(List docidList, String dqlQuery) {
 		int i;
-		dqlQuery = /*DctmInstantiator.*/QUERY_STRING_AUTHORISE_DEFAULT;
+		dqlQuery = /* DctmInstantiator. */QUERY_STRING_AUTHORISE_DEFAULT;
 		System.out.println(dqlQuery);
 		for (i = 0; i < docidList.size() - 1; i++) {
 			dqlQuery += "'" + docidList.get(i).toString() + "', ";
@@ -99,9 +114,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		return responses;
 	}
 
-//	public void setSession(ISession session) {
-//		this.session = session;
-//	}
+	// public void setSession(ISession session) {
+	// this.session = session;
+	// }
 
 	public IClient getClient() {
 		return client;

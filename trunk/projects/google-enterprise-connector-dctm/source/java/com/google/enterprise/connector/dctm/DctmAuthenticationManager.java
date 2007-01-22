@@ -25,12 +25,9 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	public DctmAuthenticationManager(IClient client){
 //		setSession(session);
 		setClient(client);
+		sessionManager = client.getSessionManager();
 	}
 	
-	
-//	public ISession getSession(){
-//		return session;
-//	}
 	
 	
 	public boolean authenticate(String username, String password)
@@ -38,13 +35,10 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		setLoginInfo(username,password);
 		boolean authenticate = false;
 		authenticate = client.authenticate (sessionManager.getDocbaseName(),getLoginInfo());
+		System.out.println("DCTMAuthenticate method authenticate " + authenticate);
 		return authenticate;
 	}
 	
-	
-//	public void setSession(ISession session){
-//		this.session=session;
-//	}
 	
 	public void setLoginInfo(String username,String password){
 		loginInfo = client.getLoginInfo();
