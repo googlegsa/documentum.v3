@@ -16,7 +16,7 @@ public class IDctmId implements IId{
 	}
 	
 	public IDfId getidfId() {
-		System.out.println("--- IDctmId getidfId ---");
+//		System.out.println("--- IDctmId getidfId ---");
 		return idfId;
 	}
 

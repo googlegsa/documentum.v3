@@ -18,19 +18,19 @@ public class IDctmSession implements ISession {
 		this.idfSession = DfSession;
 	}
 
-	public String getSessionId() throws RepositoryException {
-//		System.out.println("--- IDctmSession getSessionId ---");
-		String iDSess = null;
-		try {
-			iDSess = idfSession.getSessionId();
-		} catch (DfException de) {
-			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
-			re.setStackTrace(de.getStackTrace());
-			throw re;
-		}
-		return iDSess;
-
-	}
+//	public String getSessionId() throws RepositoryException {
+////		System.out.println("--- IDctmSession getSessionId ---");
+//		String iDSess = null;
+//		try {
+//			iDSess = idfSession.getSessionId();
+//		} catch (DfException de) {
+//			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+//			re.setStackTrace(de.getStackTrace());
+//			throw re;
+//		}
+//		return iDSess;
+//
+//	}
 
 	public ISysObject getObject(IId objectId) throws RepositoryException {
 //		System.out.println("--- IDctmSession getObject ---");
@@ -101,17 +101,17 @@ public class IDctmSession implements ISession {
 		return ticket;
 	}
 
-	public String getDocbaseName() throws RepositoryException {
-		String docbaseName = null;
-		try {
-			docbaseName = this.idfSession.getDocbaseName();
-		} catch (DfException de) {
-			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
-			re.setStackTrace(de.getStackTrace());
-			throw re;
-		}
-		return docbaseName;
-	}
+//	public String getDocbaseName() throws RepositoryException {
+//		String docbaseName = null;
+//		try {
+//			docbaseName = this.idfSession.getDocbaseName();
+//		} catch (DfException de) {
+//			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+//			re.setStackTrace(de.getStackTrace());
+//			throw re;
+//		}
+//		return docbaseName;
+//	}
 
 
 	/*
