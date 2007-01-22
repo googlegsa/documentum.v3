@@ -8,7 +8,6 @@ import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.IDfAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
@@ -25,7 +24,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	}
 	
 	public IFormat getFormat() throws RepositoryException{
-		System.out.println("--- IDctmSysObject getFormat ---");
+//		System.out.println("--- IDctmSysObject getFormat ---");
 		IDfFormat idfFormat = null;
 		try{
 			idfFormat = idfSysObject.getFormat();
@@ -53,7 +52,7 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 	}
 	
 	public ByteArrayInputStream getContent() throws RepositoryException{
-		System.out.println("--- IDctmSysObject getContent ---");
+//		System.out.println("--- IDctmSysObject getContent ---");
 		ByteArrayInputStream content = null;
 		try{
 			content=idfSysObject.getContent();
@@ -65,18 +64,18 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 		return content;
 	}
 	
-	public int getPermitEx(String name) throws RepositoryException{
-		int perm = 0;
-		System.out.println("--- IDctmSysObject getPermitEx ---");
-		try{
-			perm = idfSysObject.getPermitEx(name);
-		}catch(DfException e){
-			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
-			re.setStackTrace(e.getStackTrace());
-			throw re;
-		}
-		return(perm);
-	}
+//	public int getPermitEx(String name) throws RepositoryException{
+//		int perm = 0;
+////		System.out.println("--- IDctmSysObject getPermitEx ---");
+//		try{
+//			perm = idfSysObject.getPermitEx(name);
+//		}catch(DfException e){
+//			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+//			re.setStackTrace(e.getStackTrace());
+//			throw re;
+//		}
+//		return(perm);
+//	}
 	
 	public Enumeration enumAttrs() throws RepositoryException{
 		Enumeration attrs=null;
@@ -175,15 +174,15 @@ public class IDctmSysObject extends IDctmPersistentObject implements ISysObject{
 		}
 	}
 	
-	public String getTitle() throws RepositoryException{
-		try {
-			return idfSysObject.getTitle();
-		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
-			re.setStackTrace(e.getStackTrace());
-			throw re;
-		}
-	}
+//	public String getTitle() throws RepositoryException{
+//		try {
+//			return idfSysObject.getTitle();
+//		} catch (DfException e) {
+//			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+//			re.setStackTrace(e.getStackTrace());
+//			throw re;
+//		}
+//	}
 	
 	
 }

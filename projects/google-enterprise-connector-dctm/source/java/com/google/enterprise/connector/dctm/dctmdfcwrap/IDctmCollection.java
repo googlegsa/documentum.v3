@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.io.ByteArrayInputStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -9,8 +8,6 @@ import com.google.enterprise.connector.dctm.DctmSimpleProperty;
 import com.google.enterprise.connector.dctm.DctmSimpleValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
-import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
@@ -76,19 +73,19 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 		return idfCollection;
 	}
 	
-	public IId getObjectId() throws RepositoryException {
-//		System.out.println("--- IDctmCollection getObjectId ---");
-		IId id = null;
-		try {
-			id = new IDctmId(this.idfCollection.getObjectId());
-		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
-			re.setStackTrace(e.getStackTrace());
-			throw re;
-		}
-		return id;
-	}
-	
+//	public IId getObjectId() throws RepositoryException {
+////		System.out.println("--- IDctmCollection getObjectId ---");
+//		IId id = null;
+//		try {
+//			id = new IDctmId(this.idfCollection.getObjectId());
+//		} catch (DfException e) {
+//			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
+//			re.setStackTrace(e.getStackTrace());
+//			throw re;
+//		}
+//		return id;
+//	}
+//	
 	public String getString(String colName) throws RepositoryException {
 		try {
 			return this.idfCollection.getString(colName);

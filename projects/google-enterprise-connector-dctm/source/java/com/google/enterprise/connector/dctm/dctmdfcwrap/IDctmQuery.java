@@ -7,7 +7,6 @@ import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -45,17 +44,17 @@ public class IDctmQuery implements IQuery{
 	public void setDQL(String dqlStatement){
 		idfQuery.setDQL(dqlStatement);
 	}
-	
-	public int getDF_READ_QUERY() {
-		return DF_READ_QUERY;
-	}
+//	
+//	public int getDF_READ_QUERY() {
+//		return DF_READ_QUERY;
+//	}
 
-	public void setDF_READ_QUERY(int df_read_query){
-		DF_READ_QUERY = df_read_query;
-	}
+//	public void setDF_READ_QUERY(int df_read_query){
+//		DF_READ_QUERY = df_read_query;
+//	}
 
 	public ICollection execute(ISessionManager sessionManager, int queryType) throws RepositoryException {
-		System.out.println("--- IDctmQuery execute ---");
+//		System.out.println("--- IDctmQuery execute ---");
 		if (!(sessionManager instanceof IDctmSessionManager)) {
 			throw new IllegalArgumentException();
 		}
@@ -66,7 +65,7 @@ public class IDctmQuery implements IQuery{
 		try{
 			DfCollection=idfQuery.execute(idfSession,queryType);
 		}catch(DfException de){
-			System.out.println("--- IDctmQuery Exception  ---");
+//			System.out.println("--- IDctmQuery Exception  ---");
 			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
 			re.setStackTrace(de.getStackTrace());
 			throw re;

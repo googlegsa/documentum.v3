@@ -6,7 +6,6 @@ import com.documentum.fc.client.DfClient;
 import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
@@ -41,7 +40,7 @@ public class IDctmClient implements IClient{
 	}
 	
 	public ILocalClient getLocalClientEx(){
-		System.out.println("--- IDctmClient getLocalClientEx ---");
+//		System.out.println("--- IDctmClient getLocalClientEx ---");
 		IDfClient idfClient=null;
 		idfClient=DfClient.getLocalClientEx();
 		return new IDctmLocalClient(idfClient);
