@@ -3,14 +3,14 @@
 <beans>
 	<bean id="DctmConnectorInstance"
 		class="com.google.enterprise.connector.dctm.DctmConnector">
-		<property name="docbase" value="gsadctm" />
-		<property name="login" value="queryUser" />
-		<property name="password" value="p@ssw0rd" />
-		<property name="client" value="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient" />
-		<property name="QUERY_STRING_UNBOUNDED_DEFAULT" value="select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' order by r_modify_date, i_chronicle_id" />
-		<property name="QUERY_STRING_BOUNDED_DEFAULT" value="select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= ''{0}'' order by r_modify_date, i_chronicle_id" />
-		<property name="QUERY_STRING_AUTHORISE_DEFAULT" value="select r_object_id from dm_sysobject where r_object_id in (" />
-		<property name="ATTRIBUTE_NAME" value="r_object_id" />
-		<property name="WEBTOP_SERVER_URL" value="http://swp-vm-webt52:8080/webtop/drl/objectId/" />
+		<property name="docbase" value="${docbase}" />
+		<property name="login" value="${login}" />
+		<property name="password" value="${password}" />
+		<property name="client" value="${client}" />
+		<property name="QUERY_STRING_UNBOUNDED_DEFAULT" value="${QUERY_STRING_UNBOUNDED_DEFAULT}" />
+		<property name="QUERY_STRING_BOUNDED_DEFAULT" value="${QUERY_STRING_BOUNDED_DEFAULT}" />
+		<property name="QUERY_STRING_AUTHORISE_DEFAULT" value="${QUERY_STRING_AUTHORISE_DEFAULT}" />
+		<property name="ATTRIBUTE_NAME" value="${ATTRIBUTE_NAME}" />
+		<property name="WEBTOP_SERVER_URL" value="${WEBTOP_SERVER_URL}" />
 	</bean>
 </beans>
