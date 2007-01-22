@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="DctmConnector"
+		class="com.google.enterprise.connector.spi.SimpleConnectorType">
+		<property name="configKeys">
+			<list>
+				<value>login</value>
+				<value>password</value>
+				<value>docbase</value>
+				<value>client</value>
+				<value>QUERY_STRING_UNBOUNDED_DEFAULT</value>
+				<value>QUERY_STRING_BOUNDED_DEFAULT</value>
+				<value>QUERY_STRING_AUTHORISE_DEFAULT</value>
+				<value>ATTRIBUTE_NAME</value>
+				<value>WEBTOP_SERVER_URL</value>
+			</list>
+		</property>
+	</bean>
+</beans>
