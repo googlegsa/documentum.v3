@@ -5,11 +5,15 @@
 		class="com.google.enterprise.connector.spi.SimpleConnectorType">
 		<property name="configKeys">
 			<list>
-				<value>Username</value>
-				<value>Password</value>
-				<value>Color</value>
-				<value>RepositoryFile</value>
-				<value>BiduleChouette</value>
+				<value>login</value>
+				<value>password</value>
+				<value>docbase</value>
+				<value>client</value>
+				<value>QUERY_STRING_UNBOUNDED_DEFAULT</value>
+				<value>QUERY_STRING_BOUNDED_DEFAULT</value>
+				<value>QUERY_STRING_AUTHORISE_DEFAULT</value>
+				<value>ATTRIBUTE_NAME</value>
+				<value>WEBTOP_SERVER_URL</value>
 			</list>
 		</property>
 	</bean>
