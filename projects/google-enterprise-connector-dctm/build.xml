@@ -30,6 +30,7 @@
 	<property name="json.jarfile" location="../third_party/lib/json.jar" />
 	<property name="jcr.jarfile" location="../third_party/lib/jcr-1.0.jar" />
 	<property name="junit.jarfile" location="../third_party/lib/junit.jar" />
+	<property name="log4j.jarfile" location="../third_party/lib/log4j-1.2.9.jar" />
 
 	<!-- =========================== TASKS =============================== -->
 	<target name="connector-dctm" depends="init,compile,compile_tests,jar">
@@ -53,7 +54,7 @@
 				<pathelement location="${dfc.jarfile}" />
 				<pathelement location="${json.jarfile}" />
 				<pathelement location="${jcr.jarfile}" />
-
+				<pathelement location="${log4j.jarfile}" />
 			</classpath>
 		</javac>
 	</target>
@@ -69,6 +70,8 @@
 				<pathelement location="${json.jarfile}" />
 				<pathelement location="${jcr.jarfile}" />
 				<pathelement location="${classes}" />
+				<pathelement location="${log4j.jarfile}" />
+				<pathelement location="${dfc.jarfile}" />
 				
 			</classpath>
 		</javac>
@@ -76,8 +79,8 @@
 
 	<target name="jar" description="connector-dctm">
 		<jar jarfile="${jarfile}">
-			<fileset dir="${classes}"/>
 			<fileset dir="${config}"/>
+			<fileset dir="${classes}"/>
 		</jar>
 	</target>
 
