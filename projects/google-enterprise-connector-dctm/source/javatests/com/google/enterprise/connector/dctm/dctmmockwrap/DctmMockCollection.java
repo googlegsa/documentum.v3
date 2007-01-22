@@ -1,8 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import javax.jcr.Node;
+
 import javax.jcr.NodeIterator;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.query.QueryResult;
 
 import com.google.enterprise.connector.dctm.dfcwrap.*;
@@ -12,7 +11,7 @@ import com.google.enterprise.connector.spi.ResultSet;
 
 public class DctmMockCollection implements ICollection {
 	private NodeIterator collection;
-	private Node currentNode;
+//	private Node currentNode;
 	public DctmMockCollection(QueryResult mjQueryResult) throws RepositoryException{
 			try {
 				collection = mjQueryResult.getNodes();
@@ -28,7 +27,8 @@ public class DctmMockCollection implements ICollection {
 	//in a class common to DFC and Mock but rather in the Collection object (this)
 	public boolean next(){
 		if (collection.hasNext()){
-			currentNode = collection.nextNode();
+//			currentNode = 
+				collection.nextNode();
 			return true;
 		}
 		return false;
@@ -61,14 +61,14 @@ public class DctmMockCollection implements ICollection {
 
 	/**
 	 * delete in interface
-	 */
-	public IId getObjectId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	 */
+//	public IId getObjectId() {
+//		
+//		return null;
+//	}
 
 	public String getString(String colName) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 

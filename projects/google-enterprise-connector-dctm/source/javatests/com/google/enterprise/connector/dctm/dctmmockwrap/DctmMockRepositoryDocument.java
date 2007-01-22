@@ -6,6 +6,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
+import java.util.Enumeration;
 
 
 import org.json.JSONObject;
@@ -37,10 +38,10 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 	public long getContentSize(){
 		return mrDocument.getContent().length();
 	}
-	public int getPermitEx(String name){
-		//6 = read/write access
-		return 6;
-	}
+//	public int getPermitEx(String name){
+//		//6 = read/write access
+//		return 6;
+//	}
 
 	public boolean findString(String value) {
 		// TODO Auto-generated method stub
@@ -82,9 +83,29 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 		return false;
 	}
 	
-	public String getTitle() throws RepositoryException {
+//	public String getTitle() throws RepositoryException {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+
+	public IId getId(String name) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public Enumeration enumAttrs() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IFormat getFormat() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+//	public IId getObjectId() throws RepositoryException {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 	
 }
