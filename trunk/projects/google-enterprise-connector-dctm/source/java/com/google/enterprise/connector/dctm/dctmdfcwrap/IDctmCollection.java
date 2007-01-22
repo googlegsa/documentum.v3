@@ -131,8 +131,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 					SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
 							ValueType.DATE, modifDate)));
 			
-			dctmSysObj = (IDctmSysObject) session
-			.getObject(new IDctmId(crID));
+			dctmSysObj = (IDctmSysObject) session.getObject(new IDctmId(crID));
 //			System.out.println("--- IDctmCollection buildResulSetFromCollection after getObjectByQualification de crID vaut "+crID);
 			dctmForm = (IDctmFormat) dctmSysObj.getFormat();
 //			System.out.println("--- IDctmCollection buildResulSetFromCollection after dctmSysObj.getFormat()");
