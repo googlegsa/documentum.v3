@@ -34,22 +34,12 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 		return is;
 	}
 	
-	public IFormat getFormat(){
-		return new DctmMockFormat();
-	}
 	public long getContentSize(){
 		return mrDocument.getContent().length();
 	}
 	public int getPermitEx(String name){
 		//6 = read/write access
 		return 6;
-	}
-
-	/**
-	 * delete in interface
-	 */
-	public IId getObjectId(){
-		return new DctmMockId(mrDocument.getDocID());
 	}
 
 	public boolean findString(String value) {
@@ -75,11 +65,6 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 	public int getInt(String name) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	public IId getId(String name) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public ITime getTime(String name) throws RepositoryException {
