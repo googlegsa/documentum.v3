@@ -62,14 +62,6 @@ public class DctmMockCollection implements ICollection {
 	/**
 	 * delete in interface
 	 */
-	public ITypedObject getTypedObject() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * delete in interface
-	 */
 	public IId getObjectId() {
 		// TODO Auto-generated method stub
 		return null;

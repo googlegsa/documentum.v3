@@ -17,13 +17,11 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 
 	public void testTraversal() {		
 		if (DFC) {
-			DctmInstantiator.isDFCavailable=true;
 			user="queryUser";
 			password="p@ssw0rd";
 			client="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient";
 			docbase="gsadctm";
 		} else {
-			DctmInstantiator.isDFCavailable=false;
 			user="mark";
 			password="mark";
 			client="com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockClient";
