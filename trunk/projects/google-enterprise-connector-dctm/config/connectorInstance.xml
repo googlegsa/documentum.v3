@@ -3,9 +3,14 @@
 <beans>
 	<bean id="DctmConnectorInstance"
 		class="com.google.enterprise.connector.dctm.DctmConnector">
-		<property name="docbase" value="gsadctm" />
-		<property name="login" value="queryUser" />
-		<property name="password" value="p@ssw0rd" />
-		<property name="client" value="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient" />
+		<property name="docbase" value="${docbase}" />
+		<property name="login" value="${login}" />
+		<property name="password" value="${password}" />
+		<property name="client" value="${client}" />
+		<property name="QUERY_STRING_UNBOUNDED_DEFAULT" value="${QUERY_STRING_UNBOUNDED_DEFAULT}" />
+		<property name="QUERY_STRING_BOUNDED_DEFAULT" value="${QUERY_STRING_BOUNDED_DEFAULT}" />
+		<property name="QUERY_STRING_AUTHORISE_DEFAULT" value="${QUERY_STRING_AUTHORISE_DEFAULT}" />
+		<property name="ATTRIBUTE_NAME" value="${ATTRIBUTE_NAME}" />
+		<property name="WEBTOP_SERVER_URL" value="${WEBTOP_SERVER_URL}" />
 	</bean>
 </beans>
