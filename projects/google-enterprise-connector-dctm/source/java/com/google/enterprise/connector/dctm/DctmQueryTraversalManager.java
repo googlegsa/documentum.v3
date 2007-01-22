@@ -59,10 +59,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 //		setSession();
 		setSessionManager(client.getSessionManager());
 		
-		DctmInstantiator.initialize();//TODO to remove.
-		this.unboundedTraversalQuery = /*DctmInstantiator.*/QUERY_STRING_UNBOUNDED_DEFAULT;
-		this.boundedTraversalQuery = /*DctmInstantiator.*/QUERY_STRING_BOUNDED_DEFAULT;
-		this.serverUrl = /*DctmInstantiator.*/WEBTOP_SERVER_URL;
+		this.unboundedTraversalQuery = QUERY_STRING_UNBOUNDED_DEFAULT;
+		this.boundedTraversalQuery = QUERY_STRING_BOUNDED_DEFAULT;
+		this.serverUrl = WEBTOP_SERVER_URL;
 
 	}
 
