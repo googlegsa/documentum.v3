@@ -20,7 +20,7 @@ public class DctmClientX implements IClientX {
 	
 	public IId getId(String id) {
 		IDfId dfid = clientX.getId(id);
-		return new IDctmId(dfid);
+		return new DmId(dfid);
 	}
 	
 	public IClient getLocalClient() throws RepositoryException {
@@ -31,7 +31,7 @@ public class DctmClientX implements IClientX {
 		} catch (DfException e) {
 			throw new RepositoryException(e);
 		}
-		IDctmClient dctmClient = new IDctmClient(localClient, clientX);
+		DmClient dctmClient = new DmClient(localClient, clientX);
 		return dctmClient;
 	}
 	

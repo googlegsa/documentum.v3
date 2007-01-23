@@ -9,10 +9,10 @@ import com.google.enterprise.connector.jcradaptor.SpiResultSetFromJcr;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.ResultSet;
 
-public class DctmMockCollection implements ICollection {
+public class MockDmCollection implements ICollection {
 	private NodeIterator collection;
 //	private Node currentNode;
-	public DctmMockCollection(QueryResult mjQueryResult) throws RepositoryException{
+	public MockDmCollection(QueryResult mjQueryResult) throws RepositoryException{
 			try {
 				collection = mjQueryResult.getNodes();
 			} catch (javax.jcr.RepositoryException e) {

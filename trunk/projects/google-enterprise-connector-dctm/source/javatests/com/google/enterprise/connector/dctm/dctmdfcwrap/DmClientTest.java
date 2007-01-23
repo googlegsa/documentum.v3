@@ -10,9 +10,9 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class DctmClientTest extends TestCase {
+public class DmClientTest extends TestCase {
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient.newSession(String, ILoginInfo)'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSession(String, ILoginInfo)'
 	 */
 	public void testNewSession() throws RepositoryException {
 		IClientX dctmClientX = new DctmClientX();
@@ -29,18 +29,18 @@ public class DctmClientTest extends TestCase {
 		ISession session = localClient.newSession(docbase,loginInfo);
 		
 		Assert.assertNotNull(session);
-		Assert.assertTrue(session instanceof IDctmSession);		
+		Assert.assertTrue(session instanceof DmSession);		
 	}
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient.getLoginInfo()'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.getLoginInfo()'
 	 */
 	public void testGetLoginInfo() throws RepositoryException {
 		IClientX dctmClientX = new DctmClientX();
 		IClient localClient = dctmClientX.getLocalClient();
 		
 		ILoginInfo loginInfo = localClient.getLoginInfo();
-		Assert.assertTrue(loginInfo instanceof IDctmLoginInfo);
+		Assert.assertTrue(loginInfo instanceof DmLoginInfo);
 		
 		loginInfo.setUser("max");
 		loginInfo.setPassword("foo");
@@ -50,7 +50,7 @@ public class DctmClientTest extends TestCase {
 	}
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient.newSessionManager()'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSessionManager()'
 	 */
 	public void testNewSessionManager() throws RepositoryException {
 		IClientX dctmClientX = new DctmClientX();
@@ -58,6 +58,6 @@ public class DctmClientTest extends TestCase {
 		
 		ISessionManager sessionManager = localClient.newSessionManager();
 		Assert.assertNotNull(sessionManager);	
-		Assert.assertTrue(sessionManager instanceof IDctmSessionManager);	
+		Assert.assertTrue(sessionManager instanceof DmSessionManager);	
 	}
 }

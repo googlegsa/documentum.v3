@@ -22,11 +22,11 @@ import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfAttr;
 import com.documentum.fc.common.IDfValue;
 
-public class IDctmCollection extends IDctmTypedObject implements ICollection {
+public class DmCollection extends DmTypedObject implements ICollection {
 	
 	IDfCollection idfCollection;
 	
-	public IDctmCollection(IDfCollection idfCollection) {
+	public DmCollection(IDfCollection idfCollection) {
 		super(idfCollection);
 		
 		this.idfCollection = idfCollection;
@@ -42,7 +42,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
-		return new IDctmValue(dfValue);
+		return new DmValue(dfValue);
 	}
 	
 	public boolean next() throws RepositoryException {
@@ -66,7 +66,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
-		return new IDctmTypedObject(dfTypedObj);
+		return new DmTypedObject(dfTypedObj);
 	}
 	
 	public IDfCollection getIDfCollection() {
@@ -74,10 +74,10 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 //	public IId getObjectId() throws RepositoryException {
-////		System.out.println("--- IDctmCollection getObjectId ---");
+////		System.out.println("--- DmCollection getObjectId ---");
 //		IId id = null;
 //		try {
-//			id = new IDctmId(this.idfCollection.getObjectId());
+//			id = new DmId(this.idfCollection.getObjectId());
 //		} catch (DfException e) {
 //			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
 //			re.setStackTrace(e.getStackTrace());
@@ -97,53 +97,53 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	public ResultSet buildResulSetFromCollection(ISessionManager sessionManager) throws RepositoryException {
-		System.out.println("--- IDctmCollection buildResulSetFromCollection ---");
+		System.out.println("--- DmCollection buildResulSetFromCollection ---");
 		String modifDate = null;
 		String crID = null;
 		String mimetype = null;
 		SimplePropertyMap pm = null;
-		IDctmSysObject dctmSysObj = null;
+		DmSysObject dctmSysObj = null;
 		IFormat dctmForm = null;
-		IDctmValue val = null;
+		DmValue val = null;
 		DctmResultSet resu = new DctmResultSet();
-		ICollection col = new IDctmCollection(idfCollection);
-		IDctmSession session = (IDctmSession) sessionManager.getSession(sessionManager.getDocbaseName());
+		ICollection col = new DmCollection(idfCollection);
+		DmSession session = (DmSession) sessionManager.getSession(sessionManager.getDocbaseName());
 		Vector notCustomMeta = getSysMeta();
 		Vector specifiedMeta = getSpecMeta();
-//		System.out.println("--- IDctmCollection buildResulSetFromCollection after getSpecMeta---");
+//		System.out.println("--- DmCollection buildResulSetFromCollection after getSpecMeta---");
 		while (col.next()) {
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection in while---");
+//			System.out.println("--- DmCollection buildResulSetFromCollection in while---");
 			pm = new SimplePropertyMap();
 			crID = col.getValue("r_object_id").asString();
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection crID vaut "+crID+"---");
+//			System.out.println("--- DmCollection buildResulSetFromCollection crID vaut "+crID+"---");
 			pm.putProperty(new DctmSimpleProperty(SpiConstants.PROPNAME_DOCID,
 					new DctmSimpleValue(ValueType.STRING, crID)));
-			val = (IDctmValue) col.getValue("r_modify_date");
+			val = (DmValue) col.getValue("r_modify_date");
 			
-			modifDate = val.asTime().asString(IDctmTime.DF_TIME_PATTERN26);
+			modifDate = val.asTime().asString(DmTime.DF_TIME_PATTERN26);
 			modifDate = modifDate.replaceAll("/","-");
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection modifDate vaut "+modifDate+"---");
+//			System.out.println("--- DmCollection buildResulSetFromCollection modifDate vaut "+modifDate+"---");
 			
 			pm.putProperty(new DctmSimpleProperty(
 					SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(
 							ValueType.DATE, modifDate)));
 			
-			dctmSysObj = (IDctmSysObject) session.getObject(new IDctmId(crID));
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection after getObjectByQualification de crID vaut "+crID);
-			dctmForm = (IDctmFormat) dctmSysObj.getFormat();
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection after dctmSysObj.getFormat()");
+			dctmSysObj = (DmSysObject) session.getObject(new DmId(crID));
+//			System.out.println("--- DmCollection buildResulSetFromCollection after getObjectByQualification de crID vaut "+crID);
+			dctmForm = (DmFormat) dctmSysObj.getFormat();
+//			System.out.println("--- DmCollection buildResulSetFromCollection after dctmSysObj.getFormat()");
 			
 			if (dctmForm.canIndex()) {
-//				System.out.println("--- IDctmCollection buildResulSetFromCollection - canIndex vaut true ---");
+//				System.out.println("--- DmCollection buildResulSetFromCollection - canIndex vaut true ---");
 				mimetype = dctmForm.getMIMEType();
-//				System.out.println("--- IDctmCollection buildResulSetFromCollection - mimetype vaut "+mimetype+" ---");
+//				System.out.println("--- DmCollection buildResulSetFromCollection - mimetype vaut "+mimetype+" ---");
 				pm.putProperty(new DctmSimpleProperty(
 						SpiConstants.PROPNAME_MIMETYPE, new DctmSimpleValue(
 								ValueType.STRING, mimetype)));
 			}
 
 			
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection - avant affectation de PROPNAME_CONTENT");
+//			System.out.println("--- DmCollection buildResulSetFromCollection - avant affectation de PROPNAME_CONTENT");
 			/*
 			String test = "Nespresso. What else?";
 
@@ -156,7 +156,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 					SpiConstants.PROPNAME_CONTENT, new DctmSimpleValue(
 							ValueType.BINARY, dctmSysObj)));
 
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection - après affectation de PROPNAME_CONTENT");
+//			System.out.println("--- DmCollection buildResulSetFromCollection - après affectation de PROPNAME_CONTENT");
 			
 			pm
 			.putProperty(new DctmSimpleProperty(
@@ -164,7 +164,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 							ValueType.STRING,
 							sessionManager.getServerUrl()+crID)));
 			
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_DISPLAYURL vaut "+session.getServerUrl()+crID+" ---");
+//			System.out.println("--- DmCollection buildResulSetFromCollection - PROPNAME_DISPLAYURL vaut "+session.getServerUrl()+crID+" ---");
 			
 			pm
 			.putProperty(new DctmSimpleProperty(
@@ -179,13 +179,13 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 							"false")));
 			
 			
-//			System.out.println("--- IDctmCollection buildResulSetFromCollection - PROPNAME_SECURITYTOKEN vaut "+dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName()+" ---");
+//			System.out.println("--- DmCollection buildResulSetFromCollection - PROPNAME_SECURITYTOKEN vaut "+dctmSysObj.getACLDomain() + " " +dctmSysObj.getACLName()+" ---");
 			
 /////////////////////////Optional metadata////////////////////////////////////////////////////////////////////////////
 
 				Enumeration metas = dctmSysObj.enumAttrs();
 				DctmSimpleValue dctmSimpleValue;
-//				System.out.println("--- IDctmCollection buildResulSetFromCollection - après enumAttrs ---");
+//				System.out.println("--- DmCollection buildResulSetFromCollection - après enumAttrs ---");
 				while (metas.hasMoreElements()){
 					IDfAttr curAttr = (IDfAttr) metas.nextElement();
 					String name = curAttr.getName();
@@ -228,9 +228,9 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 									dctmSimpleValue));
 							}
 	                    } else if (curAttr.getDataType() == IDfAttr.DM_TIME) {
-	                    	IDctmTime time = (IDctmTime) dctmSysObj.getTime(curAttr.getName());
+	                    	DmTime time = (DmTime) dctmSysObj.getTime(curAttr.getName());
 	                    	if(time != null){
-								dctmSimpleValue = new DctmSimpleValue(ValueType.STRING, dctmSysObj.getTime(curAttr.getName()).asString(IDctmTime.DF_TIME_PATTERN45));
+								dctmSimpleValue = new DctmSimpleValue(ValueType.STRING, dctmSysObj.getTime(curAttr.getName()).asString(DmTime.DF_TIME_PATTERN45));
 								
 	                    	}
 	                       
@@ -252,7 +252,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	private Vector getSpecMeta(){
-//		System.out.println("--- IDctmCollection getSpecMeta ---");
+//		System.out.println("--- DmCollection getSpecMeta ---");
 		Vector specProps = new Vector();
 		specProps.addElement("object_name");
 		specProps.addElement("r_object_type");
@@ -265,7 +265,7 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	}
 	
 	private Vector getSysMeta(){
-//		System.out.println("--- IDctmCollection getSysMeta ---");
+//		System.out.println("--- DmCollection getSysMeta ---");
 		Vector sysObjectProps = new Vector();
 		sysObjectProps.addElement("object_name");
 		sysObjectProps.addElement("r_object_type");
@@ -373,11 +373,11 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	// //ISession dctmSes = getIdctmses();
 	// ISysObject dctmSysObj = null;
 	// IFormat dctmForm = null;
-	// IDctmValue val=null;
+	// DmValue val=null;
 	// ITime itime=null;
 	// DctmResultSet resu=new DctmResultSet();
-	// //Building the IDctmCollection for error management only
-	// ICollection col = new IDctmCollection(idfCollection);
+	// //Building the DmCollection for error management only
+	// ICollection col = new DmCollection(idfCollection);
 	// try{
 	// while (col.next()){
 	// pm=new DctmPropertyMap();
@@ -386,19 +386,19 @@ public class IDctmCollection extends IDctmTypedObject implements ICollection {
 	// vlID=new DctmValue(ValueType.STRING,crID);
 	// pm.putProperty(new DctmProperty(SpiConstants.PROPNAME_DOCID,vlID));
 	//	
-	// val=(IDctmValue)col.getValue("r_modify_date");
+	// val=(DmValue)col.getValue("r_modify_date");
 	// int rep=val.getDataType();
 	// itime=val.asTime();
-	// modifDate = itime.asString(IDctmTime.DF_TIME_PATTERN45);
+	// modifDate = itime.asString(DmTime.DF_TIME_PATTERN45);
 	// Date mydate=itime.getDate();
 	// ///System.out.println("modifdate vaut "+modifDate);
 	// vlDate=new DctmValue(ValueType.DATE,modifDate);
 	// pm.putProperty(new
 	// DctmProperty(SpiConstants.PROPNAME_LASTMODIFY,vlDate));
 	// dctmSysObj =
-	// (IDctmSysObject)session.getObjectByQualification("dm_document where
+	// (DmSysObject)session.getObjectByQualification("dm_document where
 	// i_chronicle_id = '" + crID + "'");
-	// dctmForm = (IDctmFormat)dctmSysObj.getFormat();
+	// dctmForm = (DmFormat)dctmSysObj.getFormat();
 	// if(dctmForm.canIndex()){
 	// content=dctmSysObj.getContent();
 	// mimetype=dctmForm.getMIMEType();

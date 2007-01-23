@@ -15,10 +15,10 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class DctmSessionTest extends TestCase {
+public class DmSessionTest extends TestCase {
 	
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession.getObject(IId)'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmSession.getObject(IId)'
 	 */
 	public void testGetObject() throws RepositoryException, DfException {
 		IClientX clientX = new DctmClientX();
@@ -40,13 +40,13 @@ public class DctmSessionTest extends TestCase {
 		try {
 			session = sessionManager.getSession(docbase);
 			Assert.assertNotNull(session);
-			Assert.assertTrue(session instanceof IDctmSession);	
+			Assert.assertTrue(session instanceof DmSession);	
 			String idString = getAnExistingObjectId(session);
 			System.out.println("idString " + idString);
 			IId id = clientX.getId(idString);
 			ISysObject object = session.getObject(id);
 			Assert.assertNotNull(object);
-			Assert.assertTrue(object instanceof IDctmSysObject);
+			Assert.assertTrue(object instanceof DmSysObject);
 			
 		} finally {
 			if (session != null) {
@@ -58,7 +58,7 @@ public class DctmSessionTest extends TestCase {
 	private String getAnExistingObjectId(ISession session) throws DfException {
 		// move into real DFC to find a docid that's in this docbase
 		String idString;
-		IDctmSession dctmSession = (IDctmSession) session;
+		DmSession dctmSession = (DmSession) session;
 		IDfSession dfSession = dctmSession.getDfSession();
 		IDfId id = dfSession.getIdByQualification("dm_sysobject");
 		idString = id.toString();

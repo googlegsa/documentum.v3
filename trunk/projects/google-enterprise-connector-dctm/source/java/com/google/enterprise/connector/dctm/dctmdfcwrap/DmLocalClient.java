@@ -6,17 +6,17 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 
 
-public class IDctmLocalClient implements ILocalClient{
+public class DmLocalClient implements ILocalClient{
 	IDfClient idfClient; 
 	
-	public IDctmLocalClient(IDfClient idfClient){
+	public DmLocalClient(IDfClient idfClient){
 		this.idfClient=idfClient;
 	}
 	
 	public ISessionManager newSessionManager(){
 		IDfSessionManager dfSessionManager=null;
 		dfSessionManager=idfClient.newSessionManager();
-		return new IDctmSessionManager(dfSessionManager);
+		return new DmSessionManager(dfSessionManager);
 	}
 	
 //	public ISession findSession(String dfcSessionId) throws RepositoryException{
@@ -28,6 +28,6 @@ public class IDctmLocalClient implements ILocalClient{
 //			re.setStackTrace(de.getStackTrace());
 //			throw re;
 //		}
-//		return new IDctmSession(dfSession);
+//		return new DmSession(dfSession);
 //	}
 }

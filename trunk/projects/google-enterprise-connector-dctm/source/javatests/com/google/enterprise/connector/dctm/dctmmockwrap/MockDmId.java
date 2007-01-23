@@ -2,10 +2,10 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 
-public class DctmMockId implements IId {
+public class MockDmId implements IId {
 	private String value;
 	
-	public DctmMockId(String paramID){
+	public MockDmId(String paramID){
 		this.value=paramID;
 	}
 	

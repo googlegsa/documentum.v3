@@ -2,12 +2,12 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 
-public class DctmMockLoginInfo implements ILoginInfo {
+public class MockDmLoginInfo implements ILoginInfo {
 
 	private String user;
 	private String password;
 	
-	public DctmMockLoginInfo(){
+	public MockDmLoginInfo(){
 		user=null;
 		password=null;
 	}

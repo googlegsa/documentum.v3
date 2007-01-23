@@ -11,19 +11,19 @@ import java.util.Enumeration;
 
 import org.json.JSONObject;
 
-public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject, ITypedObject{
+public class MockDmRepositoryDocument implements ISysObject, IPersistentObject, ITypedObject{
 
 	private MockRepositoryDocument mrDocument;
 
-	public DctmMockRepositoryDocument(MockRepositoryDocument mrD) {
+	public MockDmRepositoryDocument(MockRepositoryDocument mrD) {
 		mrDocument = mrD;
 	}
 	
-	public DctmMockRepositoryDocument(JSONObject jo) {
+	public MockDmRepositoryDocument(JSONObject jo) {
 		mrDocument = new MockRepositoryDocument(jo);
 	}
 	
-	public DctmMockRepositoryDocument() {
+	public MockDmRepositoryDocument() {
 		mrDocument = null;
 	}
 

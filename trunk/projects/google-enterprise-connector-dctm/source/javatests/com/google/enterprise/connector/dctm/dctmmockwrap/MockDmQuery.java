@@ -11,22 +11,22 @@ import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class DctmMockQuery implements IQuery {
+public class MockDmQuery implements IQuery {
 	String query;
 //	private int DF_READ_QUERY;
 	
-	public DctmMockQuery(){
+	public MockDmQuery(){
 		query="";
 	}
 	
 	public ICollection execute(ISession session, int queryType) throws RepositoryException{
 		try{
 			MockRepositoryDocumentStore a = null;
-			a=((DctmMockSession)session).getStore();
+			a=((MockDmSession)session).getStore();
 			MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
 			Query q = mrQueryMger.createQuery(this.query,"xpath");
 			QueryResult qr = q.execute();
-			DctmMockCollection co = new DctmMockCollection(qr);
+			MockDmCollection co = new MockDmCollection(qr);
 			return co;
 		}catch (javax.jcr.RepositoryException e){
 			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());

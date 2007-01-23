@@ -5,10 +5,10 @@ import com.documentum.fc.common.IDfValue;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 
-public class IDctmValue implements IValue{
+public class DmValue implements IValue{
 	IDfValue idfValue;
 	
-	public IDctmValue(IDfValue idfValue){
+	public DmValue(IDfValue idfValue){
 		this.idfValue=idfValue;
 	}
 	
@@ -21,7 +21,7 @@ public class IDctmValue implements IValue{
 	public ITime asTime(){
 		IDfTime idfTime=null;
 		idfTime=idfValue.asTime();
-		return new IDctmTime(idfTime);
+		return new DmTime(idfTime);
 	}
 	
 	public int getDataType(){

@@ -12,19 +12,19 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.LoginException;
 
-public class IDctmSessionManager implements ISessionManager{
+public class DmSessionManager implements ISessionManager{
 	IDfSessionManager dfSessionManager;
 	
 	private String docbaseName;
 	private String serverUrl;
 	
-	public IDctmSessionManager (IDfSessionManager DfSessionManager){
+	public DmSessionManager (IDfSessionManager DfSessionManager){
 		
 		this.dfSessionManager=DfSessionManager;
 	}
 	
 	public ISession getSession(String docbase) throws LoginException{
-//		System.out.println("--- IDctmSessionManager getSession ---");
+//		System.out.println("--- DmSessionManager getSession ---");
 		IDfSession DfSession=null;
 		try{
 			DfSession = dfSessionManager.getSession(docbase);
@@ -45,14 +45,14 @@ public class IDctmSessionManager implements ISessionManager{
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}
-		return new IDctmSession(DfSession);
+		return new DmSession(DfSession);
 	}
 	
 	public void setIdentity(String docbase,ILoginInfo identity) throws LoginException{
-		if (!(identity instanceof IDctmLoginInfo)) {
+		if (!(identity instanceof DmLoginInfo)) {
 			throw new IllegalArgumentException();
 		}
-		IDctmLoginInfo dctmLoginInfo = (IDctmLoginInfo) identity;
+		DmLoginInfo dctmLoginInfo = (DmLoginInfo) identity;
 		IDfLoginInfo idfLoginInfo=dctmLoginInfo.getIdfLoginInfo();
 		try{
 			dfSessionManager.setIdentity(docbase,idfLoginInfo);
@@ -89,11 +89,11 @@ public class IDctmSessionManager implements ISessionManager{
 			System.out.println(error);
 			return null;
 		}
-		return new IDctmSession(idfSession);
+		return new DmSession(idfSession);
 	}
 
 	public void release(ISession session) {
-		this.dfSessionManager.release(((IDctmSession)session).getDfSession());
+		this.dfSessionManager.release(((DmSession)session).getDfSession());
 		
 	}
 

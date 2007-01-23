@@ -22,13 +22,13 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class IDctmClient implements IClient{
+public class DmClient implements IClient{
 	IDfClient idfClient;
 	IDfClientX idfClientX;
 	
-	IDctmSessionManager idctmSessionManager = null;
+	DmSessionManager idctmSessionManager = null;
 	
-	public IDctmClient() throws RepositoryException{
+	public DmClient() throws RepositoryException{
 		try {
 			idfClientX = new DfClientX();
 			idfClient = idfClientX.getLocalClient();
@@ -38,24 +38,24 @@ public class IDctmClient implements IClient{
 		}
 	}
 
-	public IDctmClient(IDfClient idfClient, IDfClientX idfClientX) {		
+	public DmClient(IDfClient idfClient, IDfClientX idfClientX) {		
 		this.idfClient = idfClient;
 		this.idfClientX = idfClientX;
 	}
 	
 	public ILocalClient getLocalClientEx(){
-//		System.out.println("--- IDctmClient getLocalClientEx ---");
+//		System.out.println("--- DmClient getLocalClientEx ---");
 		IDfClient idfClient=null;
 		idfClient=DfClient.getLocalClientEx();
-		return new IDctmLocalClient(idfClient);
+		return new DmLocalClient(idfClient);
 	}
 	
 	public IQuery getQuery(){
-		return new IDctmQuery(new DfQuery());
+		return new DmQuery(new DfQuery());
 	}
 	
 	public ISession newSession(String docbase, ILoginInfo logInfo) throws RepositoryException {
-		System.out.println("--- IDctmClient newSession ---");
+		System.out.println("--- DmClient newSession ---");
 		IDfSession sessionUser = null;
 		IDfLoginInfo idfLogInfo= new DfLoginInfo();
 		idfLogInfo.setUser(logInfo.getUser());
@@ -66,14 +66,14 @@ public class IDctmClient implements IClient{
 			LoginException re = new LoginException(de);
 			throw re;
 		}
-		return new IDctmSession(sessionUser);
+		return new DmSession(sessionUser);
 	}
 
 	public boolean authenticate(String docbaseName, ILoginInfo loginInfo) {
-		if (!(loginInfo instanceof IDctmLoginInfo)) {
+		if (!(loginInfo instanceof DmLoginInfo)) {
 			throw new IllegalArgumentException();
 		}
-		IDctmLoginInfo dctmLoginInfo = (IDctmLoginInfo) loginInfo;
+		DmLoginInfo dctmLoginInfo = (DmLoginInfo) loginInfo;
 		IDfLoginInfo idfLoginInfo=dctmLoginInfo.getIdfLoginInfo();
 		try {
 			this.idfClient.authenticate(docbaseName, idfLoginInfo);		
@@ -85,25 +85,25 @@ public class IDctmClient implements IClient{
 	}
 
 	public ILoginInfo getLoginInfo() {
-		return new IDctmLoginInfo(idfClientX.getLoginInfo());
+		return new DmLoginInfo(idfClientX.getLoginInfo());
 	}
 
 	public IId getId(String value) {	
 		
-		return new IDctmId(this.idfClientX.getId(value));
+		return new DmId(this.idfClientX.getId(value));
 	}
 
 	public ISessionManager getSessionManager() {
-		return idctmSessionManager;//new IDctmSessionManager(idfSessionManager);
+		return idctmSessionManager;//new DmSessionManager(idfSessionManager);
 	}
 
 	public void setSessionManager(ISessionManager sessionManager) {		
-		idctmSessionManager = (IDctmSessionManager)sessionManager;
+		idctmSessionManager = (DmSessionManager)sessionManager;
 	}
 
 	public ISessionManager newSessionManager() {
 		IDfSessionManager newSessionManager = idfClient.newSessionManager();
-		IDctmSessionManager dctmSessionManager = new IDctmSessionManager(newSessionManager);
+		DmSessionManager dctmSessionManager = new DmSessionManager(newSessionManager);
 		return dctmSessionManager;
 	}
 }

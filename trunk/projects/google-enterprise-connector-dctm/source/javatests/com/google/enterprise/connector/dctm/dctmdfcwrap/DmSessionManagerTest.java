@@ -10,10 +10,10 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class DctmSessionManagerTest extends TestCase {
+public class DmSessionManagerTest extends TestCase {
 	
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSessionManager.getSession(String)'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmSessionManager.getSession(String)'
 	 */
 	public void testGetSession() throws RepositoryException {
 		IClientX dctmClientX = new DctmClientX();
@@ -35,7 +35,7 @@ public class DctmSessionManagerTest extends TestCase {
 		try {
 			session = sessionManager.getSession(docbase);
 			Assert.assertNotNull(session);
-			Assert.assertTrue(session instanceof IDctmSession);	
+			Assert.assertTrue(session instanceof DmSession);	
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);

@@ -20,7 +20,7 @@ import java.util.Date;
 import com.google.enterprise.connector.dctm.dfcwrap.*;
 import com.google.enterprise.connector.mock.MockRepositoryDateTime;
 
-public class DctmMockRepositoryDateTime implements ITime {
+public class MockDmRepositoryDateTime implements ITime {
 	//Let s emphasize ticks are a milli representation of a time
 	// and that tocks==0 <=> Thu, 01 Jan 1970 00:00:00 GMT
 	

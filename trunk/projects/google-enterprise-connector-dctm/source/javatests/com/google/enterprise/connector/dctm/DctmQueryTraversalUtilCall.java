@@ -19,12 +19,12 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		if (DFC) {
 			user="queryUser";
 			password="p@ssw0rd";
-			client="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient";
+			client="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient";
 			docbase="gsadctm";
 		} else {
 			user="mark";
 			password="mark";
-			client="com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockClient";
+			client="com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
 			docbase="MockRepositoryEventLog7.txt";
 		}
 
