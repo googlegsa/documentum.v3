@@ -8,8 +8,8 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockLoginInfo;
-import com.google.enterprise.connector.dctm.dctmmockwrap.DctmMockQuery;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmLoginInfo;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmQuery;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
@@ -29,7 +29,7 @@ public class OutputPerformancesTest extends TestCase {
 		String user, password, client, docbase;
 		user="user1";
 		password="p@ssw0rd";
-		client="com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient";
+		client="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient";
 		docbase="gsadctm";
 		String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' " +
 		"order by r_modify_date, i_chronicle_id ";
@@ -92,18 +92,18 @@ public class OutputPerformancesTest extends TestCase {
 			OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test keeping hashtables #2");
 			OutputPerformances.setPerfFlag((new Vector()),"Free load test keeping hashtables #3");
 			OutputPerformances.setPerfFlag((new Hashtable()),"Free load test keeping hashtables #4");
-			OutputPerformances.setPerfFlag((new DctmMockLoginInfo()),"Free load test keeping hashtables #5");
+			OutputPerformances.setPerfFlag((new MockDmLoginInfo()),"Free load test keeping hashtables #5");
 			OutputPerformances.setPerfFlag((new DctmConnector()),"Free load test keeping hashtables #6");
-			OutputPerformances.setPerfFlag((new DctmMockQuery()),"Free load test keeping hashtables #7");
+			OutputPerformances.setPerfFlag((new MockDmQuery()),"Free load test keeping hashtables #7");
 			OutputPerformances.setPerfFlag((new HashMap()),"Free load test keeping hashtables #8");
 			OutputPerformances.setPerfFlag((new Exception()),"Free load test keeping hashtables #9");
 			OutputPerformances.setPerfFlag((new FileNotFoundException()),"Free load test keeping hashtables #10");
 			OutputPerformances.endFlag((new Exception()),"Free load test keeping hashtables #10");
 			OutputPerformances.endFlag((new NumberFormatException()),"Free load test keeping hashtables #9");
 			OutputPerformances.endFlag((new HashMap()),"Free load test keeping hashtables #8");
-			OutputPerformances.endFlag((new DctmMockQuery()),"Free load test keeping hashtables #7");
+			OutputPerformances.endFlag((new MockDmQuery()),"Free load test keeping hashtables #7");
 			OutputPerformances.endFlag((new DctmConnector()),"Free load test keeping hashtables #6");
-			OutputPerformances.endFlag((new DctmMockLoginInfo()),"Free load test keeping hashtables #5");
+			OutputPerformances.endFlag((new MockDmLoginInfo()),"Free load test keeping hashtables #5");
 			OutputPerformances.endFlag((new Hashtable()),"Free load test keeping hashtables #4");
 			OutputPerformances.endFlag((new Vector()),"Free load test keeping hashtables #3");
 			OutputPerformances.endFlag((new StringBuffer()),"Free load test keeping hashtables #2");

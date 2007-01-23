@@ -74,7 +74,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		// dctmLoginInfodctmLoginInfo.setPassword("p@ssw0rd");
 		// dctmsessionmanager.setIdentity("gsadctm",
 		// dctmLoginInfodctmLoginInfo);
-		// idctmses = ((IDctmSession) dctmsessionmanager.newSession("gsadctm"));
+		// idctmses = ((DmSession) dctmsessionmanager.newSession("gsadctm"));
 	}
 
 	
@@ -298,7 +298,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		}
 		assertNotNull(idctmses);
 		assertNotNull(idctmses.getDfSession());
-		dctmCollection = query.execute(idctmses, IDctmQuery.DF_READ_QUERY);
+		dctmCollection = query.execute(idctmses, DmQuery.DF_READ_QUERY);
 		assertNotNull(dctmCollection);
 	}
 	*/

@@ -116,7 +116,7 @@ public class DctmConnector implements Connector{
 //	
 //	dctmquery=(DctmQueryTraversalManager)sess.getQueryTraversalManager(); 
 //	dctmsess=sess.getISession();
-//	dctmquery.setIDctmSession((IDctmSession)dctmsess);
+//	dctmquery.setIDctmSession((DmSession)dctmsess);
 //	
 //	try{
 //	myResu=(SimpleResultSet)dctmquery.startTraversal();

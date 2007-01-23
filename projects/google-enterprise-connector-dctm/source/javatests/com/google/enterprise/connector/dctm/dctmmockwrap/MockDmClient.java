@@ -26,14 +26,14 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 //Implements four interfaces to simulate the session pool.
 //Does not manage multiple sessions for the same docbase (for the moment) 
-public class DctmMockClient implements IClientX, IClient, ILocalClient, ISessionManager {
+public class MockDmClient implements IClientX, IClient, ILocalClient, ISessionManager {
 	
 	private ISession currentSession;
 	private Hashtable sessMgerCreds=new Hashtable(1,1);
 	private Hashtable sessMgerSessions=new Hashtable(1,1);
 	private Hashtable sessMgerIDs=new Hashtable(1,1);
 		
-	public DctmMockClient(){
+	public MockDmClient(){
 	}
 	
 	public ILocalClient getLocalClientEx(){
@@ -49,7 +49,7 @@ public class DctmMockClient implements IClientX, IClient, ILocalClient, ISession
 	 * object to use for sending DQL queries to Documentum servers.
 	 */
 	public IQuery getQuery() {
-		return new DctmMockQuery();
+		return new MockDmQuery();
 	}
 	
 	public boolean authenticate(String docbaseName, ILoginInfo loginInfo)
@@ -101,7 +101,7 @@ public class DctmMockClient implements IClientX, IClient, ILocalClient, ISession
 	 * prior to connecting to Documentum servers.
 	 */
 	public ILoginInfo getLoginInfo() {
-		return new DctmMockLoginInfo();
+		return new MockDmLoginInfo();
 	}
 	
 
@@ -164,7 +164,7 @@ public class DctmMockClient implements IClientX, IClient, ILocalClient, ISession
 	 */
 	private ISession createAuthenticatedSession(String db, ILoginInfo iLI) throws com.google.enterprise.connector.spi.RepositoryException{
 		//db is actually the suffix of the filename that is used to create the eventlist.
-		//As there is no way we can retrieve it, we will store it in the DctmMockSession we create.
+		//As there is no way we can retrieve it, we will store it in the MockDmSession we create.
 		MockRepositoryEventList mrel =
 			new MockRepositoryEventList(db);
 		
@@ -188,7 +188,7 @@ public class DctmMockClient implements IClientX, IClient, ILocalClient, ISession
 		//If not caught any error, authentication successful
 		String sessID = createNewId();
 		sessMgerIDs.put(sessID,db);
-		return new DctmMockSession(repo,sess,db);
+		return new MockDmSession(repo,sess,db);
 		
 	}
 	
@@ -208,7 +208,7 @@ public class DctmMockClient implements IClientX, IClient, ILocalClient, ISession
 	}
 
 	public void setSessionManager(ISessionManager session) {
-		//IClient and ISessionManager are both implemented by the DctmMockClient then nothing to do. 
+		//IClient and ISessionManager are both implemented by the MockDmClient then nothing to do. 
 	}
 
 	public void release(ISession session) {
@@ -247,7 +247,7 @@ public class DctmMockClient implements IClientX, IClient, ILocalClient, ISession
 	}
 
 	public IId getId(String id) {
-		return new DctmMockId(id);
+		return new MockDmId(id);
 	}
 
 	public IClient getLocalClient() throws RepositoryException {

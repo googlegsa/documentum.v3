@@ -3,11 +3,11 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 import com.documentum.fc.client.IDfTypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 
-public class IDctmTypedObject implements ITypedObject{
+public class DmTypedObject implements ITypedObject{
 	IDfTypedObject idfTypedObject;
 	
 	
-	public IDctmTypedObject(IDfTypedObject idfTypedObject){
+	public DmTypedObject(IDfTypedObject idfTypedObject){
 		this.idfTypedObject=idfTypedObject;
 	}
 	
@@ -21,7 +21,7 @@ public class IDctmTypedObject implements ITypedObject{
 //			re.setStackTrace(e.getStackTrace());
 //			throw re;
 //		}
-//		return new IDctmId(idfId);
+//		return new DmId(idfId);
 //	}
 	
 	

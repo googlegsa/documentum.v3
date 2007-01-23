@@ -11,23 +11,23 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class IDctmQuery implements IQuery{
+public class DmQuery implements IQuery{
 	IDfQuery idfQuery;
 	public static int DF_READ_QUERY = IDfQuery.DF_READ_QUERY; 
 	
-	public IDctmQuery(IDfQuery idfQuery){
+	public DmQuery(IDfQuery idfQuery){
 		this.idfQuery=idfQuery;
 	}
 	
-	public IDctmQuery(){
+	public DmQuery(){
 		this.idfQuery=new DfQuery();
 	}
 	
 //	public ICollection execute(ISession session, int queryType) throws RepositoryException{	
-//		if (!(session instanceof IDctmSession)) {
+//		if (!(session instanceof DmSession)) {
 //			throw new IllegalArgumentException();
 //		}
-//		IDctmSession idctmsession = (IDctmSession) session;
+//		DmSession idctmsession = (DmSession) session;
 //		IDfSession idfSession=idctmsession.getDfSession();
 //		IDfCollection DfCollection=null;
 //		
@@ -38,7 +38,7 @@ public class IDctmQuery implements IQuery{
 //			re.setStackTrace(de.getStackTrace());
 //			throw re;
 //		}
-//		return new IDctmCollection(DfCollection);
+//		return new DmCollection(DfCollection);
 //	}
 	
 	public void setDQL(String dqlStatement){
@@ -54,23 +54,23 @@ public class IDctmQuery implements IQuery{
 //	}
 
 	public ICollection execute(ISessionManager sessionManager, int queryType) throws RepositoryException {
-//		System.out.println("--- IDctmQuery execute ---");
-		if (!(sessionManager instanceof IDctmSessionManager)) {
+//		System.out.println("--- DmQuery execute ---");
+		if (!(sessionManager instanceof DmSessionManager)) {
 			throw new IllegalArgumentException();
 		}
-		IDctmSession idctmsession =  (IDctmSession)sessionManager.getSession(sessionManager.getDocbaseName());
+		DmSession idctmsession =  (DmSession)sessionManager.getSession(sessionManager.getDocbaseName());
 		IDfSession idfSession=idctmsession.getDfSession();
 		IDfCollection DfCollection=null;
 		
 		try{
 			DfCollection=idfQuery.execute(idfSession,queryType);
 		}catch(DfException de){
-//			System.out.println("--- IDctmQuery Exception  ---");
+//			System.out.println("--- DmQuery Exception  ---");
 			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
 			re.setStackTrace(de.getStackTrace());
 			throw re;
 		}
-		return new IDctmCollection(DfCollection);
+		return new DmCollection(DfCollection);
 	}
 
 }

@@ -10,13 +10,13 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class DctmMockClientTest extends TestCase {
+public class MockDmClientTest extends TestCase {
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient.newSession(String, ILoginInfo)'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSession(String, ILoginInfo)'
 	 */
 	public void testNewSession() throws RepositoryException {
-		IClientX dctmClientX = new DctmMockClient();
+		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
 		
 		String user="queryUser";
@@ -30,18 +30,18 @@ public class DctmMockClientTest extends TestCase {
 		ISession session = localClient.newSession(docbase,loginInfo);
 		
 		Assert.assertNotNull(session);
-		Assert.assertTrue(session instanceof DctmMockSession);		
+		Assert.assertTrue(session instanceof MockDmSession);		
 	}
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient.getLoginInfo()'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.getLoginInfo()'
 	 */
 	public void testGetLoginInfo() throws RepositoryException {
-		IClientX dctmClientX = new DctmMockClient();
+		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
 		
 		ILoginInfo loginInfo = localClient.getLoginInfo();
-		Assert.assertTrue(loginInfo instanceof DctmMockLoginInfo);
+		Assert.assertTrue(loginInfo instanceof MockDmLoginInfo);
 		
 		loginInfo.setUser("max");
 		loginInfo.setPassword("foo");
@@ -53,15 +53,15 @@ public class DctmMockClientTest extends TestCase {
 	}
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmClient.newSessionManager()'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSessionManager()'
 	 */
 	public void testNewSessionManager() throws RepositoryException {
-		IClientX dctmClientX = new DctmMockClient();
+		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
 		
 		ISessionManager sessionManager = localClient.newSessionManager();
 		Assert.assertNotNull(sessionManager);	
-		Assert.assertTrue(sessionManager instanceof DctmMockClient);	
+		Assert.assertTrue(sessionManager instanceof MockDmClient);	
 		
 	}
 

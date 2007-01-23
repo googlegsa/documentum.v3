@@ -6,10 +6,10 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.common.DfException;
 
-public class IDctmFormat implements IFormat {
+public class DmFormat implements IFormat {
 	IDfFormat idfFormat;
 
-	public IDctmFormat(IDfFormat idfFormat) {
+	public DmFormat(IDfFormat idfFormat) {
 		this.idfFormat = idfFormat;
 	}
 

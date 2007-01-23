@@ -4,19 +4,19 @@ import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 
-public class IDctmId implements IId{
+public class DmId implements IId{
 	IDfId idfId;
 	
-	public IDctmId(String id){
+	public DmId(String id){
 		this.idfId = new DfId(id);
 	}
 
-	public IDctmId(IDfId idfId){
+	public DmId(IDfId idfId){
 		this.idfId=idfId;
 	}
 	
 	public IDfId getidfId() {
-//		System.out.println("--- IDctmId getidfId ---");
+//		System.out.println("--- DmId getidfId ---");
 		return idfId;
 	}
 

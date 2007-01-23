@@ -4,10 +4,10 @@ import com.documentum.fc.common.IDfLoginInfo;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 
-public class IDctmLoginInfo implements ILoginInfo{
+public class DmLoginInfo implements ILoginInfo{
 	IDfLoginInfo idfLoginInfo=null;
 	
-	public IDctmLoginInfo(IDfLoginInfo tmp){
+	public DmLoginInfo(IDfLoginInfo tmp){
 		idfLoginInfo=tmp;
 	}
 	

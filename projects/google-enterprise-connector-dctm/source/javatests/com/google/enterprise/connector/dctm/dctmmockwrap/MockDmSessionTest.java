@@ -12,13 +12,13 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class DctmMockSessionTest extends TestCase {
+public class MockDmSessionTest extends TestCase {
 	
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.IDctmSession.getObject(IId)'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmSession.getObject(IId)'
 	 */
 	public void testGetObject() throws RepositoryException {
-		IClientX clientX = new DctmMockClient();
+		IClientX clientX = new MockDmClient();
 		IClient localClient = clientX.getLocalClient();
 		
 		ISessionManager sessionManager = localClient.newSessionManager();
@@ -37,13 +37,13 @@ public class DctmMockSessionTest extends TestCase {
 		try {
 			session = sessionManager.getSession(docbase);
 			Assert.assertNotNull(session);
-			Assert.assertTrue(session instanceof DctmMockSession);	
+			Assert.assertTrue(session instanceof MockDmSession);	
 			String idString = getAnExistingObjectId(session);
 			System.out.println("idString " + idString);
 			IId id = clientX.getId(idString);
 			ISysObject object = session.getObject(id);
 			Assert.assertNotNull(object);
-			Assert.assertTrue(object instanceof DctmMockRepositoryDocument);
+			Assert.assertTrue(object instanceof MockDmRepositoryDocument);
 			
 		} finally {
 			if (session != null) {
