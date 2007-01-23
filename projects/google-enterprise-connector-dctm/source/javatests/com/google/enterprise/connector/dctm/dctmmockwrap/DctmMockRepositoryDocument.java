@@ -23,6 +23,10 @@ public class DctmMockRepositoryDocument implements ISysObject, IPersistentObject
 		mrDocument = new MockRepositoryDocument(jo);
 	}
 	
+	public DctmMockRepositoryDocument() {
+		mrDocument = null;
+	}
+
 	public ByteArrayInputStream getContent() throws RepositoryException {
 		ByteArrayInputStream is = null;
 		try {

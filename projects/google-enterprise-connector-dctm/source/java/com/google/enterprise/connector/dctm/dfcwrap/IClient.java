@@ -4,11 +4,9 @@ import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface IClient{
-	
-	
+		
 	public ILocalClient getLocalClientEx();
 
-	
 	public IQuery getQuery();
 	
 	public ILoginInfo getLoginInfo();
@@ -19,8 +17,8 @@ public interface IClient{
 
 	public ISessionManager getSessionManager();
 	
+	public ISessionManager newSessionManager();
+	
 	public void setSessionManager(ISessionManager session);
-
-		
 	
 }

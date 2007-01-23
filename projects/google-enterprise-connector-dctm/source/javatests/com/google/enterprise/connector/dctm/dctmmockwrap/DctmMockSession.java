@@ -1,9 +1,12 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DctmMockSession implements ISession {
 	
@@ -46,6 +49,11 @@ public class DctmMockSession implements ISession {
 
 	public void setMockJcrSession(MockJcrSession mockJcrSession) {
 		this.mockJcrSession = mockJcrSession;
+	}
+
+	public ISysObject getObject(IId objectId) throws RepositoryException {
+		DctmMockRepositoryDocument dctmMockRepositoryDocument = new DctmMockRepositoryDocument();
+		return dctmMockRepositoryDocument;
 	}
 
 

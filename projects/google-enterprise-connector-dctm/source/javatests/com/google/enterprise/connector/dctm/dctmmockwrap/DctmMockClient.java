@@ -7,6 +7,8 @@ import javax.jcr.Credentials;
 import javax.jcr.SimpleCredentials;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
@@ -20,18 +22,17 @@ import com.google.enterprise.connector.mock.MockRepositoryProperty;
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
 import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryException;
 
-//Implements three interfaces to simulate the session pool.
+//Implements four interfaces to simulate the session pool.
 //Does not manage multiple sessions for the same docbase (for the moment) 
-public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
+public class DctmMockClient implements IClientX, IClient, ILocalClient, ISessionManager {
 	
-
 	private ISession currentSession;
 	private Hashtable sessMgerCreds=new Hashtable(1,1);
 	private Hashtable sessMgerSessions=new Hashtable(1,1);
 	private Hashtable sessMgerIDs=new Hashtable(1,1);
-	
-	
+		
 	public DctmMockClient(){
 	}
 	
@@ -245,5 +246,12 @@ public class DctmMockClient implements IClient, ILocalClient, ISessionManager {
 		return this;
 	}
 
+	public IId getId(String id) {
+		return new DctmMockId(id);
+	}
+
+	public IClient getLocalClient() throws RepositoryException {
+		return this;
+	}
 
 }
