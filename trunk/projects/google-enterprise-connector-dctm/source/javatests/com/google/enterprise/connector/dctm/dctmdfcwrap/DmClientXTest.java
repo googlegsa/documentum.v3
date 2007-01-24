@@ -11,19 +11,19 @@ import junit.framework.TestCase;
 public class DmClientXTest extends TestCase {
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DctmClientX.getId(String)'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX.getId(String)'
 	 */
 	public void testGetId() {
-		IClientX clientX = new DctmClientX();
+		IClientX clientX = new DmClientX();
 		IId id = clientX.getId("xxxxxxxxxxxxxxxx");
 		Assert.assertTrue(id instanceof DmId);
 	}
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DctmClientX.getLocalClient()'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX.getLocalClient()'
 	 */
 	public void testGetLocalClient() throws RepositoryException {
-		IClientX clientX = new DctmClientX();
+		IClientX clientX = new DmClientX();
 		IClient localClient = clientX.getLocalClient();
 		Assert.assertTrue(localClient instanceof DmClient);		
 	}

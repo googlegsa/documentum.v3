@@ -16,7 +16,7 @@ public class DmSessionManagerTest extends TestCase {
 	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmSessionManager.getSession(String)'
 	 */
 	public void testGetSession() throws RepositoryException {
-		IClientX dctmClientX = new DctmClientX();
+		IClientX dctmClientX = new DmClientX();
 		IClient localClient = dctmClientX.getLocalClient();
 		
 		ISessionManager sessionManager = localClient.newSessionManager();

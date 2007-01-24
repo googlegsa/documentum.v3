@@ -10,11 +10,11 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class DctmClientX implements IClientX {
+public class DmClientX implements IClientX {
 	
 	private IDfClientX clientX = null;
 	
-	public DctmClientX() {
+	public DmClientX() {
 		this.clientX = new DfClientX();
 	}
 	
