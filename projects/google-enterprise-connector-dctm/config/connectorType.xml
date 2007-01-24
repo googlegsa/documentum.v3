@@ -9,11 +9,11 @@
 				<value>password</value>
 				<value>docbase</value>
 				<value>client</value>
-				<value>QUERY_STRING_UNBOUNDED_DEFAULT</value>
-				<value>QUERY_STRING_BOUNDED_DEFAULT</value>
-				<value>QUERY_STRING_AUTHORISE_DEFAULT</value>
-				<value>ATTRIBUTE_NAME</value>
-				<value>WEBTOP_SERVER_URL</value>
+				<value>queryStringUnboundedDefault</value>
+				<value>queryStringBoundedDefault</value>
+				<value>queryStringAuthoriseDefault</value>
+				<value>attributeName</value>
+				<value>webtopServerUrl</value>
 			</list>
 		</property>
 	</bean>
