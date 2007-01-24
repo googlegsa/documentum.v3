@@ -11,12 +11,11 @@ public class DctmConnector implements Connector{
 	private String password;
 	private String docbase;
 	private String client;
-	private String QUERY_STRING_UNBOUNDED_DEFAULT;
-	private String QUERY_STRING_BOUNDED_DEFAULT;
-	private String QUERY_STRING_AUTHORISE_DEFAULT;
-	private String ATTRIBUTE_NAME;
-	private String WEBTOP_SERVER_URL;
-	
+	private String queryStringUnboundedDefault;
+	private String queryStringBoundedDefault;
+	private String queryStringAuthoriseDefault;
+	private String attributeName;
+	private String webtopServerUrl;
 	/**
 	 * Setters and getters for the data retrieved from Spring
 	 */	
@@ -29,20 +28,20 @@ public class DctmConnector implements Connector{
 	public void setDocbase(String docbase) {this.docbase = docbase;}
 	public String getDocbase() {return docbase;}
 	
-	public void setQUERY_STRING_UNBOUNDED_DEFAULT(String qsud) {this.QUERY_STRING_UNBOUNDED_DEFAULT = qsud;}
-	public String getQUERY_STRING_UNBOUNDED_DEFAULT() {return QUERY_STRING_UNBOUNDED_DEFAULT;}
+	public void setQueryStringUnboundedDefault(String qsud) {this.queryStringUnboundedDefault = qsud;}
+	public String getQueryStringUnboundedDefault() {return queryStringUnboundedDefault;}
 	
-	public void setQUERY_STRING_BOUNDED_DEFAULT(String qsbd) {this.QUERY_STRING_BOUNDED_DEFAULT = qsbd;}
-	public String getQUERY_STRING_BOUNDED_DEFAULT() {return QUERY_STRING_BOUNDED_DEFAULT;}
+	public void setQueryStringBoundedDefault(String qsbd) {this.queryStringBoundedDefault = qsbd;}
+	public String getQueryStringBoundedDefault() {return queryStringBoundedDefault;}
 	
-	public void setQUERY_STRING_AUTHORISE_DEFAULT(String qsad) {this.QUERY_STRING_AUTHORISE_DEFAULT = qsad;}
-	public String getQUERY_STRING_AUTHORISE_DEFAULT() {return QUERY_STRING_AUTHORISE_DEFAULT;}
+	public void setQueryStringAuthoriseDefault(String qsad) {this.queryStringAuthoriseDefault = qsad;}
+	public String getQueryStringAuthoriseDefault() {return queryStringAuthoriseDefault;}
 	
-	public void setWEBTOP_SERVER_URL(String wsu) {this.WEBTOP_SERVER_URL = wsu;}
-	public String getWEBTOP_SERVER_URL() {return WEBTOP_SERVER_URL;}
+	public void setWebtopServerUrl(String wsu) {this.webtopServerUrl = wsu;}
+	public String getWebtopServerUrl() {return webtopServerUrl;}
 	
-	public void setATTRIBUTE_NAME(String an) {this.ATTRIBUTE_NAME = an;}
-	public String getATTRIBUTE_NAME() {return ATTRIBUTE_NAME;}
+	public void setAttributeName(String an) {this.attributeName = an;}
+	public String getAttributeName() {return attributeName;}
 	
 	public void setClient(String client) /*throws RepositoryException*/ {
 		/*boolean repoExcep = false;
@@ -89,11 +88,11 @@ public class DctmConnector implements Connector{
 		if (!(client==null||login==null||password==null||docbase==null)){
 			
 			sess = new DctmSession(client,login,password,docbase,
-					QUERY_STRING_UNBOUNDED_DEFAULT,
-					QUERY_STRING_BOUNDED_DEFAULT,
-					QUERY_STRING_AUTHORISE_DEFAULT,
-					ATTRIBUTE_NAME,
-					WEBTOP_SERVER_URL);
+					queryStringUnboundedDefault,
+					queryStringBoundedDefault,
+					queryStringAuthoriseDefault,
+					attributeName,
+					webtopServerUrl);
 		} else {
 			sess = new DctmSession();
 		}
