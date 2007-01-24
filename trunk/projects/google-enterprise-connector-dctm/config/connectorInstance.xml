@@ -7,10 +7,10 @@
 		<property name="login" value="${login}" />
 		<property name="password" value="${password}" />
 		<property name="client" value="${client}" />
-		<property name="QUERY_STRING_UNBOUNDED_DEFAULT" value="${QUERY_STRING_UNBOUNDED_DEFAULT}" />
-		<property name="QUERY_STRING_BOUNDED_DEFAULT" value="${QUERY_STRING_BOUNDED_DEFAULT}" />
-		<property name="QUERY_STRING_AUTHORISE_DEFAULT" value="${QUERY_STRING_AUTHORISE_DEFAULT}" />
-		<property name="ATTRIBUTE_NAME" value="${ATTRIBUTE_NAME}" />
-		<property name="WEBTOP_SERVER_URL" value="${WEBTOP_SERVER_URL}" />
+		<property name="queryStringUnboundedDefault" value="${queryStringUnboundedDefault}" />
+		<property name="queryStringBoundedDefault" value="${queryStringBoundedDefault}" />
+		<property name="queryStringAuthoriseDefault" value="${queryStringAuthoriseDefault}" />
+		<property name="attributeName" value="${attributeName}" />
+		<property name="webtopServerUrl" value="${webtopServerUrl}" />
 	</bean>
 </beans>
