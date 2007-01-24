@@ -15,7 +15,7 @@ public class DmClientTest extends TestCase {
 	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSession(String, ILoginInfo)'
 	 */
 	public void testNewSession() throws RepositoryException {
-		IClientX dctmClientX = new DctmClientX();
+		IClientX dctmClientX = new DmClientX();
 		IClient localClient = dctmClientX.getLocalClient();
 		
 		String user="queryUser";
@@ -36,7 +36,7 @@ public class DmClientTest extends TestCase {
 	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.getLoginInfo()'
 	 */
 	public void testGetLoginInfo() throws RepositoryException {
-		IClientX dctmClientX = new DctmClientX();
+		IClientX dctmClientX = new DmClientX();
 		IClient localClient = dctmClientX.getLocalClient();
 		
 		ILoginInfo loginInfo = localClient.getLoginInfo();
@@ -53,7 +53,7 @@ public class DmClientTest extends TestCase {
 	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSessionManager()'
 	 */
 	public void testNewSessionManager() throws RepositoryException {
-		IClientX dctmClientX = new DctmClientX();
+		IClientX dctmClientX = new DmClientX();
 		IClient localClient = dctmClientX.getLocalClient();
 		
 		ISessionManager sessionManager = localClient.newSessionManager();

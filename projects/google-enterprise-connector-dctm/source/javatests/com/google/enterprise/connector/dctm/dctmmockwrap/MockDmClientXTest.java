@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 public class MockDmClientXTest extends TestCase {
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DctmClientX.getId(String)'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX.getId(String)'
 	 */
 	public void testGetId() {
 		IClientX dctmClientX = new MockDmClient();
@@ -20,7 +20,7 @@ public class MockDmClientXTest extends TestCase {
 	}
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DctmClientX.getLocalClient()'
+	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX.getLocalClient()'
 	 */
 	public void testGetLocalClient() throws RepositoryException {
 		IClientX dctmClientX = new MockDmClient();
