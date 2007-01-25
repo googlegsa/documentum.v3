@@ -18,24 +18,24 @@ public class MockDmSessionManagerTest extends TestCase {
 	public void testGetSession() throws RepositoryException {
 		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
-		
+
 		ISessionManager sessionManager = localClient.newSessionManager();
-		
-		String user="queryUser";
-		String password="p@ssw0rd";
-		String docbase="gsadctm";
-		
+
+		String user = "queryUser";
+		String password = "p@ssw0rd";
+		String docbase = "gsadctm";
+
 		ILoginInfo loginInfo = localClient.getLoginInfo();
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
-		
+
 		sessionManager.setIdentity(docbase, loginInfo);
-		
+
 		ISession session = null;
 		try {
 			session = sessionManager.getSession(docbase);
 			Assert.assertNotNull(session);
-			Assert.assertTrue(session instanceof MockDmSession);	
+			Assert.assertTrue(session instanceof MockDmSession);
 		} finally {
 			sessionManager.release(session);
 		}
