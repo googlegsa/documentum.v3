@@ -177,13 +177,9 @@ public class MockDmClient implements IClientX, IClient, ILocalClient, ISessionMa
 		try {
 			sess = (MockJcrSession) repo.login(creds);
 		} catch (javax.jcr.LoginException e) {
-			LoginException re = new LoginException(e.getMessage(),e.getCause());
-			re.setStackTrace(e.getStackTrace());
-			throw re;
+			throw new LoginException(e);
 		} catch (javax.jcr.RepositoryException e) {
-			com.google.enterprise.connector.spi.RepositoryException re = new com.google.enterprise.connector.spi.RepositoryException(e.getMessage(),e.getCause());
-			re.setStackTrace(e.getStackTrace());
-			throw re;
+			throw new com.google.enterprise.connector.spi.RepositoryException(e);
 		}
 		//If not caught any error, authentication successful
 		String sessID = createNewId();

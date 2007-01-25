@@ -16,9 +16,7 @@ public class MockDmCollection implements ICollection {
 			try {
 				collection = mjQueryResult.getNodes();
 			} catch (javax.jcr.RepositoryException e) {
-				RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
-				re.setStackTrace(e.getStackTrace());
-				throw re;
+				throw new RepositoryException(e);
 			}
 	}
 	
