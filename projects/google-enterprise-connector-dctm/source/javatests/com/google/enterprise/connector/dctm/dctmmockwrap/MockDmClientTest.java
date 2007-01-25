@@ -18,19 +18,19 @@ public class MockDmClientTest extends TestCase {
 	public void testNewSession() throws RepositoryException {
 		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
-		
-		String user="queryUser";
-		String password="p@ssw0rd";
-		String docbase="gsadctm";
-		
+
+		String user = "queryUser";
+		String password = "p@ssw0rd";
+		String docbase = "gsadctm";
+
 		ILoginInfo loginInfo = localClient.getLoginInfo();
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
-		
-		ISession session = localClient.newSession(docbase,loginInfo);
-		
+
+		ISession session = localClient.newSession(docbase, loginInfo);
+
 		Assert.assertNotNull(session);
-		Assert.assertTrue(session instanceof MockDmSession);		
+		Assert.assertTrue(session instanceof MockDmSession);
 	}
 
 	/*
@@ -39,17 +39,16 @@ public class MockDmClientTest extends TestCase {
 	public void testGetLoginInfo() throws RepositoryException {
 		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
-		
+
 		ILoginInfo loginInfo = localClient.getLoginInfo();
 		Assert.assertTrue(loginInfo instanceof MockDmLoginInfo);
-		
+
 		loginInfo.setUser("max");
 		loginInfo.setPassword("foo");
-		
-		Assert.assertEquals("max",loginInfo.getUser());
-		Assert.assertEquals("foo",loginInfo.getPassword());
-		
-		
+
+		Assert.assertEquals("max", loginInfo.getUser());
+		Assert.assertEquals("foo", loginInfo.getPassword());
+
 	}
 
 	/*
@@ -58,11 +57,11 @@ public class MockDmClientTest extends TestCase {
 	public void testNewSessionManager() throws RepositoryException {
 		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
-		
+
 		ISessionManager sessionManager = localClient.newSessionManager();
-		Assert.assertNotNull(sessionManager);	
-		Assert.assertTrue(sessionManager instanceof MockDmClient);	
-		
+		Assert.assertNotNull(sessionManager);
+		Assert.assertTrue(sessionManager instanceof MockDmClient);
+
 	}
 
 }

@@ -23,17 +23,17 @@ import com.google.enterprise.connector.mock.MockRepositoryDateTime;
 public class MockDmRepositoryDateTime implements ITime {
 	//Let s emphasize ticks are a milli representation of a time
 	// and that tocks==0 <=> Thu, 01 Jan 1970 00:00:00 GMT
-	
-	private MockRepositoryDateTime mrDT;	
-	
-	public String asString(String pattern){
+
+	private MockRepositoryDateTime mrDT;
+
+	public String asString(String pattern) {
 		Date tmp = new Date(mrDT.getTicks());
 		SimpleDateFormat localDate = new SimpleDateFormat(pattern);
 		return localDate.format(tmp);
 	}
-	public Date getDate(){
+
+	public Date getDate() {
 		return new Date(mrDT.getTicks());
 	}
-	
-	
+
 }

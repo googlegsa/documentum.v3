@@ -8,21 +8,21 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.util.Enumeration;
 
-
 import org.json.JSONObject;
 
-public class MockDmRepositoryDocument implements ISysObject, IPersistentObject, ITypedObject{
+public class MockDmRepositoryDocument implements ISysObject, IPersistentObject,
+		ITypedObject {
 
 	private MockRepositoryDocument mrDocument;
 
 	public MockDmRepositoryDocument(MockRepositoryDocument mrD) {
 		mrDocument = mrD;
 	}
-	
+
 	public MockDmRepositoryDocument(JSONObject jo) {
 		mrDocument = new MockRepositoryDocument(jo);
 	}
-	
+
 	public MockDmRepositoryDocument() {
 		mrDocument = null;
 	}
@@ -36,8 +36,8 @@ public class MockDmRepositoryDocument implements ISysObject, IPersistentObject, 
 		}
 		return is;
 	}
-	
-	public long getContentSize(){
+
+	public long getContentSize() {
 		return mrDocument.getContent().length();
 	}
 
@@ -71,7 +71,7 @@ public class MockDmRepositoryDocument implements ISysObject, IPersistentObject, 
 	 * That decision will be taken according to how many times an attribute is to be retrieved (memory load/speed rate balancing).
 	 */
 	public String getString(String name) throws RepositoryException {
-		
+
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -131,5 +131,5 @@ public class MockDmRepositoryDocument implements ISysObject, IPersistentObject, 
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }

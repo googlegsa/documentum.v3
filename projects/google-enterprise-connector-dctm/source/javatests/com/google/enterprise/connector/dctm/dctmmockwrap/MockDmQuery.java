@@ -12,26 +12,28 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmQuery implements IQuery {
 	String query;
-	
-	public MockDmQuery(){
-		query="";
+
+	public MockDmQuery() {
+		query = "";
 	}
-	
-	public ICollection execute(ISessionManager sessionManager, int queryType) throws RepositoryException{
-		try{
+
+	public ICollection execute(ISessionManager sessionManager, int queryType)
+			throws RepositoryException {
+		try {
 			MockRepositoryDocumentStore a = null;
-			a=((MockDmSession)sessionManager.getSession(sessionManager.getDocbaseName())).getStore();
+			a = ((MockDmSession) sessionManager.getSession(sessionManager
+					.getDocbaseName())).getStore();
 			MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
-			Query q = mrQueryMger.createQuery(this.query,"xpath");
+			Query q = mrQueryMger.createQuery(this.query, "xpath");
 			QueryResult qr = q.execute();
 			MockDmCollection co = new MockDmCollection(qr);
 			return co;
-		}catch (javax.jcr.RepositoryException e){
+		} catch (javax.jcr.RepositoryException e) {
 			throw new RepositoryException(e);
 		}
 	}
 
-	public void setDQL(String dqlStatement){
-		this.query=dqlStatement;
+	public void setDQL(String dqlStatement) {
+		this.query = dqlStatement;
 	}
 }

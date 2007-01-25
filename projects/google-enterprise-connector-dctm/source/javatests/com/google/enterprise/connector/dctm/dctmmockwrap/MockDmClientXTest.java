@@ -25,7 +25,7 @@ public class MockDmClientXTest extends TestCase {
 	public void testGetLocalClient() throws RepositoryException {
 		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
-		Assert.assertTrue(localClient instanceof MockDmClient);		
+		Assert.assertTrue(localClient instanceof MockDmClient);
 	}
 
 }
