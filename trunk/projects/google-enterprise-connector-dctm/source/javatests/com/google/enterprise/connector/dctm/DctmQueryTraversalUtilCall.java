@@ -13,18 +13,18 @@ import com.google.enterprise.connector.spi.Session;
 public class DctmQueryTraversalUtilCall extends TestCase {
 	
 	private final boolean DFC = true;
-	private String user, password, client, docbase;
+	private String user, password, clientX, docbase;
 
 	public void testTraversal() {		
 		if (DFC) {
 			user="queryUser";
 			password="p@ssw0rd";
-			client="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient";
+			clientX="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX";
 			docbase="gsadctm";
 		} else {
 			user="mark";
 			password="mark";
-			client="com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
+			clientX="com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX";
 			docbase="MockRepositoryEventLog7.txt";
 		}
 
@@ -42,7 +42,7 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		((DctmConnector) connector).setPassword(password);
 		((DctmConnector) connector).setDocbase(docbase);
 		//try {
-			((DctmConnector) connector).setClient(client);
+			((DctmConnector) connector).setClientX(clientX);
 		/*} catch (RepositoryException re) {
 			System.out.println("Root Cause : " + re.getCause() + " ; Message : " + re.getMessage());
 		}*/

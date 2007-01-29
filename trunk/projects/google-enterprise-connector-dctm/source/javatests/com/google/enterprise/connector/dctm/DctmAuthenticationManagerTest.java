@@ -12,32 +12,34 @@ public class DctmAuthenticationManagerTest extends TestCase {
 	/*
 	 * Test method for 'com.google.enterprise.connector.dctm.DctmAuthenticationManager.authenticate(String, String)'
 	 */
+	
+	
 	public void testAuthenticate() throws LoginException, RepositoryException {
 		Connector connector = new DctmConnector();
-		
-		((DctmConnector) connector).setLogin("emilie");
-		((DctmConnector) connector).setPassword("p@ssw0rd");
-		((DctmConnector) connector).setDocbase("gsadctm");
-		((DctmConnector) connector).setClient("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient");
-		((DctmConnector) connector).setQueryStringUnboundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' " +"order by r_modify_date, i_chronicle_id ");
-		((DctmConnector) connector).setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
-		((DctmConnector) connector).setQueryStringBoundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "+ "''{0}'' "+"order by r_modify_date, i_chronicle_id");
-		((DctmConnector) connector).setAttributeName("r_object_id");
-		((DctmConnector) connector).setQueryStringAuthoriseDefault("select r_object_id from dm_sysobject where r_object_id in (");
+		((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
+		((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
+		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
+		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
+		((DctmConnector) connector).setQueryStringUnboundedDefault(DmInitialize.DM_QUERY_STRING_UNBOUNDED_DEFAULT);
+		((DctmConnector) connector).setWebtopServerUrl(DmInitialize.DM_WEBTOP_SERVER_URL);
+		((DctmConnector) connector).setQueryStringBoundedDefault(DmInitialize.DM_QUERY_STRING_BOUNDED_DEFAULT);
+		((DctmConnector) connector).setAttributeName(DmInitialize.DM_ATTRIBUTE_NAME);
+		((DctmConnector) connector).setQueryStringAuthoriseDefault(DmInitialize.DM_QUERY_STRING_AUTHORISE_DEFAULT);
 		Session sess = (DctmSession) connector.login();
 		DctmAuthenticationManager authentManager = (DctmAuthenticationManager) sess.getAuthenticationManager();
 		
-		assertFalse(authentManager.authenticate("user1","falsePassword"));
-		assertFalse(authentManager.authenticate("user1",null));
-		assertFalse(authentManager.authenticate(null,"p@ssw0rd"));
+		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK1,DmInitialize.DM_PWD_OK1));
+		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,DmInitialize.DM_PWD_KO));
+		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,DmInitialize.DM_PWD_OK1));
+		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,DmInitialize.DM_PWD_KO));
+		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,null));
+		assertFalse(authentManager.authenticate(null,DmInitialize.DM_PWD_OK1));
 		assertFalse(authentManager.authenticate(null,null));
 		
-		assertTrue(authentManager.authenticate("emilie","p@ssw0rd"));
-		assertTrue(authentManager.authenticate("user1","p@ssw0rd"));
-		assertTrue(authentManager.authenticate("user2","p@ssw0rd"));
-		assertTrue(authentManager.authenticate("queryUser","p@ssw0rd"));
-		assertTrue(authentManager.authenticate("Fred","UnDeux34"));
-
+		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK3,DmInitialize.DM_PWD_OK1));
+		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK1,DmInitialize.DM_PWD_OK1));
+		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK5,DmInitialize.DM_PWD_OK2));
 	}
-
+	
+	
 }
