@@ -26,14 +26,14 @@ public class OutputPerformancesTest extends TestCase {
 	public void testCalibrate(){
 		PropertyConfigurator.configure("GSALogs.properties");
 		OutputPerformances.setPerfFlag(this,"Instantiation cost test");
-		String user, password, client, docbase;
+		String user, password, clientX, docbase;
 		user="user1";
 		password="p@ssw0rd";
-		client="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient";
+		clientX="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX";
 		docbase="gsadctm";
-		String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' " +
+		String unboundedTraversalQuery = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' " +
 		"order by r_modify_date, i_chronicle_id ";
-		String QUERY_STRING_BOUNDED_DEFAULT = 
+		String boundedTraversalQuery = 
 			"select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "+ 
 			"''{0}'' "+
 			"order by r_modify_date, i_chronicle_id";
@@ -45,7 +45,7 @@ public class OutputPerformancesTest extends TestCase {
 		((DctmConnector) connector).setLogin(user);
 		((DctmConnector) connector).setPassword(password);
 		((DctmConnector) connector).setDocbase(docbase);
-		((DctmConnector) connector).setClient(client);
+		((DctmConnector) connector).setClientX(clientX);
 		try {
 			session = (DctmSession) connector.login();
 			qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();

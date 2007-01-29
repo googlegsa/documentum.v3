@@ -88,7 +88,7 @@ public class QueryTraverserTest extends TestCase {
 	private int runTestBatches(int batchSize) throws IOException, LoginException, RepositoryException, InterruptedException {
 		
 		DctmConnector conn = new DctmConnector();
-		conn.setClient("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient");
+		conn.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		conn.setDocbase("gsadctm");
 		conn.setLogin("queryUser");
 		conn.setPassword("p@ssw0rd");
@@ -112,7 +112,7 @@ public class QueryTraverserTest extends TestCase {
 	private void emptyDocBaseThreeTimesInARow() throws IOException, LoginException, RepositoryException, InterruptedException {
 		
 		DctmConnector conn = new DctmConnector();
-		conn.setClient("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient");
+		conn.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		conn.setDocbase("gsadctm");
 		conn.setLogin("queryUser");
 		conn.setPassword("p@ssw0rd");

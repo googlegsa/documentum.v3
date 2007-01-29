@@ -17,6 +17,7 @@ import org.json.JSONObject;
  import com.documentum.fc.common.DfLoginInfo;
  import com.documentum.fc.common.IDfLoginInfo;
  */
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -36,15 +37,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	 * 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.startTraversal()'
 	 */
 
-//	private static final String QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_creator_name!='user1' order by r_modify_date, i_chronicle_id";
-//
-//	private static final String QUERY_STRING_BOUNDED_DEFAULT = "select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_creator_name!=''user1'' and r_modify_date >= "
-//			+ "''{0}'' " + "order by i_chronicle_id, r_modify_date";
-//
-//	private String unboundedTraversalQuery;
-//
-//	private String boundedTraversalQuery;
-//	
+
 	Session session = null;
 
 	Connector connector = null;
@@ -53,40 +46,44 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	
 	private static final Logger logger =
 	      Logger.getLogger(DctmQueryTraversalManagerTest.class.getName());
-
+	
+	
 	public DctmQueryTraversalManagerTest(String arg0) {
 		super(arg0);
 	}
-
+	
+	
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		connector = new DctmConnector();
-		session = connector.login();
-		qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();
-		// ILocalClient dctmLocalClient = (ILocalClient) dctmClient
-		// .getLocalClientEx();
-		// ISessionManager dctmsessionmanager = (ISessionManager)
-		// dctmLocalClient
-		// .newSessionManager();
-		// ILoginInfo dctmLoginInfodctmLoginInfo = dctmClient.getLoginInfo();
-		// dctmLoginInfodctmLoginInfo.setUser("user1");
-		// dctmLoginInfodctmLoginInfo.setPassword("p@ssw0rd");
-		// dctmsessionmanager.setIdentity("gsadctm",
-		// dctmLoginInfodctmLoginInfo);
-		// idctmses = ((DmSession) dctmsessionmanager.newSession("gsadctm"));
+		
+		qtm = null;
+		Connector connector = new DctmConnector();
+		
+		((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
+		((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
+		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
+		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
+		((DctmConnector) connector).setQueryStringUnboundedDefault(DmInitialize.DM_QUERY_STRING_UNBOUNDED_DEFAULT);
+		((DctmConnector) connector).setWebtopServerUrl(DmInitialize.DM_WEBTOP_SERVER_URL);
+		((DctmConnector) connector).setQueryStringBoundedDefault(DmInitialize.DM_QUERY_STRING_BOUNDED_DEFAULT);
+		((DctmConnector) connector).setAttributeName(DmInitialize.DM_ATTRIBUTE_NAME);
+		((DctmConnector) connector).setQueryStringAuthoriseDefault(DmInitialize.DM_QUERY_STRING_AUTHORISE_DEFAULT);
+		Session sess = (DctmSession) connector.login();
+		qtm = (DctmQueryTraversalManager)sess.getQueryTraversalManager(); 
+		
 	}
 
-	
+	/*
 	public void testMakeCheckpointQueryString(){
 		String uuid="090000018000e100";
 		String statement="";
-		/*try{
+		///try{
 			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T13:58:10Z");
-			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
-		}catch(ParseException pe){
-			pe.printStackTrace();
-		}*/
+			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
+		///}catch(ParseException pe){
+			///pe.printStackTrace();
+		///}
 		try{
 			statement=qtm.makeCheckpointQueryString(uuid,"2007-01-02 13:58:10");
 		}catch(RepositoryException re){
@@ -121,7 +118,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		assertNotNull(uuid);
 		assertEquals(uuid, "090000018000e100");
 	}
-
+	*/
+	
 	/*public void testExtractCalendarFromCheckpoint() {
 
 		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
@@ -153,6 +151,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		
 	}*/
 	
+	/*
 	public void testIDfetchAndVerifyValueForCheckpoint() throws RepositoryException{
 		SimplePropertyMap pm = null;
 		pm = new SimplePropertyMap();
@@ -232,7 +231,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		///assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29.000\"}");
 		assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29\"}");
 	}
-	
+	*/
 	/*
 	 * Test method for
 	 * 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.startTraversal()'
@@ -250,7 +249,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		            .getValue().getString());
 		        counter++;
 		      }
-			assertEquals(20013,counter);
+			assertEquals(DmInitialize.DM_RETURN_TOP,counter);
 
 
 		} catch (RepositoryException e) {
@@ -259,6 +258,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		}
 	}
 	
+	/*
 	public void testResumeTraversal(){
 		ResultSet myResu=null;
 		PropertyMap propertyMap=null;
@@ -286,24 +286,10 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		assertEquals(12010,counter);
 	}
 
-
+*/
+	
+	
 	/*
-	public void testExecQuery() {
-		ICollection dctmCollection = null; // Collection for the result
-		IQuery query = null;
-		try {
-			query = makeCheckpointQuery(unboundedTraversalQuery);
-		} catch (RepositoryException re) {
-			re.getMessage();
-		}
-		assertNotNull(idctmses);
-		assertNotNull(idctmses.getDfSession());
-		dctmCollection = query.execute(idctmses, DmQuery.DF_READ_QUERY);
-		assertNotNull(dctmCollection);
-	}
-	*/
-	
-	
 	public void testExtractNativeDateFromCheckpoint() {
 
 		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
@@ -317,13 +303,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		}
 		
 		modifDate = qtm.extractNativeDateFromCheckpoint(jo,checkPoint);
-		/*try{
-
-			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
-
-		}catch(ParseException pe){
-			pe.printStackTrace();	
-		}*/
+	
 		
 		System.out.println("modifDate vaut "+modifDate);
 		
@@ -333,7 +313,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		
 		
 	}
-
+*/
 	
 
 }
