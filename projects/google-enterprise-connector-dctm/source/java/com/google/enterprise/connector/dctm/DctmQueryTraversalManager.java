@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -20,6 +21,7 @@ import com.google.enterprise.connector.spi.ResultSet;
 public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	private IClient client;
+	private IClientX clientX;
 	private String sessionID;
 //	private ISession session;
 	private String unboundedTraversalQuery;
@@ -28,40 +30,52 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private int batchHint=-1;
 	private ISessionManager sessionManager;
 	
-	protected void setClient(IClient client) {
-		this.client = client;
+	
+	
+	protected void setClientX(IClientX clientX) {
+		this.clientX = clientX;
 	}
-	protected IClient getClient() {
-		return client;
+	protected IClientX getClientX() {
+		return clientX;
+	}
+	
+	public ISessionManager getSessionManager() {
+		return sessionManager;
+	}
+	public void setSessionManager(ISessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+	
+	
+
+	/*public String getBoundedTraversalQuery() {
+		return boundedTraversalQuery;
+	}
+	public void setBoundedTraversalQuery(String boundedTraversalQuery) {
+		this.boundedTraversalQuery = boundedTraversalQuery;
 	}
 
-	protected void setSessionID(String sessionID) {
-		this.sessionID = sessionID;
+	public String getUnboundedTraversalQuery() {
+		return unboundedTraversalQuery;
 	}
-	protected String getSessionID() {
-		return sessionID;
-	}
+	public void setUnboundedTraversalQuery(String unboundedTraversalQuery) {
+		this.unboundedTraversalQuery = unboundedTraversalQuery;
+	}*/
 
-//	private void setSession() throws RepositoryException {
-//		
-////		ILocalClient localClient = client.getLocalClientEx();
-////		session = localClient.findSession(sessionID);
-//	}
-//	protected ISession getSession() {
-//		return session;
-//	}
 
-	public DctmQueryTraversalManager(IClient client, String QUERY_STRING_UNBOUNDED_DEFAULT, String QUERY_STRING_BOUNDED_DEFAULT, String WEBTOP_SERVER_URL) throws RepositoryException {
+	public DctmQueryTraversalManager(IClientX clientX, String queryStringUnboundedDefault, String queryStringBoundedDefault, String webtopServerUrl) throws RepositoryException {
 		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"Valuate IClient");
-		setClient(client);
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"Valuate IClient");
-//		setSessionID(sessionID);
-//		setSession();
-		setSessionManager(client.getSessionManager());
 		
-		this.unboundedTraversalQuery = QUERY_STRING_UNBOUNDED_DEFAULT;
-		this.boundedTraversalQuery = QUERY_STRING_BOUNDED_DEFAULT;
-		this.serverUrl = WEBTOP_SERVER_URL;
+		setClientX(clientX);
+		
+		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"Valuate IClient");
+
+		setSessionManager(clientX.getSessionManager());
+		
+		this.unboundedTraversalQuery = queryStringUnboundedDefault;
+		this.boundedTraversalQuery = queryStringBoundedDefault;
+		this.serverUrl = webtopServerUrl;
+		System.out.println("serverUrl vaut "+this.serverUrl);
 
 	}
 
@@ -93,7 +107,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	
 	private String lopQuery(){
 		String q = unboundedTraversalQuery;
-		if (batchHint!=-1 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
+		if (batchHint!=-1 && clientX.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
 			q += " ENABLE (return_top " + Integer.toString(batchHint) + ")";
 		}	
 		return q;
@@ -221,7 +235,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private IQuery makeCheckpointQuery(String queryString)
 			throws RepositoryException {
 		IQuery query = null;
-		query = client.getQuery();
+		///query = client.getQuery();
+		query = clientX.getQuery();
 		query.setDQL(queryString);
 		return query;
 	}
@@ -269,30 +284,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		Object[] arguments = { c };
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
-		if (batchHint!=-1 && client.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
+		if (batchHint!=-1 && clientX.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
 			statement = statement+" ENABLE (return_top " + Integer.toString(batchHint) + ")";
 		}
+	
 		return statement;
 	}
-	public ISessionManager getSessionManager() {
-		return sessionManager;
-	}
-	public void setSessionManager(ISessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
-	/*public String getBoundedTraversalQuery() {
-		return boundedTraversalQuery;
-	}
-	public void setBoundedTraversalQuery(String boundedTraversalQuery) {
-		this.boundedTraversalQuery = boundedTraversalQuery;
-	}
-
-	public String getUnboundedTraversalQuery() {
-		return unboundedTraversalQuery;
-	}
-	public void setUnboundedTraversalQuery(String unboundedTraversalQuery) {
-		this.unboundedTraversalQuery = unboundedTraversalQuery;
-	}*/
-
+	
 }

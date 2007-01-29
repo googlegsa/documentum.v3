@@ -26,21 +26,12 @@ public class DmClient implements IClient{
 	IDfClient idfClient;
 	IDfClientX idfClientX;
 	
-	DmSessionManager idctmSessionManager = null;
+	DmSessionManager dmSessionManager = null;
 	
-	public DmClient() throws RepositoryException{
-		try {
-			idfClientX = new DfClientX();
-			idfClient = idfClientX.getLocalClient();
-		} catch (DfException de) {
-			RepositoryException re = new LoginException(de);
-			throw re;
-		}
-	}
 
-	public DmClient(IDfClient idfClient, IDfClientX idfClientX) {		
+	
+	public DmClient(IDfClient idfClient) {		
 		this.idfClient = idfClient;
-		this.idfClientX = idfClientX;
 	}
 	
 	public ILocalClient getLocalClientEx(){
@@ -54,7 +45,7 @@ public class DmClient implements IClient{
 		return new DmQuery(new DfQuery());
 	}
 	
-	public ISession newSession(String docbase, ILoginInfo logInfo) throws RepositoryException {
+	public ISession newSession(String docbase, ILoginInfo logInfo) throws LoginException {
 		System.out.println("--- DmClient newSession ---");
 		IDfSession sessionUser = null;
 		IDfLoginInfo idfLogInfo= new DfLoginInfo();
@@ -69,7 +60,7 @@ public class DmClient implements IClient{
 		return new DmSession(sessionUser);
 	}
 
-	public boolean authenticate(String docbaseName, ILoginInfo loginInfo) {
+	public boolean authenticate(String docbaseName, ILoginInfo loginInfo) throws RepositoryException{
 		if (!(loginInfo instanceof DmLoginInfo)) {
 			throw new IllegalArgumentException();
 		}
@@ -78,7 +69,7 @@ public class DmClient implements IClient{
 		try {
 			this.idfClient.authenticate(docbaseName, idfLoginInfo);		
 		} catch (DfException e) {
-			return false;
+			RepositoryException re = new RepositoryException(e);
 		}
 		return true;
 		
@@ -89,17 +80,21 @@ public class DmClient implements IClient{
 	}
 
 	public IId getId(String value) {	
-		
 		return new DmId(this.idfClientX.getId(value));
 	}
 
+	
 	public ISessionManager getSessionManager() {
-		return idctmSessionManager;//new DmSessionManager(idfSessionManager);
+		System.out.println("getSessionmanager -- docbasename vaut "+dmSessionManager.getDocbaseName());
+		return dmSessionManager;
+		//new DmSessionManager(idfSessionManager);
 	}
 
-	public void setSessionManager(ISessionManager sessionManager) {		
-		idctmSessionManager = (DmSessionManager)sessionManager;
+	public void setSessionManager(ISessionManager sessionManager) {
+		System.out.println("--- setSessionManager ---");
+		dmSessionManager = (DmSessionManager)sessionManager;
 	}
+	
 
 	public ISessionManager newSessionManager() {
 		IDfSessionManager newSessionManager = idfClient.newSessionManager();

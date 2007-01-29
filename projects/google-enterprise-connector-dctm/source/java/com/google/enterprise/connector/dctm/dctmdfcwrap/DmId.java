@@ -23,4 +23,8 @@ public class DmId implements IId{
 	public void setidfId(IDfId idfId) {
 		this.idfId = idfId;
 	}
+	
+	public boolean isObjectId(){
+		return this.idfId.isObjectId();
+	}
 }

@@ -12,17 +12,4 @@ public class DmTypedObject implements ITypedObject{
 	}
 	
 	
-//	public IId getObjectId() throws RepositoryException{
-//		IDfId idfId=null;
-//		try{
-//			idfId=idfTypedObject.getObjectId();
-//		}catch(DfException e){
-//			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
-//			re.setStackTrace(e.getStackTrace());
-//			throw re;
-//		}
-//		return new DmId(idfId);
-//	}
-	
-	
 }

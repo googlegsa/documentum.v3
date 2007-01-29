@@ -54,19 +54,23 @@ public class DmQuery implements IQuery{
 //	}
 
 	public ICollection execute(ISessionManager sessionManager, int queryType) throws RepositoryException {
-//		System.out.println("--- DmQuery execute ---");
+		System.out.println("--- DmQuery execute ---");
 		if (!(sessionManager instanceof DmSessionManager)) {
 			throw new IllegalArgumentException();
 		}
-		DmSession idctmsession =  (DmSession)sessionManager.getSession(sessionManager.getDocbaseName());
+		
+		DmSession idctmsession=null;
+		System.out.println("--- docbase vaut "+sessionManager.getDocbaseName());
+		idctmsession = (DmSession)sessionManager.getSession(sessionManager.getDocbaseName());
+		
 		IDfSession idfSession=idctmsession.getDfSession();
 		IDfCollection DfCollection=null;
-		
+		System.out.println("--- IdfQuery vaut "+idfQuery.getDQL());
 		try{
 			DfCollection=idfQuery.execute(idfSession,queryType);
 		}catch(DfException de){
 //			System.out.println("--- DmQuery Exception  ---");
-			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
+			RepositoryException re = new RepositoryException(de);
 			re.setStackTrace(de.getStackTrace());
 			throw re;
 		}

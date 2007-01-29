@@ -13,7 +13,7 @@ public class DmFormat implements IFormat {
 		this.idfFormat = idfFormat;
 	}
 
-	public boolean canIndex() throws RepositoryException {
+	public boolean canIndex() throws LoginException {
 		boolean rep = false;
 		try {
 			if(idfFormat != null){
@@ -23,9 +23,9 @@ public class DmFormat implements IFormat {
 			}
 			
 		} catch (DfException de) {
-			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
-			re.setStackTrace(de.getStackTrace());
-			throw re;
+			LoginException le = new LoginException(de);
+			le.setStackTrace(de.getStackTrace());
+			throw le;
 		}
 		return rep;
 	}

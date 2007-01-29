@@ -6,11 +6,13 @@ import com.documentum.fc.client.DfPrincipalException;
 import com.documentum.fc.client.DfServiceException;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
+import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfLoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSessionManager implements ISessionManager{
 	IDfSessionManager dfSessionManager;
@@ -23,27 +25,27 @@ public class DmSessionManager implements ISessionManager{
 		this.dfSessionManager=DfSessionManager;
 	}
 	
-	public ISession getSession(String docbase) throws LoginException{
+	public ISession getSession(String docbase) throws LoginException, RepositoryException{
 //		System.out.println("--- DmSessionManager getSession ---");
 		IDfSession DfSession=null;
 		try{
 			DfSession = dfSessionManager.getSession(docbase);
 		}catch(DfIdentityException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
+			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}catch(DfAuthenticationException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
+			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}catch(DfPrincipalException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
+			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}catch(DfServiceException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
-			le.setStackTrace(iE.getStackTrace());
-			throw le;
+			RepositoryException re = new RepositoryException(iE);
+			re.setStackTrace(iE.getStackTrace());
+			throw re;
 		}
 		return new DmSession(DfSession);
 	}
@@ -57,33 +59,38 @@ public class DmSessionManager implements ISessionManager{
 		try{
 			dfSessionManager.setIdentity(docbase,idfLoginInfo);
 		}catch(DfServiceException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
+			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}
 	}
 	
-	public ISession newSession(String docbase) throws LoginException{
+	public ILoginInfo getIdentity(String docbase){
+		IDfLoginInfo idfLoginInfo=dfSessionManager.getIdentity(docbase);
+		return new DmLoginInfo(idfLoginInfo);
+	}
+	
+	public ISession newSession(String docbase) throws LoginException,RepositoryException{
 		IDfSession idfSession=null;
 		String error=null;
 		try{
 			idfSession = dfSessionManager.newSession(docbase);
 		}catch(DfIdentityException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
+			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}catch(DfAuthenticationException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
+			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}catch(DfPrincipalException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
+			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}catch(DfServiceException iE){
-			LoginException le = new LoginException(iE.getMessage(),iE.getCause());
-			le.setStackTrace(iE.getStackTrace());
-			throw le;
+			RepositoryException re = new RepositoryException(iE);
+			re.setStackTrace(iE.getStackTrace());
+			throw re;
 		}
 		if (error!=null) {
 			System.out.println(error);
@@ -103,6 +110,7 @@ public class DmSessionManager implements ISessionManager{
 
 	public void setServerUrl(String serverUrl) {
 		this.serverUrl = serverUrl;
+		System.out.println("serverUrl vaut "+serverUrl);
 		
 	}
 
@@ -119,6 +127,22 @@ public class DmSessionManager implements ISessionManager{
 		return serverUrl;
 	}
 	
+	public boolean authenticate(String docbaseName){
+		boolean authent=false;
+		try {
+			this.dfSessionManager.authenticate(docbaseName);	
+			authent=true;
+		} catch (DfException e) {
+			RepositoryException re = new RepositoryException(e);
+			re.printStackTrace();
+		}
+		return authent;
+		
+	}
+	
+	public void clearIdentity(String docbase){
+		this.dfSessionManager.clearIdentity(docbase);	
+	}
 	
 	
 }
