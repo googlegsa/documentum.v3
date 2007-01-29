@@ -2,6 +2,7 @@ package com.google.enterprise.connector.dctm;
 
 //import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
@@ -13,11 +14,13 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
 public class DctmSession implements Session{
+	//IClient client;
+	IClientX clientX;
+	//ILocalClient localClient;
 	IClient client;
-	ILocalClient localClient;
 	ISessionManager sessionManager;
 	ISession session;
-	private String QUERY_STRING_UNBOUNDED_DEFAULT,QUERY_STRING_BOUNDED_DEFAULT,QUERY_STRING_AUTHORISE_DEFAULT,WEBTOP_SERVER_URL,ATTRIBUTE_NAME;
+	private String queryStringUnboundedDefault,queryStringBoundedDefault,queryStringAuthoriseDefault,webtopServerUrl,attributeName;
 	
 	String docbase;
 	
@@ -47,38 +50,52 @@ public class DctmSession implements Session{
 	 * @param docbase
 	 * @throws RepositoryException
 	 */
-	public DctmSession(String client, String login, String password, String docbase, String qsud, 
+	public DctmSession(String clientX, String login, String password, String docbase, String qsud, 
 			String qsbd, String qsad, String an, String wsu) throws RepositoryException{
 		System.out.println("--- DctmSession constructor with arguments---");
 		ILoginInfo dctmLoginInfo=null;
+		
 		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds an IClient");}
-		setClient(client);
+		
+		setClientX(clientX);
+		
 		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
 		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds an ILocalClient");}
-		localClient=this.client.getLocalClientEx();
+		
+		client=this.clientX.getLocalClient();
+		
 		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
 		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds an ISessionManager");}
-		sessionManager=localClient.newSessionManager();
+		
+		sessionManager=this.client.newSessionManager();
+		
 		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
 		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- builds credential objects");}
-		dctmLoginInfo = this.client.getLoginInfo();
+		
+		dctmLoginInfo = this.clientX.getLoginInfo();
 		dctmLoginInfo.setUser(login);
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase,dctmLoginInfo);
+		
 		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
 		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"- opens an authenticated ISession");}
 		session=sessionManager.newSession(docbase);
+		
+		this.clientX.setSessionManager(sessionManager);
 		sessionManager.release(session);
-		this.client.setSessionManager(sessionManager);
+		
+		System.out.println("--- DctmSession avant setSessionManager ---");
+		
+		
 		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"");}
-		QUERY_STRING_UNBOUNDED_DEFAULT = qsud;
-		QUERY_STRING_BOUNDED_DEFAULT = qsbd;
-		QUERY_STRING_AUTHORISE_DEFAULT = qsad;
-		WEBTOP_SERVER_URL = wsu;
-		ATTRIBUTE_NAME = an;
+		
+		queryStringUnboundedDefault = qsud;
+		queryStringBoundedDefault = qsbd;
+		queryStringAuthoriseDefault = qsad;
+		webtopServerUrl = wsu;
+		attributeName = an;
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setServerUrl(wsu);
-		//this.client.setSession(session);
 	}
 	
 	
@@ -89,11 +106,11 @@ public class DctmSession implements Session{
 //		session = sessionManager.getSession(docbase);
 		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"DctmQueryTraversalManager's instantiation");{
 			
-			dctmQtm = new DctmQueryTraversalManager(client,
-				QUERY_STRING_UNBOUNDED_DEFAULT,QUERY_STRING_BOUNDED_DEFAULT,WEBTOP_SERVER_URL);
+			dctmQtm = new DctmQueryTraversalManager(clientX,
+					queryStringUnboundedDefault,queryStringBoundedDefault,webtopServerUrl);
 		}
 		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"DctmQueryTraversalManager's instantiation");{
-			client.setSessionManager(sessionManager);
+
 		}
 		
 		System.out.println("--- DctmSession getQueryTraversalManager client vaut"+client.getClass()+"---");
@@ -117,7 +134,7 @@ public class DctmSession implements Session{
 	 * @throws RepositoryException
 	 */
 	public AuthenticationManager getAuthenticationManager() {
-		AuthenticationManager DctmAm = new DctmAuthenticationManager(getClient());
+		AuthenticationManager DctmAm = new DctmAuthenticationManager(getClientX());
 		return DctmAm;
 	}
 	
@@ -135,23 +152,24 @@ public class DctmSession implements Session{
 	 * @throws RepositoryException
 	 */
 	public AuthorizationManager getAuthorizationManager(){
-		AuthorizationManager DctmAzm = new DctmAuthorizationManager(getClient(),
-				QUERY_STRING_AUTHORISE_DEFAULT,ATTRIBUTE_NAME);
+		AuthorizationManager DctmAzm = new DctmAuthorizationManager(getClientX(),
+				queryStringAuthoriseDefault,attributeName);
 		return DctmAzm;
 	}
 	
-	public IClient getClient() {
-		return client;
+	
+	public IClientX getClientX() {
+		return clientX;
 	}
 		
-	public void setClient(String client) throws RepositoryException {
+	public void setClientX(String clientX) throws RepositoryException {
 	boolean repoExcep = false;
 	Throwable rootCause=null;
 	String message="";
 	StackTraceElement[] stack = null;
-	IClient cl = null;
+	IClientX cl = null;
 	try {
-		cl = (IClient) Class.forName(client).newInstance();
+		cl = (IClientX) Class.forName(clientX).newInstance();
 	} catch (InstantiationException e) {
 		repoExcep=true;
 		rootCause=e.getCause();
@@ -173,16 +191,9 @@ public class DctmSession implements Session{
 		re.setStackTrace(stack);
 		throw re;
 	}
-		this.client = cl;
+		this.clientX = cl;
 	}
-	
-//	public ISession getSession() {
-//		return session;
-//	}
-//	
-//	public void setSession(ISession session) {
-//		this.session = session;
-//	}
+
 
 	public String getDocbase() {
 		return docbase;

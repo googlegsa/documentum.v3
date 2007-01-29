@@ -13,12 +13,8 @@ public interface IClient{
 
 	public ISession newSession(String string, ILoginInfo logInfo) throws RepositoryException;
 
-	public boolean authenticate(String docbaseName, ILoginInfo loginInfo) throws LoginException;
-
-	public ISessionManager getSessionManager();
+	public boolean authenticate(String docbaseName, ILoginInfo loginInfo) throws RepositoryException;
 	
 	public ISessionManager newSessionManager();
-	
-	public void setSessionManager(ISessionManager session);
 	
 }

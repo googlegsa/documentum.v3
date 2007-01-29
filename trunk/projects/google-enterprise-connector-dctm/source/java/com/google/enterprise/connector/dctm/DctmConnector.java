@@ -10,7 +10,8 @@ public class DctmConnector implements Connector{
 	private String login;
 	private String password;
 	private String docbase;
-	private String client;
+	///private String client;
+	private String clientX;
 	private String queryStringUnboundedDefault;
 	private String queryStringBoundedDefault;
 	private String queryStringAuthoriseDefault;
@@ -43,7 +44,8 @@ public class DctmConnector implements Connector{
 	public void setAttributeName(String an) {this.attributeName = an;}
 	public String getAttributeName() {return attributeName;}
 	
-	public void setClient(String client) /*throws RepositoryException*/ {
+	
+	///public void setClient(String client) /*throws RepositoryException*/ {
 		/*boolean repoExcep = false;
 		Throwable rootCause=null;
 		String message="";
@@ -72,9 +74,15 @@ public class DctmConnector implements Connector{
 			re.setStackTrace(stack);
 			throw re;
 		}*/
-		this.client = client;
+		///this.client = client;
+	///}	
+	///public String getClient() {return client/*.getClass().getName()*/;}
+	
+	public void setClientX(String clientX) /*throws RepositoryException*/ {
+	
+		this.clientX = clientX;
 	}	
-	public String getClient() {return client/*.getClass().getName()*/;}
+	public String getClientX() {return clientX/*.getClass().getName()*/;}
 	
 	public DctmConnector(){;}
 	
@@ -85,9 +93,9 @@ public class DctmConnector implements Connector{
 		}
 		Session sess = null;
 		
-		if (!(client==null||login==null||password==null||docbase==null)){
+		if (!(clientX==null||login==null||password==null||docbase==null)){
 			
-			sess = new DctmSession(client,login,password,docbase,
+			sess = new DctmSession(clientX,login,password,docbase,
 					queryStringUnboundedDefault,
 					queryStringBoundedDefault,
 					queryStringAuthoriseDefault,
@@ -100,83 +108,4 @@ public class DctmConnector implements Connector{
 		return (sess);
 	}
 	
-	
-//	public static void main(String[] args){
-//	DctmConnector myconn=new DctmConnector();
-//	DctmSession sess=null;
-//	ISession dctmsess=null;
-//	SimpleResultSet myResu=null;
-//	DctmQueryTraversalManager dctmquery=null;
-//	try{
-//	sess=(DctmSession)myconn.login();
-//	}catch(LoginException le){
-//	le.getMessage();
-//	}	 
-//	
-//	dctmquery=(DctmQueryTraversalManager)sess.getQueryTraversalManager(); 
-//	dctmsess=sess.getISession();
-//	dctmquery.setIDctmSession((DmSession)dctmsess);
-//	
-//	try{
-//	myResu=(SimpleResultSet)dctmquery.startTraversal();
-//	SimplePropertyMap pm=null;
-//	SimpleProperty propname=null;
-//	SimpleProperty propdate=null;
-//	SimpleProperty propID=null;
-//	SimpleProperty propcontent=null;
-//	SimpleProperty propmimetype=null;
-//	String docname=null;
-//	String docdate=null;
-//	String docId=null;
-//	String docmime=null;
-//	ByteArrayInputStream doccontent=null;
-//	int cpt;
-//	byte[]buf=null;
-//	int count = 0;
-//	///while(myResu.iterator().hasNext()){
-//	for(cpt=0;cpt<myResu.size();cpt++){
-//	pm=(SimplePropertyMap)myResu.get(cpt);
-//	///pm=(SimplePropertyMap)myResu.iterator().next();
-//	//propname=(SimpleProperty)(pm.getProperty(SpiConstants.PROPNAME_DOCNAME));
-//	docname=((SimpleValue)propname.getValue()).getString();
-//	propdate=(SimpleProperty)(pm.getProperty(SpiConstants.PROPNAME_LASTMODIFY));
-//	docdate=((SimpleValue)propdate.getValue()).getString();
-//	propID=(SimpleProperty)(pm.getProperty(SpiConstants.PROPNAME_DOCID));
-//	docId=((SimpleValue)propID.getValue()).getString();
-//	propcontent=(SimpleProperty)(pm.getProperty(SpiConstants.PROPNAME_CONTENT));
-//	//doctaille=((SimpleValue)propcontent.getValue()).
-//	
-//	if(propcontent!=null){
-//	propmimetype=(SimpleProperty)(pm.getProperty(SpiConstants.PROPNAME_MIMETYPE));
-//	docmime=((SimpleValue)propmimetype.getValue()).getString();
-//	
-//	
-//	System.out.println("nom vaut "+docname+" - ID vaut "+docId+" modifDate vaut "+docdate);
-//	
-//	doccontent=(ByteArrayInputStream)((SimpleValue)propcontent.getValue()).getStream();
-//	
-//	/*
-//	try{
-//	
-//	test parcours du contenu
-//	buf = new byte[4096];
-//	
-//	while ((count = doccontent.read(buf)) > -1){
-//	System.out.write(buf, 0, count);
-//	}
-//	doccontent.close();
-//	
-//	}catch(IOException ie){
-//	System.out.println(ie.getMessage());
-//	}
-//	*/
-//	}
-//	//While(myResu.Iterator().hasNext()){
-//	}
-//	
-//	}catch(RepositoryException Re){
-//	System.out.println("Re vaut "+Re.getMessage());
-//	}
-//	
-//	}	 
 }
