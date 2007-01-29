@@ -266,5 +266,27 @@ public class MockDmClient implements IClientX, IClient, ILocalClient,
 	public IClient getLocalClient() throws RepositoryException {
 		return this;
 	}
+	
+///
+	public IClient getClient() {
+		
+		return this;
+	}
+	
+	public void setClient(IClient client){
+	
+	}
+
+	public ILoginInfo getIdentity(String docbase){
+		return null;
+	}
+	
+	public boolean authenticate(String docbaseName){
+		return true;
+	}
+
+	public void clearIdentity(String docbase){
+
+	}
 
 }
