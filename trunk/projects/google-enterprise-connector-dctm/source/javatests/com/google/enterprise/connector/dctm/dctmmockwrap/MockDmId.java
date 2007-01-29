@@ -12,4 +12,8 @@ public class MockDmId implements IId {
 	public String getValue() {
 		return this.value;
 	}
+	///
+	public boolean isObjectId(){
+		return true;
+	}
 }
