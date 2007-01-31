@@ -15,9 +15,7 @@
 
 	<property name="tests.src" value="source/javatests" />
 	<property name="tests.build" value="build/tests" />
-	<property name="tests.classes" value="${tests.build}/classes" />
-	
-	
+	<property name="tests.classes" value="${tests.build}/classes" />	
 
 	<property name="jar.dir"  value="${dist}/jar" />
 	<property name="jarfile"  value="${jar.dir}/connector-dctm.jar" />
