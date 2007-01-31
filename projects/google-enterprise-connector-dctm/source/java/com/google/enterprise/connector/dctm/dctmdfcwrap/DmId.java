@@ -24,7 +24,4 @@ public class DmId implements IId{
 		this.idfId = idfId;
 	}
 	
-	public boolean isObjectId(){
-		return this.idfId.isObjectId();
-	}
 }
