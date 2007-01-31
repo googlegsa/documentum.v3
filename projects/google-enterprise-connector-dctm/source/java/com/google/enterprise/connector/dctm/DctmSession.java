@@ -3,7 +3,6 @@ package com.google.enterprise.connector.dctm;
 //import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
-import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -20,8 +19,7 @@ public class DctmSession implements Session{
 	IClient client;
 	ISessionManager sessionManager;
 	ISession session;
-	private String queryStringUnboundedDefault,queryStringBoundedDefault,queryStringAuthoriseDefault,webtopServerUrl,attributeName;
-	
+	protected String queryStringUnboundedDefault,queryStringBoundedDefault,queryStringAuthoriseDefault,webtopServerUrl,attributeName;
 	String docbase;
 	
 	
@@ -103,7 +101,7 @@ public class DctmSession implements Session{
 	public QueryTraversalManager getQueryTraversalManager() throws RepositoryException{
 		System.out.println("--- DctmSession getQueryTraversalManager---");
 		DctmQueryTraversalManager dctmQtm = null;
-//		session = sessionManager.getSession(docbase);
+
 		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"DctmQueryTraversalManager's instantiation");{
 			
 			dctmQtm = new DctmQueryTraversalManager(clientX,

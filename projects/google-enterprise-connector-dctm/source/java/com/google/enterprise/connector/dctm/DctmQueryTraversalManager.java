@@ -46,23 +46,18 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		this.sessionManager = sessionManager;
 	}
 	
-	
-
-	/*public String getBoundedTraversalQuery() {
+	protected String getBoundedTraversalQuery() {
 		return boundedTraversalQuery;
 	}
-	public void setBoundedTraversalQuery(String boundedTraversalQuery) {
-		this.boundedTraversalQuery = boundedTraversalQuery;
-	}
-
-	public String getUnboundedTraversalQuery() {
+	
+	protected String getUnboundedTraversalQuery() {
 		return unboundedTraversalQuery;
 	}
-	public void setUnboundedTraversalQuery(String unboundedTraversalQuery) {
-		this.unboundedTraversalQuery = unboundedTraversalQuery;
-	}*/
 
-
+	protected String getServerUrl() {
+		return serverUrl;
+	}
+	
 	public DctmQueryTraversalManager(IClientX clientX, String queryStringUnboundedDefault, String queryStringBoundedDefault, String webtopServerUrl) throws RepositoryException {
 		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"Valuate IClient");
 		
@@ -261,26 +256,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 					"could not get lastmodify from checkPoint string: "
 							+ checkPoint);
 		}
-		/*Calendar c = null;
-		try {
-			c = DctmSimpleValue.iso8601ToCalendar(dateString);
-		} catch (ParseException e) {
-			throw new IllegalArgumentException(
-					"could not parse date string from checkPoint string: "
-							+ dateString);
-		}*/
+
 		return dateString;
 	}
 
 	public String makeCheckpointQueryString(String uuid, String c)
 			throws RepositoryException {
 
-		//String time = DctmSimpleValue.calendarToIso8601(c);
-		/*
-		time=time.replace('T',' ');
-		time=time.substring(0,time.indexOf('Z'));
-		*/
-		
 		Object[] arguments = { c };
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);

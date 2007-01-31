@@ -5,7 +5,7 @@ import com.documentum.fc.common.IDfLoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 
 public class DmLoginInfo implements ILoginInfo{
-	IDfLoginInfo idfLoginInfo=null;
+	protected IDfLoginInfo idfLoginInfo=null;
 	
 	public DmLoginInfo(IDfLoginInfo tmp){
 		idfLoginInfo=tmp;

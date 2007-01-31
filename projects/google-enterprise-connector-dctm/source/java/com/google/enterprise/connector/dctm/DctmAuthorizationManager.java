@@ -150,8 +150,24 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		return sessionManager;
 	}
 
-	public void setSessionManager(ISessionManager sessionManager) {
+	private void setSessionManager(ISessionManager sessionManager) {
 		this.sessionManager = sessionManager;
+	}
+
+	protected String getAttributeName() {
+		return attributeName;
+	}
+
+	private void setAttributeName(String attributeName) {
+		this.attributeName = attributeName;
+	}
+
+	protected String getQueryStringAuthoriseDefault() {
+		return queryStringAuthoriseDefault;
+	}
+
+	protected void setQueryStringAuthoriseDefault(String queryStringAuthoriseDefault) {
+		this.queryStringAuthoriseDefault = queryStringAuthoriseDefault;
 	}
 
 }

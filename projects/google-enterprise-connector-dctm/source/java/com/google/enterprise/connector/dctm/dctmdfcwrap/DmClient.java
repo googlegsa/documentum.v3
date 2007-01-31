@@ -12,7 +12,6 @@ import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 
@@ -32,13 +31,6 @@ public class DmClient implements IClient{
 	
 	public DmClient(IDfClient idfClient) {		
 		this.idfClient = idfClient;
-	}
-	
-	public ILocalClient getLocalClientEx(){
-//		System.out.println("--- DmClient getLocalClientEx ---");
-		IDfClient idfClient=null;
-		idfClient=DfClient.getLocalClientEx();
-		return new DmLocalClient(idfClient);
 	}
 	
 	public IQuery getQuery(){
@@ -75,15 +67,6 @@ public class DmClient implements IClient{
 		
 	}
 
-	public ILoginInfo getLoginInfo() {
-		return new DmLoginInfo(idfClientX.getLoginInfo());
-	}
-
-	public IId getId(String value) {	
-		return new DmId(this.idfClientX.getId(value));
-	}
-
-	
 	public ISessionManager getSessionManager() {
 		System.out.println("getSessionmanager -- docbasename vaut "+dmSessionManager.getDocbaseName());
 		return dmSessionManager;

@@ -24,7 +24,7 @@ public class DmSysObject extends DmPersistentObject implements ISysObject{
 	}
 	
 	public IFormat getFormat() throws RepositoryException{
-//		System.out.println("--- DmSysObject getFormat ---");
+		System.out.println("--- DmSysObject getFormat ---");
 		IDfFormat idfFormat = null;
 		try{
 			idfFormat = idfSysObject.getFormat();
@@ -52,7 +52,7 @@ public class DmSysObject extends DmPersistentObject implements ISysObject{
 	}
 	
 	public ByteArrayInputStream getContent() throws RepositoryException{
-//		System.out.println("--- DmSysObject getContent ---");
+		System.out.println("--- DmSysObject getContent ---");
 		ByteArrayInputStream content = null;
 		try{
 			content=idfSysObject.getContent();
@@ -64,22 +64,10 @@ public class DmSysObject extends DmPersistentObject implements ISysObject{
 		return content;
 	}
 	
-//	public int getPermitEx(String name) throws RepositoryException{
-//		int perm = 0;
-////		System.out.println("--- DmSysObject getPermitEx ---");
-//		try{
-//			perm = idfSysObject.getPermitEx(name);
-//		}catch(DfException e){
-//			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
-//			re.setStackTrace(e.getStackTrace());
-//			throw re;
-//		}
-//		return(perm);
-//	}
-	
+
 	public Enumeration enumAttrs() throws RepositoryException{
 		Enumeration attrs=null;
-//		System.out.println("--- DmSysObject enumAttrs ---");
+		System.out.println("--- DmSysObject enumAttrs ---");
 			try {
 				attrs = idfSysObject.enumAttrs();
 			} catch (DfException e) {
@@ -173,16 +161,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject{
 			throw re;
 		}
 	}
-	
-//	public String getTitle() throws RepositoryException{
-//		try {
-//			return idfSysObject.getTitle();
-//		} catch (DfException e) {
-//			RepositoryException re = new RepositoryException(e.getMessage(),e.getCause());
-//			re.setStackTrace(e.getStackTrace());
-//			throw re;
-//		}
-//	}
 	
 	
 }
