@@ -25,7 +25,7 @@ public class MockDmSessionManagerTest extends TestCase {
 		String password = "p@ssw0rd";
 		String docbase = "gsadctm";
 
-		ILoginInfo loginInfo = localClient.getLoginInfo();
+		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
 

@@ -1,5 +1,10 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.IDfLoginInfo;
+import com.google.enterprise.connector.dctm.DctmConnector;
+import com.google.enterprise.connector.dctm.DctmSession;
+import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -14,50 +19,47 @@ public class DmClientTest extends TestCase {
 	/*
 	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSession(String, ILoginInfo)'
 	 */
+	IClientX dctmClientX;
+	IClient localClient;
+	
+	public void setUp() throws Exception{
+		super.setUp();
+		dctmClientX = new DmClientX();
+		localClient = dctmClientX.getLocalClient();
+	}
+	
 	public void testNewSession() throws RepositoryException {
-		IClientX dctmClientX = new DmClientX();
-		IClient localClient = dctmClientX.getLocalClient();
+		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
+		loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
 		
-		String user="queryUser";
-		String password="p@ssw0rd";
-		String docbase="gsadctm";
-		
-		ILoginInfo loginInfo = localClient.getLoginInfo();
-		loginInfo.setUser(user);
-		loginInfo.setPassword(password);
-		
-		ISession session = localClient.newSession(docbase,loginInfo);
+		ISession session = localClient.newSession(DmInitialize.DM_DOCBASE,loginInfo);
 		
 		Assert.assertNotNull(session);
 		Assert.assertTrue(session instanceof DmSession);		
 	}
 
-	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.getLoginInfo()'
-	 */
-	public void testGetLoginInfo() throws RepositoryException {
-		IClientX dctmClientX = new DmClientX();
-		IClient localClient = dctmClientX.getLocalClient();
-		
-		ILoginInfo loginInfo = localClient.getLoginInfo();
-		Assert.assertTrue(loginInfo instanceof DmLoginInfo);
-		
-		loginInfo.setUser("max");
-		loginInfo.setPassword("foo");
-		
-		Assert.assertEquals("max",loginInfo.getUser());
-		Assert.assertEquals("foo",loginInfo.getPassword());		
-	}
-
-	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSessionManager()'
-	 */
 	public void testNewSessionManager() throws RepositoryException {
-		IClientX dctmClientX = new DmClientX();
-		IClient localClient = dctmClientX.getLocalClient();
-		
 		ISessionManager sessionManager = localClient.newSessionManager();
 		Assert.assertNotNull(sessionManager);	
 		Assert.assertTrue(sessionManager instanceof DmSessionManager);	
+	}
+	
+	public void authenticateOK() throws RepositoryException{
+		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
+		loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
+		boolean rep=localClient.authenticate(DmInitialize.DM_DOCBASE,loginInfo);
+		Assert.assertTrue(rep);
+		
+	}
+	
+	public void authenticateK0() throws RepositoryException{
+		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
+		loginInfo.setUser(DmInitialize.DM_LOGIN_K0);
+		loginInfo.setPassword(DmInitialize.DM_PWD_KO);
+		boolean rep=localClient.authenticate(DmInitialize.DM_DOCBASE,loginInfo);
+		Assert.assertTrue(rep);
+		
 	}
 }
