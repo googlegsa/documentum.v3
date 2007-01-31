@@ -10,6 +10,9 @@ REQUIRED FILES
 •	connector_spi.jar
 •	connector.jar
 •	connector_tests.jar
+•	json.jar
+•	jcr-1.0.jar
+•	junit.jar
 
 CONFIGURATION
 Create a shared folder in projects\third_party
