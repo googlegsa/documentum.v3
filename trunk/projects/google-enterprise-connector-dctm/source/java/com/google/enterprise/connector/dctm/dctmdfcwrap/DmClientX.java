@@ -50,19 +50,11 @@ public class DmClientX implements IClientX {
 		System.out.println("--- setClient ---");
 		this.dmClient = (DmClient)client;
 		System.out.println("--- setClient avant getSessionManager---");
-		/*
-		ISessionManager manager=client.getSessionManager();
-		ILoginInfo info=manager.getIdentity("gsadctm");
-		System.out.println("--- setClient après getIdentity ---");
-		String username=info.getUser();
-		System.out.println("--- setClient username vaut "+username+" ---");
-		*/
 	}
 	
 	public IClient getClient() {
 		System.out.println("--- getClient ---");
 		return dmClient;
-		//new DmSessionManager(idfSessionManager);
 	}
 	
 	public void setSessionManager(ISessionManager sessionMag){

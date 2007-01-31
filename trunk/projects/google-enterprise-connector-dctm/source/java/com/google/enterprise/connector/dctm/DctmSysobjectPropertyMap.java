@@ -2,8 +2,6 @@ package com.google.enterprise.connector.dctm;
 
 import java.util.Iterator;
 
-import junit.framework.Assert;
-
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSession;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;

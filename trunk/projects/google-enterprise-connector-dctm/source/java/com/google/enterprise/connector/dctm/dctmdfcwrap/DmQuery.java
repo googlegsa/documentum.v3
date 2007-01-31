@@ -23,35 +23,10 @@ public class DmQuery implements IQuery{
 		this.idfQuery=new DfQuery();
 	}
 	
-//	public ICollection execute(ISession session, int queryType) throws RepositoryException{	
-//		if (!(session instanceof DmSession)) {
-//			throw new IllegalArgumentException();
-//		}
-//		DmSession idctmsession = (DmSession) session;
-//		IDfSession idfSession=idctmsession.getDfSession();
-//		IDfCollection DfCollection=null;
-//		
-//		try{
-//			DfCollection=idfQuery.execute(idfSession,queryType);
-//		}catch(DfException de){
-//			RepositoryException re = new LoginException(de.getMessage(),de.getCause());
-//			re.setStackTrace(de.getStackTrace());
-//			throw re;
-//		}
-//		return new DmCollection(DfCollection);
-//	}
-	
 	public void setDQL(String dqlStatement){
 		idfQuery.setDQL(dqlStatement);
 	}
-//	
-//	public int getDF_READ_QUERY() {
-//		return DF_READ_QUERY;
-//	}
 
-//	public void setDF_READ_QUERY(int df_read_query){
-//		DF_READ_QUERY = df_read_query;
-//	}
 
 	public ICollection execute(ISessionManager sessionManager, int queryType) throws RepositoryException {
 		System.out.println("--- DmQuery execute ---");
@@ -69,7 +44,6 @@ public class DmQuery implements IQuery{
 		try{
 			DfCollection=idfQuery.execute(idfSession,queryType);
 		}catch(DfException de){
-//			System.out.println("--- DmQuery Exception  ---");
 			RepositoryException re = new RepositoryException(de);
 			re.setStackTrace(de.getStackTrace());
 			throw re;
