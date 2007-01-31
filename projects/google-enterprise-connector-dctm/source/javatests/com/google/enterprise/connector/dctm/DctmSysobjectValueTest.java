@@ -30,7 +30,7 @@ public class DctmSysobjectValueTest extends TestCase {
 		String password="p@ssw0rd";
 		String docbase="gsadctm";
 		
-		ILoginInfo loginInfo = localClient.getLoginInfo();
+		ILoginInfo loginInfo = clientX.getLoginInfo();
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
 		
@@ -39,7 +39,7 @@ public class DctmSysobjectValueTest extends TestCase {
 		ISession session = null;
 		try {
 			session = sessionManager.getSession(docbase);
-			String idString = getAnExistingObjectId(session);
+			String idString = DmInitialize.getAnExistingObjectId(session);
 			System.out.println("idString " + idString);
 			IId id = clientX.getId(idString);
 			ISysObject object = session.getObject(id);
@@ -52,16 +52,6 @@ public class DctmSysobjectValueTest extends TestCase {
 			}
 		}	
 	}
-	
-	private String getAnExistingObjectId(ISession session) throws DfException {
-		// move into real DFC to find a docid that's in this docbase
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession.getIdByQualification("dm_sysobject");
-		idString = id.toString();
-		return idString;
-	}	
 	
 }
 

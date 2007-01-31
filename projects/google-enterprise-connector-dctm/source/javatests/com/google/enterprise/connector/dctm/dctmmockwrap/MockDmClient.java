@@ -9,7 +9,6 @@ import javax.jcr.SimpleCredentials;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.ILocalClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
@@ -26,7 +25,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 //Implements four interfaces to simulate the session pool.
 //Does not manage multiple sessions for the same docbase (for the moment) 
-public class MockDmClient implements IClientX, IClient, ILocalClient,
+public class MockDmClient implements IClientX, IClient,
 		ISessionManager {
 
 	private ISession currentSession;
@@ -40,9 +39,6 @@ public class MockDmClient implements IClientX, IClient, ILocalClient,
 	public MockDmClient() {
 	}
 
-	public ILocalClient getLocalClientEx() {
-		return this;
-	}
 
 	public ISessionManager newSessionManager() {
 		return this;

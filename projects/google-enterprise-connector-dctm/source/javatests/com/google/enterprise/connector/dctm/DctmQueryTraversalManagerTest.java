@@ -74,16 +74,10 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		
 	}
 
-	/*
+	
 	public void testMakeCheckpointQueryString(){
 		String uuid="090000018000e100";
 		String statement="";
-		///try{
-			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T13:58:10Z");
-			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
-		///}catch(ParseException pe){
-			///pe.printStackTrace();
-		///}
 		try{
 			statement=qtm.makeCheckpointQueryString(uuid,"2007-01-02 13:58:10");
 		}catch(RepositoryException re){
@@ -92,7 +86,9 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		
 		assertNotNull(statement);
 		///assertEquals(statement,"select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_modify_date >= '2007-01-02 13:58:10.000' order by r_modify_date, i_chronicle_id");
-		assertEquals(statement,"select i_chronicle_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_modify_date >= '2007-01-02 13:58:10' order by r_modify_date, i_chronicle_id");
+		String modified_request=DmInitialize.DM_QUERY_STRING_BOUNDED_DEFAULT.replaceAll("\\{0\\}","2007-01-02 13:58:10");
+		modified_request=modified_request.replaceAll("''","'");
+		assertEquals(statement,modified_request);
 		
 	}
 	
@@ -111,20 +107,18 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 					"checkPoint string does not parse as JSON: " + checkPoint);
 		}
 		
-		
 		uuid=qtm.extractDocidFromCheckpoint(jo,checkPoint);
-
 		System.out.println("uuid vaut "+uuid);
 		assertNotNull(uuid);
 		assertEquals(uuid, "090000018000e100");
 	}
-	*/
 	
-	/*public void testExtractCalendarFromCheckpoint() {
+	
+	public void testExtractNativeDateFromCheckpoint() {
 
 		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
 		JSONObject jo = null;
-		Calendar modifDate = null;
+		String modifDate = null;
 		Calendar calDate = null;
 		try {
 			jo = new JSONObject(checkPoint);
@@ -133,25 +127,17 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 					"checkPoint string does not parse as JSON: " + checkPoint);
 		}
 		
-		modifDate = qtm.extractCalendarFromCheckpoint(jo,checkPoint);
-		try{
-
-			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 13:58:10");
-
-		}catch(ParseException pe){
-			pe.printStackTrace();	
-		}
+		modifDate = qtm.extractNativeDateFromCheckpoint(jo,checkPoint);
+	
 		
 		System.out.println("modifDate vaut "+modifDate);
 		
 		assertNotNull(modifDate);
-		assertEquals(modifDate,calDate);
-		assertEquals(modifDate.getTimeInMillis(),calDate.getTimeInMillis());
+		assertEquals(modifDate,"2007-01-02 13:58:10");
 		
-		
-	}*/
+	}
 	
-	/*
+	
 	public void testIDfetchAndVerifyValueForCheckpoint() throws RepositoryException{
 		SimplePropertyMap pm = null;
 		pm = new SimplePropertyMap();
@@ -159,7 +145,6 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		try{
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 				new DctmSimpleValue(ValueType.STRING, "0900000180010b17")));
-		///pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02T14:19:29Z")));
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02 14:19:29")));
 		}catch(RepositoryException re){
 			re.printStackTrace();
@@ -184,7 +169,6 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		try{
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 				new DctmSimpleValue(ValueType.STRING, "0900000180010b17")));
-		///pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02T14:19:29Z")));
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02 14:19:29")));
 		}catch(RepositoryException re){
 			re.printStackTrace();
@@ -193,7 +177,6 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,SpiConstants.PROPNAME_LASTMODIFY).getDate();
 		
 		try{
-			///calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02T14:19:29Z");
 			calDate=DctmSimpleValue.iso8601ToCalendar("2007-01-02 14:19:29");
 		}catch(ParseException pe){
 				pe.printStackTrace();
@@ -212,7 +195,6 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		try{
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 				new DctmSimpleValue(ValueType.STRING, "0900000180010b17")));
-		///pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02T14:19:29Z")));
 		pm.putProperty(new SimpleProperty(SpiConstants.PROPNAME_LASTMODIFY, new DctmSimpleValue(ValueType.DATE, "2007-01-02 14:19:29")));
 		}catch(RepositoryException re){
 			re.printStackTrace();
@@ -224,24 +206,19 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 			re.printStackTrace();
 		}
 		
-		
-		//String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
 		assertNotNull(checkPoint);
-		///assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02T14:19:29.000Z\"}");
-		///assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29.000\"}");
 		assertEquals(checkPoint,"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29\"}");
 	}
-	*/
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.startTraversal()'
-	 */
+	
+
 	
 	public void testStartTraversal() {
+		
 		ResultSet resultset=null;
 		PropertyMap propertyMap=null;
 		int counter = 0;
 		try {
+			qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_UNBOUNDED);
 			resultset = qtm.startTraversal();
 			for (Iterator iter = resultset.iterator(); iter.hasNext();) {
 		        propertyMap = (PropertyMap) iter.next();
@@ -249,7 +226,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		            .getValue().getString());
 		        counter++;
 		      }
-			assertEquals(DmInitialize.DM_RETURN_TOP,counter);
+			assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED,counter);
 
 
 		} catch (RepositoryException e) {
@@ -258,15 +235,13 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		}
 	}
 	
-	/*
+	
 	public void testResumeTraversal(){
 		ResultSet myResu=null;
 		PropertyMap propertyMap=null;
-		//String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:58:10.000Z\"}";
-		///String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02T13:00:00.000Z\"}";
-		///String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:00:00.000\"}";
 		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:00:00\"}";
 		try{
+			qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_BOUNDED);
 			myResu=qtm.resumeTraversal(checkPoint);
 		}catch(RepositoryException re){
 			re.printStackTrace();
@@ -283,37 +258,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
-		assertEquals(12010,counter);
+		assertEquals(DmInitialize.DM_RETURN_TOP_BOUNDED,counter);
 	}
 
-*/
-	
-	
-	/*
-	public void testExtractNativeDateFromCheckpoint() {
-
-		String checkPoint="{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
-		JSONObject jo = null;
-		String modifDate = null;
-		try {
-			jo = new JSONObject(checkPoint);
-		} catch (JSONException e) {
-			throw new IllegalArgumentException(
-					"checkPoint string does not parse as JSON: " + checkPoint);
-		}
-		
-		modifDate = qtm.extractNativeDateFromCheckpoint(jo,checkPoint);
-	
-		
-		System.out.println("modifDate vaut "+modifDate);
-		
-		assertNotNull(modifDate);
-		assertEquals(modifDate,"2007-01-02 13:58:10");
-		//assertEquals(modifDate.getTimeInMillis(),calDate.getTimeInMillis());
-		
-		
-	}
-*/
-	
 
 }
