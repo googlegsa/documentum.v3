@@ -1,6 +1,9 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.query.QueryResult;
 
 import com.google.enterprise.connector.dctm.dfcwrap.*;
@@ -10,6 +13,8 @@ import com.google.enterprise.connector.spi.ResultSet;
 
 public class MockDmCollection implements ICollection {
 	private NodeIterator collection;
+
+	private Node currentNode;
 
 	protected MockDmCollection(QueryResult mjQueryResult)
 			throws RepositoryException {
@@ -22,10 +27,21 @@ public class MockDmCollection implements ICollection {
 
 	public boolean next() {
 		if (collection.hasNext()) {
-			collection.nextNode();
+			currentNode = collection.nextNode();
 			return true;
 		}
 		return false;
+	}
+
+	public String getString(String colName) throws RepositoryException {
+		try {
+			Property tmp = currentNode.getProperty(colName);
+			return tmp.getString();
+		} catch (PathNotFoundException e) {
+			throw new RepositoryException(e);
+		} catch (javax.jcr.RepositoryException e) {
+			throw new RepositoryException(e);
+		}
 	}
 
 	public ResultSet buildResulSetFromCollection(ISessionManager sessionManager)
@@ -34,13 +50,10 @@ public class MockDmCollection implements ICollection {
 		return test;
 	}
 
+	/**
+	 * Never used for mock
+	 */
 	public IValue getValue(String attrName) throws RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getString(String colName) throws RepositoryException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

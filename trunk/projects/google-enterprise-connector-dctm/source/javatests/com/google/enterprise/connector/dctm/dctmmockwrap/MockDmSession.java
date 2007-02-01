@@ -44,9 +44,12 @@ public class MockDmSession implements ISession {
 	}
 
 	public ISysObject getObject(IId objectId) throws RepositoryException {
-		/*MockDmRepositoryDocument dctmMockRepositoryDocument = new MockDmRepositoryDocument(
-				mockRep.getRepo().getStore().getDocByID(objectId.toString()));
-		return dctmMockRepositoryDocument;*/
+		/*
+		 * MockDmRepositoryDocument dctmMockRepositoryDocument = new
+		 * MockDmRepositoryDocument(
+		 * mockRep.getRepo().getStore().getDocByID(objectId.toString())); return
+		 * dctmMockRepositoryDocument;
+		 */
 		return null;
 	}
 
