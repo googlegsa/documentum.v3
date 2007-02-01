@@ -16,7 +16,6 @@ public class AllConnectorTests {
 		suite.addTestSuite(DctmSessionTest.class);
 		suite.addTestSuite(DctmSysobjectValueTest.class);
 		suite.addTestSuite(DctmAuthorizationManagerTest.class);
-		suite.addTestSuite(QueryTraverserTest.class);
 		suite.addTestSuite(DctmConnectorTest.class);
 		suite.addTestSuite(DctmQueryTraversalManagerTest.class);
 		suite.addTestSuite(DctmAuthenticationManagerTest.class);
