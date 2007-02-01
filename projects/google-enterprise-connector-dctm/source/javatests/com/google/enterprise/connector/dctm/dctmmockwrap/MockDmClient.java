@@ -238,8 +238,12 @@ public class MockDmClient implements IClientX, IClient,
 		return this;
 	}
 
+	/**
+	 * Never called for mock
+	 */
 	public IId getId(String id) {
-		return new MockDmId(id);
+		//return new MockDmId(id);
+		return null;
 	}
 
 	public IClient getLocalClient() throws RepositoryException {
