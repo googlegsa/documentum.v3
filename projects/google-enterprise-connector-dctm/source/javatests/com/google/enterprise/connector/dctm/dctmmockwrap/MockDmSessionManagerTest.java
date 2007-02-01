@@ -13,7 +13,8 @@ import junit.framework.TestCase;
 public class MockDmSessionManagerTest extends TestCase {
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmSessionManager.getSession(String)'
+	 * Test method for
+	 * 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmSessionManager.getSession(String)'
 	 */
 	public void testGetSession() throws RepositoryException {
 		IClientX dctmClientX = new MockDmClient();
