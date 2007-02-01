@@ -14,14 +14,12 @@ public class MockDmSession implements ISession {
 
 	private MockJcrSession mockJcrSession;
 
-	// private String sessionID;
 	private String sessionFileNameSuffix;
 
 	public MockDmSession(MockJcrRepository mjR, MockJcrSession mjS,
 			String dbFileName) {
 		this.mockRep = mjR;
 		this.mockJcrSession = mjS;
-		// this.sessionID=sessID;
 		this.sessionFileNameSuffix = dbFileName;
 	}
 
@@ -29,36 +27,25 @@ public class MockDmSession implements ISession {
 		return mockRep.getRepo().getStore();
 	}
 
-	// public String getSessionId() {
-	// return sessionID;
-	// }
-
 	public String getLoginTicketForUser(String username) {
 		// this assumes that Mock authenticated the session by
 		// checking username==paswword
 		return mockJcrSession.getUserID();// The only security here is
-											// inherent to the fact that if
-											// authentication failed,
-											// Session==null the returning
-											// getUserId instead of directly
-											// retuning username would throw a
-											// nullPointerException
+		// inherent to the fact that if
+		// authentication failed,
+		// Session==null the returning
+		// getUserId instead of directly
+		// retuning username would throw a
+		// nullPointerException
 	}
 
 	public String getDocbaseName() {
 		return this.sessionFileNameSuffix;
 	}
 
-	public MockJcrSession getMockJcrSession() {
-		return mockJcrSession;
-	}
-
-	public void setMockJcrSession(MockJcrSession mockJcrSession) {
-		this.mockJcrSession = mockJcrSession;
-	}
-
 	public ISysObject getObject(IId objectId) throws RepositoryException {
-		MockDmRepositoryDocument dctmMockRepositoryDocument = new MockDmRepositoryDocument();
+		MockDmRepositoryDocument dctmMockRepositoryDocument = new MockDmRepositoryDocument(
+				mockRep.getRepo().getStore().getDocByID(objectId.toString()));
 		return dctmMockRepositoryDocument;
 	}
 

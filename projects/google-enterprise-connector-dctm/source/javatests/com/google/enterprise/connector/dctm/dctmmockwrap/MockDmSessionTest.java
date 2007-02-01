@@ -23,9 +23,9 @@ public class MockDmSessionTest extends TestCase {
 
 		ISessionManager sessionManager = localClient.newSessionManager();
 
-		String user = "queryUser";
-		String password = "p@ssw0rd";
-		String docbase = "gsadctm";
+		String user = "Mark";
+		String password = "Mark";
+		String docbase = "MockRepositoryEventLog7.txt";
 
 		ILoginInfo loginInfo =  clientX.getLoginInfo();
 		loginInfo.setUser(user);
