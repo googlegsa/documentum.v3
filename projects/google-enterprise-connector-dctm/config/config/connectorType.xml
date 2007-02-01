@@ -8,7 +8,7 @@
 				<value>login</value>
 				<value>password</value>
 				<value>docbase</value>
-				<value>client</value>
+				<value>clientX</value>
 				<value>queryStringUnboundedDefault</value>
 				<value>queryStringBoundedDefault</value>
 				<value>queryStringAuthoriseDefault</value>
