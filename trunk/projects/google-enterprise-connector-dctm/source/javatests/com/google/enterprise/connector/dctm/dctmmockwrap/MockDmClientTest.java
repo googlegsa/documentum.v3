@@ -19,9 +19,9 @@ public class MockDmClientTest extends TestCase {
 		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = dctmClientX.getLocalClient();
 
-		String user = "queryUser";
-		String password = "p@ssw0rd";
-		String docbase = "gsadctm";
+		String user = "Mark";
+		String password = "Mark";
+		String docbase = "MockRepositoryEventLog7.txt";
 
 		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
 		loginInfo.setUser(user);
@@ -38,7 +38,6 @@ public class MockDmClientTest extends TestCase {
 	 */
 	public void testGetLoginInfo() throws RepositoryException {
 		IClientX dctmClientX = new MockDmClient();
-		IClient localClient = dctmClientX.getLocalClient();
 
 		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
 		Assert.assertTrue(loginInfo instanceof MockDmLoginInfo);

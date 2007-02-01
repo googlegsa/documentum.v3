@@ -25,6 +25,10 @@ public class MockDmRepositoryDateTime implements ITime {
 	// and that tocks==0 <=> Thu, 01 Jan 1970 00:00:00 GMT
 
 	private MockRepositoryDateTime mrDT;
+	
+	protected MockDmRepositoryDateTime(MockRepositoryDateTime dt) {
+		this.mrDT = dt;
+	}
 
 	public String asString(String pattern) {
 		Date tmp = new Date(mrDT.getTicks());

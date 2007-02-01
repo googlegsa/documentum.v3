@@ -28,7 +28,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class MockDmClient implements IClientX, IClient,
 		ISessionManager {
 
-	private ISession currentSession;
+	private MockDmSession currentSession;
 
 	private Hashtable sessMgerCreds = new Hashtable(1, 1);
 
@@ -89,30 +89,13 @@ public class MockDmClient implements IClientX, IClient,
 	}
 
 	/**
-	 * ILocalClient's method
-	 */
-	// public ISession findSession(String dfcSessionId) {
-	// String dbName = (String) this.sessMgerIDs.get(dfcSessionId);
-	// return (ISession) this.sessMgerSessions.get(dbName);
-	// }
-	/**
 	 * Factory method for an IDfLoginInfo object. Constructs a new empty object
 	 * to set with login details prior to connecting to Documentum servers.
 	 */
 	public ILoginInfo getLoginInfo() {
 		return new MockDmLoginInfo();
 	}
-
-	/**
-	 * IClient's method. Returns current session. Implemented so as to retrieve
-	 * the session within the DocPusher assuming the client instance remained
-	 * unchanged. Otherwise a user and a password would be to provide with
-	 * Pusher's instance.
-	 */
-	// public ISession getSession() {
-	// return currentSession;
-	// }
-	//	
+	
 	/**
 	 * Session Manager's method. Sets current session as well
 	 * 
@@ -171,7 +154,7 @@ public class MockDmClient implements IClientX, IClient,
 	 * @return
 	 * @throws com.google.enterprise.connector.spi.RepositoryException
 	 */
-	private ISession createAuthenticatedSession(String db, ILoginInfo iLI)
+	private MockDmSession createAuthenticatedSession(String db, ILoginInfo iLI)
 			throws com.google.enterprise.connector.spi.RepositoryException {
 		// db is actually the suffix of the filename that is used to create the
 		// eventlist.
@@ -212,7 +195,7 @@ public class MockDmClient implements IClientX, IClient,
 	}
 
 	public void setSession(ISession session) {
-		currentSession = session;
+		currentSession = (MockDmSession) session;
 	}
 
 	public void setSessionManager(ISessionManager session) {
@@ -244,7 +227,7 @@ public class MockDmClient implements IClientX, IClient,
 	 * session management
 	 */
 	public void setDocbaseName(String docbaseName) {
-		currentSession = (ISession) sessMgerSessions.get((Object) docbaseName);
+		currentSession = (MockDmSession) sessMgerSessions.get((Object) docbaseName);
 	}
 
 	public String getServerUrl() {
@@ -262,8 +245,7 @@ public class MockDmClient implements IClientX, IClient,
 	public IClient getLocalClient() throws RepositoryException {
 		return this;
 	}
-	
-///
+
 	public IClient getClient() {
 		
 		return this;
