@@ -34,9 +34,9 @@ public class MockMockList implements List {
 				.getSession(sessionManager.getDocbaseName())).getStore();
 		for (int j = 0; j < ids.length; j++) {
 			MockRepositoryDocument doc = store.getDocByID(ids[j]);// if no
-																	// 'content'
-																	// defined,
-																	// doc==null
+			// 'content'
+			// defined,
+			// doc==null
 			if (doc != null) {
 				MockRepositoryPropertyList pl = doc.getProplist();
 				MockRepositoryProperty p = pl.getProperty("acl");

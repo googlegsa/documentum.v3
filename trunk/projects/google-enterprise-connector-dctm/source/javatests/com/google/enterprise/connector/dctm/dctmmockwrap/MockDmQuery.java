@@ -45,9 +45,15 @@ public class MockDmQuery implements IQuery {
 			ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
 					.length());
 			List filteredResults = new MockMockList(ids, sessionManager);
-			QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
-			MockDmCollection finalCollection = new MockDmCollection(filteredQR);
-			return finalCollection;
+			if (filteredResults != null) {
+				QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
+				MockDmCollection finalCollection = new MockDmCollection(
+						filteredQR);
+				return finalCollection;
+			} else {
+				return null;// null value is tested in DctmAuthorizationManager
+							// and won't lead to any NullPointerException
+			}
 		}
 	}
 
