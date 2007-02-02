@@ -187,7 +187,12 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 		// eventlist.
 		// As there is no way we can retrieve it, we will store it in the
 		// MockDmSession we create.
-		MockRepositoryEventList mrel = new MockRepositoryEventList(db);
+		MockRepositoryEventList mrel = null;
+		try {
+			mrel = new MockRepositoryEventList(db);
+		} catch (RuntimeException e) {
+			throw new RepositoryException(e);
+		}
 
 		MockJcrRepository repo = new MockJcrRepository(new MockRepository(mrel));
 		Credentials creds = null;
