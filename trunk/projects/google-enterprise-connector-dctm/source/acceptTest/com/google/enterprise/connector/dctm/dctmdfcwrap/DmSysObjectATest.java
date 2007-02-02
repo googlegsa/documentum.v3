@@ -32,6 +32,8 @@ public class DmSysObjectATest extends TestCase {
 
 	ISessionManager sessionManager;
 
+	DmDocument document;
+
 	public void setUp() throws Exception {
 		super.setUp();
 		IClientX dctmClientX;
@@ -49,6 +51,8 @@ public class DmSysObjectATest extends TestCase {
 		session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 		object = session.getObject(dctmClientX.getId(DmInitialize.DM_ID1));
 
+		System.out.println("setup");
+		document = CreateNewDocument(session);
 	}
 
 	public void testGetFormat() throws RepositoryException {
@@ -75,83 +79,82 @@ public class DmSysObjectATest extends TestCase {
 	}
 
 	public void testGetContent() throws DfException, RepositoryException,
-	IOException{
-		try{
-			DmDocument document= CreateNewDocument(session);
-			ByteArrayInputStream content = ((DmSysObject)document).getContent();
+			IOException {
+		try {
+
+			ByteArrayInputStream content = ((DmSysObject) document)
+					.getContent();
 			Assert.assertNotNull(content);
-			deleteDocument(document);
-		}finally{
-			if(session != null){
+
+		} finally {
+			if (session != null) {
 				sessionManager.release(session);
 			}
 		}
 	}
-			
-	
-	
-		
+
 	public void testEnumAttrs() throws DfException, RepositoryException,
-	IOException{
-		DmDocument document= CreateNewDocument(session);
-		Enumeration attrs = ((DmSysObject)document).enumAttrs();
+			IOException {
+
+		Enumeration attrs = ((DmSysObject) document).enumAttrs();
 		Assert.assertNotNull(attrs);
-		while (attrs.hasMoreElements()){
+		while (attrs.hasMoreElements()) {
 			IDfAttr curAttr = (IDfAttr) attrs.nextElement();
 			String name = curAttr.getName();
-			System.out.println("name vaut "+name);
-			if (name.equals("object_name")){
-				String object_name=document.getString("object_name");
-				Assert.assertEquals(object_name,"Document creation test");
+			System.out.println("name vaut " + name);
+			if (name.equals("object_name")) {
+				String object_name = document.getString("object_name");
+				Assert.assertEquals(object_name, "Document creation test");
 				// break;
 			}
 			// break;
 		}
+
+	}
+
+	public void testGetACLDomain() throws DfException, RepositoryException,
+			IOException {
+
+		String ACLDomain = ((DmSysObject) document).getACLDomain();
+		System.out.println("acldomain vaut " + ACLDomain);
+		Assert.assertNotNull(ACLDomain);
+		Assert.assertEquals(ACLDomain, DmInitialize.DM_LOGIN_OK1);
+	}
+
+	public void testGetACLName() throws DfException, RepositoryException,
+			IOException {
+
+		String ACLName = ((DmSysObject) document).getACLName();
+		System.out.println("aclname vaut " + ACLName);
+		Assert.assertNotNull(ACLName);
+
+	}
+
+	public DmDocument CreateNewDocument(ISession session)
+			throws RepositoryException, IOException {
+		document = ((DmSession) session).newObject();
+		File f = new File("DocumentCreationTest.txt");
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+		oos
+				.writeObject("Foundation Course Content Outline Overview Concepts The mission of Google and Google Enterprise");
+		document.setFileEx("DocumentCreationTest.txt", "text");
+		document.setObjectName("Document creation test");
+		document.save();
+		oos.close();
+		boolean del = f.delete();
+		System.out.println("del vaut " + del);
+		return document;
+	}
+
+	public static void deleteDocument(DmDocument document)
+			throws RepositoryException {
+		document.destroyAllVersions();
+	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		System.out.println("teardown");
 		deleteDocument(document);
 	}
-		
-		
-		
-		
-		
-		public void testGetACLDomain() throws DfException, RepositoryException,
-		IOException{
-			DmDocument document= CreateNewDocument(session);
-			String ACLDomain = ((DmSysObject)document).getACLDomain();
-			System.out.println("acldomain vaut "+ACLDomain);
-			Assert.assertNotNull(ACLDomain);
-			Assert.assertEquals(ACLDomain,DmInitialize.DM_LOGIN_OK1);
-			deleteDocument(document);
-		}
-		
-		
-		public void testGetACLName() throws DfException, RepositoryException,
-		IOException{
-			DmDocument document= CreateNewDocument(session);
-			String ACLName = ((DmSysObject)document).getACLName();
-			System.out.println("aclname vaut "+ACLName);
-			Assert.assertNotNull(ACLName);
-			deleteDocument(document);
-		}
-		
-		public DmDocument CreateNewDocument(ISession session) throws
-		RepositoryException, IOException{
-			DmDocument document=((DmSession)session).newObject();
-			File f=new File("DocumentCreationTest.txt");
-			ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(f));
-			oos.writeObject("Foundation Course Content Outline Overview Concepts The mission of Google and Google Enterprise");
-					document.setFileEx("DocumentCreationTest.txt","text");
-					document.setObjectName("Document creation test");
-					document.save();
-					oos.close();
-					boolean del=f.delete();
-					System.out.println("del vaut "+del);
-					return document;
-		}
-		
-		public static void deleteDocument(DmDocument document) throws
-		RepositoryException{
-			document.destroyAllVersions();
-		}
 
 }

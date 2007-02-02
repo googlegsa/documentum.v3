@@ -8,7 +8,7 @@ import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
-//import com.google.enterprise.connector.test.QueryTraversalUtil;
+
 
 public class DctmQueryTraversalUtilCall extends TestCase {
 

@@ -25,7 +25,9 @@ public class OutputPerformancesTest extends TestCase {
 	 */
 	public void testCalibrate(){
 		PropertyConfigurator.configure("GSALogs.properties");
+
 		OutputPerformances.setPerfFlag(this,"Instantiation cost test");
+
 		String user, password, clientX, docbase;
 		user="user1";
 		password="p@ssw0rd";
@@ -74,13 +76,17 @@ public class OutputPerformancesTest extends TestCase {
 			System.runFinalization();
 			System.gc();
 			tmpLOG.info("********BEGIN - Successive tests - Highlights unreleased objects memory effects********************************************************");
+
 			OutputPerformances.setPerfFlag((new Vector()),"Global load test");
+
 			for (int i=1 ; i<5000 ; i=i+2){
 				int j=i+1;
+
 				OutputPerformances.setPerfFlag((new String()),"Free load test #" + i);
 				OutputPerformances.endFlag((new String()),"Free load test #" + i);
 				OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test #" + j);
 				OutputPerformances.endFlag((new StringBuffer()),"Free load test #" + j);
+
 			}
 			OutputPerformances.endFlag((new Vector()),"Global load test");
 			tmpLOG.info("********END - Successive tests - Highlights unreleased objects memory effects********************************************************\n\n");
@@ -88,6 +94,7 @@ public class OutputPerformancesTest extends TestCase {
 
 			tmpLOG.info("********BEGIN - Successive tests - Highlights outputing objects memory amount (typically Hashtables memory cost)********************************************************");
 			tmpLOG.info("********BEGIN - Successive tests - Load/Unload test (symetry test)******************************");
+
 			OutputPerformances.setPerfFlag((new String()),"Free load test keeping hashtables #1");
 			OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test keeping hashtables #2");
 			OutputPerformances.setPerfFlag((new Vector()),"Free load test keeping hashtables #3");
@@ -108,11 +115,15 @@ public class OutputPerformancesTest extends TestCase {
 			OutputPerformances.endFlag((new Vector()),"Free load test keeping hashtables #3");
 			OutputPerformances.endFlag((new StringBuffer()),"Free load test keeping hashtables #2");
 			OutputPerformances.endFlag((new String()),"Free load test keeping hashtables #1");
+
 			tmpLOG.info("********END - Successive tests - Load/Unload test (symetry test)******************************\n\n");
 			tmpLOG.info("********BEGIN - Successive tests - Hashtables test******************************");
+
 			Hashtable h = new Hashtable(1,1);
 			OutputPerformances.setPerfFlag((new Vector()),"Global load test");
+
 			for (int i=0 ; i<10000 ; i++){
+
 				OutputPerformances.setPerfFlag(new OutputPerformances(),"Iteration "+i);
 				if (true) {
 					String o = "##" + i;

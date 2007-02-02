@@ -3,11 +3,8 @@ package com.google.enterprise.connector.dctm;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSession;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -19,39 +16,39 @@ import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DctmSysobjectValueTest extends TestCase {
-	
-	public void testTraversal() throws LoginException, RepositoryException, DfException {
+
+	public void testTraversal() throws LoginException, RepositoryException,
+			DfException {
 		IClientX clientX = new DmClientX();
 		IClient localClient = clientX.getLocalClient();
-		
+
 		ISessionManager sessionManager = localClient.newSessionManager();
-		
-		String user="queryUser";
-		String password="p@ssw0rd";
-		String docbase="gsadctm";
-		
+
+		String user = "queryUser";
+		String password = "p@ssw0rd";
+		String docbase = "gsadctm";
+
 		ILoginInfo loginInfo = clientX.getLoginInfo();
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
-		
+
 		sessionManager.setIdentity(docbase, loginInfo);
-		
+
 		ISession session = null;
 		try {
 			session = sessionManager.getSession(docbase);
-			String idString = DmInitialize.getAnExistingObjectId(session);
-			System.out.println("idString " + idString);
+			String idString = DmInitialize.DM_ID1;
 			IId id = clientX.getId(idString);
 			ISysObject object = session.getObject(id);
-			
-			DctmSysobjectValue value = new DctmSysobjectValue(object, "r_object_id");
+
+			DctmSysobjectValue value = new DctmSysobjectValue(object,
+					"r_object_id");
 			Assert.assertEquals(idString, value.getString());
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
 			}
-		}	
+		}
 	}
-	
-}
 
+}
