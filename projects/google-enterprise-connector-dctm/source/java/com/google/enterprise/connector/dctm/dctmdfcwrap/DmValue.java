@@ -6,6 +6,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 
 public class DmValue implements IValue {
+	
 	IDfValue idfValue;
 
 	public DmValue(IDfValue idfValue) {

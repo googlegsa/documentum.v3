@@ -39,7 +39,6 @@ public class DmClientX implements IClientX {
 		} catch (DfException e) {
 			throw new RepositoryException(e);
 		}
-		// /DmClient dctmClient = new DmClient(localClient, clientX);
 		DmClient dctmClient = new DmClient(localClient);
 		return dctmClient;
 	}
@@ -52,10 +51,10 @@ public class DmClientX implements IClientX {
 		System.out.println("--- setClient ---");
 		this.dmClient = (DmClient) client;
 		System.out.println("--- setClient avant getSessionManager---");
+
 	}
 
 	public IClient getClient() {
-		System.out.println("--- getClient ---");
 		return dmClient;
 	}
 
@@ -64,9 +63,8 @@ public class DmClientX implements IClientX {
 	}
 
 	public ISessionManager getSessionManager() {
-		System.out.println("--- getSessionManager ---");
+		// System.out.println("--- getSessionManager ---");
 		return dmSessionManager;
-		// new DmSessionManager(idfSessionManager);
 	}
 
 	public IQuery getQuery() {

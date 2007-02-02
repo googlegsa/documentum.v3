@@ -46,6 +46,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
 		System.out.println("DCTMAuthenticate method authenticate "
 				+ authenticate);
+
 		return authenticate;
 	}
 
@@ -66,14 +67,5 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	public void setClientX(IClientX clientX) {
 		this.clientX = clientX;
 	}
-
-	/*
-	 * public IClient getClient() { return client; }
-	 * 
-	 * 
-	 * public void setClient(IClientX clientX) { try {
-	 * this.client=clientX.getLocalClient(); } catch (RepositoryException e) { //
-	 * TODO Auto-generated catch block e.printStackTrace(); } }
-	 */
 
 }

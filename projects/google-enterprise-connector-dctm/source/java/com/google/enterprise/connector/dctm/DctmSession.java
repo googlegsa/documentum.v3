@@ -12,10 +12,8 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
 public class DctmSession implements Session {
-	// IClient client;
 	IClientX clientX;
 
-	// ILocalClient localClient;
 	IClient client;
 
 	ISessionManager sessionManager;
@@ -27,22 +25,6 @@ public class DctmSession implements Session {
 
 	String docbase;
 
-	// Constructor never called except for tests
-	public DctmSession() throws RepositoryException {
-		/*
-		 * System.out.println("--- DctmSession constructor without
-		 * arguments---"); ILoginInfo dctmLoginInfo=null; client = new
-		 * DmClient(); docbase = "gsadctm"; localClient =
-		 * client.getLocalClientEx(); sessionManager =
-		 * localClient.newSessionManager(); dctmLoginInfo =
-		 * client.getLoginInfo(); dctmLoginInfo.setUser("queryUser");
-		 * dctmLoginInfo.setPassword("p@ssw0rd");
-		 * sessionManager.setIdentity(docbase,dctmLoginInfo); session =
-		 * sessionManager.newSession(docbase); sessionManager.release(session);
-		 */
-		// this.client.setSession(session);
-	}
-
 	/**
 	 * 
 	 * @param client
@@ -51,6 +33,7 @@ public class DctmSession implements Session {
 	 * @param docbase
 	 * @throws RepositoryException
 	 */
+
 	public DctmSession(String clientX, String login, String password,
 			String docbase, String qsud, String qsbd, String qsad, String an,
 			String wsu) throws RepositoryException {
@@ -123,6 +106,7 @@ public class DctmSession implements Session {
 	public QueryTraversalManager getQueryTraversalManager()
 			throws RepositoryException {
 		System.out.println("--- DctmSession getQueryTraversalManager---");
+
 		DctmQueryTraversalManager dctmQtm = null;
 
 		if (DebugFinalData.debug)
@@ -229,5 +213,17 @@ public class DctmSession implements Session {
 
 	public void setDocbase(String docbase) {
 		this.docbase = docbase;
+	}
+
+	public ISessionManager getSessionManager() {
+		return sessionManager;
+	}
+
+	public void setSessionManager(ISessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	public void setClientX(IClientX clientX) {
+		this.clientX = clientX;
 	}
 }

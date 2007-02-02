@@ -6,6 +6,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 
 public class DmPersistentObject extends DmTypedObject implements
 		IPersistentObject {
+
 	IDfPersistentObject idfPersistentObject;
 
 	public DmPersistentObject(IDfPersistentObject idfPersistentObject) {

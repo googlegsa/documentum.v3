@@ -11,6 +11,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmQuery implements IQuery {
+	
 	IDfQuery idfQuery;
 
 	public static int DF_READ_QUERY = IDfQuery.DF_READ_QUERY;
@@ -24,12 +25,14 @@ public class DmQuery implements IQuery {
 	}
 
 	public void setDQL(String dqlStatement) {
+
 		idfQuery.setDQL(dqlStatement);
 	}
 
 	public ICollection execute(ISessionManager sessionManager, int queryType)
 			throws RepositoryException {
 		System.out.println("--- DmQuery execute ---");
+
 		if (!(sessionManager instanceof DmSessionManager)) {
 			throw new IllegalArgumentException();
 		}
@@ -46,6 +49,7 @@ public class DmQuery implements IQuery {
 		try {
 			DfCollection = idfQuery.execute(idfSession, queryType);
 		} catch (DfException de) {
+
 			RepositoryException re = new RepositoryException(de);
 			re.setStackTrace(de.getStackTrace());
 			throw re;

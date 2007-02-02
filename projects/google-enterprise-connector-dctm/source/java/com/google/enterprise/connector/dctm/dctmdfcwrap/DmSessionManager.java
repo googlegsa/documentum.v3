@@ -15,6 +15,7 @@ import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSessionManager implements ISessionManager {
+	
 	IDfSessionManager dfSessionManager;
 
 	private String docbaseName;
@@ -114,6 +115,7 @@ public class DmSessionManager implements ISessionManager {
 
 	public void setServerUrl(String serverUrl) {
 		this.serverUrl = serverUrl;
+
 		System.out.println("serverUrl vaut " + serverUrl);
 
 	}
@@ -137,9 +139,8 @@ public class DmSessionManager implements ISessionManager {
 			this.dfSessionManager.authenticate(docbaseName);
 			authent = true;
 		} catch (DfException e) {
-			// RepositoryException re = new RepositoryException(e);
-			// re.printStackTrace();
 			return false;
+
 		}
 		return authent;
 

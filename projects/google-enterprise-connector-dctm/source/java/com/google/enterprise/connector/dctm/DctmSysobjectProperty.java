@@ -25,17 +25,14 @@ public class DctmSysobjectProperty implements Property {
 	}
 
 	public String getName() throws RepositoryException {
-		// TODO Auto-generated method stub
 		return name;
 	}
 
 	public Value getValue() throws RepositoryException {
-		// TODO Auto-generated method stub
 		return dctmSysobjectValue;
 	}
 
 	public Iterator getValues() throws RepositoryException {
-		// TODO Auto-generated method stub
 		List l = new ArrayList(1);
 		l.add(dctmSysobjectValue);
 		return l.iterator();

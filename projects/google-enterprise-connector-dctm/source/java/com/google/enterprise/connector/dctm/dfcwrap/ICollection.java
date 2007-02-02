@@ -8,8 +8,6 @@ public interface ICollection {
 
 	public boolean next() throws RepositoryException;
 
-	// public ITypedObject getTypedObject() throws RepositoryException;
-	// public IId getObjectId() throws RepositoryException;
 	public String getString(String colName) throws RepositoryException;
 
 	public ResultSet buildResulSetFromCollection(
