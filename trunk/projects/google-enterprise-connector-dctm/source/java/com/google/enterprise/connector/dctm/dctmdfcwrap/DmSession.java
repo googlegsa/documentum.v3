@@ -1,10 +1,14 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.documentum.fc.client.IDfDocument;
+import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
+import com.google.enterprise.connector.dctm.dfcwrap.IDocument;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.LoginException;
@@ -57,6 +61,19 @@ public class DmSession implements ISession {
 		}
 		return ticket;
 	}
+	
+	public DmDocument newObject() throws RepositoryException {
+		IDfDocument document=null;
+		try {
+			document=(IDfDocument)this.idfSession.newObject("dm_document");
+		}catch (DfException de) {
+			RepositoryException re = new RepositoryException(de);
+			re.setStackTrace(de.getStackTrace());
+			throw re;
+		}	
+		return new DmDocument(document);
+	}
+	
 
 
 }
