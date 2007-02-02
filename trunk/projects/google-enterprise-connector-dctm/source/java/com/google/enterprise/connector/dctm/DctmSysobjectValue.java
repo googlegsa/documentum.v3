@@ -2,6 +2,7 @@ package com.google.enterprise.connector.dctm;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,7 +17,10 @@ import com.google.enterprise.connector.spi.ValueType;
 public class DctmSysobjectValue implements Value {
 
 	private static final SimpleDateFormat ISO8601_DATE_FORMAT_MILLIS = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss.SSS");
+			"yyyy-MM-dd HH:mm:ss.SSS");
+
+	private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss");
 
 	ISysObject sysObject = null;
 
@@ -109,6 +113,7 @@ public class DctmSysobjectValue implements Value {
 			str = new ByteArrayInputStream(new byte[1]);
 		}
 		return str;
+
 	}
 
 	public String getString() throws IllegalArgumentException,
@@ -137,8 +142,7 @@ public class DctmSysobjectValue implements Value {
 	}
 
 	public ValueType getType() throws RepositoryException {
-		// do we need this?
-		// throw new UnsupportedOperationException();
+
 		int dataType = sysObject.getAttrDataType(name);
 		System.out.println("--- DctmSysobjectValue getType datatype vaut "
 				+ dataType);
@@ -159,6 +163,34 @@ public class DctmSysobjectValue implements Value {
 			return ValueType.DATE;
 		}
 		return null;
+
+	}
+
+	public static String calendarToIso8601(Calendar c) {
+
+		Date d = c.getTime();
+		String isoString = ISO8601_DATE_FORMAT_MILLIS.format(d);
+		return isoString;
+
+	}
+
+	private static Date iso8601ToDate(String s) throws ParseException {
+		Date d = null;
+		try {
+			d = ISO8601_DATE_FORMAT_MILLIS.parse(s);
+			return d;
+		} catch (ParseException e) {
+			// this is just here so we can try another format
+		}
+		d = ISO8601_DATE_FORMAT_SECS.parse(s);
+		return d;
+	}
+
+	public static Calendar iso8601ToCalendar(String s) throws ParseException {
+		Date d = iso8601ToDate(s);
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		return c;
 	}
 
 }

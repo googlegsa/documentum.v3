@@ -1,11 +1,11 @@
 package com.google.enterprise.connector.dctm;
 
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import com.google.enterprise.connector.dctm.dctmdfcwrap.DmAttr;
+
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
+
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -27,6 +27,7 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 	private ISessionManager sessionManager = null;
 
 	private IClientX clientX;
+
 
 	private String isPublic = "false";
 
@@ -217,7 +218,6 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 		// return propNames.iterator();
 		fetch();
 		///Enumeration metas = object.enumAttrs();
-		DctmSimpleValue dctmSimpleValue;
 		HashSet properties = new HashSet();
 
 		for (int i = 0; i < object.getAttrCount(); i++) {
@@ -232,7 +232,6 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 			}
 		}
 		return properties.iterator();
-		// throw new UnsupportedOperationException();
 	}
 
 }

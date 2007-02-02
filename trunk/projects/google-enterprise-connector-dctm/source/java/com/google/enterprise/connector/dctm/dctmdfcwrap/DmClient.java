@@ -36,6 +36,7 @@ public class DmClient implements IClient {
 	public ISession newSession(String docbase, ILoginInfo logInfo)
 			throws LoginException {
 		System.out.println("--- DmClient newSession ---");
+
 		IDfSession sessionUser = null;
 		IDfLoginInfo idfLogInfo = new DfLoginInfo();
 		idfLogInfo.setUser(logInfo.getUser());
@@ -59,22 +60,25 @@ public class DmClient implements IClient {
 		try {
 			this.idfClient.authenticate(docbaseName, idfLoginInfo);
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
+			return false;
 		}
 		return true;
 
 	}
 
 	public ISessionManager getSessionManager() {
+
 		System.out.println("getSessionmanager -- docbasename vaut "
 				+ dmSessionManager.getDocbaseName());
+
 		return dmSessionManager;
-		// new DmSessionManager(idfSessionManager);
 	}
 
 	public void setSessionManager(ISessionManager sessionManager) {
+
 		System.out.println("--- setSessionManager ---");
 		dmSessionManager = (DmSessionManager) sessionManager;
+
 	}
 
 	public ISessionManager newSessionManager() {

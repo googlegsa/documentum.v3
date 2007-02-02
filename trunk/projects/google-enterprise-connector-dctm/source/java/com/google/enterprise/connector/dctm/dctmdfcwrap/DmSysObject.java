@@ -2,9 +2,7 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import java.io.ByteArrayInputStream;
 import java.util.Enumeration;
-import java.util.StringTokenizer;
 
-import com.documentum.fc.client.IDfEnumeration;
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSysObject;
@@ -26,9 +24,12 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 	}
 
 	public IFormat getFormat() throws RepositoryException {
-		System.out.println("--- DmSysObject getFormat ---");
+
+		// System.out.println("--- DmSysObject getFormat ---");
 		IDfFormat idfFormat = null;
+
 		try {
+
 			idfFormat = idfSysObject.getFormat();
 
 		} catch (DfException e) {
@@ -54,7 +55,7 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 	}
 
 	public ByteArrayInputStream getContent() throws RepositoryException {
-		System.out.println("--- DmSysObject getContent ---");
+		// System.out.println("--- DmSysObject getContent ---");
 		ByteArrayInputStream content = null;
 		try {
 			content = idfSysObject.getContent();
@@ -68,7 +69,8 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 
 	public Enumeration enumAttrs() throws RepositoryException {
 		Enumeration attrs = null;
-		System.out.println("--- DmSysObject enumAttrs ---");
+
+		// System.out.println("--- DmSysObject enumAttrs ---");
 		try {
 			attrs = idfSysObject.enumAttrs();
 		} catch (DfException e) {
@@ -76,10 +78,10 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
-		if (attrs != null){
+		if (attrs != null) {
 			return attrs;
-		} 	
-		//return new StringTokenizer("");
+		}
+		// return new StringTokenizer("");
 		return null;
 	}
 
@@ -175,7 +177,7 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			throw re;
 		}
 	}
-	
+
 	public int getAttrCount() throws RepositoryException {
 		try {
 			return idfSysObject.getAttrCount();
@@ -185,7 +187,7 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			throw re;
 		}
 	}
-	
+
 	public IAttr getAttr(int attrIndex) throws RepositoryException {
 		try {
 			return new DmAttr(idfSysObject.getAttr(attrIndex));

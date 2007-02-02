@@ -5,7 +5,6 @@ import java.text.MessageFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
@@ -20,13 +19,8 @@ import com.google.enterprise.connector.spi.ResultSet;
 
 public class DctmQueryTraversalManager implements QueryTraversalManager {
 
-	private IClient client;
-
 	private IClientX clientX;
 
-	private String sessionID;
-
-	// private ISession session;
 	private String unboundedTraversalQuery;
 
 	private String boundedTraversalQuery;
@@ -82,6 +76,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		this.unboundedTraversalQuery = queryStringUnboundedDefault;
 		this.boundedTraversalQuery = queryStringBoundedDefault;
 		this.serverUrl = webtopServerUrl;
+
 		System.out.println("serverUrl vaut " + this.serverUrl);
 
 	}
@@ -102,6 +97,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	public ResultSet startTraversal()
 			throws com.google.enterprise.connector.spi.RepositoryException {
+
 		System.out.println("--- DctmQueryTraversalManager startTraversal ---");
 		System.out
 				.println("--- DctmQueryTraversalManager startTraversal- unboundedTraversalQuery vaut "
@@ -109,7 +105,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 		IQuery query = null;
 		ResultSet resu = null;
+
 		query = makeCheckpointQuery(lopQuery());
+
 		resu = execQuery(query);
 		return resu;
 	}
@@ -121,6 +119,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 						"com.google.enterprise.connector.dctm.dctmdfcwrap")) {
 			q += " ENABLE (return_top " + Integer.toString(batchHint) + ")";
 		}
+
 		return q;
 	}
 
@@ -139,11 +138,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 */
 	public ResultSet resumeTraversal(String checkPoint)
 			throws RepositoryException {
+
 		System.out.println("checkpoint vaut " + checkPoint);
 		System.out
 				.println("--- DctmQueryTraversalManager resumeTraversal !!! ---");
+
 		JSONObject jo = null;
-		ResultSet resu = null;
+		ResultSet resultSet = null;
 
 		try {
 			jo = new JSONObject(checkPoint);
@@ -154,12 +155,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		String uuid = extractDocidFromCheckpoint(jo, checkPoint);
 		String c = extractNativeDateFromCheckpoint(jo, checkPoint);
 		String queryString = makeCheckpointQueryString(uuid, c);
+
 		System.out.println("queryString vaut " + queryString);
 
 		IQuery query = makeCheckpointQuery(queryString);
-		resu = execQuery(query);
+		resultSet = execQuery(query);
 
-		return resu;
+		return resultSet;
 	}
 
 	/**
@@ -217,10 +219,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	}
 
 	private ResultSet execQuery(IQuery query) throws RepositoryException {
-		System.out.println("--- DctmQueryTraversalManager execQuery ---");
+		//		System.out.println("--- DctmQueryTraversalManager execQuery ---");
+
 		ICollection dctmCollection = null;
 		System.out.println("--- DctmQueryTraversalManager serverurl vaut "
 				+ serverUrl + " ---");
+
 		sessionManager.setServerUrl(serverUrl);
 		if (DebugFinalData.debug) {
 			OutputPerformances.setPerfFlag(this, "Processing query");
@@ -258,7 +262,6 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private IQuery makeCheckpointQuery(String queryString)
 			throws RepositoryException {
 		IQuery query = null;
-		// /query = client.getQuery();
 		query = clientX.getQuery();
 		query.setDQL(queryString);
 		return query;
@@ -293,13 +296,16 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 			throws RepositoryException {
 
 		Object[] arguments = { c };
+
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
+
 		if (batchHint != -1
 				&& clientX.getClass().getPackage().getName().equals(
 						"com.google.enterprise.connector.dctm.dctmdfcwrap")) {
 			statement = statement + " ENABLE (return_top "
 					+ Integer.toString(batchHint) + ")";
+
 		}
 
 		return statement;

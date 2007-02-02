@@ -10,7 +10,6 @@ public interface ISysObject {
 
 	public ByteArrayInputStream getContent() throws RepositoryException;
 
-	// public int getPermitEx(String name) throws RepositoryException;
 	public String getACLDomain() throws RepositoryException;
 
 	public String getACLName() throws RepositoryException;
@@ -25,7 +24,6 @@ public interface ISysObject {
 
 	public boolean getBoolean(String name) throws RepositoryException;
 
-	// public String getTitle() throws RepositoryException;
 	public IId getId(String name) throws RepositoryException;
 
 	public Enumeration enumAttrs() throws RepositoryException;
@@ -33,8 +31,8 @@ public interface ISysObject {
 	public IFormat getFormat() throws RepositoryException;
 
 	public int getAttrDataType(String name) throws RepositoryException;
-	
+
 	public int getAttrCount() throws RepositoryException;
-	
+
 	public IAttr getAttr(int attrIndex) throws RepositoryException;
 }

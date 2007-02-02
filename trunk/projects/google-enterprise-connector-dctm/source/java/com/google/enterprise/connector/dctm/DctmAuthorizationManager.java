@@ -37,19 +37,12 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	}
 
-	/*
-	 * public void setAttributeName(String an){ ATTRIBUTE_NAME=an; } public void
-	 * setQUERY_STRING_AUTHORISE_DEFAULT(String qsad){
-	 * QUERY_STRING_AUTHORISE_DEFAULT=qsad; }
-	 */
-
 	public ResultSet authorizeDocids(List docidList, String username)
 			throws RepositoryException {
-		System.out.println("DCTMAuthorize method authorizeDocids");
+		//		System.out.println("DCTMAuthorize method authorizeDocids");
 		int i = 0;
 		DctmResultSet resultSet = null;
 		SimplePropertyMap docmap = null;
-		// /IQuery query = getClient().getQuery();
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
 		ICollection collec = null;
@@ -75,16 +68,15 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 				IQuery.DF_READ_QUERY);
 		String ids = "";
 		while (collec != null && collec.next()) {
-			ids += collec.getString(/* DctmInstantiator. */attributeName)
-					+ " ";
+			ids += collec.getString(attributeName) + " ";
 		}
 		System.out.println("size list " + docidList.size());
 		resultSet = new DctmResultSet();
 		for (i = 0; i < docidList.size(); i++) {
 			docmap = new SimplePropertyMap();
-			docmap.putProperty(new DctmSimpleProperty(
-					SpiConstants.PROPNAME_DOCID, docidList.get(i).toString()));
-			docmap.putProperty(new DctmSimpleProperty(
+			docmap.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
+					docidList.get(i).toString()));
+			docmap.putProperty(new SimpleProperty(
 					SpiConstants.PROPNAME_AUTH_VIEWPERMIT, (ids
 							.indexOf(docidList.get(i).toString()) != -1)));
 			System.out.println("hasRight?  "
@@ -99,13 +91,16 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	private String buildQuery(List docidList) {
 		int i;
 		String queryString;
+
 		queryString = queryStringAuthoriseDefault;
 		System.out.println("queryString avant boucle " + queryString);
+
 		for (i = 0; i < docidList.size() - 1; i++) {
 			queryString += "'" + docidList.get(i).toString() + "', ";
 
 		}
 		queryString += "'" + docidList.get(i).toString() + "')";
+
 		System.out.println("queryString après boucle " + queryString);
 
 		return queryString;
@@ -135,10 +130,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	protected String getAttributeName() {
 		return attributeName;
-	}
-
-	private void setAttributeName(String attributeName) {
-		this.attributeName = attributeName;
 	}
 
 	protected String getQueryStringAuthoriseDefault() {

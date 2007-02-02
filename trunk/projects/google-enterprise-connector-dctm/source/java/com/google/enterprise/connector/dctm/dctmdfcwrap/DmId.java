@@ -16,7 +16,9 @@ public class DmId implements IId {
 	}
 
 	public IDfId getidfId() {
+
 		System.out.println("--- DmId getidfId ---");
+
 		return idfId;
 	}
 
