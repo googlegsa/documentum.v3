@@ -38,8 +38,6 @@ public class DctmQueryTraversalUtil {
 			return;
 		}
 
-		// new FeedConnection("swp-srv-gsa2",19900)
-		// new MockFeedConnection("swp-srv-gsa2",19900)
 		DocPusher push = new DocPusher(new GsaFeedConnection("swp-srv-gsa2",
 				19900));
 
@@ -99,76 +97,5 @@ public class DctmQueryTraversalUtil {
 			// scheduled pause.
 		}
 	}
-
-	//
-	// public static void main(String[] args) {
-	// if (args.length!=4){
-	// System.out.println("Illegal number of arguments. <ClientClass_Path>
-	// <DocbaseName> <SuperUserLogin> <SuperUserPwd>");
-	// return;
-	// }
-	// Connector conn=null;
-	// try {
-	// conn = (DctmConnector)createConnectorInstance(args);
-	// } catch (RepositoryException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// if (conn==null){
-	// System.out.println("Connector instance not created correctly. Exiting.");
-	// return;
-	// }
-	// QueryTraversalManager qtm=null;
-	// try{
-	// DctmSession sess = (DctmSession) conn.login();
-	// qtm = sess.getQueryTraversalManager();
-	// }catch(LoginException le){
-	// le.getMessage();
-	// }catch(RepositoryException re){
-	// re.getMessage();
-	// }
-	// try {
-	// runTraversal(qtm,5);
-	// } catch (RepositoryException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// //Assert.assertEquals(qtm.getClass().getName(),"DctmQueryTraversalManager");
-	// }
-	//	
-	// /**
-	// *
-	// * @param args
-	// * @return
-	// * @throws RepositoryException
-	// */
-	// private static Connector createConnectorInstance(String[] args) throws
-	// RepositoryException{
-	// DctmConnector currentConnector = new DctmConnector();
-	//		
-	// IClient cl = null;
-	// try {
-	// cl = (IClient) Class.forName(args[0]).newInstance();
-	// } catch (InstantiationException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (IllegalAccessException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// } catch (ClassNotFoundException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	//		
-	// if (cl == null) throw new RepositoryException("The path of the client
-	// class cannot be resolved.");
-	// currentConnector.setClient(cl);
-	// currentConnector.setDocbase(args[1]);
-	// currentConnector.setLogin(args[2]);
-	// currentConnector.setPassword(args[3]);
-	// currentConnector.setRepository(args[1]);
-	//		
-	// return currentConnector;
-	// }
 
 }

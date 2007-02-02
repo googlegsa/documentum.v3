@@ -6,7 +6,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
@@ -15,42 +14,41 @@ import junit.framework.TestCase;
 
 public class DmQueryTest extends TestCase {
 
-	IClientX dctmClientX;
-	IClient localClient;
-	ISessionManager sessionManager; 
-	ISession session;
-	ILoginInfo loginInfo;
-	
-	public void setUp() throws Exception{
+	IQuery query;
+
+	ISessionManager sessionManager;
+
+	public void setUp() throws Exception {
 		super.setUp();
+		IClientX dctmClientX;
+		IClient localClient;
+		ILoginInfo loginInfo;
 		dctmClientX = new DmClientX();
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
-		loginInfo = dctmClientX.getLoginInfo();	
-		String user=DmInitialize.DM_LOGIN_OK1;
-		String password=DmInitialize.DM_PWD_OK1;
-		String docbase=DmInitialize.DM_DOCBASE;
-		System.out.println("docbase vaut "+docbase);
-		loginInfo.setUser(user);
-		loginInfo.setPassword(password);
-		sessionManager.setDocbaseName(docbase);
-		sessionManager.setIdentity(docbase, loginInfo);
-		dctmClientX.setSessionManager(sessionManager);
-	}
-	
-	public void testSetDQL(){
-		IQuery query = dctmClientX.getQuery();
-		Assert.assertNotNull(query);
-		Assert.assertTrue(query instanceof DmQuery);
-		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-	}	
+		loginInfo = dctmClientX.getLoginInfo();
 
-	public void testExecute() throws RepositoryException{
-		IQuery query = dctmClientX.getQuery();
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
+		loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
+		sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+		dctmClientX.setSessionManager(sessionManager);
+		query = dctmClientX.getQuery();
+	}
+
+	public void testSetDQL() {
+
 		Assert.assertNotNull(query);
 		Assert.assertTrue(query instanceof DmQuery);
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec=query.execute(sessionManager, IQuery.DF_READ_QUERY);
+	}
+
+	public void testExecute() throws RepositoryException {
+		Assert.assertNotNull(query);
+		Assert.assertTrue(query instanceof DmQuery);
+		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
+		ICollection collec = query
+				.execute(sessionManager, IQuery.DF_READ_QUERY);
 		Assert.assertNotNull(collec);
 	}
 

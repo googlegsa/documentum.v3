@@ -13,13 +13,17 @@ import junit.framework.TestCase;
 
 public class MockDmClientTest extends TestCase {
 
+
 	/**
 	 * Useless test
+
 	 */
 	public void testGetLoginInfo() {
 		IClientX dctmClientX = new MockDmClient();
 
 		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
+
+
 		Assert.assertTrue(loginInfo instanceof MockDmLoginInfo);
 
 		loginInfo.setUser("max");
@@ -30,7 +34,9 @@ public class MockDmClientTest extends TestCase {
 
 	}
 
+
 	public void testNewSessionManager() {
+
 		IClientX dctmClientX = new MockDmClient();
 		try {
 			IClient localClient = dctmClientX.getLocalClient();

@@ -16,41 +16,46 @@ import junit.framework.TestCase;
 public class DmQueryATest extends TestCase {
 
 	IClientX dctmClientX;
+
 	IClient localClient;
-	ISessionManager sessionManager; 
+
+	ISessionManager sessionManager;
+
 	ISession session;
+
 	ILoginInfo loginInfo;
-	
-	public void setUp() throws Exception{
+
+	public void setUp() throws Exception {
 		super.setUp();
 		dctmClientX = new DmClientX();
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
-		loginInfo = dctmClientX.getLoginInfo();	
-		String user=DmInitialize.DM_LOGIN_OK1;
-		String password=DmInitialize.DM_PWD_OK1;
-		String docbase=DmInitialize.DM_DOCBASE;
-		System.out.println("docbase vaut "+docbase);
+		loginInfo = dctmClientX.getLoginInfo();
+		String user = DmInitialize.DM_LOGIN_OK1;
+		String password = DmInitialize.DM_PWD_OK1;
+		String docbase = DmInitialize.DM_DOCBASE;
+		System.out.println("docbase vaut " + docbase);
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setIdentity(docbase, loginInfo);
 		dctmClientX.setSessionManager(sessionManager);
 	}
-	
-	public void testSetDQL(){
-		IQuery query = dctmClientX.getQuery();
-		Assert.assertNotNull(query);
-		Assert.assertTrue(query instanceof DmQuery);
-		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-	}	
 
-	public void testExecute() throws RepositoryException{
+	public void testSetDQL() {
 		IQuery query = dctmClientX.getQuery();
 		Assert.assertNotNull(query);
 		Assert.assertTrue(query instanceof DmQuery);
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec=query.execute(sessionManager, IQuery.DF_READ_QUERY);
+	}
+
+	public void testExecute() throws RepositoryException {
+		IQuery query = dctmClientX.getQuery();
+		Assert.assertNotNull(query);
+		Assert.assertTrue(query instanceof DmQuery);
+		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
+		ICollection collec = query
+				.execute(sessionManager, IQuery.DF_READ_QUERY);
 		Assert.assertNotNull(collec);
 	}
 

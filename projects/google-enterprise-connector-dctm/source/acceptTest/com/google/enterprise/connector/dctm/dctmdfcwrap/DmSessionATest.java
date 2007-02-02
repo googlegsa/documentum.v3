@@ -15,37 +15,38 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSessionATest extends TestCase {
-	
-	
+
 	IClientX dctmClientX;
+
 	IClient localClient;
-	ISessionManager sessionManager; 
+
+	ISessionManager sessionManager;
+
 	ISession session;
+
 	ILoginInfo loginInfo;
-	
-	public void setUp() throws Exception{
+
+	public void setUp() throws Exception {
 		super.setUp();
 		dctmClientX = new DmClientX();
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
 		loginInfo = dctmClientX.getLoginInfo();
-		
-		
+
 	}
-	
-	
+
 	public void testGetObject() throws RepositoryException, DfException {
-		try{
-			String user=DmInitialize.DM_LOGIN_OK1;
-			String password=DmInitialize.DM_PWD_OK1;
-			String docbase=DmInitialize.DM_DOCBASE;
+		try {
+			String user = DmInitialize.DM_LOGIN_OK1;
+			String password = DmInitialize.DM_PWD_OK1;
+			String docbase = DmInitialize.DM_DOCBASE;
 			loginInfo.setUser(user);
 			loginInfo.setPassword(password);
 			sessionManager.setIdentity(docbase, loginInfo);
 			session = sessionManager.getSession(docbase);
 			Assert.assertNotNull(session);
-			Assert.assertTrue(session instanceof DmSession);	
-			String idString = DmInitialize.getAnExistingObjectId(session);
+			Assert.assertTrue(session instanceof DmSession);
+			String idString = DmInitialize.DM_ID1;
 			System.out.println("idString " + idString);
 			IId id = dctmClientX.getId(idString);
 			ISysObject object = session.getObject(id);
@@ -55,40 +56,38 @@ public class DmSessionATest extends TestCase {
 			if (session != null) {
 				sessionManager.release(session);
 			}
-		}	
+		}
 	}
-	
-	
-	public void testGetLoginTicketForUser() throws RepositoryException{
-		
-		String userAdmin=DmInitialize.DM_LOGIN_OK1;
-		String passwordAdmin=DmInitialize.DM_PWD_OK1;
-		String docbase=DmInitialize.DM_DOCBASE;
+
+	public void testGetLoginTicketForUser() throws RepositoryException {
+
+		String userAdmin = DmInitialize.DM_LOGIN_OK1;
+		String passwordAdmin = DmInitialize.DM_PWD_OK1;
+		String docbase = DmInitialize.DM_DOCBASE;
 		loginInfo.setUser(userAdmin);
 		loginInfo.setPassword(passwordAdmin);
 		sessionManager.setIdentity(docbase, loginInfo);
 		session = sessionManager.getSession(docbase);
-		String ticket=session.getLoginTicketForUser(DmInitialize.DM_LOGIN_OK5);
-		
-		
-		
+		String ticket = session
+				.getLoginTicketForUser(DmInitialize.DM_LOGIN_OK5);
+
 		session = sessionManager.getSession(docbase);
-		
-		ISessionManager sessionManagerUser = dctmClientX.getLocalClient().newSessionManager();
+
+		ISessionManager sessionManagerUser = dctmClientX.getLocalClient()
+				.newSessionManager();
 		loginInfo.setUser(DmInitialize.DM_LOGIN_OK5);
 		loginInfo.setPassword(DmInitialize.DM_PWD_OK5);
-		sessionManagerUser.setIdentity(docbase,
-				loginInfo);
-		
+		sessionManagerUser.setIdentity(docbase, loginInfo);
+
 		Assert.assertNotNull(session);
 		Assert.assertTrue(session instanceof DmSession);
-		System.out.println("ticket vaut "+ticket);
+		System.out.println("ticket vaut " + ticket);
 		Assert.assertNotNull(ticket);
-		ILoginInfo loginUser=sessionManagerUser.getIdentity(docbase);
-		String myUser=loginUser.getUser();
-		Assert.assertEquals(myUser,DmInitialize.DM_LOGIN_OK5);
-		String myPassword=loginUser.getPassword();
-		Assert.assertEquals(myPassword,DmInitialize.DM_PWD_OK5);
+		ILoginInfo loginUser = sessionManagerUser.getIdentity(docbase);
+		String myUser = loginUser.getUser();
+		Assert.assertEquals(myUser, DmInitialize.DM_LOGIN_OK5);
+		String myPassword = loginUser.getPassword();
+		Assert.assertEquals(myPassword, DmInitialize.DM_PWD_OK5);
 	}
 
 }
