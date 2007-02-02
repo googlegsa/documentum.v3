@@ -4,18 +4,18 @@ import com.documentum.fc.common.IDfLoginInfo;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 
-public class DmLoginInfo implements ILoginInfo{
-	protected IDfLoginInfo idfLoginInfo=null;
-	
-	public DmLoginInfo(IDfLoginInfo tmp){
-		idfLoginInfo=tmp;
+public class DmLoginInfo implements ILoginInfo {
+	protected IDfLoginInfo idfLoginInfo = null;
+
+	public DmLoginInfo(IDfLoginInfo tmp) {
+		idfLoginInfo = tmp;
 	}
-	
-	public void setUser(String u){
+
+	public void setUser(String u) {
 		idfLoginInfo.setUser(u);
 	}
-	
-	public void setPassword(String p){
+
+	public void setPassword(String p) {
 		idfLoginInfo.setPassword(p);
 	}
 
@@ -34,5 +34,5 @@ public class DmLoginInfo implements ILoginInfo{
 	public String getPassword() {
 		return idfLoginInfo.getPassword();
 	}
-	
+
 }
