@@ -163,7 +163,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	public void setServerUrl(String serverUrl) {
 		// Wait for Google to ask me to do it
 	}
-	
+
 	public ILoginInfo getIdentity(String docbase) {
 		return (ILoginInfo) sessMgerCreds.get(docbase);
 	}

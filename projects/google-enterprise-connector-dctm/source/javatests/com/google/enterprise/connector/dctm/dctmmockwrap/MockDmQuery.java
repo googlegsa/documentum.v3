@@ -16,8 +16,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class MockDmQuery implements IQuery {
 	private String query;
 
-	private static final String XPATH_QUERY_STRING_UNBOUNDED_DEFAULT = 
-	    "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
+	private static final String XPATH_QUERY_STRING_UNBOUNDED_DEFAULT = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
 
 	public MockDmQuery() {
 		query = "";
@@ -25,9 +24,10 @@ public class MockDmQuery implements IQuery {
 
 	public ICollection execute(ISessionManager sessionManager, int queryType)
 			throws RepositoryException {
-		if (query.equals("")){
+		if (query.equals("")) {
 			return null;
-		} else if (query.startsWith(XPATH_QUERY_STRING_UNBOUNDED_DEFAULT.substring(0,15))) {
+		} else if (query.startsWith(XPATH_QUERY_STRING_UNBOUNDED_DEFAULT
+				.substring(0, 15))) {
 			try {
 				MockRepositoryDocumentStore a = null;
 				a = ((MockDmSession) sessionManager.getSession(sessionManager
@@ -40,19 +40,19 @@ public class MockDmQuery implements IQuery {
 			} catch (javax.jcr.RepositoryException e) {
 				throw new RepositoryException(e);
 			}
-		} else {//Authorize query...
-				String[] ids = this.query.split("', '");
-				ids[0] = ids[0].substring(ids[0].lastIndexOf("'")+1,ids[0].length());
-				List filteredResults = new MockMockList(ids, sessionManager);
-				QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
-				MockDmCollection finalCollection = new MockDmCollection(filteredQR);
-				return finalCollection;
+		} else {// Authorize query...
+			String[] ids = this.query.split("', '");
+			ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
+					.length());
+			List filteredResults = new MockMockList(ids, sessionManager);
+			QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
+			MockDmCollection finalCollection = new MockDmCollection(filteredQR);
+			return finalCollection;
 		}
 	}
 
 	public void setDQL(String dqlStatement) {
 		this.query = dqlStatement;
 	}
-	
-	
+
 }

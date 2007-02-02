@@ -10,7 +10,7 @@ import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockMockListTest extends TestCase {
-	
+
 	public void testMockMockList() {
 		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = null;
@@ -31,8 +31,8 @@ public class MockMockListTest extends TestCase {
 		}
 		String query = "kqsfgopqsudhnfpioqsdf^qsdfhqsdo 'doc26', 'doc2', 'doc3', 'doc4'";
 		String[] ids = query.split("', '");
-		ids[0] = ids[0].substring(ids[0].lastIndexOf("'")+1,ids[0].length());
-		ids[ids.length-1] = ids[ids.length-1].substring(0,ids.length);
+		ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0].length());
+		ids[ids.length - 1] = ids[ids.length - 1].substring(0, ids.length);
 		MockMockList lst = null;
 		try {
 			lst = new MockMockList(ids, sessionManager);
