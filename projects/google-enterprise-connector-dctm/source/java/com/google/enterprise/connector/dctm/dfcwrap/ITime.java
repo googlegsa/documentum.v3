@@ -4,5 +4,6 @@ import java.util.Date;
 
 public interface ITime {
 	public String asString(String pattern);
+
 	public Date getDate();
 }

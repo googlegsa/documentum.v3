@@ -14,85 +14,89 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class DmSessionManager implements ISessionManager{
+public class DmSessionManager implements ISessionManager {
 	IDfSessionManager dfSessionManager;
-	
+
 	private String docbaseName;
+
 	private String serverUrl;
-	
-	public DmSessionManager (IDfSessionManager DfSessionManager){
-		
-		this.dfSessionManager=DfSessionManager;
+
+	public DmSessionManager(IDfSessionManager DfSessionManager) {
+
+		this.dfSessionManager = DfSessionManager;
 	}
-	
-	public ISession getSession(String docbase) throws LoginException, RepositoryException{
-//		System.out.println("--- DmSessionManager getSession ---");
-		IDfSession DfSession=null;
-		try{
+
+	public ISession getSession(String docbase) throws LoginException,
+			RepositoryException {
+		// System.out.println("--- DmSessionManager getSession ---");
+		IDfSession DfSession = null;
+		try {
 			DfSession = dfSessionManager.getSession(docbase);
-		}catch(DfIdentityException iE){
+		} catch (DfIdentityException iE) {
 			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
-		}catch(DfAuthenticationException iE){
+		} catch (DfAuthenticationException iE) {
 			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
-		}catch(DfPrincipalException iE){
+		} catch (DfPrincipalException iE) {
 			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
-		}catch(DfServiceException iE){
+		} catch (DfServiceException iE) {
 			RepositoryException re = new RepositoryException(iE);
 			re.setStackTrace(iE.getStackTrace());
 			throw re;
 		}
 		return new DmSession(DfSession);
 	}
-	
-	public void setIdentity(String docbase,ILoginInfo identity) throws LoginException{
+
+	public void setIdentity(String docbase, ILoginInfo identity)
+			throws LoginException {
 		if (!(identity instanceof DmLoginInfo)) {
 			throw new IllegalArgumentException();
 		}
 		DmLoginInfo dctmLoginInfo = (DmLoginInfo) identity;
-		IDfLoginInfo idfLoginInfo=dctmLoginInfo.getIdfLoginInfo();
-		try{
-			dfSessionManager.setIdentity(docbase,idfLoginInfo);
-		}catch(DfServiceException iE){
+		IDfLoginInfo idfLoginInfo = dctmLoginInfo.getIdfLoginInfo();
+		try {
+			dfSessionManager.setIdentity(docbase, idfLoginInfo);
+		} catch (DfServiceException iE) {
 			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}
 	}
-	
-	public ILoginInfo getIdentity(String docbase){
-		IDfLoginInfo idfLoginInfo=dfSessionManager.getIdentity(docbase);
+
+	public ILoginInfo getIdentity(String docbase) {
+		IDfLoginInfo idfLoginInfo = dfSessionManager.getIdentity(docbase);
 		return new DmLoginInfo(idfLoginInfo);
 	}
-	
-	public ISession newSession(String docbase) throws LoginException,RepositoryException{
-		IDfSession idfSession=null;
-		String error=null;
-		try{
+
+	public ISession newSession(String docbase) throws LoginException,
+			RepositoryException {
+		IDfSession idfSession = null;
+		String error = null;
+		try {
 			idfSession = dfSessionManager.newSession(docbase);
-		}catch(DfIdentityException iE){
+		} catch (DfIdentityException iE) {
 			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
-		}catch(DfAuthenticationException iE){
+		} catch (DfAuthenticationException iE) {
 			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
-		}catch(DfPrincipalException iE){
+		} catch (DfPrincipalException iE) {
 			LoginException le = new LoginException(iE);
 			le.setStackTrace(iE.getStackTrace());
 			throw le;
-		}catch(DfServiceException iE){
+		} catch (DfServiceException iE) {
 			RepositoryException re = new RepositoryException(iE);
 			re.setStackTrace(iE.getStackTrace());
 			throw re;
 		}
-		if (error!=null) {
+		if (error != null) {
 			System.out.println(error);
 			return null;
 		}
@@ -100,8 +104,8 @@ public class DmSessionManager implements ISessionManager{
 	}
 
 	public void release(ISession session) {
-		this.dfSessionManager.release(((DmSession)session).getDfSession());
-		
+		this.dfSessionManager.release(((DmSession) session).getDfSession());
+
 	}
 
 	public IDfSessionManager getDfSessionManager() {
@@ -110,39 +114,39 @@ public class DmSessionManager implements ISessionManager{
 
 	public void setServerUrl(String serverUrl) {
 		this.serverUrl = serverUrl;
-		System.out.println("serverUrl vaut "+serverUrl);
-		
+		System.out.println("serverUrl vaut " + serverUrl);
+
 	}
 
 	public String getDocbaseName() {
-		
+
 		return docbaseName;
 	}
-	
-	public void setDocbaseName(String docbaseName){
+
+	public void setDocbaseName(String docbaseName) {
 		this.docbaseName = docbaseName;
 	}
 
 	public String getServerUrl() {
 		return serverUrl;
 	}
-	
-	public boolean authenticate(String docbaseName){
-		boolean authent=false;
+
+	public boolean authenticate(String docbaseName) {
+		boolean authent = false;
 		try {
-			this.dfSessionManager.authenticate(docbaseName);	
-			authent=true;
+			this.dfSessionManager.authenticate(docbaseName);
+			authent = true;
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			re.printStackTrace();
+			// RepositoryException re = new RepositoryException(e);
+			// re.printStackTrace();
+			return false;
 		}
 		return authent;
-		
+
 	}
-	
-	public void clearIdentity(String docbase){
-		this.dfSessionManager.clearIdentity(docbase);	
+
+	public void clearIdentity(String docbase) {
+		this.dfSessionManager.clearIdentity(docbase);
 	}
-	
-	
+
 }

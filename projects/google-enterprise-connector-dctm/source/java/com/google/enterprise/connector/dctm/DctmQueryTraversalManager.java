@@ -21,35 +21,42 @@ import com.google.enterprise.connector.spi.ResultSet;
 public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	private IClient client;
+
 	private IClientX clientX;
+
 	private String sessionID;
-//	private ISession session;
+
+	// private ISession session;
 	private String unboundedTraversalQuery;
+
 	private String boundedTraversalQuery;
+
 	private String serverUrl;
-	private int batchHint=-1;
+
+	private int batchHint = -1;
+
 	private ISessionManager sessionManager;
-	
-	
-	
+
 	protected void setClientX(IClientX clientX) {
 		this.clientX = clientX;
 	}
+
 	protected IClientX getClientX() {
 		return clientX;
 	}
-	
+
 	public ISessionManager getSessionManager() {
 		return sessionManager;
 	}
+
 	public void setSessionManager(ISessionManager sessionManager) {
 		this.sessionManager = sessionManager;
 	}
-	
+
 	protected String getBoundedTraversalQuery() {
 		return boundedTraversalQuery;
 	}
-	
+
 	protected String getUnboundedTraversalQuery() {
 		return unboundedTraversalQuery;
 	}
@@ -57,74 +64,84 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	protected String getServerUrl() {
 		return serverUrl;
 	}
-	
-	public DctmQueryTraversalManager(IClientX clientX, String queryStringUnboundedDefault, String queryStringBoundedDefault, String webtopServerUrl) throws RepositoryException {
-		if (DebugFinalData.debug) OutputPerformances.setPerfFlag(this,"Valuate IClient");
-		
+
+	public DctmQueryTraversalManager(IClientX clientX,
+			String queryStringUnboundedDefault,
+			String queryStringBoundedDefault, String webtopServerUrl)
+			throws RepositoryException {
+		if (DebugFinalData.debug)
+			OutputPerformances.setPerfFlag(this, "Valuate IClient");
+
 		setClientX(clientX);
-		
-		if (DebugFinalData.debug) OutputPerformances.endFlag(this,"Valuate IClient");
+
+		if (DebugFinalData.debug)
+			OutputPerformances.endFlag(this, "Valuate IClient");
 
 		setSessionManager(clientX.getSessionManager());
-		
+
 		this.unboundedTraversalQuery = queryStringUnboundedDefault;
 		this.boundedTraversalQuery = queryStringBoundedDefault;
 		this.serverUrl = webtopServerUrl;
-		System.out.println("serverUrl vaut "+this.serverUrl);
+		System.out.println("serverUrl vaut " + this.serverUrl);
 
 	}
 
 	/**
-	 * Starts (or restarts) traversal from the beginning. This action will return
-	 * objects starting from the very oldest, or with the smallest IDs, or
-	 * whatever natural order the implementation prefers. The caller may consume
-	 * as many or as few of the results as it wants, but it gurantees to call
-	 * {@link #checkpoint(PropertyMap)} passing in the past object is has
+	 * Starts (or restarts) traversal from the beginning. This action will
+	 * return objects starting from the very oldest, or with the smallest IDs,
+	 * or whatever natural order the implementation prefers. The caller may
+	 * consume as many or as few of the results as it wants, but it gurantees to
+	 * call {@link #checkpoint(PropertyMap)} passing in the past object is has
 	 * successfully processed.
 	 * 
 	 * @return A ResultSet of documents from the repository in natural order
-	 * @throws RepositoryException if the Repository is unreachable or similar
-	 *           exceptional condition.
+	 * @throws RepositoryException
+	 *             if the Repository is unreachable or similar exceptional
+	 *             condition.
 	 */
 
-	public ResultSet startTraversal() throws com.google.enterprise.connector.spi.RepositoryException {
+	public ResultSet startTraversal()
+			throws com.google.enterprise.connector.spi.RepositoryException {
 		System.out.println("--- DctmQueryTraversalManager startTraversal ---");
-		System.out.println("--- DctmQueryTraversalManager startTraversal- unboundedTraversalQuery vaut "+unboundedTraversalQuery+" ---");
-		
+		System.out
+				.println("--- DctmQueryTraversalManager startTraversal- unboundedTraversalQuery vaut "
+						+ unboundedTraversalQuery + " ---");
+
 		IQuery query = null;
 		ResultSet resu = null;
 		query = makeCheckpointQuery(lopQuery());
-//				System.out.println("query vaut "+unboundedTraversalQuery);
-//				System.out.println("query vaut "+query);
 		resu = execQuery(query);
 		return resu;
 	}
-	
-	private String lopQuery(){
+
+	private String lopQuery() {
 		String q = unboundedTraversalQuery;
-		if (batchHint!=-1 && clientX.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
+		if (batchHint != -1
+				&& clientX.getClass().getPackage().getName().equals(
+						"com.google.enterprise.connector.dctm.dctmdfcwrap")) {
 			q += " ENABLE (return_top " + Integer.toString(batchHint) + ")";
-		}	
+		}
 		return q;
 	}
 
 	/**
 	 * Continues traversal from a supplied checkpoint. The checkPoint parameter
 	 * will have been created by a call to the {@link #checkpoint(PropertyMap)}
-	 * method. The ResultSet object returns objects from the repository in natural
-	 * order starting just after the document that was used to create the
-	 * checkpoint string.
+	 * method. The ResultSet object returns objects from the repository in
+	 * natural order starting just after the document that was used to create
+	 * the checkpoint string.
 	 * 
-	 * @param checkPoint String that indicates from where to resume traversal.
+	 * @param checkPoint
+	 *            String that indicates from where to resume traversal.
 	 * @return ResultSet object that returns documents starting just after the
 	 *         checkpoint.
 	 * @throws RepositoryException
 	 */
 	public ResultSet resumeTraversal(String checkPoint)
 			throws RepositoryException {
-		System.out.println("checkpoint vaut "+checkPoint);
-		System.out.println("--- DctmQueryTraversalManager resumeTraversal !!! ---");
-		//{"uuid":"0900045780030e40","lastModified":"2006-09-27"}
+		System.out.println("checkpoint vaut " + checkPoint);
+		System.out
+				.println("--- DctmQueryTraversalManager resumeTraversal !!! ---");
 		JSONObject jo = null;
 		ResultSet resu = null;
 
@@ -137,7 +154,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		String uuid = extractDocidFromCheckpoint(jo, checkPoint);
 		String c = extractNativeDateFromCheckpoint(jo, checkPoint);
 		String queryString = makeCheckpointQueryString(uuid, c);
-		System.out.println("queryString vaut "+queryString);
+		System.out.println("queryString vaut " + queryString);
 
 		IQuery query = makeCheckpointQuery(queryString);
 		resu = execQuery(query);
@@ -150,16 +167,17 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 * taken from the {@link ResultSet} object that it obtained from either the
 	 * startTraversal or resumeTraversal methods. This property map is the last
 	 * document that the caller successfully processed. This is NOT necessarily
-	 * the last object from the result set - the caller may consume as much or as
-	 * little of a result set as it chooses. If the implementation wants the
+	 * the last object from the result set - the caller may consume as much or
+	 * as little of a result set as it chooses. If the implementation wants the
 	 * caller to persist the traversal state, then it should write a string
 	 * representation of that state and return it. If the implementation prefers
-	 * to maintain state itself, it should use this call as a signal to commit its
-	 * state, up to the document passed in.
+	 * to maintain state itself, it should use this call as a signal to commit
+	 * its state, up to the document passed in.
 	 * 
-	 * @param pm A property map obtained from a ResultSet obtained from either
-	 *          {@link #startTraversal()} or {link
-	 *          {@link #resumeTraversal(String)}.
+	 * @param pm
+	 *            A property map obtained from a ResultSet obtained from either
+	 *            {@link #startTraversal()} or {link
+	 *            {@link #resumeTraversal(String)}.
 	 * @return A string that can be used by a subsequent call to the
 	 *         {@link #resumeTraversal(String)} method.
 	 * @throws RepositoryException
@@ -167,12 +185,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	public String checkpoint(PropertyMap pm) throws RepositoryException {
 		String uuid = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
-		
+
 		String nativeFormatDate = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_LASTMODIFY).getString();
-		
-		String dateString = nativeFormatDate;//DctmSimpleValue.calendarToIso8601(c);
-		
+
+		String dateString = nativeFormatDate;
+
 		String result = null;
 		try {
 			JSONObject jo = new JSONObject();
@@ -188,8 +206,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	/**
 	 * Sets the preferred batch size. The caller advises the implementation that
 	 * the result sets returned by startTraversal or resumeTraversal need not be
-	 * larger than this number. The implementation may ignore this call or do its
-	 * best to return approximately this number.
+	 * larger than this number. The implementation may ignore this call or do
+	 * its best to return approximately this number.
 	 * 
 	 * @param batchHint
 	 * @throws RepositoryException
@@ -200,15 +218,25 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	private ResultSet execQuery(IQuery query) throws RepositoryException {
 		System.out.println("--- DctmQueryTraversalManager execQuery ---");
-		ICollection dctmCollection = null; 
-		System.out.println("--- DctmQueryTraversalManager serverurl vaut "+serverUrl+" ---");
+		ICollection dctmCollection = null;
+		System.out.println("--- DctmQueryTraversalManager serverurl vaut "
+				+ serverUrl + " ---");
 		sessionManager.setServerUrl(serverUrl);
-		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"Processing query");}
+		if (DebugFinalData.debug) {
+			OutputPerformances.setPerfFlag(this, "Processing query");
+		}
 		dctmCollection = query.execute(sessionManager, IQuery.DF_READ_QUERY);
-		if (DebugFinalData.debug){ OutputPerformances.endFlag(this,"Collection retrieved.");}
-		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"About to build ResultSet.");}
-		ResultSet rs = dctmCollection.buildResulSetFromCollection(sessionManager);
-		if (DebugFinalData.debug){ OutputPerformances.setPerfFlag(this,"ResultSet built.");}
+		if (DebugFinalData.debug) {
+			OutputPerformances.endFlag(this, "Collection retrieved.");
+		}
+		if (DebugFinalData.debug) {
+			OutputPerformances.setPerfFlag(this, "About to build ResultSet.");
+		}
+		ResultSet rs = dctmCollection.buildResulSetFromCollection(
+				sessionManager, clientX);
+		if (DebugFinalData.debug) {
+			OutputPerformances.setPerfFlag(this, "ResultSet built.");
+		}
 		return rs;
 	}
 
@@ -230,7 +258,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private IQuery makeCheckpointQuery(String queryString)
 			throws RepositoryException {
 		IQuery query = null;
-		///query = client.getQuery();
+		// /query = client.getQuery();
 		query = clientX.getQuery();
 		query.setDQL(queryString);
 		return query;
@@ -247,7 +275,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return uuid;
 	}
 
-	public String extractNativeDateFromCheckpoint(JSONObject jo, String checkPoint) {
+	public String extractNativeDateFromCheckpoint(JSONObject jo,
+			String checkPoint) {
 		String dateString = null;
 		try {
 			dateString = jo.getString("lastModified");
@@ -266,11 +295,14 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		Object[] arguments = { c };
 		String statement = MessageFormat.format(boundedTraversalQuery,
 				arguments);
-		if (batchHint!=-1 && clientX.getClass().getPackage().getName().equals("com.google.enterprise.connector.dctm.dctmdfcwrap")){
-			statement = statement+" ENABLE (return_top " + Integer.toString(batchHint) + ")";
+		if (batchHint != -1
+				&& clientX.getClass().getPackage().getName().equals(
+						"com.google.enterprise.connector.dctm.dctmdfcwrap")) {
+			statement = statement + " ENABLE (return_top "
+					+ Integer.toString(batchHint) + ")";
 		}
-	
+
 		return statement;
 	}
-	
+
 }

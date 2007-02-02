@@ -1,17 +1,13 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.client.IDfDocument;
-import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
-import com.google.enterprise.connector.dctm.dfcwrap.IDocument;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
-import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSession implements ISession {
@@ -28,9 +24,11 @@ public class DmSession implements ISession {
 			throw new IllegalArgumentException();
 		}
 		DmId dctmId = (DmId) objectId;
-		System.out.println("--- DmSession getObject avant dctmId.getidfId() ---");
+		System.out
+				.println("--- DmSession getObject avant dctmId.getidfId() ---");
 		IDfId idfId = dctmId.getidfId();
-		System.out.println("--- DmSession getObject - idfId vaut "+idfId.getId()+" ---");
+		System.out.println("--- DmSession getObject - idfId vaut "
+				+ idfId.getId() + " ---");
 		IDfSysObject idfSysObject = null;
 		try {
 			idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
@@ -50,7 +48,8 @@ public class DmSession implements ISession {
 		idfSession = dfSession;
 	}
 
-	public String getLoginTicketForUser(String username) throws RepositoryException {
+	public String getLoginTicketForUser(String username)
+			throws RepositoryException {
 		String ticket = null;
 		try {
 			ticket = this.idfSession.getLoginTicketForUser(username);
@@ -61,19 +60,17 @@ public class DmSession implements ISession {
 		}
 		return ticket;
 	}
-	
+
 	public DmDocument newObject() throws RepositoryException {
-		IDfDocument document=null;
+		IDfDocument document = null;
 		try {
-			document=(IDfDocument)this.idfSession.newObject("dm_document");
-		}catch (DfException de) {
+			document = (IDfDocument) this.idfSession.newObject("dm_document");
+		} catch (DfException de) {
 			RepositoryException re = new RepositoryException(de);
 			re.setStackTrace(de.getStackTrace());
 			throw re;
-		}	
+		}
 		return new DmDocument(document);
 	}
-	
-
 
 }

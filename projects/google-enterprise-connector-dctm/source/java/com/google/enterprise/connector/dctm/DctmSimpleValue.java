@@ -41,7 +41,7 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 
 	private static final SimpleDateFormat ISO8601_DATE_FORMAT_SECS = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
-	
+
 	private final String stringValue;
 
 	public DctmSimpleValue(ValueType t, String v) {
@@ -69,11 +69,13 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 			return super.getStream();
 		} else {
 			InputStream str = null;
-			if(sysObject.getContentSize() != 0){
-				System.out.println("--- DctmSimpleValue getStream - avant getContent ---");
+			if (sysObject.getContentSize() != 0) {
+				System.out
+						.println("--- DctmSimpleValue getStream - avant getContent ---");
 				str = sysObject.getContent();
-				System.out.println("--- DctmSimpleValue getStream - après getContent ---");
-			}else{
+				System.out
+						.println("--- DctmSimpleValue getStream - après getContent ---");
+			} else {
 				str = new ByteArrayInputStream(new byte[1]);
 			}
 			return str;
@@ -104,7 +106,6 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 		return super.getType();
 	}
 
-	
 	public static String calendarToIso8601(Calendar c) {
 
 		Date d = c.getTime();
@@ -145,7 +146,5 @@ public class DctmSimpleValue extends SimpleValue implements Value {
 		return c;
 
 	}
-
-	
 
 }

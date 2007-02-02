@@ -2,7 +2,6 @@ package com.google.enterprise.connector.dctm;
 
 import java.util.List;
 
-import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -13,9 +12,9 @@ import com.google.enterprise.connector.spi.*;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
 	IClientX clientX;
-	///IClient client;
+
 	ISessionManager sessionManager;
-	
+
 	private String attributeName;
 
 	private String queryStringAuthoriseDefault;
@@ -27,14 +26,15 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	}
 
-	public DctmAuthorizationManager(IClientX clientX, String qsad, String attrName) {
-		
+	public DctmAuthorizationManager(IClientX clientX, String qsad,
+			String attrName) {
+
 		queryStringAuthoriseDefault = qsad;
 		attributeName = attrName;
-		
+
 		setClientX(clientX);
 		setSessionManager(this.clientX.getSessionManager());
-		
+
 	}
 
 	/*
@@ -49,53 +49,49 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		int i = 0;
 		DctmResultSet resultSet = null;
 		SimplePropertyMap docmap = null;
-		///IQuery query = getClient().getQuery();
+		// /IQuery query = getClient().getQuery();
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
 		ICollection collec = null;
 		ISession session;
-		
-			session = sessionManager
-					.getSession(sessionManager.getDocbaseName());
 
-			ISessionManager sessionManagerUser = clientX.getLocalClient().newSessionManager();
-			String ticket = session.getLoginTicketForUser(username);
-			ILoginInfo logInfo = clientX.getLoginInfo();
-			logInfo.setUser(username);
-			logInfo.setPassword(ticket);
-			System.out.println("user vaut "+username);
-			sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
-					logInfo);
-			sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
-			// ISession sessionUser =
-			// client.newSession(session.getDocbaseName(),
-			// logInfo);
-			
-			dqlQuery = buildQuery(docidList);
-			System.out.println("dql " + dqlQuery);
-			query.setDQL(dqlQuery);
-			collec = (ICollection) query.execute(sessionManagerUser,
-					IQuery.DF_READ_QUERY);
-			String ids = "";
-			while (collec != null && collec.next()) {
-				ids += collec.getString(/* DctmInstantiator. */attributeName)
-						+ " ";
-			}
-			System.out.println("size list " + docidList.size());
-			resultSet = new DctmResultSet();
-			for (i = 0; i < docidList.size(); i++) {
-				docmap = new SimplePropertyMap();
-				docmap.putProperty(new DctmSimpleProperty(
-						SpiConstants.PROPNAME_DOCID, docidList.get(i)
-								.toString()));
-				docmap.putProperty(new DctmSimpleProperty(
-						SpiConstants.PROPNAME_AUTH_VIEWPERMIT, (ids
-								.indexOf(docidList.get(i).toString()) != -1)));
-				System.out.println("hasRight?  "
-						+ (ids.indexOf(docidList.get(i).toString()) != -1));
-				resultSet.add(docmap);
-			}
-		
+		session = sessionManager.getSession(sessionManager.getDocbaseName());
+
+		ISessionManager sessionManagerUser = clientX.getLocalClient()
+				.newSessionManager();
+		String ticket = session.getLoginTicketForUser(username);
+		ILoginInfo logInfo = clientX.getLoginInfo();
+		logInfo.setUser(username);
+		logInfo.setPassword(ticket);
+		System.out.println("user vaut " + username);
+		sessionManagerUser
+				.setIdentity(sessionManager.getDocbaseName(), logInfo);
+		sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
+
+		dqlQuery = buildQuery(docidList);
+		System.out.println("dql " + dqlQuery);
+		query.setDQL(dqlQuery);
+		collec = (ICollection) query.execute(sessionManagerUser,
+				IQuery.DF_READ_QUERY);
+		String ids = "";
+		while (collec != null && collec.next()) {
+			ids += collec.getString(/* DctmInstantiator. */attributeName)
+					+ " ";
+		}
+		System.out.println("size list " + docidList.size());
+		resultSet = new DctmResultSet();
+		for (i = 0; i < docidList.size(); i++) {
+			docmap = new SimplePropertyMap();
+			docmap.putProperty(new DctmSimpleProperty(
+					SpiConstants.PROPNAME_DOCID, docidList.get(i).toString()));
+			docmap.putProperty(new DctmSimpleProperty(
+					SpiConstants.PROPNAME_AUTH_VIEWPERMIT, (ids
+							.indexOf(docidList.get(i).toString()) != -1)));
+			System.out.println("hasRight?  "
+					+ (ids.indexOf(docidList.get(i).toString()) != -1));
+			resultSet.add(docmap);
+		}
+
 		return resultSet;
 
 	}
@@ -103,15 +99,15 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	private String buildQuery(List docidList) {
 		int i;
 		String queryString;
-		queryString=queryStringAuthoriseDefault;
-		System.out.println("queryString avant boucle "+queryString);
+		queryString = queryStringAuthoriseDefault;
+		System.out.println("queryString avant boucle " + queryString);
 		for (i = 0; i < docidList.size() - 1; i++) {
 			queryString += "'" + docidList.get(i).toString() + "', ";
 
 		}
 		queryString += "'" + docidList.get(i).toString() + "')";
-		System.out.println("queryString après boucle "+queryString);
-		
+		System.out.println("queryString après boucle " + queryString);
+
 		return queryString;
 	}
 
@@ -121,7 +117,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		return responses;
 	}
 
-	
 	public IClientX getClientX() {
 		return clientX;
 	}
@@ -129,23 +124,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	public void setClientX(IClientX clientX) {
 		this.clientX = clientX;
 	}
-	
-	/*
-	public IClient getClient() {
-		return client;
-	}
 
-
-	public void setClient(IClientX clientX) {
-		try {
-			this.client=clientX.getLocalClient();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	*/
-	
 	public ISessionManager getSessionManager() {
 		return sessionManager;
 	}
@@ -166,7 +145,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		return queryStringAuthoriseDefault;
 	}
 
-	protected void setQueryStringAuthoriseDefault(String queryStringAuthoriseDefault) {
+	protected void setQueryStringAuthoriseDefault(
+			String queryStringAuthoriseDefault) {
 		this.queryStringAuthoriseDefault = queryStringAuthoriseDefault;
 	}
 
