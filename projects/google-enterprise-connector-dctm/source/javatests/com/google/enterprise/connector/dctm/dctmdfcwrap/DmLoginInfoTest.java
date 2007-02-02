@@ -25,7 +25,6 @@ public class DmLoginInfoTest extends TestCase {
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
 		loginInfo = dctmClientX.getLoginInfo();	
-		
 	}
 	
 	public void testGetSetUser() throws LoginException{
