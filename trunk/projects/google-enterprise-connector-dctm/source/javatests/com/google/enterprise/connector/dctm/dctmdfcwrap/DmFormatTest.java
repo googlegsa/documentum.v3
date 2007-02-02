@@ -46,7 +46,7 @@ public class DmFormatTest extends TestCase {
 
 	
 	public void testCanIndexExcel() throws DfException, RepositoryException{
-		String idString = getAnExistingExcelObjectId(session);
+		String idString = DmInitialize.getAnExistingExcelObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
@@ -56,7 +56,7 @@ public class DmFormatTest extends TestCase {
 	}
 
 	public void testCanIndexAccess() throws DfException, RepositoryException{
-		String idString = getAnExistingAccessObjectId(session);
+		String idString = DmInitialize.getAnExistingAccessObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
@@ -66,7 +66,7 @@ public class DmFormatTest extends TestCase {
 	}
 	
 	public void testCanIndexPDF() throws DfException, RepositoryException{
-		String idString = getAnExistingPDFObjectId(session);
+		String idString = DmInitialize.getAnExistingPDFObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
@@ -76,7 +76,7 @@ public class DmFormatTest extends TestCase {
 	}
 	
 	public void testGetPDFMIMEType() throws DfException, RepositoryException{
-		String idString = getAnExistingPDFObjectId(session);
+		String idString = DmInitialize.getAnExistingPDFObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
@@ -85,7 +85,7 @@ public class DmFormatTest extends TestCase {
 	}
 	
 	public void testGetExcelMIMEType() throws DfException, RepositoryException{
-		String idString = getAnExistingExcelObjectId(session);
+		String idString = DmInitialize.getAnExistingExcelObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
@@ -95,7 +95,7 @@ public class DmFormatTest extends TestCase {
 	
 	
 	public void testGetWordMIMEType() throws DfException, RepositoryException{
-		String idString = getAnExistingWordObjectId(session);
+		String idString = DmInitialize.getAnExistingWordObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
@@ -103,48 +103,6 @@ public class DmFormatTest extends TestCase {
 		Assert.assertEquals(mimetype,"application/msword");
 	}
 	
-	private String getAnExistingExcelObjectId(ISession session) throws DfException {
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession.getIdByQualification("dm_sysobject where a_content_type = 'excel8book'");
-		idString = id.toString();
-		System.out.println("idString getAnExistingExcelObjectId vaut "+idString);
-		return idString;
-	}	
-
-	private String getAnExistingPDFObjectId(ISession session) throws DfException {
-		// move into real DFC to find a docid that's in this docbase
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession.getIdByQualification("dm_sysobject where a_content_type = 'pdf'");
-		idString = id.toString();
-		System.out.println("idString getAnExistingPDFObjectId vaut "+idString);
-		return idString;
-		
-	}
 	
-	private String getAnExistingAccessObjectId(ISession session) throws DfException {
-		// move into real DFC to find a docid that's in this docbase
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession.getIdByQualification("dm_sysobject where a_content_type = 'ms_access7'");
-		idString = id.toString();
-		System.out.println("idString getAnExistingAccessObjectId vaut "+idString);
-		return idString;
-	}
-	
-	private String getAnExistingWordObjectId(ISession session) throws DfException {
-		// move into real DFC to find a docid that's in this docbase
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession.getIdByQualification("dm_sysobject where a_content_type = 'msw8'");
-		idString = id.toString();
-		System.out.println("idString getAnExistingAccessObjectId vaut "+idString);
-		return idString;
-	}
 	
 }
