@@ -39,7 +39,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	public ResultSet authorizeDocids(List docidList, String username)
 			throws RepositoryException {
-		//		System.out.println("DCTMAuthorize method authorizeDocids");
+		// System.out.println("DCTMAuthorize method authorizeDocids");
 		int i = 0;
 		DctmResultSet resultSet = null;
 		SimplePropertyMap docmap = null;

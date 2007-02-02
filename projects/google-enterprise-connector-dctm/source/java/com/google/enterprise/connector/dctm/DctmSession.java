@@ -41,57 +41,54 @@ public class DctmSession implements Session {
 		ILoginInfo dctmLoginInfo = null;
 
 		if (DebugFinalData.debug) {
-			OutputPerformances.setPerfFlag(this, "- builds an IClient");
+			OutputPerformances.setPerfFlag("a", "- builds an IClient", null);
 		}
-
 		setClientX(clientX);
-
 		if (DebugFinalData.debug) {
-			OutputPerformances.endFlag(this, "");
-		}
-		if (DebugFinalData.debug) {
-			OutputPerformances.setPerfFlag(this, "- builds an ILocalClient");
+			OutputPerformances.endFlag("a", "");
 		}
 
+		if (DebugFinalData.debug) {
+			OutputPerformances.setPerfFlag("a", "- builds an ILocalClient",
+					null);
+		}
 		client = this.clientX.getLocalClient();
-
 		if (DebugFinalData.debug) {
-			OutputPerformances.endFlag(this, "");
-		}
-		if (DebugFinalData.debug) {
-			OutputPerformances.setPerfFlag(this, "- builds an ISessionManager");
+			OutputPerformances.endFlag("a", "");
 		}
 
+		if (DebugFinalData.debug) {
+			OutputPerformances.setPerfFlag("a", "- builds an ISessionManager",
+					null);
+		}
 		sessionManager = this.client.newSessionManager();
-
 		if (DebugFinalData.debug) {
-			OutputPerformances.endFlag(this, "");
-		}
-		if (DebugFinalData.debug) {
-			OutputPerformances.setPerfFlag(this, "- builds credential objects");
+			OutputPerformances.endFlag("a", "");
 		}
 
+		if (DebugFinalData.debug) {
+			OutputPerformances.setPerfFlag("a", "- builds credential objects",
+					null);
+		}
 		dctmLoginInfo = this.clientX.getLoginInfo();
 		dctmLoginInfo.setUser(login);
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase, dctmLoginInfo);
+		if (DebugFinalData.debug) {
+			OutputPerformances.endFlag("a", "");
+		}
 
 		if (DebugFinalData.debug) {
-			OutputPerformances.endFlag(this, "");
-		}
-		if (DebugFinalData.debug) {
-			OutputPerformances.setPerfFlag(this,
-					"- opens an authenticated ISession");
+			OutputPerformances.setPerfFlag("a",
+					"- opens an authenticated ISession", null);
 		}
 		session = sessionManager.newSession(docbase);
-
 		this.clientX.setSessionManager(sessionManager);
 		sessionManager.release(session);
 
 		System.out.println("--- DctmSession avant setSessionManager ---");
-
 		if (DebugFinalData.debug) {
-			OutputPerformances.endFlag(this, "");
+			OutputPerformances.endFlag("a", "");
 		}
 
 		queryStringUnboundedDefault = qsud;
@@ -109,20 +106,17 @@ public class DctmSession implements Session {
 
 		DctmQueryTraversalManager dctmQtm = null;
 
-		if (DebugFinalData.debug)
-			OutputPerformances.setPerfFlag(this,
-					"DctmQueryTraversalManager's instantiation");
-		{
-
-			dctmQtm = new DctmQueryTraversalManager(clientX,
-					queryStringUnboundedDefault, queryStringBoundedDefault,
-					webtopServerUrl);
+		if (DebugFinalData.debug) {
+			OutputPerformances.setPerfFlag("a",
+					"DctmQueryTraversalManager's instantiation", null);
 		}
-		if (DebugFinalData.debug)
-			OutputPerformances.endFlag(this,
-					"DctmQueryTraversalManager's instantiation");
-		{
 
+		dctmQtm = new DctmQueryTraversalManager(clientX,
+				queryStringUnboundedDefault, queryStringBoundedDefault,
+				webtopServerUrl);
+		if (DebugFinalData.debug) {
+			OutputPerformances.endFlag("a",
+					"DctmQueryTraversalManager's instantiation");
 		}
 
 		System.out

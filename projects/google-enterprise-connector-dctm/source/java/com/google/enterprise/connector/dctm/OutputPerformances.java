@@ -1,6 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import org.apache.log4j.*;
 
@@ -15,27 +15,39 @@ import org.apache.log4j.*;
  */
 public class OutputPerformances {
 
-	private static Hashtable velocityFlags = new Hashtable(1, 1);
+	private static HashMap velocityFlags = new HashMap(1, 1);
 
-	private static Hashtable memoryFlags = new Hashtable(1, 1);
-	private static Logger logz ;
-	
+	private static HashMap memoryFlags = new HashMap(1, 1);
+
+	private static Logger logger;
+
 	static {
-		logz = Logger.getLogger(OutputPerformances.class);
+		logger = Logger.getLogger(OutputPerformances.class);
 		PatternLayout layout = new PatternLayout("%d [%t] %p - %m%n");
 		RollingFileAppender appender = null;
 		try {
-			appender = new RollingFileAppender(layout, "logs/outputPerformances.log", false);
-			appender.setMaxBackupIndex(1);
+			appender = new RollingFileAppender(layout,
+					"logs/outputPerformances.log", false);
+			appender.setMaxBackupIndex(10);
+			appender.setMaxFileSize("1MB");
 		} catch (Exception e) {
-			logz.error("[DCTM] " + e.getMessage());
+			logger.error("[DCTM] " + e.getMessage());
 		}
-		logz.addAppender(appender);
-		logz.setLevel((Level) Level.DEBUG);
+		logger.addAppender(appender);
+		logger.setLevel((Level) Level.DEBUG);
 	}
 
-	public static void setPerfFlag(Object loc, String message) {
-		
+	public static void setPerfFlag(String identifier, String message,
+			String additionalInfo) {
+
+		if (additionalInfo != null) {
+			logger
+					.debug("Begin process : " + message + "\n- "
+							+ additionalInfo);
+		} else {
+			logger.debug("Begin process : " + message);
+		}
+
 		// First release memory as far as possible.
 		// Running finalization waits till it's done then let's process it prior
 		// to speed measurement
@@ -45,30 +57,28 @@ public class OutputPerformances {
 		long free = rt.freeMemory();
 		long tot = rt.totalMemory();
 		free = (tot - free) / 1024;
-		logz.debug("Begin process : " + message);
-		OutputPerformances.memoryFlags.put((Object) loc.getClass(),
-				(Object) Long.toString(free));
 
-		OutputPerformances.velocityFlags.put((Object) loc.getClass(),
-				(Object) Long.toString(System.currentTimeMillis()));
+		// No test are performed to check whether this identifier has been used
+		// before. Then use it carefully
+		OutputPerformances.memoryFlags.put(identifier, (Object) Long
+				.toString(free));
+		OutputPerformances.velocityFlags.put(identifier, (Object) Long
+				.toString(System.currentTimeMillis()));
 	}
 
-	public static Object[] endFlag(Object loc, String message) {
-		Logger logz = Logger.getLogger(loc.getClass());
+	public static void endFlag(String identifier, String message) {
 		long elapsed;
 		if (true) {
 			long began = Long
 					.parseLong((String) OutputPerformances.velocityFlags
-							.get(loc.getClass()));
-			OutputPerformances.velocityFlags.remove(loc.getClass());
-			elapsed = System.currentTimeMillis() - began;// Time valuated,
-															// speed
-															// performances are
-															// no longer
-															// impacted by local
-															// treatment
-			logz.debug("End process : " + message + ".");
-			logz.debug("Time elapsed : " + elapsed + " ms");
+							.get(identifier));
+			OutputPerformances.velocityFlags.remove(identifier);
+			elapsed = System.currentTimeMillis() - began;
+
+			// Once time is valuated, speed performances are no longer impacted
+			// by local treatment
+			logger.debug("End process : " + message + ".");
+			logger.debug("Time elapsed : " + elapsed + " ms");
 		}
 		System.runFinalization();
 		System.gc();
@@ -77,14 +87,10 @@ public class OutputPerformances {
 		long tot = rt.totalMemory();
 		free = (tot - free) / 1024;
 		long initialMem = Long
-				.parseLong((String) OutputPerformances.memoryFlags.get(loc
-						.getClass()));
-		OutputPerformances.memoryFlags.remove(loc.getClass());
-		Object[] results = new Object[2];
-		results[0] = Long.toString(elapsed);
+				.parseLong((String) OutputPerformances.memoryFlags
+						.get(identifier));
+		OutputPerformances.memoryFlags.remove(identifier);
 		long used = free - initialMem;
-		results[1] = Long.toString(used);
-		logz.debug("Memory spent : " + used + " Ko");
-		return results;
+		logger.debug("Memory spent : " + used + " KBytes");
 	}
 }
