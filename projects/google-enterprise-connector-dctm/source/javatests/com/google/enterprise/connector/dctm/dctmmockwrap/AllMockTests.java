@@ -16,6 +16,7 @@ public class AllMockTests {
 		suite.addTestSuite(MockDmCollectionTest.class);
 		suite.addTestSuite(MockDmClientTest.class);
 		suite.addTestSuite(MockDmSessionManagerTest.class);
+		suite.addTestSuite(MockMockListTest.class);
 		//$JUnit-END$
 		return suite;
 	}

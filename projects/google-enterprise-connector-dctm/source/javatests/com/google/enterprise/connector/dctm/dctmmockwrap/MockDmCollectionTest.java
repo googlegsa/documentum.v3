@@ -56,11 +56,20 @@ public class MockDmCollectionTest extends TestCase {
 
 			// 2nd element of the collection looks like this :
 			/*
-			 * jcr:content : --> This is the public document. jcr:lastModified :
-			 * --> 1970-01-01T00:00:10.000Z jcr:uuid : --> doc1 acl : --> joe
-			 * --> mary google:ispublic : --> true
+			 * jcr:content : --> This is the public document.
+			 * jcr:lastModified : --> 1970-01-01T00:00:10.000Z
+			 * jcr:uuid : --> doc1
+			 * acl :
+			 *      --> joe
+			 *      --> mary
+			 * google:ispublic : --> true
 			 */
 			assertEquals(co.getString("jcr:uuid"), "doc1");
+			try {
+				assertEquals(co.getAuthorizedUsers()[0].getString(), "joe");
+			} catch (Exception e) {
+				assertTrue(false);
+			}
 
 			ResultSet rs = co.buildResulSetFromCollection(sessionManager);
 			assertTrue(rs instanceof SpiResultSetFromJcr);
