@@ -92,7 +92,7 @@ public class DctmConnector implements Connector {
 		return attributeName;
 	}
 
-	public void setClientX(String clientX){
+	public void setClientX(String clientX) {
 
 		this.clientX = clientX;
 
@@ -110,10 +110,10 @@ public class DctmConnector implements Connector {
 		System.out.println("--- DctmConnector login ---");
 
 		if (DebugFinalData.debug) {
-			OutputPerformances
-					.setPerfFlag(
-							this,
-							"DctmConnector.login() :\n\t\t\t\t Instantiates a new DctmSession from 9 String (~250 chars) and :");
+			OutputPerformances.setPerfFlag("conn",
+					"DctmConnector.login() :\n\t\t\t\t Instantiates a new "
+							+ "DctmSession from 9 String (~250 chars) and :",
+					null);
 		}
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
@@ -121,7 +121,7 @@ public class DctmConnector implements Connector {
 				queryStringAuthoriseDefault, attributeName, webtopServerUrl);
 
 		if (DebugFinalData.debug)
-			OutputPerformances.endFlag(this,
+			OutputPerformances.endFlag("conn",
 					"return Session from DctmConnector.login()");
 
 		return (sess);

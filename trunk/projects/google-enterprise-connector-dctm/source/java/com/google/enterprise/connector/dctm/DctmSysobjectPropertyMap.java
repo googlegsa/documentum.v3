@@ -3,7 +3,6 @@ package com.google.enterprise.connector.dctm;
 import java.util.HashSet;
 import java.util.Iterator;
 
-
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -27,7 +26,6 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 	private ISessionManager sessionManager = null;
 
 	private IClientX clientX;
-
 
 	private String isPublic = "false";
 
@@ -217,7 +215,7 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 		// propNames.add(thisone);
 		// return propNames.iterator();
 		fetch();
-		///Enumeration metas = object.enumAttrs();
+		// /Enumeration metas = object.enumAttrs();
 		HashSet properties = new HashSet();
 
 		for (int i = 0; i < object.getAttrCount(); i++) {

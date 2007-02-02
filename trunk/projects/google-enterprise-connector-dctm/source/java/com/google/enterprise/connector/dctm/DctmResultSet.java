@@ -24,5 +24,4 @@ public class DctmResultSet extends LinkedList implements ResultSet {
 		return iterator;
 	}
 
-
 }

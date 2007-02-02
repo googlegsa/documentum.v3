@@ -1,15 +1,10 @@
 package com.google.enterprise.connector.dctm;
 
-import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmLoginInfo;
-import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmQuery;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.QueryTraversalManager;
@@ -23,22 +18,14 @@ public class OutputPerformancesTest extends TestCase {
 	/**
 	 * This is not really a UNITTest. It aims to evaluate prcoessing time and memory costs.
 	 */
-	public void testCalibrate(){
+	public void testInstantiation(){
 		PropertyConfigurator.configure("GSALogs.properties");
-
-		OutputPerformances.setPerfFlag(this,"Instantiation cost test");
-
+		OutputPerformances.setPerfFlag("azaz","Instantiation cost test",null);
 		String user, password, clientX, docbase;
 		user="user1";
 		password="p@ssw0rd";
 		clientX="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX";
 		docbase="gsadctm";
-		String unboundedTraversalQuery = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' " +
-		"order by r_modify_date, i_chronicle_id ";
-		String boundedTraversalQuery = 
-			"select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "+ 
-			"''{0}'' "+
-			"order by r_modify_date, i_chronicle_id";
 		Session session = null;
 		Connector connector = null;
 		QueryTraversalManager qtm = null;		
@@ -58,7 +45,7 @@ public class OutputPerformancesTest extends TestCase {
 			throw new AssertionFailedError("Repository exception on post instantiation tests. " +
 					"Check initial values. (" + e.getMessage() + " ; " + e.getCause() + ")");
 		}
-		OutputPerformances.endFlag(this,"Instantiation cost test");
+		OutputPerformances.endFlag("azaz","Instantiation cost test");
 		
 		String quetalhaido = calibrate();
 		assertEquals("com.google.enterprise.connector.dctm.DctmQueryTraversalManager",qtm.getClass().getName());
@@ -76,63 +63,54 @@ public class OutputPerformancesTest extends TestCase {
 			System.runFinalization();
 			System.gc();
 			tmpLOG.info("********BEGIN - Successive tests - Highlights unreleased objects memory effects********************************************************");
-
-			OutputPerformances.setPerfFlag((new Vector()),"Global load test");
-
+			OutputPerformances.setPerfFlag("1","Global load test",null);
 			for (int i=1 ; i<5000 ; i=i+2){
 				int j=i+1;
-
-				OutputPerformances.setPerfFlag((new String()),"Free load test #" + i);
-				OutputPerformances.endFlag((new String()),"Free load test #" + i);
-				OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test #" + j);
-				OutputPerformances.endFlag((new StringBuffer()),"Free load test #" + j);
-
+				OutputPerformances.setPerfFlag("2","Free load test #" + i,null);
+				OutputPerformances.endFlag("2","Free load test #" + i);
+				OutputPerformances.setPerfFlag("3","Free load test #" + j,null);
+				OutputPerformances.endFlag("3","Free load test #" + j);
 			}
-			OutputPerformances.endFlag((new Vector()),"Global load test");
+			OutputPerformances.endFlag("1","Global load test");
 			tmpLOG.info("********END - Successive tests - Highlights unreleased objects memory effects********************************************************\n\n");
 			
 
 			tmpLOG.info("********BEGIN - Successive tests - Highlights outputing objects memory amount (typically Hashtables memory cost)********************************************************");
 			tmpLOG.info("********BEGIN - Successive tests - Load/Unload test (symetry test)******************************");
-
-			OutputPerformances.setPerfFlag((new String()),"Free load test keeping hashtables #1");
-			OutputPerformances.setPerfFlag((new StringBuffer()),"Free load test keeping hashtables #2");
-			OutputPerformances.setPerfFlag((new Vector()),"Free load test keeping hashtables #3");
-			OutputPerformances.setPerfFlag((new Hashtable()),"Free load test keeping hashtables #4");
-			OutputPerformances.setPerfFlag((new MockDmLoginInfo()),"Free load test keeping hashtables #5");
-			OutputPerformances.setPerfFlag((new DctmConnector()),"Free load test keeping hashtables #6");
-			OutputPerformances.setPerfFlag((new MockDmQuery()),"Free load test keeping hashtables #7");
-			OutputPerformances.setPerfFlag((new HashMap()),"Free load test keeping hashtables #8");
-			OutputPerformances.setPerfFlag((new Exception()),"Free load test keeping hashtables #9");
-			OutputPerformances.setPerfFlag((new FileNotFoundException()),"Free load test keeping hashtables #10");
-			OutputPerformances.endFlag((new Exception()),"Free load test keeping hashtables #10");
-			OutputPerformances.endFlag((new NumberFormatException()),"Free load test keeping hashtables #9");
-			OutputPerformances.endFlag((new HashMap()),"Free load test keeping hashtables #8");
-			OutputPerformances.endFlag((new MockDmQuery()),"Free load test keeping hashtables #7");
-			OutputPerformances.endFlag((new DctmConnector()),"Free load test keeping hashtables #6");
-			OutputPerformances.endFlag((new MockDmLoginInfo()),"Free load test keeping hashtables #5");
-			OutputPerformances.endFlag((new Hashtable()),"Free load test keeping hashtables #4");
-			OutputPerformances.endFlag((new Vector()),"Free load test keeping hashtables #3");
-			OutputPerformances.endFlag((new StringBuffer()),"Free load test keeping hashtables #2");
-			OutputPerformances.endFlag((new String()),"Free load test keeping hashtables #1");
-
+			OutputPerformances.setPerfFlag("a","Free load test keeping hashtables #1",null);
+			OutputPerformances.setPerfFlag("z","Free load test keeping hashtables #2",null);
+			OutputPerformances.setPerfFlag("e","Free load test keeping hashtables #3",null);
+			OutputPerformances.setPerfFlag("r","Free load test keeping hashtables #4",null);
+			OutputPerformances.setPerfFlag("t","Free load test keeping hashtables #5",null);
+			OutputPerformances.setPerfFlag("y","Free load test keeping hashtables #6",null);
+			OutputPerformances.setPerfFlag("u","Free load test keeping hashtables #7",null);
+			OutputPerformances.setPerfFlag("i","Free load test keeping hashtables #8",null);
+			OutputPerformances.setPerfFlag("o","Free load test keeping hashtables #9",null);
+			OutputPerformances.setPerfFlag("p","Free load test keeping hashtables #10",null);
+			OutputPerformances.endFlag("a","Free load test keeping hashtables #10");
+			OutputPerformances.endFlag("z","Free load test keeping hashtables #9");
+			OutputPerformances.endFlag("e","Free load test keeping hashtables #8");
+			OutputPerformances.endFlag("r","Free load test keeping hashtables #7");
+			OutputPerformances.endFlag("t","Free load test keeping hashtables #6");
+			OutputPerformances.endFlag("y","Free load test keeping hashtables #5");
+			OutputPerformances.endFlag("u","Free load test keeping hashtables #4");
+			OutputPerformances.endFlag("i","Free load test keeping hashtables #3");
+			OutputPerformances.endFlag("o","Free load test keeping hashtables #2");
+			OutputPerformances.endFlag("p","Free load test keeping hashtables #1");
 			tmpLOG.info("********END - Successive tests - Load/Unload test (symetry test)******************************\n\n");
 			tmpLOG.info("********BEGIN - Successive tests - Hashtables test******************************");
-
-			Hashtable h = new Hashtable(1,1);
-			OutputPerformances.setPerfFlag((new Vector()),"Global load test");
-
+			HashMap h = new HashMap(1,1);
+			OutputPerformances.setPerfFlag("qskdjfbilqsdufbiqs","Global load test","fQDFHOSDUQSDOPFQSDOFHQUISD");
 			for (int i=0 ; i<10000 ; i++){
-
-				OutputPerformances.setPerfFlag(new OutputPerformances(),"Iteration "+i);
+				OutputPerformances.setPerfFlag("snbfklqshdg" + i,"Iteration "+i, "qsdjfhomisd^qsdjiof^qsdihfôqsdijfqsdoi");
 				if (true) {
 					String o = "##" + i;
 					long l = System.currentTimeMillis();
 					h.put(o,Long.toString(l));
 				}
-				OutputPerformances.endFlag(new OutputPerformances(),"Iteration "+i);
+				OutputPerformances.endFlag("snbfklqshdg" + i,"Iteration "+i);
 			}
-			OutputPerformances.endFlag((new Vector()),"Global load test - Added 10.000 elements in an Hashtable : ");
+			OutputPerformances.endFlag("qskdjfbilqsdufbiqs","Global load test - Added 10.000 elements in an Hashtable : ");
 			tmpLOG.info("********END - Successive tests - Hashtables test******************************");
 			tmpLOG.info("********END - Successive tests - Highlights outputing objects memory amount********************************************************");
 		}catch (Exception e){
