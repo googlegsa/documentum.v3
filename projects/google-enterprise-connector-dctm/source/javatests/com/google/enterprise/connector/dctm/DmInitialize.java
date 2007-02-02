@@ -1,10 +1,25 @@
 package com.google.enterprise.connector.dctm;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.DmDocument;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.DmPersistentObject;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSession;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSysObject;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.manager.Context;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmInitialize {
 	public static final String DM_LOGIN_OK1 = "emilie";
@@ -41,6 +56,69 @@ public class DmInitialize {
 		IDfId id = dfSession.getIdByQualification("dm_sysobject");
 		idString = id.toString();
 		return idString;
+	}
+	
+	public static String getAnExistingExcelObjectId(ISession session) throws DfException {
+		String idString;
+		DmSession dctmSession = (DmSession) session;
+		IDfSession dfSession = dctmSession.getDfSession();
+		IDfId id = dfSession.getIdByQualification("dm_sysobject where a_content_type = 'excel8book'");
+		idString = id.toString();
+		System.out.println("idString getAnExistingExcelObjectId vaut "+idString);
+		return idString;
 	}	
+
+	public static String getAnExistingPDFObjectId(ISession session) throws DfException {
+		// move into real DFC to find a docid that's in this docbase
+		String idString;
+		DmSession dctmSession = (DmSession) session;
+		IDfSession dfSession = dctmSession.getDfSession();
+		IDfId id = dfSession.getIdByQualification("dm_sysobject where a_content_type = 'pdf'");
+		idString = id.toString();
+		System.out.println("idString getAnExistingPDFObjectId vaut "+idString);
+		return idString;
+		
+	}
+	
+	public static String getAnExistingAccessObjectId(ISession session) throws DfException {
+		// move into real DFC to find a docid that's in this docbase
+		String idString;
+		DmSession dctmSession = (DmSession) session;
+		IDfSession dfSession = dctmSession.getDfSession();
+		IDfId id = dfSession.getIdByQualification("dm_sysobject where a_content_type = 'ms_access7'");
+		idString = id.toString();
+		System.out.println("idString getAnExistingAccessObjectId vaut "+idString);
+		return idString;
+	}
+	
+	public static String getAnExistingWordObjectId(ISession session) throws DfException {
+		// move into real DFC to find a docid that's in this docbase
+		String idString;
+		DmSession dctmSession = (DmSession) session;
+		IDfSession dfSession = dctmSession.getDfSession();
+		IDfId id = dfSession.getIdByQualification("dm_sysobject where a_content_type = 'msw8'");
+		idString = id.toString();
+		System.out.println("idString getAnExistingAccessObjectId vaut "+idString);
+		return idString;
+	}
+	
+	public static DmDocument CreateNewDocument(ISession session) throws RepositoryException, IOException{
+		DmDocument document=((DmSession)session).newObject();
+		File f=new File("DocumentCreationTest.txt");
+		ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(f));
+		oos.writeObject("Foundation Course Content Outline Overview Concepts The mission of Google and Google Enterprise");
+		document.setFileEx("DocumentCreationTest.txt","text");
+		document.setObjectName("Document creation test");
+		document.save();
+		oos.close();
+		boolean del=f.delete();
+		System.out.println("del vaut "+del);
+		return document;
+	}
+	
+	public static void deleteDocument(DmDocument document) throws RepositoryException{
+		document.destroyAllVersions();
+	}
+	
 }
 
