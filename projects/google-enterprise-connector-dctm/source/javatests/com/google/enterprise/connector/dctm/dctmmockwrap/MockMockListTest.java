@@ -24,14 +24,15 @@ public class MockMockListTest extends TestCase {
 		ili.setUser("mark");
 		ili.setPassword("mark");
 		try {
-			sessionManager.setIdentity("MockRepositoryEventLog2.txt", ili);
-			sessionManager.getSession("MockRepositoryEventLog2.txt");
+			sessionManager.setIdentity("SwordEventLog.txt", ili);
+			sessionManager.getSession("SwordEventLog.txt");
 		} catch (RepositoryException e) {
 			assertTrue(false);
 		}
-		String query = "kqsfgopqsudhnfpioqsdf^qsdfhqsdo 'doc1', 'doc2', 'doc3', 'doc4'";
+		String query = "kqsfgopqsudhnfpioqsdf^qsdfhqsdo 'doc26', 'doc2', 'doc3', 'doc4'";
 		String[] ids = query.split("', '");
 		ids[0] = ids[0].substring(ids[0].lastIndexOf("'")+1,ids[0].length());
+		ids[ids.length-1] = ids[ids.length-1].substring(0,ids.length);
 		MockMockList lst = null;
 		try {
 			lst = new MockMockList(ids, sessionManager);
