@@ -4,6 +4,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
+import javax.jcr.Value;
 import javax.jcr.query.QueryResult;
 
 import com.google.enterprise.connector.dctm.dfcwrap.*;
@@ -37,6 +38,17 @@ public class MockDmCollection implements ICollection {
 		try {
 			Property tmp = currentNode.getProperty(colName);
 			return tmp.getString();
+		} catch (PathNotFoundException e) {
+			throw new RepositoryException(e);
+		} catch (javax.jcr.RepositoryException e) {
+			throw new RepositoryException(e);
+		}
+	}
+
+	protected Value[] getAuthorizedUsers() throws RepositoryException {
+		try {
+			Property tmp = currentNode.getProperty("acl");
+			return tmp.getValues();
 		} catch (PathNotFoundException e) {
 			throw new RepositoryException(e);
 		} catch (javax.jcr.RepositoryException e) {
