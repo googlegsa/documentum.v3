@@ -34,7 +34,7 @@ public class DmFormatTest extends TestCase {
 		loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
 		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
 		try {
-			session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+			session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
 			IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 			ISysObject object = session.getObject(id);
 			dctmForm = (DmFormat) object.getFormat();

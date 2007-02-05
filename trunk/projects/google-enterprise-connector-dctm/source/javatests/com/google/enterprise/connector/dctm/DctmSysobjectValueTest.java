@@ -27,7 +27,6 @@ public class DctmSysobjectValueTest extends TestCase {
 	ISysObject object = null;
 
 	public void setUp() throws Exception {
-		super.setUp();
 		dctmClientX = new DmClientX();
 
 		localClient = dctmClientX.getLocalClient();

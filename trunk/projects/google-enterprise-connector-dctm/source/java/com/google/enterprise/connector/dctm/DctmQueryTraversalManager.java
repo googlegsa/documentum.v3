@@ -88,8 +88,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 */
 
 	public ResultSet startTraversal() throws RepositoryException {
-
-		System.out.println("--- DctmQueryTraversalManager startTraversal ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out
+					.println("--- DctmQueryTraversalManager startTraversal ---");
+		}
 
 		IQuery query = null;
 		ResultSet resu = null;
@@ -115,10 +117,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 */
 	public ResultSet resumeTraversal(String checkPoint)
 			throws RepositoryException {
-
-		System.out.println("checkpoint vaut " + checkPoint);
-		System.out
-				.println("--- DctmQueryTraversalManager resumeTraversal !!! ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("checkpoint vaut " + checkPoint);
+			System.out
+					.println("--- DctmQueryTraversalManager resumeTraversal !!! ---");
+		}
 
 		ResultSet resultSet = null;
 
@@ -183,11 +186,15 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	}
 
 	private ResultSet execQuery(IQuery query) throws RepositoryException {
-		System.out.println("--- DctmQueryTraversalManager execQuery ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DctmQueryTraversalManager execQuery ---");
+		}
 
 		ICollection dctmCollection = null;
-		System.out.println("--- DctmQueryTraversalManager serverurl vaut "
-				+ serverUrl + " ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DctmQueryTraversalManager serverurl vaut "
+					+ serverUrl + " ---");
+		}
 
 		sessionManager.setServerUrl(serverUrl);
 		if (DebugFinalData.debugInTomcat) {
@@ -284,13 +291,17 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 			query.append(" ENABLE (return_top " + Integer.toString(batchHint)
 					+ ")");
 		}
-		System.out.println(query.toString());
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println(query.toString());
+		}
 		return query.toString();
 	}
 
 	private String getCheckpointClause(String checkPoint)
 			throws RepositoryException {
-		System.out.println("checkpoint vaut " + checkPoint);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("checkpoint vaut " + checkPoint);
+		}
 		JSONObject jo = null;
 
 		try {
