@@ -5,6 +5,7 @@ import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.common.DfException;
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -31,21 +32,27 @@ public class DmQuery implements IQuery {
 
 	public ICollection execute(ISessionManager sessionManager, int queryType)
 			throws RepositoryException {
-		System.out.println("--- DmQuery execute ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DmQuery execute ---");
+		}
 
 		if (!(sessionManager instanceof DmSessionManager)) {
 			throw new IllegalArgumentException();
 		}
 
 		DmSession idctmsession = null;
-		System.out.println("--- docbase vaut "
-				+ sessionManager.getDocbaseName());
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- docbase vaut "
+					+ sessionManager.getDocbaseName());
+		}
 		idctmsession = (DmSession) sessionManager.getSession(sessionManager
 				.getDocbaseName());
 
 		IDfSession idfSession = idctmsession.getDfSession();
 		IDfCollection DfCollection = null;
-		System.out.println("--- IdfQuery vaut " + idfQuery.getDQL());
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- IdfQuery vaut " + idfQuery.getDQL());
+		}
 		try {
 			DfCollection = idfQuery.execute(idfSession, queryType);
 		} catch (DfException de) {

@@ -2,6 +2,7 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.common.DfId;
 import com.documentum.fc.common.IDfId;
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 
 public class DmId implements IId {
@@ -16,8 +17,9 @@ public class DmId implements IId {
 	}
 
 	public IDfId getidfId() {
-
-		System.out.println("--- DmId getidfId ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DmId getidfId ---");
+		}
 
 		return idfId;
 	}

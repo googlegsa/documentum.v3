@@ -6,6 +6,7 @@ import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -48,9 +49,13 @@ public class DmClientX implements IClientX {
 	}
 
 	public void setClient(IClient client) {
-		System.out.println("--- setClient ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- setClient ---");
+		}
 		this.dmClient = (DmClient) client;
-		System.out.println("--- setClient avant getSessionManager---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- setClient avant getSessionManager---");
+		}
 
 	}
 
@@ -63,7 +68,9 @@ public class DmClientX implements IClientX {
 	}
 
 	public ISessionManager getSessionManager() {
-		System.out.println("--- getSessionManager ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- getSessionManager ---");
+		}
 		return dmSessionManager;
 	}
 

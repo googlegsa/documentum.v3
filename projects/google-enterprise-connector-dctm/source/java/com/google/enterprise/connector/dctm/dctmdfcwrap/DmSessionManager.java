@@ -97,7 +97,6 @@ public class DmSessionManager implements ISessionManager {
 			throw re;
 		}
 		if (error != null) {
-			System.out.println(error);
 			return null;
 		}
 		return new DmSession(idfSession);
@@ -138,6 +137,7 @@ public class DmSessionManager implements ISessionManager {
 			this.dfSessionManager.authenticate(docbaseName);
 			authent = true;
 		} catch (DfException e) {
+//			System.out.println("erreur ici...");
 			return false;
 
 		}

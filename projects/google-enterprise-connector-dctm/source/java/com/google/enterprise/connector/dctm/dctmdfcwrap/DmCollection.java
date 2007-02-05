@@ -2,6 +2,7 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.google.enterprise.connector.dctm.DctmResultSet;
 import com.google.enterprise.connector.dctm.DctmSysobjectPropertyMap;
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -79,15 +80,20 @@ public class DmCollection extends DmTypedObject implements ICollection {
 	public ResultSet buildResulSetFromCollection(
 			ISessionManager sessionManager, IClientX clientX)
 			throws RepositoryException {
-		System.out.println("--- DmCollection buildResulSetFromCollection ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out
+					.println("--- DmCollection buildResulSetFromCollection ---");
+		}
 
 		String crID = null;
 		int counter = 0;
 		DctmSysobjectPropertyMap pm = null;
 		DctmResultSet resu = new DctmResultSet();
 		ICollection col = new DmCollection(idfCollection);
-		System.out.println("--- docbasename vaut "
-				+ sessionManager.getDocbaseName() + " ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- docbasename vaut "
+					+ sessionManager.getDocbaseName() + " ---");
+		}
 		DmSession session = (DmSession) sessionManager
 				.getSession(sessionManager.getDocbaseName());
 
@@ -100,7 +106,10 @@ public class DmCollection extends DmTypedObject implements ICollection {
 			resu.add(pm);
 		}
 		sessionManager.release(session);
-		System.out.println("--- DmCollection buildResulSetFromCollection END---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out
+					.println("--- DmCollection buildResulSetFromCollection END---");
+		}
 		return resu;
 	}
 

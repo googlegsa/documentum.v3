@@ -8,6 +8,7 @@ import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.DfLoginInfo;
 import com.documentum.fc.common.IDfLoginInfo;
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -35,7 +36,9 @@ public class DmClient implements IClient {
 
 	public ISession newSession(String docbase, ILoginInfo logInfo)
 			throws LoginException {
-		System.out.println("--- DmClient newSession ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DmClient newSession ---");
+		}
 
 		IDfSession sessionUser = null;
 		IDfLoginInfo idfLogInfo = new DfLoginInfo();
@@ -67,16 +70,18 @@ public class DmClient implements IClient {
 	}
 
 	public ISessionManager getSessionManager() {
-
-		System.out.println("getSessionmanager -- docbasename vaut "
-				+ dmSessionManager.getDocbaseName());
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("getSessionmanager -- docbasename vaut "
+					+ dmSessionManager.getDocbaseName());
+		}
 
 		return dmSessionManager;
 	}
 
 	public void setSessionManager(ISessionManager sessionManager) {
-
-		System.out.println("--- setSessionManager ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- setSessionManager ---");
+		}
 		dmSessionManager = (DmSessionManager) sessionManager;
 
 	}

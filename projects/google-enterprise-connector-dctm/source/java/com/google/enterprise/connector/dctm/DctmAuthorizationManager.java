@@ -45,13 +45,17 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		ILoginInfo logInfo = clientX.getLoginInfo();
 		logInfo.setUser(username);
 		logInfo.setPassword(ticket);
-		System.out.println("user vaut " + username);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("user vaut " + username);
+		}
 		sessionManagerUser
 				.setIdentity(sessionManager.getDocbaseName(), logInfo);
 		sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
 		dqlQuery = buildQuery(docidList);
-		System.out.println("dql " + dqlQuery);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("dql " + dqlQuery);
+		}
 		query.setDQL(dqlQuery);
 		collec = (ICollection) query.execute(sessionManagerUser,
 				IQuery.DF_READ_QUERY);
@@ -59,7 +63,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		while (collec != null && collec.next()) {
 			ids += collec.getString(attributeName) + " ";
 		}
-		System.out.println("size list " + docidList.size());
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("size list " + docidList.size());
+		}
 		resultSet = new DctmResultSet();
 		for (i = 0; i < docidList.size(); i++) {
 			docmap = new SimplePropertyMap();
@@ -68,8 +74,10 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			docmap.putProperty(new SimpleProperty(
 					SpiConstants.PROPNAME_AUTH_VIEWPERMIT, (ids
 							.indexOf(docidList.get(i).toString()) != -1)));
-			System.out.println("hasRight?  "
-					+ (ids.indexOf(docidList.get(i).toString()) != -1));
+			if (DebugFinalData.debugInEclipse) {
+				System.out.println("hasRight?  "
+						+ (ids.indexOf(docidList.get(i).toString()) != -1));
+			}
 			resultSet.add(docmap);
 		}
 
@@ -82,15 +90,18 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		String queryString;
 
 		queryString = queryStringAuthoriseDefault;
-		System.out.println("queryString avant boucle " + queryString);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("queryString avant boucle " + queryString);
+		}
 
 		for (i = 0; i < docidList.size() - 1; i++) {
 			queryString += "'" + docidList.get(i).toString() + "', ";
 
 		}
 		queryString += "'" + docidList.get(i).toString() + "')";
-
-		System.out.println("queryString après boucle " + queryString);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("queryString après boucle " + queryString);
+		}
 
 		return queryString;
 	}

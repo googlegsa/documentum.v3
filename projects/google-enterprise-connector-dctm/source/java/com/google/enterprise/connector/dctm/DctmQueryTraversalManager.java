@@ -56,19 +56,20 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	public DctmQueryTraversalManager(IClientX clientX, String webtopServerUrl)
 			throws RepositoryException {
-		if (DebugFinalData.debugTomcat)
+		if (DebugFinalData.debugInTomcat)
 			OutputPerformances.setPerfFlag("qtm", "Valuate IClient", null);
 
 		setClientX(clientX);
 
-		if (DebugFinalData.debugTomcat)
+		if (DebugFinalData.debugInTomcat)
 			OutputPerformances.endFlag("qtm", "Valuate IClient");
 
 		setSessionManager(clientX.getSessionManager());
 
 		this.serverUrl = webtopServerUrl;
-
-		System.out.println("serverUrl vaut " + this.serverUrl);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("serverUrl vaut " + this.serverUrl);
+		}
 
 	}
 
@@ -189,20 +190,20 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 				+ serverUrl + " ---");
 
 		sessionManager.setServerUrl(serverUrl);
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("qtm", "Processing query", null);
 		}
 		dctmCollection = query.execute(sessionManager, IQuery.DF_READ_QUERY);
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.endFlag("qtm", "Collection retrieved.");
 		}
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("qtm", "About to build ResultSet.",
 					null);
 		}
 		ResultSet rs = dctmCollection.buildResulSetFromCollection(
 				sessionManager, clientX);
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("qtm", "ResultSet built.", null);
 		}
 		return rs;
