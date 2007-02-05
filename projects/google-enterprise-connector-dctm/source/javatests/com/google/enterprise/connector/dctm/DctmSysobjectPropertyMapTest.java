@@ -37,7 +37,7 @@ public class DctmSysobjectPropertyMapTest extends TestCase {
 		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
 		sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
 		try {
-			session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+			session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);

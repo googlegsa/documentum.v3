@@ -8,6 +8,7 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfLoginInfo;
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -113,8 +114,9 @@ public class DmSessionManager implements ISessionManager {
 
 	public void setServerUrl(String serverUrl) {
 		this.serverUrl = serverUrl;
-
-		System.out.println("serverUrl vaut " + serverUrl);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("serverUrl vaut " + serverUrl);
+		}
 
 	}
 
@@ -137,7 +139,6 @@ public class DmSessionManager implements ISessionManager {
 			this.dfSessionManager.authenticate(docbaseName);
 			authent = true;
 		} catch (DfException e) {
-//			System.out.println("erreur ici...");
 			return false;
 
 		}
