@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.spi.LoginException;
 import com.documentum.fc.client.IDfFormat;
@@ -35,8 +36,9 @@ public class DmFormat implements IFormat {
 		try {
 			if (idfFormat != null) {
 				rep = idfFormat.getMIMEType();
-
-				System.out.println("DmFormat mimetype vaut " + rep);
+				if (DebugFinalData.debugInEclipse) {
+					System.out.println("DmFormat mimetype vaut " + rep);
+				}
 			} else {
 				rep = "application/octet-stream";
 

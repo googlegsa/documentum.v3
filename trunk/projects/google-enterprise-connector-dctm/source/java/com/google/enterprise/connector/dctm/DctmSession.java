@@ -35,36 +35,38 @@ public class DctmSession implements Session {
 
 	public DctmSession(String clientX, String login, String password,
 			String docbase, String wsu) throws RepositoryException {
-		System.out.println("--- DctmSession constructor with arguments---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DctmSession constructor with arguments---");
+		}
 		ILoginInfo dctmLoginInfo = null;
 
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("a", "- builds an IClient", null);
 		}
 		setClientX(clientX);
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("a", "- builds an ILocalClient",
 					null);
 		}
 		client = this.clientX.getLocalClient();
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("a", "- builds an ISessionManager",
 					null);
 		}
 		sessionManager = this.client.newSessionManager();
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("a", "- builds credential objects",
 					null);
 		}
@@ -72,20 +74,21 @@ public class DctmSession implements Session {
 		dctmLoginInfo.setUser(login);
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase, dctmLoginInfo);
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("a",
 					"- opens an authenticated ISession", null);
 		}
 		session = sessionManager.newSession(docbase);
 		this.clientX.setSessionManager(sessionManager);
 		sessionManager.release(session);
-
-		System.out.println("--- DctmSession avant setSessionManager ---");
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DctmSession avant setSessionManager ---");
+		}
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
@@ -96,11 +99,13 @@ public class DctmSession implements Session {
 
 	public QueryTraversalManager getQueryTraversalManager()
 			throws RepositoryException {
-		System.out.println("--- DctmSession getQueryTraversalManager---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DctmSession getQueryTraversalManager---");
+		}
 
 		DctmQueryTraversalManager dctmQtm = null;
 
-		if (DebugFinalData.debugTomcat)
+		if (DebugFinalData.debugInTomcat)
 			OutputPerformances.setPerfFlag("a",
 					"DctmQueryTraversalManager's instantiation", null);
 		{
@@ -110,14 +115,15 @@ public class DctmSession implements Session {
 		}
 
 		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl);
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.endFlag("a",
 					"DctmQueryTraversalManager's instantiation");
 		}
-
-		System.out
-				.println("--- DctmSession getQueryTraversalManager client vaut"
-						+ client.getClass() + "---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out
+					.println("--- DctmSession getQueryTraversalManager client vaut"
+							+ client.getClass() + "---");
+		}
 
 		return dctmQtm;
 	}

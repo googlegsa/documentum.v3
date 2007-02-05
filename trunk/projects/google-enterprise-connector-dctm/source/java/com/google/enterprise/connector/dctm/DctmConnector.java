@@ -65,9 +65,11 @@ public class DctmConnector implements Connector {
 	}
 
 	public Session login() throws RepositoryException {
-		System.out.println("--- DctmConnector login ---");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("--- DctmConnector login ---");
+		}
 
-		if (DebugFinalData.debugTomcat) {
+		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("conn",
 					"DctmConnector.login() :\n\t\t\t\t Instantiates a new "
 							+ "DctmSession from 9 String (~250 chars) and :",
@@ -77,7 +79,7 @@ public class DctmConnector implements Connector {
 		sess = new DctmSession(clientX, login, password, docbase,
 				webtopServerUrl);
 
-		if (DebugFinalData.debugTomcat)
+		if (DebugFinalData.debugInTomcat)
 			OutputPerformances.endFlag("conn",
 					"return Session from DctmConnector.login()");
 
