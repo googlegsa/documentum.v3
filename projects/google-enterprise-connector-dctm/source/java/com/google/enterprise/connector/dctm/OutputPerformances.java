@@ -28,7 +28,7 @@ public class OutputPerformances {
 		try {
 
 			appender = new RollingFileAppender(layout,
-					"logs/outputPerformances.log", false);
+					"logs/dctmOutputPerformances.log", false);
 			appender.setMaxBackupIndex(10);
 			appender.setMaxFileSize("1MB");
 

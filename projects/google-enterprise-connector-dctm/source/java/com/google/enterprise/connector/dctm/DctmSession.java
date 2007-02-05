@@ -38,33 +38,33 @@ public class DctmSession implements Session {
 		System.out.println("--- DctmSession constructor with arguments---");
 		ILoginInfo dctmLoginInfo = null;
 
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.setPerfFlag("a", "- builds an IClient", null);
 		}
 		setClientX(clientX);
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.setPerfFlag("a", "- builds an ILocalClient",
 					null);
 		}
 		client = this.clientX.getLocalClient();
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.setPerfFlag("a", "- builds an ISessionManager",
 					null);
 		}
 		sessionManager = this.client.newSessionManager();
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.setPerfFlag("a", "- builds credential objects",
 					null);
 		}
@@ -72,11 +72,11 @@ public class DctmSession implements Session {
 		dctmLoginInfo.setUser(login);
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase, dctmLoginInfo);
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.setPerfFlag("a",
 					"- opens an authenticated ISession", null);
 		}
@@ -85,7 +85,7 @@ public class DctmSession implements Session {
 		sessionManager.release(session);
 
 		System.out.println("--- DctmSession avant setSessionManager ---");
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.endFlag("a", "");
 		}
 
@@ -100,7 +100,7 @@ public class DctmSession implements Session {
 
 		DctmQueryTraversalManager dctmQtm = null;
 
-		if (DebugFinalData.debug)
+		if (DebugFinalData.debugTomcat)
 			OutputPerformances.setPerfFlag("a",
 					"DctmQueryTraversalManager's instantiation", null);
 		{
@@ -110,7 +110,7 @@ public class DctmSession implements Session {
 		}
 
 		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl);
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debugTomcat) {
 			OutputPerformances.endFlag("a",
 					"DctmQueryTraversalManager's instantiation");
 		}
