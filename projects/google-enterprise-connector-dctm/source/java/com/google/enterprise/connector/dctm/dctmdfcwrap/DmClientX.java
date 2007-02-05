@@ -63,7 +63,7 @@ public class DmClientX implements IClientX {
 	}
 
 	public ISessionManager getSessionManager() {
-		// System.out.println("--- getSessionManager ---");
+		System.out.println("--- getSessionManager ---");
 		return dmSessionManager;
 	}
 

@@ -21,9 +21,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	private IClientX clientX;
 
-	private String unboundedTraversalQuery;
+	private String order_by = " order by r_modify_date, i_chronicle_id";
 
-	private String boundedTraversalQuery;
+	// TODO: add possibility for an administrator to change it
+	private String tableName = "dm_document";
+
+	private String whereBoundedClause = " and r_modify_date >= ''{0}''";
 
 	private String serverUrl;
 
@@ -47,21 +50,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		this.sessionManager = sessionManager;
 	}
 
-	protected String getBoundedTraversalQuery() {
-		return boundedTraversalQuery;
-	}
-
-	protected String getUnboundedTraversalQuery() {
-		return unboundedTraversalQuery;
-	}
-
 	protected String getServerUrl() {
 		return serverUrl;
 	}
 
-	public DctmQueryTraversalManager(IClientX clientX,
-			String queryStringUnboundedDefault,
-			String queryStringBoundedDefault, String webtopServerUrl)
+	public DctmQueryTraversalManager(IClientX clientX, String webtopServerUrl)
 			throws RepositoryException {
 		if (DebugFinalData.debug)
 			OutputPerformances.setPerfFlag("qtm", "Valuate IClient", null);
@@ -73,8 +66,6 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 		setSessionManager(clientX.getSessionManager());
 
-		this.unboundedTraversalQuery = queryStringUnboundedDefault;
-		this.boundedTraversalQuery = queryStringBoundedDefault;
 		this.serverUrl = webtopServerUrl;
 
 		System.out.println("serverUrl vaut " + this.serverUrl);
@@ -95,32 +86,17 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 *             condition.
 	 */
 
-	public ResultSet startTraversal()
-			throws com.google.enterprise.connector.spi.RepositoryException {
+	public ResultSet startTraversal() throws RepositoryException {
 
 		System.out.println("--- DctmQueryTraversalManager startTraversal ---");
-		System.out
-				.println("--- DctmQueryTraversalManager startTraversal- unboundedTraversalQuery vaut "
-						+ unboundedTraversalQuery + " ---");
 
 		IQuery query = null;
 		ResultSet resu = null;
 
-		query = makeCheckpointQuery(lopQuery());
+		query = makeCheckpointQuery(buildQueryString(null));
 
 		resu = execQuery(query);
 		return resu;
-	}
-
-	private String lopQuery() {
-		String q = unboundedTraversalQuery;
-		if (batchHint != -1
-				&& clientX.getClass().getPackage().getName().equals(
-						"com.google.enterprise.connector.dctm.dctmdfcwrap")) {
-			q += " ENABLE (return_top " + Integer.toString(batchHint) + ")";
-		}
-
-		return q;
 	}
 
 	/**
@@ -143,22 +119,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		System.out
 				.println("--- DctmQueryTraversalManager resumeTraversal !!! ---");
 
-		JSONObject jo = null;
 		ResultSet resultSet = null;
 
-		try {
-			jo = new JSONObject(checkPoint);
-		} catch (JSONException e) {
-			throw new IllegalArgumentException(
-					"checkPoint string does not parse as JSON: " + checkPoint);
-		}
-		String uuid = extractDocidFromCheckpoint(jo, checkPoint);
-		String c = extractNativeDateFromCheckpoint(jo, checkPoint);
-		String queryString = makeCheckpointQueryString(uuid, c);
-
-		System.out.println("queryString vaut " + queryString);
-
-		IQuery query = makeCheckpointQuery(queryString);
+		IQuery query = makeCheckpointQuery(buildQueryString(checkPoint));
 		resultSet = execQuery(query);
 
 		return resultSet;
@@ -219,7 +182,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	}
 
 	private ResultSet execQuery(IQuery query) throws RepositoryException {
-		// System.out.println("--- DctmQueryTraversalManager execQuery ---");
+		System.out.println("--- DctmQueryTraversalManager execQuery ---");
 
 		ICollection dctmCollection = null;
 		System.out.println("--- DctmQueryTraversalManager serverurl vaut "
@@ -298,18 +261,48 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 		Object[] arguments = { c };
 
-		String statement = MessageFormat.format(boundedTraversalQuery,
-				arguments);
-
-		if (batchHint != -1
-				&& clientX.getClass().getPackage().getName().equals(
-						"com.google.enterprise.connector.dctm.dctmdfcwrap")) {
-			statement = statement + " ENABLE (return_top "
-					+ Integer.toString(batchHint) + ")";
-
-		}
+		String statement = MessageFormat.format(whereBoundedClause, arguments);
 
 		return statement;
+	}
+
+	private String buildQueryString(String checkpoint)
+			throws RepositoryException {
+
+		StringBuffer query = new StringBuffer(
+				"select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject");
+		query.append(" where r_object_type='");
+		query.append(tableName);
+		query.append("'");
+		if (checkpoint != null) {
+			query.append(getCheckpointClause(checkpoint));
+		}
+		query.append(order_by);
+
+		if (batchHint > 0) {
+			query.append(" ENABLE (return_top " + Integer.toString(batchHint)
+					+ ")");
+		}
+		System.out.println(query.toString());
+		return query.toString();
+	}
+
+	private String getCheckpointClause(String checkPoint)
+			throws RepositoryException {
+		System.out.println("checkpoint vaut " + checkPoint);
+		JSONObject jo = null;
+
+		try {
+			jo = new JSONObject(checkPoint);
+		} catch (JSONException e) {
+			throw new IllegalArgumentException(
+					"checkPoint string does not parse as JSON: " + checkPoint);
+		}
+		String uuid = extractDocidFromCheckpoint(jo, checkPoint);
+		String c = extractNativeDateFromCheckpoint(jo, checkPoint);
+		String queryString = makeCheckpointQueryString(uuid, c);
+		return queryString;
+
 	}
 
 }

@@ -67,7 +67,8 @@ public class MockDmCollectionTest extends TestCase {
 				assertTrue(false);
 			}
 
-			ResultSet rs = co.buildResulSetFromCollection(sessionManager,dctmClientX);
+			ResultSet rs = co.buildResulSetFromCollection(sessionManager,
+					dctmClientX);
 			assertTrue(rs instanceof SpiResultSetFromJcr);
 			assertNotNull(rs);
 

@@ -25,7 +25,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 
 	public IFormat getFormat() throws RepositoryException {
 
-		// System.out.println("--- DmSysObject getFormat ---");
 		IDfFormat idfFormat = null;
 
 		try {
@@ -55,7 +54,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 	}
 
 	public ByteArrayInputStream getContent() throws RepositoryException {
-		// System.out.println("--- DmSysObject getContent ---");
 		ByteArrayInputStream content = null;
 		try {
 			content = idfSysObject.getContent();
@@ -70,7 +68,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 	public Enumeration enumAttrs() throws RepositoryException {
 		Enumeration attrs = null;
 
-		// System.out.println("--- DmSysObject enumAttrs ---");
 		try {
 			attrs = idfSysObject.enumAttrs();
 		} catch (DfException e) {
@@ -81,7 +78,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 		if (attrs != null) {
 			return attrs;
 		}
-		// return new StringTokenizer("");
 		return null;
 	}
 

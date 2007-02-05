@@ -136,7 +136,6 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 	public DctmSysobjectPropertyMap(String docid,
 			ISessionManager sessionManager, IClientX clientX) {
 		this.docid = docid;
-		System.out.println("docid vaut " + docid);
 		this.sessionManager = sessionManager;
 		this.clientX = clientX;
 	}
@@ -163,44 +162,32 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 		String mimetype = "";
 		fetch();
 		if (name == SpiConstants.PROPNAME_DOCID) {
-			System.out.println("propname_docid");
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, docid));
 		} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
-			System.out.println("propname_CONTENT");
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					object, "", ValueType.BINARY));
 		} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
-			System.out.println("propname_DISPLAYURL");
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, sessionManager.getServerUrl() + docid));
 		} else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
-			System.out.println("propname_SECURITYTOKEN");
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, object.getACLDomain() + " "
 							+ object.getACLName()));
 		} else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
-			System.out.println("propname_ISPUBLIC");
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.BOOLEAN, this.isPublic));
 		} else if (SpiConstants.PROPNAME_LASTMODIFY.equals(name)) {
-			System.out.println("propname_LASTMODIFY");
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					object, "r_modify_date", ValueType.DATE));
 		} else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
-			System.out.println("propname_MIMETYPE");
 
 			dctmForm = object.getFormat();
 			mimetype = dctmForm.getMIMEType();
-
-			System.out.println("dctmForm vaut " + dctmForm);
-			System.out.println("propname_MIMETYPE after getFormat");
-			System.out.println("MIMETYPE vaut " + mimetype);
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, mimetype));
 
 		} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
-			System.out.println("propname_SEARCHURL");
 			return null;
 		}
 		return new DctmSysobjectProperty(name, new DctmSysobjectValue(object,
@@ -222,8 +209,6 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 			IAttr curAttr = object.getAttr(i);
 			String name = curAttr.getName();
 			if (!sysmeta.contains(name) || specmeta.contains(name)) {
-				System.out.println("--- getProperties name attribut vaut "
-						+ name);
 				properties.add(new DctmSysobjectProperty(name,
 						new DctmSysobjectValue(object, name)));
 

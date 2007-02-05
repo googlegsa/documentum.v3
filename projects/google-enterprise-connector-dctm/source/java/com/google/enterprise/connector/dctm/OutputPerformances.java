@@ -26,10 +26,12 @@ public class OutputPerformances {
 		PatternLayout layout = new PatternLayout("%d [%t] %p - %m%n");
 		RollingFileAppender appender = null;
 		try {
+
 			appender = new RollingFileAppender(layout,
 					"logs/outputPerformances.log", false);
 			appender.setMaxBackupIndex(10);
 			appender.setMaxFileSize("1MB");
+
 		} catch (Exception e) {
 			logger.error("[DCTM] " + e.getMessage());
 		}
@@ -71,7 +73,8 @@ public class OutputPerformances {
 		if (true) {
 			long began = Long
 					.parseLong((String) OutputPerformances.velocityFlags
-							.get(identifier));
+
+					.get(identifier));
 			OutputPerformances.velocityFlags.remove(identifier);
 			elapsed = System.currentTimeMillis() - began;
 
@@ -79,6 +82,7 @@ public class OutputPerformances {
 			// by local treatment
 			logger.debug("End process : " + message + ".");
 			logger.debug("Time elapsed : " + elapsed + " ms");
+
 		}
 		System.runFinalization();
 		System.gc();

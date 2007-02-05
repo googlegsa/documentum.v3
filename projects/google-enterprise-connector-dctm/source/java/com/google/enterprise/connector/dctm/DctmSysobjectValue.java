@@ -39,8 +39,6 @@ public class DctmSysobjectValue implements Value {
 		} catch (RepositoryException re) {
 			re.getMessage();
 		}
-		System.out.println("--- DctmSysobjectValue constructeur type vaut "
-				+ type);
 		this.stringValue = null;
 	}
 
@@ -58,10 +56,6 @@ public class DctmSysobjectValue implements Value {
 		this.name = null;
 		this.type = type;
 		this.stringValue = value;
-		System.out.println("--- DctmSysObjectValue constructeur - type vaut "
-				+ type);
-		System.out.println("--- DctmSysObjectValue constructeur - value vaut "
-				+ value);
 	}
 
 	public boolean getBoolean() throws IllegalArgumentException,
@@ -79,10 +73,6 @@ public class DctmSysobjectValue implements Value {
 		Date date = time.getDate();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
-		System.out
-				.println("--- DctmSysObjectValue getDate - name vaut " + name);
-		System.out.println("--- DctmSysObjectValue getDate - value vaut "
-				+ sysObject.getTime(name));
 		return calendar;
 	}
 
@@ -92,10 +82,6 @@ public class DctmSysobjectValue implements Value {
 	}
 
 	public long getLong() throws IllegalArgumentException, RepositoryException {
-		System.out
-				.println("--- DctmSysObjectValue getLong - name vaut " + name);
-		System.out.println("--- DctmSysObjectValue getLong - value vaut "
-				+ sysObject.getInt(name));
 		return sysObject.getInt(name);
 	}
 
@@ -104,11 +90,8 @@ public class DctmSysobjectValue implements Value {
 
 		InputStream str = null;
 		if (sysObject.getContentSize() != 0) {
-			System.out
-					.println("--- DctmSysObjectValue getStream - avant getContent ---");
+
 			str = sysObject.getContent();
-			System.out
-					.println("--- DctmSysObjectValue getStream - après getContent ---");
 		} else {
 			str = new ByteArrayInputStream(new byte[1]);
 		}
@@ -118,24 +101,14 @@ public class DctmSysobjectValue implements Value {
 
 	public String getString() throws IllegalArgumentException,
 			RepositoryException {
-		System.out.println("--- DctmSysObjectValue getString - name vaut "
-				+ name);
 		if (stringValue != null) {
-			System.out
-					.println("--- DctmSysObjectValue cas StringValue getString - value vaut "
-							+ stringValue);
 			return stringValue;
 		} else {
 
 			String str = sysObject.getString(name);
 			if (str != null) {
-				System.out
-						.println("--- DctmSysObjectValue cas name getString - value vaut "
-								+ str);
 				return str;
 			} else {
-				System.out
-						.println("--- DctmSysObjectValue cas name getString - value vaut vide");
 				return "";
 			}
 		}
@@ -144,22 +117,14 @@ public class DctmSysobjectValue implements Value {
 	public ValueType getType() throws RepositoryException {
 
 		int dataType = sysObject.getAttrDataType(name);
-		System.out.println("--- DctmSysobjectValue getType datatype vaut "
-				+ dataType);
+
 		if (dataType == DmType.DF_STRING) {
-			System.out
-					.println("--- DctmSysobjectValue getType datatype : STRING");
 			return ValueType.STRING;
 		} else if (dataType == DmType.DF_BOOLEAN) {
-			System.out
-					.println("--- DctmSysobjectValue getType datatype : BOOLEAN");
 			return ValueType.BOOLEAN;
 		} else if (dataType == DmType.DF_INT) {
-			System.out.println("--- DctmSysobjectValue getType datatype : INT");
 			return ValueType.LONG;
 		} else if (dataType == DmType.DF_TIME) {
-			System.out
-					.println("--- DctmSysobjectValue getType datatype : DATE");
 			return ValueType.DATE;
 		}
 		return null;

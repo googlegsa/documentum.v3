@@ -88,7 +88,6 @@ public class DmSessionManagerATest extends TestCase {
 		Assert.assertTrue(session instanceof DmSession);
 	}
 
-
 	public void testAuthenticateOK() throws LoginException {
 		String user = DmInitialize.DM_LOGIN_OK4;
 		String password = DmInitialize.DM_PWD_OK4;

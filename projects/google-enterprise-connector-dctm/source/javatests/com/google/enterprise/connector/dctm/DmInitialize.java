@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-
 public class DmInitialize {
 	public static final String DM_LOGIN_OK1 = "emilie";
 
@@ -36,37 +35,21 @@ public class DmInitialize {
 
 	public static final String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
 
-	public static String DM_QUERY_STRING_BOUNDED_DEFAULT = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "
-			+ "''{0}'' " + "order by r_modify_date, i_chronicle_id";
-	
-	public static String DM_QUERY_STRING_BOUNDED_DEFAULT_COMPLETE = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_modify_date >= "
-		+ "'2007-01-02 13:58:10' " + "order by r_modify_date, i_chronicle_id";
-	
-	public static String DM_QUERY_STRING_UNBOUNDED_DEFAULT = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' "
-			+ "order by r_modify_date, i_chronicle_id";
-	
+	public static String DM_CHECKPOINT_QUERY_STRING = " and r_modify_date >= '2007-01-02 13:58:10'";
 
 	public static String DM_QUERY_STRING_ENABLE = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' "
 			+ "order by r_modify_date, i_chronicle_id ENABLE (return_top 50)";
 
-	public static final String DM_ATTRIBUTE_NAME = "r_object_id";
-
-	public static final String DM_QUERY_STRING_AUTHORISE_DEFAULT = "select r_object_id from dm_sysobject where r_object_id in (";
-
 	public static final String DM_FAlSE_PWD = "false";
-	
+
 	public static final String DM_ID1 = "0800000180000210";
+
 	public static final String DM_ID2 = "090000018000027e";
+
 	public static final String DM_ID3 = "100000018000017d";
+
 	public static final String DM_ID4 = "4c000001800001b8";
+
 	public static final String DM_ID5 = "4c000001800001b8";
 
-	
-	
-
-	
-
-	
-	
-	
 }

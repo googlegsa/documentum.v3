@@ -15,7 +15,7 @@ import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSessionManager implements ISessionManager {
-	
+
 	IDfSessionManager dfSessionManager;
 
 	private String docbaseName;
@@ -29,7 +29,6 @@ public class DmSessionManager implements ISessionManager {
 
 	public ISession getSession(String docbase) throws LoginException,
 			RepositoryException {
-		// System.out.println("--- DmSessionManager getSession ---");
 		IDfSession DfSession = null;
 		try {
 			DfSession = dfSessionManager.getSession(docbase);

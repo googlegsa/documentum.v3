@@ -20,8 +20,7 @@ public class DctmSession implements Session {
 
 	ISession session;
 
-	protected String queryStringUnboundedDefault, queryStringBoundedDefault,
-			queryStringAuthoriseDefault, webtopServerUrl, attributeName;
+	protected String webtopServerUrl;
 
 	String docbase;
 
@@ -35,8 +34,7 @@ public class DctmSession implements Session {
 	 */
 
 	public DctmSession(String clientX, String login, String password,
-			String docbase, String qsud, String qsbd, String qsad, String an,
-			String wsu) throws RepositoryException {
+			String docbase, String wsu) throws RepositoryException {
 		System.out.println("--- DctmSession constructor with arguments---");
 		ILoginInfo dctmLoginInfo = null;
 
@@ -91,11 +89,7 @@ public class DctmSession implements Session {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		queryStringUnboundedDefault = qsud;
-		queryStringBoundedDefault = qsbd;
-		queryStringAuthoriseDefault = qsad;
 		webtopServerUrl = wsu;
-		attributeName = an;
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setServerUrl(wsu);
 	}
@@ -106,14 +100,16 @@ public class DctmSession implements Session {
 
 		DctmQueryTraversalManager dctmQtm = null;
 
-		if (DebugFinalData.debug) {
+		if (DebugFinalData.debug)
 			OutputPerformances.setPerfFlag("a",
 					"DctmQueryTraversalManager's instantiation", null);
+		{
+
+			dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl);
+
 		}
 
-		dctmQtm = new DctmQueryTraversalManager(clientX,
-				queryStringUnboundedDefault, queryStringBoundedDefault,
-				webtopServerUrl);
+		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl);
 		if (DebugFinalData.debug) {
 			OutputPerformances.endFlag("a",
 					"DctmQueryTraversalManager's instantiation");
@@ -161,7 +157,7 @@ public class DctmSession implements Session {
 	 */
 	public AuthorizationManager getAuthorizationManager() {
 		AuthorizationManager DctmAzm = new DctmAuthorizationManager(
-				getClientX(), queryStringAuthoriseDefault, attributeName);
+				getClientX());
 		return DctmAzm;
 	}
 

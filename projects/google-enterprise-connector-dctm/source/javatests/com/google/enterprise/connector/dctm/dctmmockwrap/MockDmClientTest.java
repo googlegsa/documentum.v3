@@ -13,16 +13,14 @@ import junit.framework.TestCase;
 
 public class MockDmClientTest extends TestCase {
 
-
 	/**
 	 * Useless test
-
+	 * 
 	 */
 	public void testGetLoginInfo() {
 		IClientX dctmClientX = new MockDmClient();
 
 		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
-
 
 		Assert.assertTrue(loginInfo instanceof MockDmLoginInfo);
 
@@ -33,7 +31,6 @@ public class MockDmClientTest extends TestCase {
 		Assert.assertEquals("foo", loginInfo.getPassword());
 
 	}
-
 
 	public void testNewSessionManager() {
 

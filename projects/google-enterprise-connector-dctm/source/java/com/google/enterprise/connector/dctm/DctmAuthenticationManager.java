@@ -7,21 +7,14 @@ import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.LoginException;
 
 public class DctmAuthenticationManager implements AuthenticationManager {
+
 	ISessionManager sessionManager;
 
 	IClientX clientX;
 
 	ILoginInfo loginInfo;
 
-	/**
-	 * @param args
-	 */
-	public DctmAuthenticationManager() {
-
-	}
-
 	public DctmAuthenticationManager(IClientX clientX) {
-		// setSession(session);
 		setClientX(clientX);
 		sessionManager = clientX.getSessionManager();
 	}
@@ -33,14 +26,11 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 			sessionManager.setIdentity(sessionManager.getDocbaseName(),
 					loginInfo);
 		} catch (LoginException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return false;
 		}
 
 		boolean authenticate = false;
 
-		// /authenticate = client.authenticate
-		// (sessionManager.getDocbaseName(),getLoginInfo());
 		authenticate = sessionManager.authenticate(sessionManager
 				.getDocbaseName());
 

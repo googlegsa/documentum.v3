@@ -14,14 +14,6 @@ public class DctmConnector implements Connector {
 
 	private String clientX;
 
-	private String queryStringUnboundedDefault;
-
-	private String queryStringBoundedDefault;
-
-	private String queryStringAuthoriseDefault;
-
-	private String attributeName;
-
 	private String webtopServerUrl;
 
 	/**
@@ -52,30 +44,6 @@ public class DctmConnector implements Connector {
 		return docbase;
 	}
 
-	public void setQueryStringUnboundedDefault(String qsud) {
-		this.queryStringUnboundedDefault = qsud;
-	}
-
-	public String getQueryStringUnboundedDefault() {
-		return queryStringUnboundedDefault;
-	}
-
-	public void setQueryStringBoundedDefault(String qsbd) {
-		this.queryStringBoundedDefault = qsbd;
-	}
-
-	public String getQueryStringBoundedDefault() {
-		return queryStringBoundedDefault;
-	}
-
-	public void setQueryStringAuthoriseDefault(String qsad) {
-		this.queryStringAuthoriseDefault = qsad;
-	}
-
-	public String getQueryStringAuthoriseDefault() {
-		return queryStringAuthoriseDefault;
-	}
-
 	public void setWebtopServerUrl(String wsu) {
 		this.webtopServerUrl = wsu;
 	}
@@ -84,18 +52,8 @@ public class DctmConnector implements Connector {
 		return webtopServerUrl;
 	}
 
-	public void setAttributeName(String an) {
-		this.attributeName = an;
-	}
-
-	public String getAttributeName() {
-		return attributeName;
-	}
-
 	public void setClientX(String clientX) {
-
 		this.clientX = clientX;
-
 	}
 
 	public String getClientX() {
@@ -117,8 +75,7 @@ public class DctmConnector implements Connector {
 		}
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
-				queryStringUnboundedDefault, queryStringBoundedDefault,
-				queryStringAuthoriseDefault, attributeName, webtopServerUrl);
+				webtopServerUrl);
 
 		if (DebugFinalData.debug)
 			OutputPerformances.endFlag("conn",

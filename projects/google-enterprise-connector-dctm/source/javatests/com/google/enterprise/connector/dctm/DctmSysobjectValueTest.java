@@ -1,10 +1,8 @@
 package com.google.enterprise.connector.dctm;
 
-
 import java.io.InputStream;
 import java.util.Calendar;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX;
@@ -25,9 +23,9 @@ public class DctmSysobjectValueTest extends TestCase {
 	IClient localClient = null;
 
 	ISessionManager sessionManager = null;
-	
+
 	ISysObject object = null;
-	
+
 	public void setUp() throws Exception {
 		super.setUp();
 		dctmClientX = new DmClientX();
@@ -54,27 +52,27 @@ public class DctmSysobjectValueTest extends TestCase {
 		}
 
 	}
-	
-	
+
 	public void testGetString() throws IllegalArgumentException,
-	RepositoryException {
-		DctmSysobjectValue dspm = new DctmSysobjectValue(object, "r_object_id", ValueType.STRING);
+			RepositoryException {
+		DctmSysobjectValue dspm = new DctmSysobjectValue(object, "r_object_id",
+				ValueType.STRING);
 		assertEquals(DmInitialize.DM_ID1, dspm.getString());
 	}
-	
+
 	public void testGetStream() throws IllegalArgumentException,
-	IllegalStateException, RepositoryException {
-		
+			IllegalStateException, RepositoryException {
+
 		InputStream is = null;
-		DctmSysobjectValue dspm = new DctmSysobjectValue(
-				object, "", ValueType.BINARY);
-		
+		DctmSysobjectValue dspm = new DctmSysobjectValue(object, "",
+				ValueType.BINARY);
+
 		is = dspm.getStream();
 		assertNotNull(is);
 		assertTrue(is instanceof InputStream);
-		
+
 	}
-	
+
 	public void testCalendarToIso8601() {
 		Calendar c = Calendar.getInstance();
 		c.set(2007, Calendar.JANUARY, 28, 14, 11, 0);

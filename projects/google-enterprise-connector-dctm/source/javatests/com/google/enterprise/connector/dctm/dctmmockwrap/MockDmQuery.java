@@ -52,7 +52,7 @@ public class MockDmQuery implements IQuery {
 				return finalCollection;
 			} else {
 				return null;// null value is tested in DctmAuthorizationManager
-							// and won't lead to any NullPointerException
+				// and won't lead to any NullPointerException
 			}
 		}
 	}
