@@ -7,22 +7,20 @@ import junit.framework.TestCase;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
-import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class DctmSysobjectPropertyMapTest extends TestCase{
+public class DctmSysobjectPropertyMapTest extends TestCase {
+
 	IClientX dctmClientX = null;
 
 	IClient localClient = null;
 
 	ISessionManager sessionManager = null;
-	
-	
+
 	public void setUp() throws Exception {
 		super.setUp();
 		dctmClientX = new DmClientX();
@@ -40,8 +38,6 @@ public class DctmSysobjectPropertyMapTest extends TestCase{
 		sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
 		try {
 			session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-			IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-			ISysObject object = session.getObject(id);
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
@@ -49,27 +45,28 @@ public class DctmSysobjectPropertyMapTest extends TestCase{
 		}
 
 	}
-	
+
 	public void testGetProperties() throws RepositoryException {
-	
-		DctmSysobjectPropertyMap dctmSpm=new DctmSysobjectPropertyMap(DmInitialize.DM_ID1,sessionManager,dctmClientX);
-		
-		Iterator iterator=dctmSpm.getProperties();
-		int counter=0;
-		while(iterator.hasNext()) {
+
+		DctmSysobjectPropertyMap dctmSpm = new DctmSysobjectPropertyMap(
+				DmInitialize.DM_ID1, sessionManager, dctmClientX);
+
+		Iterator iterator = dctmSpm.getProperties();
+		int counter = 0;
+		while (iterator.hasNext()) {
 			iterator.next();
 			counter++;
 		}
 		assertEquals(8, counter);
 	}
-	
-	
+
 	public void testGetProperty() throws RepositoryException {
-		DctmSysobjectPropertyMap dctmSpm=new DctmSysobjectPropertyMap(DmInitialize.DM_ID1,sessionManager,dctmClientX);
+		DctmSysobjectPropertyMap dctmSpm = new DctmSysobjectPropertyMap(
+				DmInitialize.DM_ID1, sessionManager, dctmClientX);
 		Property property = dctmSpm.getProperty("r_object_id");
 		assertTrue(property instanceof DctmSysobjectProperty);
 		assertEquals("r_object_id", property.getName());
-		assertEquals(DmInitialize.DM_ID1,property.getValue().getString());
+		assertEquals(DmInitialize.DM_ID1, property.getValue().getString());
 	}
-	
+
 }

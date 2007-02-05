@@ -6,7 +6,7 @@ import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.common.DfException;
 
 public class DmFormat implements IFormat {
-	
+
 	IDfFormat idfFormat;
 
 	public DmFormat(IDfFormat idfFormat) {

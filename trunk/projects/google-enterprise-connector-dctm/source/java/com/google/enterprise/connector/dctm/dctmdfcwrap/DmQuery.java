@@ -11,7 +11,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmQuery implements IQuery {
-	
+
 	IDfQuery idfQuery;
 
 	public static int DF_READ_QUERY = IDfQuery.DF_READ_QUERY;

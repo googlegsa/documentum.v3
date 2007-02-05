@@ -23,13 +23,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		((DctmConnector) connector)
-				.setQueryStringUnboundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' "
-						+ "order by r_modify_date, i_chronicle_id ");
-		((DctmConnector) connector)
 				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
-		((DctmConnector) connector)
-				.setQueryStringBoundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "
-						+ "''{0}'' " + "order by r_modify_date, i_chronicle_id");
 
 		try {
 			session = (DctmSession) connector.login();
@@ -79,13 +73,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector).setPassword("passw0rd");// Bad password
 		((DctmConnector) connector).setDocbase("gsadctm");
 		((DctmConnector) connector)
-				.setQueryStringUnboundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' "
-						+ "order by r_modify_date, i_chronicle_id ");
-		((DctmConnector) connector)
 				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
-		((DctmConnector) connector)
-				.setQueryStringBoundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "
-						+ "''{0}'' " + "order by r_modify_date, i_chronicle_id");
 
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -115,13 +103,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector).setDocbase("gzadctm");// docbase does not
 		// exist
 		((DctmConnector) connector)
-				.setQueryStringUnboundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' "
-						+ "order by r_modify_date, i_chronicle_id ");
-		((DctmConnector) connector)
 				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
-		((DctmConnector) connector)
-				.setQueryStringBoundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "
-						+ "''{0}'' " + "order by r_modify_date, i_chronicle_id");
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 
@@ -130,14 +112,10 @@ public class InstanciationTest extends TestCase {
 		} catch (LoginException le) {
 			errorCaught = true;
 			loginExcept = true;
-			// System.out.println("Root Cause : " + le.getCause()
-			// + " ; Message : " + le.getMessage());
 
 		} catch (RepositoryException re) {
 			repExcept = true;
 			errorCaught = true;
-			// System.out.println("Root Cause : " + re.getCause()
-			// + " ; Message : " + re.getMessage());
 		}
 		assertEquals(errorCaught, true);
 		assertEquals(loginExcept || repExcept, true);
@@ -151,13 +129,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector).setDocbase("erhgdwfgzsd");// docbase does
 		// not exist
 		((DctmConnector) connector)
-				.setQueryStringUnboundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' "
-						+ "order by r_modify_date, i_chronicle_id ");
-		((DctmConnector) connector)
 				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
-		((DctmConnector) connector)
-				.setQueryStringBoundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "
-						+ "''{0}'' " + "order by r_modify_date, i_chronicle_id");
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient");
 
@@ -166,14 +138,10 @@ public class InstanciationTest extends TestCase {
 		} catch (LoginException le) {
 			errorCaught = true;
 			loginExcept = true;
-			// System.out.println("Root Cause : " + le.getCause()
-			// + " ; Message : " + le.getMessage());
 
 		} catch (RepositoryException re) {
 			repExcept = true;
 			errorCaught = true;
-			// System.out.println("Root Cause : " + re.getCause()
-			// + " ; Message : " + re.getMessage());
 		}
 		assertEquals(errorCaught, true);
 		assertEquals(repExcept, true);
@@ -184,13 +152,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector).setPassword("p@ssword");
 		((DctmConnector) connector).setDocbase("gsadctm");
 		((DctmConnector) connector)
-				.setQueryStringUnboundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' "
-						+ "order by r_modify_date, i_chronicle_id ");
-		((DctmConnector) connector)
 				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
-		((DctmConnector) connector)
-				.setQueryStringBoundedDefault("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type=''dm_document'' and r_modify_date >= "
-						+ "''{0}'' " + "order by r_modify_date, i_chronicle_id");
 
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -198,19 +160,13 @@ public class InstanciationTest extends TestCase {
 		try {
 			session = (DctmSession) connector.login();
 		} catch (LoginException le) {
-			// System.out.println("Root Cause : " + le.getCause()
-			// + " ; Message : " + le.getMessage());
+
 			errorCaught = true;
 		} catch (RepositoryException re) {
-			// System.out.println("Root Cause : " + re.getCause()
-			// + " ; Message : " + re.getMessage());
+
 			errorCaught = true;
 		}
 		assertEquals(errorCaught, true);
-
-	}
-
-	public void performanceTests() {
 
 	}
 

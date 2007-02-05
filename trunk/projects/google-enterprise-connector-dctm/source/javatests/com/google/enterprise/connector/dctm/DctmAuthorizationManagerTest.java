@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.PropertyMap;
@@ -30,7 +29,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 	 * String)'
 	 */
 
-	public final void testAuthorizeDocids() throws RepositoryException{
+	public final void testAuthorizeDocids() throws RepositoryException {
 
 		AuthorizationManager authorizationManager;
 		authorizationManager = null;
@@ -41,15 +40,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setQueryStringUnboundedDefault(DmInitialize.DM_QUERY_STRING_UNBOUNDED_DEFAULT);
-		((DctmConnector) connector)
 				.setWebtopServerUrl(DmInitialize.DM_WEBTOP_SERVER_URL);
-		((DctmConnector) connector)
-				.setQueryStringBoundedDefault(DmInitialize.DM_QUERY_STRING_BOUNDED_DEFAULT);
-		((DctmConnector) connector)
-				.setAttributeName(DmInitialize.DM_ATTRIBUTE_NAME);
-		((DctmConnector) connector)
-				.setQueryStringAuthoriseDefault(DmInitialize.DM_QUERY_STRING_AUTHORISE_DEFAULT);
 		Session sess = (DctmSession) connector.login();
 		authorizationManager = (DctmAuthorizationManager) sess
 				.getAuthorizationManager();
@@ -63,7 +54,8 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
 			expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
 			expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
-			testAuthorization((DctmAuthorizationManager) authorizationManager, expectedResults, username);
+			testAuthorization((DctmAuthorizationManager) authorizationManager,
+					expectedResults, username);
 		}
 
 		{
@@ -75,7 +67,8 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			expectedResults.put(DmInitialize.DM_ID3, Boolean.FALSE);
 			expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
 			expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
-			testAuthorization((DctmAuthorizationManager) authorizationManager, expectedResults, username);
+			testAuthorization((DctmAuthorizationManager) authorizationManager,
+					expectedResults, username);
 		}
 
 		{
@@ -87,7 +80,8 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			expectedResults.put(DmInitialize.DM_ID3, Boolean.FALSE);
 			expectedResults.put(DmInitialize.DM_ID4, Boolean.FALSE);
 			expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
-			testAuthorization((DctmAuthorizationManager) authorizationManager, expectedResults, username);
+			testAuthorization((DctmAuthorizationManager) authorizationManager,
+					expectedResults, username);
 		}
 
 	}
@@ -106,12 +100,11 @@ public class DctmAuthorizationManagerTest extends TestCase {
 					.getValue().getString();
 			boolean ok = pm.getProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT)
 					.getValue().getBoolean();
-			
+
 			Boolean expected = (Boolean) expectedResults.get(uuid);
 			Assert.assertEquals(username + " access to " + uuid, expected
 					.booleanValue(), ok);
 		}
 	}
-
 
 }

@@ -13,7 +13,6 @@ import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
 
-
 import junit.framework.TestCase;
 
 public class DctmQueryTraversalManagerTest extends TestCase {
@@ -40,15 +39,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setQueryStringUnboundedDefault(DmInitialize.DM_QUERY_STRING_UNBOUNDED_DEFAULT);
-		((DctmConnector) connector)
 				.setWebtopServerUrl(DmInitialize.DM_WEBTOP_SERVER_URL);
-		((DctmConnector) connector)
-				.setQueryStringBoundedDefault(DmInitialize.DM_QUERY_STRING_BOUNDED_DEFAULT);
-		((DctmConnector) connector)
-				.setAttributeName(DmInitialize.DM_ATTRIBUTE_NAME);
-		((DctmConnector) connector)
-				.setQueryStringAuthoriseDefault(DmInitialize.DM_QUERY_STRING_AUTHORISE_DEFAULT);
 		Session sess = (DctmSession) connector.login();
 		qtm = (DctmQueryTraversalManager) sess.getQueryTraversalManager();
 
@@ -65,7 +56,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		}
 
 		assertNotNull(statement);
-		assertEquals(DmInitialize.DM_QUERY_STRING_BOUNDED_DEFAULT_COMPLETE, statement);
+		assertEquals(DmInitialize.DM_CHECKPOINT_QUERY_STRING, statement);
 
 	}
 
@@ -108,8 +99,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	public void testIDfetchAndVerifyValueForCheckpoint()
 			throws RepositoryException {
 		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm.getSessionManager(), qtm.getClientX());
-
+		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm
+				.getSessionManager(), qtm.getClientX());
 
 		String uuid = qtm.fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
@@ -120,7 +111,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	public void testDatefetchAndVerifyValueForCheckpoint()
 			throws RepositoryException, ParseException {
 		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm.getSessionManager(), qtm.getClientX());
+		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm
+				.getSessionManager(), qtm.getClientX());
 		Calendar calDate = null;
 
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,
@@ -133,14 +125,16 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 
 	public void testCheckpoint() throws RepositoryException {
 
-		
 		String checkPoint = null;
 		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm.getSessionManager(), qtm.getClientX());
+		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm
+				.getSessionManager(), qtm.getClientX());
 		checkPoint = qtm.checkpoint(pm);
 
 		assertNotNull(checkPoint);
-		assertEquals("{\"uuid\":\"0900000180010b17\",\"lastModified\":\"02/01/2007 14:19:29\"}",checkPoint);
+		assertEquals(
+				"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"02/01/2007 14:19:29\"}",
+				checkPoint);
 	}
 
 	public void testStartTraversal() throws RepositoryException {
@@ -151,7 +145,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_UNBOUNDED);
 		resultset = qtm.startTraversal();
 		Iterator iter = resultset.iterator();
-		while ( iter.hasNext()) {
+		while (iter.hasNext()) {
 			iter.next();
 			counter++;
 		}
@@ -161,7 +155,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 
 	public void testResumeTraversal() throws RepositoryException {
 		ResultSet resultSet = null;
-		
+
 		String checkPoint = "{\"uuid\":\"090000018000e100\",\"lastModified\":\"02/01/2007 13:00:00\"}";
 
 		qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_BOUNDED);

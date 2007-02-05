@@ -19,7 +19,7 @@ public class MockDmCollection implements ICollection {
 
 	protected MockDmCollection(QueryResult mjQueryResult)
 
-			throws RepositoryException {
+	throws RepositoryException {
 		try {
 			collection = mjQueryResult.getNodes();
 		} catch (javax.jcr.RepositoryException e) {
@@ -36,9 +36,6 @@ public class MockDmCollection implements ICollection {
 		return false;
 	}
 
-
-
-
 	public String getString(String colName) throws RepositoryException {
 		try {
 			Property tmp = currentNode.getProperty(colName);
@@ -49,7 +46,6 @@ public class MockDmCollection implements ICollection {
 			throw new RepositoryException(e);
 		}
 	}
-
 
 	protected Value[] getAuthorizedUsers() throws RepositoryException {
 		try {
@@ -62,8 +58,8 @@ public class MockDmCollection implements ICollection {
 		}
 	}
 
-
-	public ResultSet buildResulSetFromCollection(ISessionManager sessionManager, IClientX clientX)
+	public ResultSet buildResulSetFromCollection(
+			ISessionManager sessionManager, IClientX clientX)
 			throws RepositoryException {
 		SpiResultSetFromJcr test = new SpiResultSetFromJcr(collection);
 		return test;
@@ -72,9 +68,5 @@ public class MockDmCollection implements ICollection {
 	public IValue getValue(String attrName) throws RepositoryException {
 		return null;
 	}
-
-	
-
-
 
 }

@@ -13,11 +13,11 @@ import junit.framework.TestCase;
 public class DmClientXATest extends TestCase {
 	IClientX clientX;
 
-	
 	public void setUp() throws Exception {
 		super.setUp();
 		clientX = new DmClientX();
 	}
+
 	/*
 	 * Test method for
 	 * 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX.getId(String)'

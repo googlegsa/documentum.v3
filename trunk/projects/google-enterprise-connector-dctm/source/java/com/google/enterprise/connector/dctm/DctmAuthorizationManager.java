@@ -11,26 +11,16 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.*;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
+
 	IClientX clientX;
 
 	ISessionManager sessionManager;
 
-	private String attributeName;
+	private String attributeName = "r_object_id";
 
-	private String queryStringAuthoriseDefault;
+	private String queryStringAuthoriseDefault = "select r_object_id from dm_sysobject where r_object_id in (";
 
-	/**
-	 * @param args
-	 */
-	public DctmAuthorizationManager() {
-
-	}
-
-	public DctmAuthorizationManager(IClientX clientX, String qsad,
-			String attrName) {
-
-		queryStringAuthoriseDefault = qsad;
-		attributeName = attrName;
+	public DctmAuthorizationManager(IClientX clientX) {
 
 		setClientX(clientX);
 		setSessionManager(this.clientX.getSessionManager());
@@ -39,7 +29,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	public ResultSet authorizeDocids(List docidList, String username)
 			throws RepositoryException {
-		// System.out.println("DCTMAuthorize method authorizeDocids");
 		int i = 0;
 		DctmResultSet resultSet = null;
 		SimplePropertyMap docmap = null;

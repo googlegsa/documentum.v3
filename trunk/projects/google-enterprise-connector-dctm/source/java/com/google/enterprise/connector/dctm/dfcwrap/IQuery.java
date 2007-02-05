@@ -11,5 +11,5 @@ public interface IQuery {
 			throws RepositoryException;
 
 	public void setDQL(String dqlStatement);
-	
+
 }

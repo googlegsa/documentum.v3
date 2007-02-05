@@ -12,7 +12,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DmClientATest extends TestCase {
-	
+
 	IClientX dctmClientX;
 
 	IClient localClient;
@@ -22,6 +22,7 @@ public class DmClientATest extends TestCase {
 		dctmClientX = new DmClientX();
 		localClient = dctmClientX.getLocalClient();
 	}
+
 	/*
 	 * Test method for
 	 * 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSession(String,

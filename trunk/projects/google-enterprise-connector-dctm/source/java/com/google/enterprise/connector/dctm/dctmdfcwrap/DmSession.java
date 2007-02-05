@@ -20,20 +20,12 @@ public class DmSession implements ISession {
 
 	public ISysObject getObject(IId objectId) throws RepositoryException {
 
-		// System.out.println("--- DmSession getObject ---");
-
 		if (!(objectId instanceof DmId)) {
 			throw new IllegalArgumentException();
 		}
 		DmId dctmId = (DmId) objectId;
 
-		System.out
-				.println("--- DmSession getObject avant dctmId.getidfId() ---");
-
 		IDfId idfId = dctmId.getidfId();
-
-		System.out.println("--- DmSession getObject - idfId vaut "
-				+ idfId.getId() + " ---");
 
 		IDfSysObject idfSysObject = null;
 		try {

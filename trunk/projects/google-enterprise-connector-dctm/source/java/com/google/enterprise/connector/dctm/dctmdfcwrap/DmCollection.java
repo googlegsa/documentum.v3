@@ -82,6 +82,7 @@ public class DmCollection extends DmTypedObject implements ICollection {
 		System.out.println("--- DmCollection buildResulSetFromCollection ---");
 
 		String crID = null;
+		int counter = 0;
 		DctmSysobjectPropertyMap pm = null;
 		DctmResultSet resu = new DctmResultSet();
 		ICollection col = new DmCollection(idfCollection);
@@ -90,21 +91,16 @@ public class DmCollection extends DmTypedObject implements ICollection {
 		DmSession session = (DmSession) sessionManager
 				.getSession(sessionManager.getDocbaseName());
 
-		System.out
-				.println("--- DmCollection buildResulSetFromCollection after getSpecMeta---");
-
 		while (col.next()) {
-
-			System.out
-					.println("--- DmCollection buildResulSetFromCollection in while---");
 
 			crID = col.getValue("r_object_id").asString();
 
 			pm = new DctmSysobjectPropertyMap(crID, sessionManager, clientX);
-
+			counter++;
 			resu.add(pm);
 		}
 		sessionManager.release(session);
+		System.out.println("--- DmCollection buildResulSetFromCollection END---");
 		return resu;
 	}
 

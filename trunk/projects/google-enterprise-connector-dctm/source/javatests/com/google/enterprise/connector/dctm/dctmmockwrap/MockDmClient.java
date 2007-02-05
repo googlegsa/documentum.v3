@@ -133,7 +133,8 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	public ISession getSession(String docbase)
 			throws com.google.enterprise.connector.spi.RepositoryException {
 		if (!sessMgerSessions.containsKey(docbase))
-			return this.newSession(docbase);// DFC javadoc. If session not
+			return this.newSession(docbase);
+		// DFC javadoc. If session not
 		// existing, created.
 		else {
 			return (ISession) sessMgerSessions.get(docbase);
@@ -161,7 +162,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	}
 
 	public void setServerUrl(String serverUrl) {
-		// Wait for Google to ask me to do it
 	}
 
 	public ILoginInfo getIdentity(String docbase) {
@@ -219,7 +219,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 * Never called for mock
 	 */
 	public String getServerUrl() {
-		// return "http://localhost:8080/connector-manager/ok.jsp";
 		return null;
 	}
 
@@ -227,7 +226,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 * Never called for mock
 	 */
 	public IId getId(String id) {
-		// return new MockDmId(id);
 		return null;
 	}
 
@@ -251,24 +249,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 */
 	public boolean authenticate(String docbaseName, ILoginInfo loginInfo)
 			throws LoginException {
-		/*
-		 * MockRepositoryEventList mrel = new
-		 * MockRepositoryEventList(docbaseName); MockRepository repo = new
-		 * MockRepository(mrel);
-		 * 
-		 * String userID = loginInfo.getUser(); String password =
-		 * loginInfo.getPassword();
-		 * 
-		 * if (userID == null || userID.length() < 1) throw new
-		 * LoginException("No user Defined"); MockRepositoryDocument doc =
-		 * repo.getStore().getDocByID("users"); if (doc == null) throw new
-		 * LoginException("No user Defined"); MockRepositoryProperty property =
-		 * doc.getProplist().getProperty("acl"); if (property == null) throw new
-		 * LoginException("No user Defined"); String values[] =
-		 * property.getValues(); for (int i = 0; i < values.length; i++) if
-		 * (values[i].equals(userID)) if (userID.equals(password)) { return
-		 * true;// succes } return false;
-		 */
 		return false;
 	}
 
@@ -277,8 +257,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 */
 	public ISession newSession(String docbase, ILoginInfo logInfo)
 			throws com.google.enterprise.connector.spi.RepositoryException {
-		// setIdentity(docbase, logInfo);
-		// return newSession(docbase);
 		return null;
 	}
 
