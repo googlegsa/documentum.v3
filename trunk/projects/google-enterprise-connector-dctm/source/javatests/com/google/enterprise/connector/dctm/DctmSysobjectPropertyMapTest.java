@@ -1,10 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.Iterator;
 
-import java.io.InputStream;
-import java.util.Calendar;
-
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX;
@@ -15,18 +12,16 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ValueType;
 
-public class DctmSysobjectValueTest extends TestCase {
-
+public class DctmSysobjectPropertyMapTest extends TestCase{
 	IClientX dctmClientX = null;
 
 	IClient localClient = null;
 
 	ISessionManager sessionManager = null;
 	
-	ISysObject object = null;
 	
 	public void setUp() throws Exception {
 		super.setUp();
@@ -46,7 +41,7 @@ public class DctmSysobjectValueTest extends TestCase {
 		try {
 			session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 			IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-			object = session.getObject(id);
+			ISysObject object = session.getObject(id);
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
@@ -55,36 +50,26 @@ public class DctmSysobjectValueTest extends TestCase {
 
 	}
 	
+	public void testGetProperties() throws RepositoryException {
 	
-	public void testGetString() throws IllegalArgumentException,
-	RepositoryException {
-		DctmSysobjectValue dspm = new DctmSysobjectValue(object, "r_object_id", ValueType.STRING);
-		assertEquals(DmInitialize.DM_ID1, dspm.getString());
-	}
-	
-	public void testGetStream() throws IllegalArgumentException,
-	IllegalStateException, RepositoryException {
+		DctmSysobjectPropertyMap dctmSpm=new DctmSysobjectPropertyMap(DmInitialize.DM_ID1,sessionManager,dctmClientX);
 		
-		InputStream is = null;
-		DctmSysobjectValue dspm = new DctmSysobjectValue(
-				object, "", ValueType.BINARY);
-		
-		is = dspm.getStream();
-		assertNotNull(is);
-		assertTrue(is instanceof InputStream);
-		
-	}
-	
-	public void testCalendarToIso8601() {
-		Calendar c = Calendar.getInstance();
-		c.set(2007, Calendar.JANUARY, 28, 14, 11, 0);
-		String milliseconds = c.get(Calendar.MILLISECOND) + "";
-		if (milliseconds.length() == 2) {
-			milliseconds = "0" + milliseconds;
+		Iterator iterator=dctmSpm.getProperties();
+		int counter=0;
+		while(iterator.hasNext()) {
+			iterator.next();
+			counter++;
 		}
-		String expectedDate = "2007-01-28 14:11:00." + milliseconds;
-		String receivedDate = DctmSysobjectValue.calendarToIso8601(c);
-		assertEquals(expectedDate, receivedDate);
+		assertEquals(8, counter);
 	}
-
+	
+	
+	public void testGetProperty() throws RepositoryException {
+		DctmSysobjectPropertyMap dctmSpm=new DctmSysobjectPropertyMap(DmInitialize.DM_ID1,sessionManager,dctmClientX);
+		Property property = dctmSpm.getProperty("r_object_id");
+		assertTrue(property instanceof DctmSysobjectProperty);
+		assertEquals("r_object_id", property.getName());
+		assertEquals(DmInitialize.DM_ID1,property.getValue().getString());
+	}
+	
 }
