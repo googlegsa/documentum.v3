@@ -19,6 +19,7 @@
 
 	<property name="jar.dir"  value="${dist}/jar" />
 	<property name="jarfile"  value="${jar.dir}/connector-dctm.jar" />
+	<property name="jarfile.test"  value="${jar.dir}/connector_dctm_test.jar" />
 	
 	<property name="dfc.jarfile" location="${jarfile.dir}/dfc.jar" />
 	<property name="json.jarfile" location="${jarfile.dir}/json.jar" />
@@ -78,6 +79,9 @@
 		<jar jarfile="${jarfile}">
 			<fileset dir="${config}"/>
 			<fileset dir="${classes}"/>
+		</jar>
+		<jar jarfile="${jarfile.test}">
+			<fileset dir="${tests.classes}"/>
 		</jar>
 	</target>
 
