@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.client.IDfDocument;
+import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;

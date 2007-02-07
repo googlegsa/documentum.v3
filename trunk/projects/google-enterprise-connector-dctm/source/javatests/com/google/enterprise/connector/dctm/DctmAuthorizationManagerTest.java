@@ -104,6 +104,8 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			Boolean expected = (Boolean) expectedResults.get(uuid);
 			Assert.assertEquals(username + " access to " + uuid, expected
 					.booleanValue(), ok);
+			//System.out.println(username + " access to " + uuid +" "+expected
+					//.booleanValue()+" : "+ok);
 		}
 	}
 
