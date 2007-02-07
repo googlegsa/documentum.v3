@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
+import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -155,10 +156,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		String uuid = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
 
-		String nativeFormatDate = fetchAndVerifyValueForCheckpoint(pm,
-				SpiConstants.PROPNAME_LASTMODIFY).getString();
+		Value value = fetchAndVerifyValueForCheckpoint(pm,
+				SpiConstants.PROPNAME_LASTMODIFY);
+//		Date nativeFormatDate = value.getDate();
 
-		String dateString = nativeFormatDate;
+		
+		String dateString = DctmSysobjectValue.calendarToIso8601(value
+				.getDate());
 
 		String result = null;
 		try {
