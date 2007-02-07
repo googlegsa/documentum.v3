@@ -14,6 +14,8 @@
 	<property name="jarfile.dir" value="../third_party/lib"/>
 
 	<property name="tests.src" value="source/javatests" />
+	<property name="perfstests.src" value="source/perftests" />
+	<property name="accepttests.src" value="source/acceptTest" />
 	<property name="tests.build" value="build/tests" />
 	<property name="tests.classes" value="${tests.build}/classes" />	
 
@@ -32,7 +34,7 @@
 	<property name="tests.jarfile" value="${jarfile.dir}/connector_tests.jar" />
 
 	<!-- =========================== TASKS =============================== -->
-	<target name="connector-dctm" depends="init,compile,compile_tests,jar">
+	<target name="connector-dctm" depends="init,compile,compile_tests,compile_accepttests,compile_perftests,jar">
 	</target>
 
 	<target name="init">
@@ -74,6 +76,41 @@
 			</classpath>
 		</javac>
 	</target>
+	<target name="compile_perftests" depends="init">
+			<!-- compile java source files for tests -->
+			<javac srcdir="${perfstests.src}" destdir="${tests.classes}" debug="${COMPILE_DEBUG_FLAG} ">
+				<classpath>
+					<pathelement location="${connector.jarfile}" />
+					<pathelement location="${tests.jarfile}" />
+					<pathelement location="${spi.jarfile}" />
+					<pathelement location="${junit.jarfile}" />
+					<pathelement location="${json.jarfile}" />
+					<pathelement location="${jcr.jarfile}" />
+					<pathelement location="${classes}" />
+					<pathelement location="${log4j.jarfile}" />
+					<pathelement location="${dfc.jarfile}" />
+					
+				</classpath>
+			</javac>
+		</target>
+
+	<target name="compile_accepttests" depends="init">
+				<!-- compile java source files for tests -->
+				<javac srcdir="${accepttests.src}" destdir="${tests.classes}" debug="${COMPILE_DEBUG_FLAG} ">
+					<classpath>
+						<pathelement location="${connector.jarfile}" />
+						<pathelement location="${tests.jarfile}" />
+						<pathelement location="${spi.jarfile}" />
+						<pathelement location="${junit.jarfile}" />
+						<pathelement location="${json.jarfile}" />
+						<pathelement location="${jcr.jarfile}" />
+						<pathelement location="${classes}" />
+						<pathelement location="${log4j.jarfile}" />
+						<pathelement location="${dfc.jarfile}" />
+						
+					</classpath>
+				</javac>
+			</target>
 
 	<target name="jar" description="connector-dctm">
 		<jar jarfile="${jarfile}">
@@ -81,7 +118,7 @@
 			<fileset dir="${classes}"/>
 		</jar>
 		<manifest file="dist/MANIFEST.MF">
-			<attribute name="Main-Class" value="com.google.enterprise.connector.dctm.dctmdfcwrap.AllDctmTests"/>
+			<attribute name="Main-Class" value="com.google.enterprise.connector.dctm.dctmdfcwrap.AllTests"/>
 
 		</manifest>
 		<jar jarfile="${jarfile.test}" manifest="dist/MANIFEST.MF">
