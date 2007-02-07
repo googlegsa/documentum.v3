@@ -133,7 +133,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 
 		assertNotNull(checkPoint);
 		assertEquals(
-				"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"02/01/2007 14:19:29\"}",
+				"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29.000\"}",
 				checkPoint);
 	}
 
@@ -156,7 +156,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 	public void testResumeTraversal() throws RepositoryException {
 		ResultSet resultSet = null;
 
-		String checkPoint = "{\"uuid\":\"090000018000e100\",\"lastModified\":\"02/01/2007 13:00:00\"}";
+		String checkPoint = "{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 14:19:29.000\"}";
 
 		qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_BOUNDED);
 		resultSet = qtm.resumeTraversal(checkPoint);
