@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -17,7 +18,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.ValueType;
 
-public class DctmSysobjectPropertyMap implements PropertyMap {
+public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 
 	private String docid;
 
@@ -186,12 +187,12 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 			mimetype = dctmForm.getMIMEType();
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, mimetype));
-
 		} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
 			return null;
+		}else if(SpiConstants.PROPNAME_AUTH_VIEWPERMIT.equals(name)){
+			return (DctmSysobjectProperty)this.get(name);
 		}
-		return new DctmSysobjectProperty(name, new DctmSysobjectValue(object,
-				name, ValueType.STRING));
+		return new DctmSysobjectProperty(name, new DctmSysobjectValue(object,name, ValueType.STRING));
 	}
 
 	public Iterator getProperties() throws RepositoryException {
@@ -202,7 +203,6 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 		// propNames.add(thisone);
 		// return propNames.iterator();
 		fetch();
-		// /Enumeration metas = object.enumAttrs();
 		HashSet properties = new HashSet();
 
 		for (int i = 0; i < object.getAttrCount(); i++) {
@@ -211,10 +211,20 @@ public class DctmSysobjectPropertyMap implements PropertyMap {
 			if (!sysmeta.contains(name) || specmeta.contains(name)) {
 				properties.add(new DctmSysobjectProperty(name,
 						new DctmSysobjectValue(object, name)));
-
 			}
 		}
 		return properties.iterator();
 	}
 
+	 public Property putProperty(Property p) throws RepositoryException {
+		    if (p == null) {
+		      throw new IllegalArgumentException();
+		    }
+		    String name = p.getName();
+		    if (name == null) {
+		      throw new IllegalArgumentException();
+		    }
+		    return (Property) this.put(name, p);
+	 }
+	
 }

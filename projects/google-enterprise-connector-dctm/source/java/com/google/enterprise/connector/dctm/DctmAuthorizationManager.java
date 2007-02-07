@@ -1,9 +1,9 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
-import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
@@ -31,10 +31,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			throws RepositoryException {
 		int i = 0;
 		DctmResultSet resultSet = null;
-		SimplePropertyMap docmap = null;
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
-		ICollection collec = null;
 		ISession session;
 
 		session = sessionManager.getSession(sessionManager.getDocbaseName());
@@ -57,32 +55,37 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			System.out.println("dql " + dqlQuery);
 		}
 		query.setDQL(dqlQuery);
-		collec = (ICollection) query.execute(sessionManagerUser,
-				IQuery.DF_READ_QUERY);
-		String ids = "";
-		while (collec != null && collec.next()) {
-			ids += collec.getString(attributeName) + " ";
-		}
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("size list " + docidList.size());
-		}
-		resultSet = new DctmResultSet();
-		for (i = 0; i < docidList.size(); i++) {
-			docmap = new SimplePropertyMap();
-			docmap.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
-					docidList.get(i).toString()));
-			docmap.putProperty(new SimpleProperty(
-					SpiConstants.PROPNAME_AUTH_VIEWPERMIT, (ids
-							.indexOf(docidList.get(i).toString()) != -1)));
+	
+		resultSet = (DctmResultSet)query.execute(sessionManagerUser,
+				IQuery.DF_READ_QUERY, clientX);
+		Iterator iter = resultSet.iterator();
+		DctmSysobjectPropertyMap pm=null;
+		DctmSysobjectPropertyMap pmFalse=null;
+		String id = "";
+		while (resultSet != null && iter.hasNext()) {
+			pm = (DctmSysobjectPropertyMap)iter.next();
+			id = pm.getProperty(SpiConstants.PROPNAME_DOCID).getValue().getString();
 			if (DebugFinalData.debugInEclipse) {
-				System.out.println("hasRight?  "
-						+ (ids.indexOf(docidList.get(i).toString()) != -1));
+				System.out.println("id vaut "+id);
+			}		
+			pm.putProperty(new DctmSysobjectProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT, new DctmSysobjectValue(ValueType.BOOLEAN,"true")));
+			if (DebugFinalData.debugInEclipse) {
+				System.out.println("hasRight?  "+ true);
 			}
-			resultSet.add(docmap);
+			docidList.remove(id);
 		}
-
+		
+		for (i = 0; i < docidList.size(); i++) {
+			pmFalse=new DctmSysobjectPropertyMap(docidList.get(i).toString(),sessionManagerUser,clientX);
+			pmFalse.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
+					docidList.get(i).toString()));
+			pmFalse.putProperty(new DctmSysobjectProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT, new DctmSysobjectValue(ValueType.BOOLEAN,"false")));
+			if (DebugFinalData.debugInEclipse) {
+				System.out.println("docid from docidList : "+ docidList.get(i).toString());
+				System.out.println("hasRight?  "+ false);
+			}
+		}
 		return resultSet;
-
 	}
 
 	private String buildQuery(List docidList) {

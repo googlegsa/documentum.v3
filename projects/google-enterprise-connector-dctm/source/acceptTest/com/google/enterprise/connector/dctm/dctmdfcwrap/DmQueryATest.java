@@ -9,6 +9,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.ResultSet;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -54,9 +55,9 @@ public class DmQueryATest extends TestCase {
 		Assert.assertNotNull(query);
 		Assert.assertTrue(query instanceof DmQuery);
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec = query
-				.execute(sessionManager, IQuery.DF_READ_QUERY);
-		Assert.assertNotNull(collec);
+		ResultSet resu = query
+		.execute(sessionManager, IQuery.DF_READ_QUERY, dctmClientX);
+		Assert.assertNotNull(resu);
 	}
 
 }

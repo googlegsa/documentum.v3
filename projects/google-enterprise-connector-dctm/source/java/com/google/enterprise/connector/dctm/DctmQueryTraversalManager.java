@@ -1,7 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
-import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -158,7 +157,6 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 		Value value = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_LASTMODIFY);
-//		Date nativeFormatDate = value.getDate();
 
 		
 		String dateString = DctmSysobjectValue.calendarToIso8601(value
@@ -204,16 +202,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("qtm", "Processing query", null);
 		}
-		dctmCollection = query.execute(sessionManager, IQuery.DF_READ_QUERY);
-		if (DebugFinalData.debugInTomcat) {
-			OutputPerformances.endFlag("qtm", "Collection retrieved.");
-		}
-		if (DebugFinalData.debugInTomcat) {
-			OutputPerformances.setPerfFlag("qtm", "About to build ResultSet.",
-					null);
-		}
-		ResultSet rs = dctmCollection.buildResulSetFromCollection(
-				sessionManager, clientX);
+		ResultSet rs = query.execute(sessionManager, IQuery.DF_READ_QUERY,clientX);
 		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("qtm", "ResultSet built.", null);
 		}
@@ -318,7 +307,6 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		String c = extractNativeDateFromCheckpoint(jo, checkPoint);
 		String queryString = makeCheckpointQueryString(uuid, c);
 		return queryString;
-
 	}
 
 }

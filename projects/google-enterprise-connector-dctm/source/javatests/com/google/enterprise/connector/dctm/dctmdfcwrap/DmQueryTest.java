@@ -8,6 +8,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.ResultSet;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -17,10 +18,11 @@ public class DmQueryTest extends TestCase {
 	IQuery query;
 
 	ISessionManager sessionManager;
+	
+	IClientX dctmClientX;
 
 	public void setUp() throws Exception {
 		super.setUp();
-		IClientX dctmClientX;
 		IClient localClient;
 		ILoginInfo loginInfo;
 		dctmClientX = new DmClientX();
@@ -47,9 +49,9 @@ public class DmQueryTest extends TestCase {
 		Assert.assertNotNull(query);
 		Assert.assertTrue(query instanceof DmQuery);
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec = query
-				.execute(sessionManager, IQuery.DF_READ_QUERY);
-		Assert.assertNotNull(collec);
+		ResultSet resu = query
+				.execute(sessionManager, IQuery.DF_READ_QUERY, dctmClientX);
+		Assert.assertNotNull(resu);
 	}
 
 }
