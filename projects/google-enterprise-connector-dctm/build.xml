@@ -118,7 +118,7 @@
 			<fileset dir="${classes}"/>
 		</jar>
 		<manifest file="dist/MANIFEST.MF">
-			<attribute name="Main-Class" value="com.google.enterprise.connector.dctm.dctmdfcwrap.AllTests"/>
+			<attribute name="Main-Class" value="com.google.enterprise.connector.dctm.AllTests"/>
 
 		</manifest>
 		<jar jarfile="${jarfile.test}" manifest="dist/MANIFEST.MF">
