@@ -10,8 +10,4 @@ public interface ICollection {
 
 	public String getString(String colName) throws RepositoryException;
 
-	public ResultSet buildResulSetFromCollection(
-			ISessionManager sessionManager, IClientX clientX)
-			throws RepositoryException;
-
 }

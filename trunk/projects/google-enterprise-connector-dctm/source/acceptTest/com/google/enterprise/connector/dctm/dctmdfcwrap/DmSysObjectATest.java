@@ -95,26 +95,21 @@ public class DmSysObjectATest extends TestCase {
 
 	public void testEnumAttrs() throws DfException, RepositoryException,
 			IOException {
-
-		Enumeration attrs = ((DmSysObject) document).enumAttrs();
-		Assert.assertNotNull(attrs);
-		while (attrs.hasMoreElements()) {
-			IDfAttr curAttr = (IDfAttr) attrs.nextElement();
-			String name = curAttr.getName();
-			System.out.println("name vaut " + name);
-			if (name.equals("object_name")) {
-				String object_name = document.getString("object_name");
-				Assert.assertEquals(object_name, "Document creation test");
-				// break;
+			Enumeration attrs = ((DmSysObject) document).enumAttrs();
+			Assert.assertNotNull(attrs);
+			while (attrs.hasMoreElements()) {
+				IDfAttr curAttr = (IDfAttr) attrs.nextElement();
+				String name = curAttr.getName();
+				System.out.println("name vaut " + name);
+				if (name.equals("object_name")) {
+					String object_name = document.getString("object_name");
+					Assert.assertEquals(object_name, "Document creation test");
+				}
 			}
-			// break;
-		}
-
 	}
 
 	public void testGetACLDomain() throws DfException, RepositoryException,
 			IOException {
-
 		String ACLDomain = ((DmSysObject) document).getACLDomain();
 		System.out.println("acldomain vaut " + ACLDomain);
 		Assert.assertNotNull(ACLDomain);
@@ -123,27 +118,28 @@ public class DmSysObjectATest extends TestCase {
 
 	public void testGetACLName() throws DfException, RepositoryException,
 			IOException {
-
-		String ACLName = ((DmSysObject) document).getACLName();
-		System.out.println("aclname vaut " + ACLName);
-		Assert.assertNotNull(ACLName);
-
+		
+			String ACLName = ((DmSysObject) document).getACLName();
+			System.out.println("aclname vaut " + ACLName);
+			Assert.assertNotNull(ACLName);
 	}
 
 	public DmDocument CreateNewDocument(ISession session)
 			throws RepositoryException, IOException {
-		document = ((DmSession) session).newObject();
-		File f = new File("DocumentCreationTest.txt");
-		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
-		oos
-				.writeObject("Foundation Course Content Outline Overview Concepts The mission of Google and Google Enterprise");
-		document.setFileEx("DocumentCreationTest.txt", "text");
-		document.setObjectName("Document creation test");
-		document.save();
-		oos.close();
-		boolean del = f.delete();
-		System.out.println("del vaut " + del);
-		return document;
+
+			document = ((DmSession) session).newObject();
+			File f = new File("DocumentCreationTest.txt");
+			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+			oos
+					.writeObject("Foundation Course Content Outline Overview Concepts The mission of Google and Google Enterprise");
+			document.setFileEx("DocumentCreationTest.txt", "text");
+			document.setObjectName("Document creation test");
+			document.save();
+			oos.close();
+			boolean del = f.delete();
+			System.out.println("del vaut " + del);
+			return document;
+	
 	}
 
 	public static void deleteDocument(DmDocument document)

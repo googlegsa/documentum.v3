@@ -27,20 +27,27 @@ public class DmClientTest extends TestCase {
 		Assert.assertNotNull(sessionManager);
 		Assert.assertTrue(sessionManager instanceof DmSessionManager);
 	}
-
+/*
 	public void testAuthenticate() throws RepositoryException {
 		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
-		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
 		loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
 		boolean rep = localClient.authenticate(DmInitialize.DM_DOCBASE,
 				loginInfo);
+		System.out.println("login vaut "+DmInitialize.DM_LOGIN_OK1);
+		System.out.println("pwd vaut "+DmInitialize.DM_PWD_OK1);
+		System.out.println("docbase vaut "+DmInitialize.DM_DOCBASE);
 		Assert.assertTrue(rep);
-
+		System.out.println("rep1 vaut "+rep);
+		
 		loginInfo.setUser(DmInitialize.DM_LOGIN_KO);
 		loginInfo.setPassword(DmInitialize.DM_PWD_KO);
+		System.out.println("login vaut "+DmInitialize.DM_LOGIN_KO);
+		System.out.println("pwd vaut "+DmInitialize.DM_PWD_KO);
+		
 		rep = localClient.authenticate(DmInitialize.DM_DOCBASE, loginInfo);
+		System.out.println("rep2 vaut "+rep);
 		Assert.assertFalse(rep);
-
 	}
-
+*/
 }

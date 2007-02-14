@@ -60,34 +60,39 @@ public class DmSessionATest extends TestCase {
 	}
 
 	public void testGetLoginTicketForUser() throws RepositoryException {
-
-		String userAdmin = DmInitialize.DM_LOGIN_OK1;
-		String passwordAdmin = DmInitialize.DM_PWD_OK1;
-		String docbase = DmInitialize.DM_DOCBASE;
-		loginInfo.setUser(userAdmin);
-		loginInfo.setPassword(passwordAdmin);
-		sessionManager.setIdentity(docbase, loginInfo);
-		session = sessionManager.getSession(docbase);
-		String ticket = session
-				.getLoginTicketForUser(DmInitialize.DM_LOGIN_OK5);
-
-		session = sessionManager.getSession(docbase);
-
-		ISessionManager sessionManagerUser = dctmClientX.getLocalClient()
-				.newSessionManager();
-		loginInfo.setUser(DmInitialize.DM_LOGIN_OK5);
-		loginInfo.setPassword(DmInitialize.DM_PWD_OK5);
-		sessionManagerUser.setIdentity(docbase, loginInfo);
-
-		Assert.assertNotNull(session);
-		Assert.assertTrue(session instanceof DmSession);
-		System.out.println("ticket vaut " + ticket);
-		Assert.assertNotNull(ticket);
-		ILoginInfo loginUser = sessionManagerUser.getIdentity(docbase);
-		String myUser = loginUser.getUser();
-		Assert.assertEquals(myUser, DmInitialize.DM_LOGIN_OK5);
-		String myPassword = loginUser.getPassword();
-		Assert.assertEquals(myPassword, DmInitialize.DM_PWD_OK5);
+		try {
+			String userAdmin = DmInitialize.DM_LOGIN_OK1;
+			String passwordAdmin = DmInitialize.DM_PWD_OK1;
+			String docbase = DmInitialize.DM_DOCBASE;
+			loginInfo.setUser(userAdmin);
+			loginInfo.setPassword(passwordAdmin);
+			sessionManager.setIdentity(docbase, loginInfo);
+			session = sessionManager.getSession(docbase);
+			String ticket = session
+					.getLoginTicketForUser(DmInitialize.DM_LOGIN_OK5);
+	
+			session = sessionManager.getSession(docbase);
+	
+			ISessionManager sessionManagerUser = dctmClientX.getLocalClient()
+					.newSessionManager();
+			loginInfo.setUser(DmInitialize.DM_LOGIN_OK5);
+			loginInfo.setPassword(DmInitialize.DM_PWD_OK5);
+			sessionManagerUser.setIdentity(docbase, loginInfo);
+	
+			Assert.assertNotNull(session);
+			Assert.assertTrue(session instanceof DmSession);
+			System.out.println("ticket vaut " + ticket);
+			Assert.assertNotNull(ticket);
+			ILoginInfo loginUser = sessionManagerUser.getIdentity(docbase);
+			String myUser = loginUser.getUser();
+			Assert.assertEquals(myUser, DmInitialize.DM_LOGIN_OK5);
+			String myPassword = loginUser.getPassword();
+			Assert.assertEquals(myPassword, DmInitialize.DM_PWD_OK5);
+		}finally {
+			if (session != null) {
+				sessionManager.release(session);
+			}
+		}	
 	}
 
 }

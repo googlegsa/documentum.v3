@@ -28,6 +28,8 @@ public class DmFormatATest extends TestCase {
 	ISession session;
 
 	ILoginInfo loginInfo;
+	
+	String docbase;
 
 	public void setUp() throws Exception {
 		super.setUp();
@@ -35,19 +37,20 @@ public class DmFormatATest extends TestCase {
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
 		loginInfo = dctmClientX.getLoginInfo();
-		String user = DmInitialize.DM_LOGIN_OK1;
-		String password = DmInitialize.DM_PWD_OK1;
-		String docbase = DmInitialize.DM_DOCBASE;
+		String user = DmInitialize.DM_LOGIN_OK2;
+		System.out.println("user vaut "+user);
+		String password = DmInitialize.DM_PWD_OK2;
+		System.out.println("password vaut "+password);
+		docbase = DmInitialize.DM_DOCBASE;
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase, loginInfo);
-		session = sessionManager.getSession(docbase);
-		Assert.assertNotNull(session);
-		Assert.assertTrue(session instanceof DmSession);
-
 	}
 
 	public void testCanIndexExcel() throws DfException, RepositoryException {
+		session = sessionManager.getSession(docbase);
+		Assert.assertNotNull(session);
+		Assert.assertTrue(session instanceof DmSession);
 		String idString = getAnExistingExcelObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
@@ -55,9 +58,13 @@ public class DmFormatATest extends TestCase {
 		Assert.assertNotNull(dctmForm);
 		boolean rep = dctmForm.canIndex();
 		Assert.assertTrue(rep);
+		sessionManager.release(session);
 	}
 
 	public void testCanIndexAccess() throws DfException, RepositoryException {
+		session = sessionManager.getSession(docbase);
+		Assert.assertNotNull(session);
+		Assert.assertTrue(session instanceof DmSession);
 		String idString = getAnExistingAccessObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
@@ -65,9 +72,13 @@ public class DmFormatATest extends TestCase {
 		Assert.assertNotNull(dctmForm);
 		boolean rep = dctmForm.canIndex();
 		Assert.assertFalse(rep);
+		sessionManager.release(session);
 	}
 
 	public void testCanIndexPDF() throws DfException, RepositoryException {
+		session = sessionManager.getSession(docbase);
+		Assert.assertNotNull(session);
+		Assert.assertTrue(session instanceof DmSession);
 		String idString = getAnExistingPDFObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
@@ -75,33 +86,46 @@ public class DmFormatATest extends TestCase {
 		Assert.assertNotNull(dctmForm);
 		boolean rep = dctmForm.canIndex();
 		Assert.assertTrue(rep);
+		sessionManager.release(session);
 	}
 
 	public void testGetPDFMIMEType() throws DfException, RepositoryException {
+		session = sessionManager.getSession(docbase);
+		Assert.assertNotNull(session);
+		Assert.assertTrue(session instanceof DmSession);
 		String idString = getAnExistingPDFObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
 		String mimetype = dctmForm.getMIMEType();
 		Assert.assertEquals(mimetype, "application/pdf");
+		sessionManager.release(session);
 	}
 
 	public void testGetExcelMIMEType() throws DfException, RepositoryException {
+		session = sessionManager.getSession(docbase);
+		Assert.assertNotNull(session);
+		Assert.assertTrue(session instanceof DmSession);
 		String idString = getAnExistingExcelObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
 		String mimetype = dctmForm.getMIMEType();
 		Assert.assertEquals(mimetype, "application/vnd.ms-excel");
+		sessionManager.release(session);
 	}
 
 	public void testGetWordMIMEType() throws DfException, RepositoryException {
+		session = sessionManager.getSession(docbase);
+		Assert.assertNotNull(session);
+		Assert.assertTrue(session instanceof DmSession);
 		String idString = getAnExistingWordObjectId(session);
 		IId id = dctmClientX.getId(idString);
 		ISysObject object = session.getObject(id);
 		IFormat dctmForm = (DmFormat) object.getFormat();
 		String mimetype = dctmForm.getMIMEType();
 		Assert.assertEquals(mimetype, "application/msword");
+		sessionManager.release(session);
 	}
 
 	private String getAnExistingExcelObjectId(ISession session)
@@ -155,7 +179,7 @@ public class DmFormatATest extends TestCase {
 		IDfId id = dfSession
 				.getIdByQualification("dm_sysobject where a_content_type = 'msw8'");
 		idString = id.toString();
-		System.out.println("idString getAnExistingAccessObjectId vaut "
+		System.out.println("idString getAnExistingWordObjectId vaut "
 				+ idString);
 		return idString;
 	}
