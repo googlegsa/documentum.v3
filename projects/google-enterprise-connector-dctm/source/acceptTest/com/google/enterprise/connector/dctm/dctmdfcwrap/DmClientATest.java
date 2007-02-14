@@ -28,6 +28,7 @@ public class DmClientATest extends TestCase {
 	 * 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClient.newSession(String,
 	 * ILoginInfo)'
 	 */
+	/*
 	public void testNewSession() throws RepositoryException {
 		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
 		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
@@ -39,13 +40,14 @@ public class DmClientATest extends TestCase {
 		Assert.assertNotNull(session);
 		Assert.assertTrue(session instanceof DmSession);
 	}
-
+	*/
 	public void testNewSessionManager() throws RepositoryException {
 		ISessionManager sessionManager = localClient.newSessionManager();
 		Assert.assertNotNull(sessionManager);
 		Assert.assertTrue(sessionManager instanceof DmSessionManager);
 	}
 
+	/*
 	public void authenticateOK() throws RepositoryException {
 		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
 		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
@@ -65,4 +67,5 @@ public class DmClientATest extends TestCase {
 		Assert.assertTrue(rep);
 
 	}
+	*/
 }

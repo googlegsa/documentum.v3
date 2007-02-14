@@ -77,15 +77,22 @@ public class DmSessionManagerATest extends TestCase {
 	}
 
 	public void testNewSession() throws LoginException, RepositoryException {
-		String user = DmInitialize.DM_LOGIN_OK4;
-		String password = DmInitialize.DM_PWD_OK4;
-		String docbase = DmInitialize.DM_DOCBASE;
-		loginInfo.setUser(user);
-		loginInfo.setPassword(password);
-		sessionManager.setIdentity(docbase, loginInfo);
-		ISession session = sessionManager.newSession(docbase);
-		Assert.assertNotNull(session);
-		Assert.assertTrue(session instanceof DmSession);
+		ISession session =null;
+		try {
+			String user = DmInitialize.DM_LOGIN_OK4;
+			String password = DmInitialize.DM_PWD_OK4;
+			String docbase = DmInitialize.DM_DOCBASE;
+			loginInfo.setUser(user);
+			loginInfo.setPassword(password);
+			sessionManager.setIdentity(docbase, loginInfo);
+			session = sessionManager.newSession(docbase);
+			Assert.assertNotNull(session);
+			Assert.assertTrue(session instanceof DmSession);
+		} finally {
+			if (session != null) {
+				sessionManager.release(session);
+			}
+		}
 	}
 
 	public void testAuthenticateOK() throws LoginException {

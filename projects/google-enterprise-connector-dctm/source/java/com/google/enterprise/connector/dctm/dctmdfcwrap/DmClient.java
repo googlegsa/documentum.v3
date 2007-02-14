@@ -53,6 +53,7 @@ public class DmClient implements IClient {
 		return new DmSession(sessionUser);
 	}
 
+	/*
 	public boolean authenticate(String docbaseName, ILoginInfo loginInfo)
 			throws RepositoryException {
 		if (!(loginInfo instanceof DmLoginInfo)) {
@@ -68,7 +69,7 @@ public class DmClient implements IClient {
 		return true;
 
 	}
-
+*/
 	public ISessionManager getSessionManager() {
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("getSessionmanager -- docbasename vaut "

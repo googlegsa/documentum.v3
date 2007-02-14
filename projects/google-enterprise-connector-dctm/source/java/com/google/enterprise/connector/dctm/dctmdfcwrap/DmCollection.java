@@ -76,41 +76,4 @@ public class DmCollection extends DmTypedObject implements ICollection {
 			throw re;
 		}
 	}
-
-	public ResultSet buildResulSetFromCollection(
-			ISessionManager sessionManager, IClientX clientX)
-			throws RepositoryException {
-		if (DebugFinalData.debugInEclipse) {
-			System.out
-					.println("--- DmCollection buildResulSetFromCollection ---");
-		}
-
-		String crID = null;
-		int counter = 0;
-		DctmSysobjectPropertyMap pm = null;
-		DctmResultSet resu = new DctmResultSet();
-		ICollection col = new DmCollection(idfCollection);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("--- docbasename vaut "
-					+ sessionManager.getDocbaseName() + " ---");
-		}
-		DmSession session = (DmSession) sessionManager
-				.getSession(sessionManager.getDocbaseName());
-
-		while (col.next()) {
-
-			crID = col.getValue("r_object_id").asString();
-
-			pm = new DctmSysobjectPropertyMap(crID, sessionManager, clientX);
-			counter++;
-			resu.add(pm);
-		}
-		sessionManager.release(session);
-		if (DebugFinalData.debugInEclipse) {
-			System.out
-					.println("--- DmCollection buildResulSetFromCollection END---");
-		}
-		return resu;
-	}
-
 }

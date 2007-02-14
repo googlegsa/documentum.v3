@@ -91,7 +91,7 @@ public class DmQuery implements IQuery {
 		sessionManager.release(session);
 		if (DebugFinalData.debugInEclipse) {
 			System.out
-					.println("--- DmCollection buildResulSetFromCollection END---");
+					.println("--- DmQuery execute END---");
 		}
 		return resu;
 		
