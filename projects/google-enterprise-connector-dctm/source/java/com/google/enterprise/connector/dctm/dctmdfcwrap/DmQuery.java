@@ -93,6 +93,8 @@ public class DmQuery implements IQuery {
 			System.out
 					.println("--- DmQuery execute END---");
 		}
+		
+		
 		return resu;
 		
 	}

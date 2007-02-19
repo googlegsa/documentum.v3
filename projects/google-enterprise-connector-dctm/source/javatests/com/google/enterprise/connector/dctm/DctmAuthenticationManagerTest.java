@@ -30,14 +30,11 @@ public class DctmAuthenticationManagerTest extends TestCase {
 
 		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK1,
 				DmInitialize.DM_PWD_OK1));
-		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
-				DmInitialize.DM_PWD_KO));
+		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,DmInitialize.DM_PWD_KO));
 		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
 				DmInitialize.DM_PWD_OK2));
-		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
-				DmInitialize.DM_PWD_KO));
-		assertFalse(authentManager
-				.authenticate(DmInitialize.DM_LOGIN_OK2, null));
+		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,DmInitialize.DM_PWD_KO));
+		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2, null));
 		assertFalse(authentManager.authenticate(null, DmInitialize.DM_PWD_OK1));
 		assertFalse(authentManager.authenticate(null, null));
 

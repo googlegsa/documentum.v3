@@ -4,6 +4,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.documentum.fc.common.DfException;
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -47,7 +48,9 @@ public class DmSessionATest extends TestCase {
 			Assert.assertNotNull(session);
 			Assert.assertTrue(session instanceof DmSession);
 			String idString = DmInitialize.DM_ID1;
-			System.out.println("idString " + idString);
+			if (DebugFinalData.debugInEclipse) {
+				System.out.println("idString " + idString);
+			}	
 			IId id = dctmClientX.getId(idString);
 			ISysObject object = session.getObject(id);
 			Assert.assertNotNull(object);
@@ -81,7 +84,9 @@ public class DmSessionATest extends TestCase {
 	
 			Assert.assertNotNull(session);
 			Assert.assertTrue(session instanceof DmSession);
-			System.out.println("ticket vaut " + ticket);
+			if (DebugFinalData.debugInEclipse) {
+				System.out.println("ticket vaut " + ticket);
+			}	
 			Assert.assertNotNull(ticket);
 			ILoginInfo loginUser = sessionManagerUser.getIdentity(docbase);
 			String myUser = loginUser.getUser();

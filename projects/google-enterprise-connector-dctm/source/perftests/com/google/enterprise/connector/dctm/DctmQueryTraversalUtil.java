@@ -41,7 +41,7 @@ public class DctmQueryTraversalUtil {
 		DocPusher push = new DocPusher(new GsaFeedConnection("swp-srv-gsa2",
 				19900));
 
-		while (true) {
+		///while (true) {
 			int counter = 0;
 
 			PropertyMap pm = null;
@@ -73,7 +73,7 @@ public class DctmQueryTraversalUtil {
 				// this test program stops if it receives zero results in a
 				// resultSet.
 				// the real connector Manager might wait a while, then try again
-				break;
+				///break;
 			}
 			if (pm == null) {
 				System.out.println("pm null");
@@ -95,7 +95,7 @@ public class DctmQueryTraversalUtil {
 			// Or, it may be running this connector on a schedule and there may
 			// be a
 			// scheduled pause.
-		}
+		///}
 	}
 
 }

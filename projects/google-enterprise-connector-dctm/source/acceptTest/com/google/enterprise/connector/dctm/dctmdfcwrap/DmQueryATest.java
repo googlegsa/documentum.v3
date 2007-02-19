@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -35,7 +36,9 @@ public class DmQueryATest extends TestCase {
 		String user = DmInitialize.DM_LOGIN_OK1;
 		String password = DmInitialize.DM_PWD_OK1;
 		String docbase = DmInitialize.DM_DOCBASE;
-		System.out.println("docbase vaut " + docbase);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("docbase vaut " + docbase);
+		}	
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
 		sessionManager.setDocbaseName(docbase);

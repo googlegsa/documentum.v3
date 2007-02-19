@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
+import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
