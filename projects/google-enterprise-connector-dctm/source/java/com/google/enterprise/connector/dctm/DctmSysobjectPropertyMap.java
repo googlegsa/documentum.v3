@@ -162,7 +162,7 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		IFormat dctmForm = null;
 		String mimetype = "";
 		fetch();
-		if (name == SpiConstants.PROPNAME_DOCID) {
+		if (name.equals(SpiConstants.PROPNAME_DOCID)) {
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, docid));
 		} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
