@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -95,7 +96,7 @@ public class DmSessionManagerATest extends TestCase {
 		}
 	}
 
-	public void testAuthenticateOK() throws LoginException {
+	public void testAuthenticateOK() throws LoginException, DfException {
 		String user = DmInitialize.DM_LOGIN_OK4;
 		String password = DmInitialize.DM_PWD_OK4;
 		String docbase = DmInitialize.DM_DOCBASE;
@@ -106,7 +107,7 @@ public class DmSessionManagerATest extends TestCase {
 		Assert.assertTrue(rep);
 	}
 
-	public void testAuthenticateK0() throws LoginException {
+	public void testAuthenticateK0() throws LoginException, DfException {
 		String user = DmInitialize.DM_LOGIN_KO;
 		String password = DmInitialize.DM_PWD_KO;
 		String docbase = DmInitialize.DM_DOCBASE;

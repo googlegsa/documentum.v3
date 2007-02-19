@@ -133,17 +133,20 @@ public class DmSessionManager implements ISessionManager {
 		return serverUrl;
 	}
 
-	public boolean authenticate(String docbaseName) {
+	public boolean authenticate(String docbaseName){
 		boolean authent = false;
 		try {
 			this.dfSessionManager.authenticate(docbaseName);
 			authent = true;
 		} catch (DfException e) {
-			return false;
-
+			//return false;
+			if (DebugFinalData.debugInEclipse) {
+				System.out.println("trace DFException authenticate");
+			}
+			
+			authent = false;
 		}
 		return authent;
-
 	}
 
 	public void clearIdentity(String docbase) {

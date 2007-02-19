@@ -51,6 +51,7 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 			session = (DctmSession) connector.login();
 			qtm = (DctmQueryTraversalManager) session
 					.getQueryTraversalManager();
+			qtm.setBatchHint(50);
 			DctmQueryTraversalUtil.runTraversal(qtm, 10000);
 
 		} catch (LoginException le) {

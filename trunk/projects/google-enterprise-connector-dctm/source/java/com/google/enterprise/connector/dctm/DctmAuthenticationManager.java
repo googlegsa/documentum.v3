@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -30,9 +31,12 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		}
 
 		boolean authenticate = false;
-
-		authenticate = sessionManager.authenticate(sessionManager
-				.getDocbaseName());
+		
+		
+			authenticate = sessionManager.authenticate(sessionManager
+					.getDocbaseName());
+		
+		
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("DCTMAuthenticate method authenticate "
 					+ authenticate);

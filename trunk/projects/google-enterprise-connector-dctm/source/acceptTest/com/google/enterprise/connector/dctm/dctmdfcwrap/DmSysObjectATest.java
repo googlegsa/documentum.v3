@@ -9,6 +9,7 @@ import java.util.Enumeration;
 
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfAttr;
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -50,8 +51,9 @@ public class DmSysObjectATest extends TestCase {
 
 		session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 		object = session.getObject(dctmClientX.getId(DmInitialize.DM_ID1));
-
-		System.out.println("setup");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("setup");
+		}	
 		document = CreateNewDocument(session);
 	}
 
@@ -100,7 +102,9 @@ public class DmSysObjectATest extends TestCase {
 			while (attrs.hasMoreElements()) {
 				IDfAttr curAttr = (IDfAttr) attrs.nextElement();
 				String name = curAttr.getName();
-				System.out.println("name vaut " + name);
+				if (DebugFinalData.debugInEclipse) {
+					System.out.println("name vaut " + name);
+				}	
 				if (name.equals("object_name")) {
 					String object_name = document.getString("object_name");
 					Assert.assertEquals(object_name, "Document creation test");
@@ -111,7 +115,9 @@ public class DmSysObjectATest extends TestCase {
 	public void testGetACLDomain() throws DfException, RepositoryException,
 			IOException {
 		String ACLDomain = ((DmSysObject) document).getACLDomain();
-		System.out.println("acldomain vaut " + ACLDomain);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("acldomain vaut " + ACLDomain);
+		}
 		Assert.assertNotNull(ACLDomain);
 		Assert.assertEquals(ACLDomain, DmInitialize.DM_LOGIN_OK1);
 	}
@@ -120,7 +126,9 @@ public class DmSysObjectATest extends TestCase {
 			IOException {
 		
 			String ACLName = ((DmSysObject) document).getACLName();
-			System.out.println("aclname vaut " + ACLName);
+			if (DebugFinalData.debugInEclipse) {
+				System.out.println("aclname vaut " + ACLName);
+			}
 			Assert.assertNotNull(ACLName);
 	}
 
@@ -137,7 +145,9 @@ public class DmSysObjectATest extends TestCase {
 			document.save();
 			oos.close();
 			boolean del = f.delete();
-			System.out.println("del vaut " + del);
+			if (DebugFinalData.debugInEclipse) {
+				System.out.println("del vaut " + del);
+			}
 			return document;
 	
 	}
@@ -149,7 +159,9 @@ public class DmSysObjectATest extends TestCase {
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		System.out.println("teardown");
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("teardown");
+		}
 		deleteDocument(document);
 	}
 

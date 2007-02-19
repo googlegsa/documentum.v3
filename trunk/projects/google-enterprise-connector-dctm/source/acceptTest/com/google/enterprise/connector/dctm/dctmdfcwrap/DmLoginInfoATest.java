@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -35,7 +36,9 @@ public class DmLoginInfoATest extends TestCase {
 	public void testGetSetUser() throws LoginException {
 		String user = DmInitialize.DM_LOGIN_OK1;
 		String docbase = DmInitialize.DM_DOCBASE;
-		System.out.println("docbase vaut " + docbase);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("docbase vaut " + docbase);
+		}	
 		loginInfo.setUser(user);
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setIdentity(docbase, loginInfo);
@@ -47,7 +50,9 @@ public class DmLoginInfoATest extends TestCase {
 	public void testGetSetPassword() throws LoginException {
 		String password = DmInitialize.DM_PWD_OK1;
 		String docbase = DmInitialize.DM_DOCBASE;
-		System.out.println("docbase vaut " + docbase);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("docbase vaut " + docbase);
+		}	
 		loginInfo.setPassword(password);
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setIdentity(docbase, loginInfo);
