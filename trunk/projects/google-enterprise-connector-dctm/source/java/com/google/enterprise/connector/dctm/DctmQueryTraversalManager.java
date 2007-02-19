@@ -26,7 +26,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	// TODO: add possibility for an administrator to change it
 	private String tableName = "dm_document";
 
-	private String whereBoundedClause = " and r_modify_date >= ''{0}''";
+	private String whereBoundedClause = " and r_modify_date >= ''{0}'' and i_chronicle_id >= ''{1}''";
 
 	private String serverUrl;
 
@@ -260,7 +260,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	public String makeCheckpointQueryString(String uuid, String c)
 			throws RepositoryException {
 
-		Object[] arguments = { c };
+		Object[] arguments = {c, uuid};
 
 		String statement = MessageFormat.format(whereBoundedClause, arguments);
 
