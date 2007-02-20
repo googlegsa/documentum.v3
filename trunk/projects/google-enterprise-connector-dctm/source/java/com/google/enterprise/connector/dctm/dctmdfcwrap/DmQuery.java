@@ -5,15 +5,11 @@ import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.common.DfException;
-import com.google.enterprise.connector.dctm.DctmResultSet;
-import com.google.enterprise.connector.dctm.DctmSysobjectPropertyMap;
 import com.google.enterprise.connector.dctm.DebugFinalData;
-import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ResultSet;
 
 public class DmQuery implements IQuery {
 
@@ -34,8 +30,8 @@ public class DmQuery implements IQuery {
 		idfQuery.setDQL(dqlStatement);
 	}
 
-	///public ICollection execute(ISessionManager sessionManager, int queryType)
-	public ResultSet execute(ISessionManager sessionManager, int queryType,  IClientX clientX)
+	public ICollection execute(ISessionManager sessionManager, int queryType)
+	///public ResultSet execute(ISessionManager sessionManager, int queryType,  IClientX clientX)
 			throws RepositoryException {
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("--- DmQuery execute ---");
@@ -67,35 +63,7 @@ public class DmQuery implements IQuery {
 			throw re;
 		}
 		
-		///return new DmCollection(DfCollection);
-		ICollection col = new DmCollection(DfCollection);
-		String crID = null;
-		int counter = 0;
-		DctmSysobjectPropertyMap pm = null;
-		DctmResultSet resu = new DctmResultSet();
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("--- docbasename vaut "
-					+ sessionManager.getDocbaseName() + " ---");
-		}
-		DmSession session = (DmSession) sessionManager
-				.getSession(sessionManager.getDocbaseName());
-
-		while (col.next()) {
-
-			crID = col.getValue("r_object_id").asString();
-
-			pm = new DctmSysobjectPropertyMap(crID, sessionManager, clientX);
-			counter++;
-			resu.add(pm);
-		}
-		sessionManager.release(session);
-		if (DebugFinalData.debugInEclipse) {
-			System.out
-					.println("--- DmQuery execute END---");
-		}
-		
-		
-		return resu;
+		return new DmCollection(DfCollection);
 		
 	}
 

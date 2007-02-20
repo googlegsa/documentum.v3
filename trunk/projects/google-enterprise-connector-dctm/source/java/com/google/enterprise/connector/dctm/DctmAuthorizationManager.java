@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
@@ -56,8 +57,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		}
 		query.setDQL(dqlQuery);
 	
-		resultSet = (DctmResultSet)query.execute(sessionManagerUser,
-				IQuery.DF_READ_QUERY, clientX);
+		ICollection collec = query.execute(sessionManagerUser,IQuery.DF_READ_QUERY);
+		resultSet = new DctmResultSet(collec,sessionManager, clientX);
+		
 		Iterator iter = resultSet.iterator();
 		DctmSysobjectPropertyMap pm=null;
 		DctmSysobjectPropertyMap pmFalse=null;

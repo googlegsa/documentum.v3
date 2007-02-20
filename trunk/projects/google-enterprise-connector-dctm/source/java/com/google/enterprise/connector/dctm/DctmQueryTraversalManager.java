@@ -202,7 +202,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("qtm", "Processing query", null);
 		}
-		ResultSet rs = query.execute(sessionManager, IQuery.DF_READ_QUERY,clientX);
+		
+		
+		ICollection collec = query.execute(sessionManager, IQuery.DF_READ_QUERY);
+		ResultSet rs = new DctmResultSet(collec,sessionManager,clientX);
+		
 		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.setPerfFlag("qtm", "ResultSet built.", null);
 		}

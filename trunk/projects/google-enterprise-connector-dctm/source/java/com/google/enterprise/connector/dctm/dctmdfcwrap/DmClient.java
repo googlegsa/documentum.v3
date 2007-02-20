@@ -17,7 +17,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.spi.LoginException;
-import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmClient implements IClient {
 	IDfClient idfClient;
