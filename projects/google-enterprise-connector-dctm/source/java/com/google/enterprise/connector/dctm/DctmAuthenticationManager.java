@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;

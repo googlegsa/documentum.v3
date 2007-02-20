@@ -1,15 +1,10 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.google.enterprise.connector.dctm.DctmResultSet;
-import com.google.enterprise.connector.dctm.DctmSysobjectPropertyMap;
-import com.google.enterprise.connector.dctm.DebugFinalData;
-import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
-import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ResultSet;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
