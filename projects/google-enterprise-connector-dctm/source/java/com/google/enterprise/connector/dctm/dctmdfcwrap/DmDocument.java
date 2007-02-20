@@ -20,7 +20,6 @@ public class DmDocument extends DmSysObject implements IDocument {
 			idfDocument.setFileEx(fileName, formatName, 0, null);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -30,7 +29,6 @@ public class DmDocument extends DmSysObject implements IDocument {
 			idfDocument.setObjectName(name);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -40,7 +38,6 @@ public class DmDocument extends DmSysObject implements IDocument {
 			idfDocument.setContentType(contentType);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -50,7 +47,6 @@ public class DmDocument extends DmSysObject implements IDocument {
 			idfDocument.save();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -60,7 +56,6 @@ public class DmDocument extends DmSysObject implements IDocument {
 			idfDocument.destroyAllVersions();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}

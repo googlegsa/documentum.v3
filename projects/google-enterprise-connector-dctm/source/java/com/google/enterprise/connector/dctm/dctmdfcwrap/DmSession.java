@@ -32,7 +32,6 @@ public class DmSession implements ISession {
 			idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
 		} catch (DfException de) {
 			RepositoryException re = new RepositoryException(de);
-			re.setStackTrace(de.getStackTrace());
 			throw re;
 		}
 		return new DmSysObject(idfSysObject);
@@ -53,7 +52,6 @@ public class DmSession implements ISession {
 			ticket = this.idfSession.getLoginTicketForUser(username);
 		} catch (DfException de) {
 			RepositoryException re = new RepositoryException(de);
-			re.setStackTrace(de.getStackTrace());
 			throw re;
 		}
 		return ticket;
@@ -65,7 +63,6 @@ public class DmSession implements ISession {
 			document = (IDfDocument) this.idfSession.newObject("dm_document");
 		} catch (DfException de) {
 			RepositoryException re = new RepositoryException(de);
-			re.setStackTrace(de.getStackTrace());
 			throw re;
 		}
 		return new DmDocument(document);

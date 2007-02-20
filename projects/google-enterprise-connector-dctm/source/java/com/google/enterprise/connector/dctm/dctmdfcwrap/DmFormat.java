@@ -25,7 +25,6 @@ public class DmFormat implements IFormat {
 
 		} catch (DfException de) {
 			LoginException le = new LoginException(de);
-			le.setStackTrace(de.getStackTrace());
 			throw le;
 		}
 		return rep;
