@@ -27,7 +27,6 @@ public class DmCollection extends DmTypedObject implements ICollection {
 			dfValue = idfCollection.getValue(attrName);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 		return new DmValue(dfValue);
@@ -39,7 +38,6 @@ public class DmCollection extends DmTypedObject implements ICollection {
 			rep = idfCollection.next();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 		return (rep);
@@ -51,7 +49,6 @@ public class DmCollection extends DmTypedObject implements ICollection {
 			dfTypedObj = idfCollection.getTypedObject();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 		return new DmTypedObject(dfTypedObj);
@@ -67,7 +64,6 @@ public class DmCollection extends DmTypedObject implements ICollection {
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e.getMessage(), e
 					.getCause());
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}

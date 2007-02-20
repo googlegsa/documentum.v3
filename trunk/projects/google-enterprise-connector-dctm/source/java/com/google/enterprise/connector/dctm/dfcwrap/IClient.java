@@ -8,9 +8,7 @@ public interface IClient {
 
 	public ISession newSession(String string, ILoginInfo logInfo)
 			throws RepositoryException;
-
-	//public boolean authenticate(String docbaseName, ILoginInfo loginInfo)throws RepositoryException;
-
+	
 	public ISessionManager newSessionManager();
 
 }

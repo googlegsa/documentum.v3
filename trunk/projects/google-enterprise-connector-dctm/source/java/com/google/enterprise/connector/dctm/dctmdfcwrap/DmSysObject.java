@@ -33,7 +33,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 
@@ -46,7 +45,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			contentSize = idfSysObject.getContentSize();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 		return contentSize;
@@ -59,7 +57,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			content = idfSysObject.getContent();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 		return content;
@@ -72,7 +69,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			attrs = idfSysObject.enumAttrs();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 		if (attrs != null) {
@@ -86,7 +82,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return idfSysObject.getACLDomain();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 
@@ -97,7 +92,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return idfSysObject.getACLName();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -107,7 +101,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return idfSysObject.getString(name);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 
@@ -118,7 +111,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return idfSysObject.getBoolean(name);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 
@@ -129,7 +121,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return idfSysObject.getDouble(name);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -139,7 +130,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return new DmId(idfSysObject.getId(name));
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -149,7 +139,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return idfSysObject.getInt(name);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -159,7 +148,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return new DmTime(idfSysObject.getTime(name));
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -169,7 +157,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return idfSysObject.getAttrDataType(name);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -179,7 +166,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return idfSysObject.getAttrCount();
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}
@@ -189,7 +175,6 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 			return new DmAttr(idfSysObject.getAttr(attrIndex));
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
-			re.setStackTrace(e.getStackTrace());
 			throw re;
 		}
 	}

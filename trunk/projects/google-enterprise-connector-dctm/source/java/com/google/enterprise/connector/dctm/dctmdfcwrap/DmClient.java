@@ -52,23 +52,6 @@ public class DmClient implements IClient {
 		return new DmSession(sessionUser);
 	}
 
-	/*
-	public boolean authenticate(String docbaseName, ILoginInfo loginInfo)
-			throws RepositoryException {
-		if (!(loginInfo instanceof DmLoginInfo)) {
-			throw new IllegalArgumentException();
-		}
-		DmLoginInfo dctmLoginInfo = (DmLoginInfo) loginInfo;
-		IDfLoginInfo idfLoginInfo = dctmLoginInfo.getIdfLoginInfo();
-		try {
-			this.idfClient.authenticate(docbaseName, idfLoginInfo);
-		} catch (DfException e) {
-			return false;
-		}
-		return true;
-
-	}
-*/
 	public ISessionManager getSessionManager() {
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("getSessionmanager -- docbasename vaut "

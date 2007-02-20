@@ -31,7 +31,6 @@ public class DmQuery implements IQuery {
 	}
 
 	public ICollection execute(ISessionManager sessionManager, int queryType)
-	///public ResultSet execute(ISessionManager sessionManager, int queryType,  IClientX clientX)
 			throws RepositoryException {
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("--- DmQuery execute ---");
@@ -59,7 +58,6 @@ public class DmQuery implements IQuery {
 		} catch (DfException de) {
 
 			RepositoryException re = new RepositoryException(de);
-			re.setStackTrace(de.getStackTrace());
 			throw re;
 		}
 		

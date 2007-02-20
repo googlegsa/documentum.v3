@@ -35,19 +35,15 @@ public class DmSessionManager implements ISessionManager {
 			DfSession = dfSessionManager.getSession(docbase);
 		} catch (DfIdentityException iE) {
 			LoginException le = new LoginException(iE);
-			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		} catch (DfAuthenticationException iE) {
 			LoginException le = new LoginException(iE);
-			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		} catch (DfPrincipalException iE) {
 			LoginException le = new LoginException(iE);
-			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		} catch (DfServiceException iE) {
 			RepositoryException re = new RepositoryException(iE);
-			re.setStackTrace(iE.getStackTrace());
 			throw re;
 		}
 		return new DmSession(DfSession);
@@ -64,7 +60,6 @@ public class DmSessionManager implements ISessionManager {
 			dfSessionManager.setIdentity(docbase, idfLoginInfo);
 		} catch (DfServiceException iE) {
 			LoginException le = new LoginException(iE);
-			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		}
 	}
@@ -82,19 +77,15 @@ public class DmSessionManager implements ISessionManager {
 			idfSession = dfSessionManager.newSession(docbase);
 		} catch (DfIdentityException iE) {
 			LoginException le = new LoginException(iE);
-			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		} catch (DfAuthenticationException iE) {
 			LoginException le = new LoginException(iE);
-			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		} catch (DfPrincipalException iE) {
 			LoginException le = new LoginException(iE);
-			le.setStackTrace(iE.getStackTrace());
 			throw le;
 		} catch (DfServiceException iE) {
 			RepositoryException re = new RepositoryException(iE);
-			re.setStackTrace(iE.getStackTrace());
 			throw re;
 		}
 		if (error != null) {
@@ -139,7 +130,6 @@ public class DmSessionManager implements ISessionManager {
 			this.dfSessionManager.authenticate(docbaseName);
 			authent = true;
 		} catch (DfException e) {
-			//return false;
 			if (DebugFinalData.debugInEclipse) {
 				System.out.println("trace DFException authenticate");
 			}
