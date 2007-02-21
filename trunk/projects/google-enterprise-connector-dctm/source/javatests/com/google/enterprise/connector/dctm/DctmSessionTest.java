@@ -12,11 +12,6 @@ public class DctmSessionTest extends TestCase {
 
 	DctmConnector connector = null;
 
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.DctmSession.DctmSession(String,
-	 * String, String, String, String, String, String, String, String)'
-	 */
 	public void setUp() throws Exception {
 		super.setUp();
 		connector = new DctmConnector();
@@ -29,10 +24,7 @@ public class DctmSessionTest extends TestCase {
 		dctmSession = (DctmSession) connector.login();
 	}
 
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.DctmSession.getQueryTraversalManager()'
-	 */
+	
 	public void testGetQueryTraversalManager() throws RepositoryException {
 		QueryTraversalManager DctmQm = dctmSession.getQueryTraversalManager();
 		String serverUrl = ((DctmQueryTraversalManager) DctmQm).getServerUrl();
@@ -41,10 +33,7 @@ public class DctmSessionTest extends TestCase {
 		assertEquals(serverUrl, DmInitialize.DM_WEBTOP_SERVER_URL);
 	}
 
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.DctmSession.getAuthenticationManager()'
-	 */
+	
 	public void testGetAuthenticationManager() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		AuthenticationManager DctmAm = dctmSession.getAuthenticationManager();
@@ -52,10 +41,7 @@ public class DctmSessionTest extends TestCase {
 
 	}
 
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.DctmSession.getAuthorizationManager()'
-	 */
+	
 	public void testGetAuthorizationManager() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		AuthorizationManager DctmAz = dctmSession.getAuthorizationManager();

@@ -23,12 +23,6 @@ public class DctmAuthorizationManagerTest extends TestCase {
 		super(arg0);
 	}
 
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.DctmAuthorizationManager.authorizeDocids(List,
-	 * String)'
-	 */
-
 	public final void testAuthorizeDocids() throws RepositoryException {
 
 		AuthorizationManager authorizationManager;
@@ -104,8 +98,6 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			Boolean expected = (Boolean) expectedResults.get(uuid);
 			Assert.assertEquals(username + " access to " + uuid, expected
 					.booleanValue(), ok);
-			//System.out.println(username + " access to " + uuid +" "+expected
-					//.booleanValue()+" : "+ok);
 		}
 	}
 
