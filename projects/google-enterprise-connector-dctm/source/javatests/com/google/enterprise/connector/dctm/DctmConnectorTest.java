@@ -7,10 +7,6 @@ import junit.framework.TestCase;
 
 public class DctmConnectorTest extends TestCase {
 
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.DctmConnector.login()'
-	 */
 	public void testLogin() throws RepositoryException {
 
 		Connector connector = new DctmConnector();

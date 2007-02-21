@@ -29,25 +29,18 @@ public class DmSessionManagerTest extends TestCase {
 
 	private String pwdKO = DmInitialize.DM_PWD_KO;
 
-	//public void setUp() throws Exception {
-	public void setUp(){
-		try {
-			super.setUp();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			//e1.printStackTrace();
-		}
+	public void setUp() throws Exception {
+		
+		super.setUp();
+		
 		IClientX dctmClientX;
 
 		IClient localClient=null;
 
 		dctmClientX = new DmClientX();
-		try {
-			localClient = dctmClientX.getLocalClient();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
+		
+		localClient = dctmClientX.getLocalClient();
+		
 		sessionManager = localClient.newSessionManager();
 		loginInfo = dctmClientX.getLoginInfo();
 		loginInfo.setUser(user);
@@ -60,12 +53,9 @@ public class DmSessionManagerTest extends TestCase {
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("setPassword = "+password);
 		}
-		try {
-			sessionManager.setIdentity(docbase, loginInfo);
-		} catch (LoginException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
+		
+		sessionManager.setIdentity(docbase, loginInfo);
+	
 	}
 
 	public void testNewSession() throws LoginException, RepositoryException {
@@ -82,8 +72,7 @@ public class DmSessionManagerTest extends TestCase {
 		}
 	}
 
-//	public void testAuthenticate() throws LoginException {
-	public void testAuthenticateOK(){ 
+	public void testAuthenticateOK() throws LoginException{ 
 		boolean rep = false;
 		
 		rep = sessionManager.authenticate(docbase);
@@ -93,22 +82,19 @@ public class DmSessionManagerTest extends TestCase {
 		sessionManager.clearIdentity(docbase);
 		loginInfo.setUser(DmInitialize.DM_LOGIN_OK2);
 		loginInfo.setPassword(DmInitialize.DM_PWD_OK2);
-		try {
-			sessionManager.setIdentity(docbase, loginInfo);
-			rep = sessionManager.authenticate(docbase);
-		} catch (LoginException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
+		
+		sessionManager.setIdentity(docbase, loginInfo);
+		rep = sessionManager.authenticate(docbase);
+	
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("rep de testAuthenticateOK vaut "+rep);
 		}
 		Assert.assertTrue(rep);
 	}
 	
-	//public void testAuthenticate() throws LoginException {
 	
-	public void testAuthenticateKO(){ 
+	
+	public void testAuthenticateKO() throws LoginException{ 
 		boolean rep = false;
 		
 		rep = sessionManager.authenticate(docbase);
@@ -127,16 +113,12 @@ public class DmSessionManagerTest extends TestCase {
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("après setPassword");
 		}	
-		try {
-			sessionManager.setIdentity(docbase, loginInfo);
-			if (DebugFinalData.debugInEclipse) {
-				System.out.println("après setIdentity");
-			}	
-		}catch (LoginException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-			System.out.println("catch LoginException");
-		}
+		
+		sessionManager.setIdentity(docbase, loginInfo);
+		if (DebugFinalData.debugInEclipse) {
+			System.out.println("après setIdentity");
+		}	
+	
 		
 		rep = sessionManager.authenticate(docbase);
 		if (DebugFinalData.debugInEclipse) {
@@ -147,8 +129,7 @@ public class DmSessionManagerTest extends TestCase {
 	}
 	
 	
-	//public void testClearIdentity() throws LoginException {
-	public void testClearIdentity(){
+	public void testClearIdentity() throws LoginException {
 		sessionManager.clearIdentity(docbase);
 		ILoginInfo logInfo = sessionManager.getIdentity(docbase);
 		Assert.assertNull(((DmLoginInfo) logInfo).getIdfLoginInfo());

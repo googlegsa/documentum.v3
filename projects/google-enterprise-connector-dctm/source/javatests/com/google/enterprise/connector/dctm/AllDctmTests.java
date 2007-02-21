@@ -14,7 +14,6 @@ public class AllDctmTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(
 				"Test for com.google.enterprise.connector.dctm");
-		//$JUnit-BEGIN$
 		suite.addTestSuite(DctmAuthenticationManagerTest.class);
 		suite.addTestSuite(DctmAuthorizationManagerTest.class);
 		suite.addTestSuite(DctmConnectorTest.class);
@@ -22,7 +21,6 @@ public class AllDctmTests {
 		suite.addTestSuite(DctmSessionTest.class);
 		suite.addTestSuite(DctmSysobjectPropertyMapTest.class);
 		suite.addTestSuite(DctmSysobjectValueTest.class);
-		//$JUnit-END$
 		return suite;
 	}
 }

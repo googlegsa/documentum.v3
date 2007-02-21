@@ -17,11 +17,6 @@ import junit.framework.TestCase;
 
 public class DctmQueryTraversalManagerTest extends TestCase {
 
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.DctmQueryTraversalManager.startTraversal()'
-	 */
-
 	Session session = null;
 
 	Connector connector = null;
