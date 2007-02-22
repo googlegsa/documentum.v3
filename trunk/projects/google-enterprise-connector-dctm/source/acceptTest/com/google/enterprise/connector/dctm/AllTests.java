@@ -37,6 +37,7 @@ public class AllTests {
 		suite.addTestSuite(DctmAuthenticationManagerTest.class);
 		suite.addTestSuite(DctmSessionTest.class);
 		suite.addTestSuite(DctmSysobjectPropertyMapTest.class);
+		suite.addTestSuite(DctmSysobjectIteratorTest.class);
 		suite.addTestSuite(DctmConnectorTest.class);
 		
 		suite.addTestSuite(DmClientXTest.class);
