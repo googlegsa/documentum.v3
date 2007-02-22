@@ -2,7 +2,6 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
-import com.google.enterprise.connector.dctm.dfcwrap.ITypedObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.documentum.fc.client.IDfCollection;
@@ -10,12 +9,11 @@ import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfValue;
 
-public class DmCollection extends DmTypedObject implements ICollection {
-
+public class DmCollection implements ICollection {
+	
 	IDfCollection idfCollection;
 
 	public DmCollection(IDfCollection idfCollection) {
-		super(idfCollection);
 
 		this.idfCollection = idfCollection;
 
@@ -41,17 +39,6 @@ public class DmCollection extends DmTypedObject implements ICollection {
 			throw re;
 		}
 		return (rep);
-	}
-
-	public ITypedObject getTypedObject() throws RepositoryException {
-		IDfTypedObject dfTypedObj = null;
-		try {
-			dfTypedObj = idfCollection.getTypedObject();
-		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
-		}
-		return new DmTypedObject(dfTypedObj);
 	}
 
 	public IDfCollection getIDfCollection() {

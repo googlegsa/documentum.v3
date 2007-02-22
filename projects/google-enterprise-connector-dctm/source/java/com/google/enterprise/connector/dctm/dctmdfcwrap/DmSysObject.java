@@ -14,12 +14,11 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class DmSysObject extends DmPersistentObject implements ISysObject {
+public class DmSysObject implements ISysObject {
 
 	IDfSysObject idfSysObject;
 
 	public DmSysObject(IDfSysObject idfSysObject) {
-		super((IDfPersistentObject) idfSysObject);
 		this.idfSysObject = idfSysObject;
 	}
 
@@ -180,3 +179,4 @@ public class DmSysObject extends DmPersistentObject implements ISysObject {
 	}
 
 }
+
