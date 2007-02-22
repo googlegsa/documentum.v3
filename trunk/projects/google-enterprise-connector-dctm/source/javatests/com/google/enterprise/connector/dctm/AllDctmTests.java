@@ -21,6 +21,7 @@ public class AllDctmTests {
 		suite.addTestSuite(DctmSessionTest.class);
 		suite.addTestSuite(DctmSysobjectPropertyMapTest.class);
 		suite.addTestSuite(DctmSysobjectValueTest.class);
+		suite.addTestSuite(DctmSysobjectIteratorTest.class);
 		return suite;
 	}
 }
