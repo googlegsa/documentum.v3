@@ -20,6 +20,11 @@ import com.google.enterprise.connector.spi.ValueType;
 
 public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 126421624L;
+
 	private String docid;
 
 	private ISysObject object = null;

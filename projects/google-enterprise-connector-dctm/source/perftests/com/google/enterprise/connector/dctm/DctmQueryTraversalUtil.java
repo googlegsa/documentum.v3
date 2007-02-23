@@ -80,7 +80,7 @@ public class DctmQueryTraversalUtil {
 			}
 			String checkPointString = dctmQTM.checkpoint(pm);
 
-			resultSet = dctmQTM.resumeTraversal(checkPointString);
+			//resultSet = dctmQTM.resumeTraversal(checkPointString);
 
 			// the real connector manager will call checkpoint (as here) as soon
 			// as possible after processing the last property map it wants to

@@ -40,7 +40,7 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		((DctmConnector) connector).setPassword(password);
 		((DctmConnector) connector).setDocbase(docbase);
 		((DctmConnector) connector)
-				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
+				.setWebtopServerUrl("http://swp-srv-vmgsa:8080/webtop/drl/objectId/");
 		((DctmConnector) connector).setClientX(clientX);
 
 		/**
@@ -51,7 +51,6 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 			session = (DctmSession) connector.login();
 			qtm = (DctmQueryTraversalManager) session
 					.getQueryTraversalManager();
-			qtm.setBatchHint(50);
 			DctmQueryTraversalUtil.runTraversal(qtm, 10000);
 
 		} catch (LoginException le) {

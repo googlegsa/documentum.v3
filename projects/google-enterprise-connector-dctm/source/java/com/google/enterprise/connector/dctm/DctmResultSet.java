@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -18,11 +17,6 @@ public class DctmResultSet extends LinkedList implements ResultSet {
 
 	public DctmResultSet() {
 		super();
-		Iterator ite=iterator();
-	}
-
-	public DctmResultSet(Collection co) {
-		super(co);
 	}
 
 	public DctmResultSet(ICollection co, ISessionManager sessMag, IClientX clientX) {
