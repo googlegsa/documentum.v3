@@ -5,6 +5,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import javax.jcr.query.QueryResult;
 
 import com.google.enterprise.connector.dctm.dfcwrap.*;
@@ -66,7 +67,20 @@ public class MockDmCollection implements ICollection {
 	}
 
 	public IValue getValue(String attrName) throws RepositoryException {
-		return null;
+		if (attrName.equals("r_object_id")) {
+			Value tmp;
+			try {
+				tmp = currentNode.getProperty("docid").getValue();
+			} catch (ValueFormatException e) {
+				throw new RepositoryException(e);
+			} catch (PathNotFoundException e) {
+				throw new RepositoryException(e);
+			} catch (javax.jcr.RepositoryException e) {
+				throw new RepositoryException(e);
+			}			
+			return new MockDmValue(tmp);
+		}
+		throw new RepositoryException("ICollection.getValue() is not implemented for " + attrName);
 	}
 
 }

@@ -19,6 +19,8 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DmFormatATest extends TestCase {
+	
+	DmInitialize initializer = new DmInitialize(true);
 
 	IClientX dctmClientX;
 
@@ -34,7 +36,7 @@ public class DmFormatATest extends TestCase {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		dctmClientX = new DmClientX();
+		dctmClientX = (IClientX) Class.forName(DmInitialize.DM_CLIENTX).newInstance();
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
 		loginInfo = dctmClientX.getLoginInfo();
