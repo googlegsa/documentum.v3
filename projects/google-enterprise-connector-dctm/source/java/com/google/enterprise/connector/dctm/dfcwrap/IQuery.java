@@ -7,8 +7,9 @@ public interface IQuery {
 
 	public static int DF_READ_QUERY = IDfQuery.DF_READ_QUERY;
 
-	ICollection execute(ISessionManager sessionManager, int queryType)throws RepositoryException;
-	
+	ICollection execute(ISessionManager sessionManager, int queryType)
+			throws RepositoryException;
+
 	public void setDQL(String dqlStatement);
 
 }

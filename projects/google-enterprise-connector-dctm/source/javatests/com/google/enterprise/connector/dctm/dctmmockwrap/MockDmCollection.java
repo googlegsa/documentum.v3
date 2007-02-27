@@ -77,10 +77,11 @@ public class MockDmCollection implements ICollection {
 				throw new RepositoryException(e);
 			} catch (javax.jcr.RepositoryException e) {
 				throw new RepositoryException(e);
-			}			
+			}
 			return new MockDmValue(tmp);
 		}
-		throw new RepositoryException("ICollection.getValue() is not implemented for " + attrName);
+		throw new RepositoryException(
+				"ICollection.getValue() is not implemented for " + attrName);
 	}
 
 }

@@ -19,7 +19,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DmFormatATest extends TestCase {
-	
+
 	DmInitialize initializer = new DmInitialize(true);
 
 	IClientX dctmClientX;
@@ -31,23 +31,20 @@ public class DmFormatATest extends TestCase {
 	ISession session;
 
 	ILoginInfo loginInfo;
-	
+
 	String docbase;
 
 	public void setUp() throws Exception {
 		super.setUp();
-		dctmClientX = (IClientX) Class.forName(DmInitialize.DM_CLIENTX).newInstance();
+		dctmClientX = (IClientX) Class.forName(DmInitialize.DM_CLIENTX)
+				.newInstance();
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
 		loginInfo = dctmClientX.getLoginInfo();
 		String user = DmInitialize.DM_LOGIN_OK2;
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("user vaut "+user);
-		}	
+
 		String password = DmInitialize.DM_PWD_OK2;
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("password vaut "+password);
-		}	
+
 		docbase = DmInitialize.DM_DOCBASE;
 		loginInfo.setUser(user);
 		loginInfo.setPassword(password);
@@ -143,10 +140,7 @@ public class DmFormatATest extends TestCase {
 		IDfId id = dfSession
 				.getIdByQualification("dm_sysobject where a_content_type = 'excel8book'");
 		idString = id.toString();
-		if (DebugFinalData.debugInEclipse) {
-		System.out.println("idString getAnExistingExcelObjectId vaut "
-				+ idString);
-		}
+
 		return idString;
 	}
 
@@ -160,8 +154,8 @@ public class DmFormatATest extends TestCase {
 				.getIdByQualification("dm_sysobject where a_content_type = 'pdf'");
 		idString = id.toString();
 		if (DebugFinalData.debugInEclipse) {
-		System.out
-				.println("idString getAnExistingPDFObjectId vaut " + idString);
+			System.out.println("idString getAnExistingPDFObjectId vaut "
+					+ idString);
 		}
 		return idString;
 
@@ -176,10 +170,7 @@ public class DmFormatATest extends TestCase {
 		IDfId id = dfSession
 				.getIdByQualification("dm_sysobject where a_content_type = 'ms_access7'");
 		idString = id.toString();
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("idString getAnExistingAccessObjectId vaut "
-				+ idString);
-		}	
+
 		return idString;
 	}
 
@@ -192,10 +183,7 @@ public class DmFormatATest extends TestCase {
 		IDfId id = dfSession
 				.getIdByQualification("dm_sysobject where a_content_type = 'msw8'");
 		idString = id.toString();
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("idString getAnExistingWordObjectId vaut "
-				+ idString);
-		}	
+
 		return idString;
 	}
 

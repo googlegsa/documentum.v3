@@ -22,6 +22,8 @@ public class DctmSession implements Session {
 
 	protected String webtopServerUrl;
 
+	protected String additionalWhereClause;
+
 	String docbase;
 
 	/**
@@ -34,7 +36,8 @@ public class DctmSession implements Session {
 	 */
 
 	public DctmSession(String clientX, String login, String password,
-			String docbase, String wsu) throws RepositoryException {
+			String docbase, String wsu, String additionalWhereClause)
+			throws RepositoryException {
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("--- DctmSession constructor with arguments---");
 		}
@@ -93,6 +96,7 @@ public class DctmSession implements Session {
 		}
 
 		webtopServerUrl = wsu;
+		this.additionalWhereClause = additionalWhereClause;
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setServerUrl(wsu);
 	}
@@ -110,11 +114,13 @@ public class DctmSession implements Session {
 					"DctmQueryTraversalManager's instantiation", null);
 		{
 
-			dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl);
+			dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
+					additionalWhereClause);
 
 		}
 
-		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl);
+		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
+				additionalWhereClause);
 		if (DebugFinalData.debugInTomcat) {
 			OutputPerformances.endFlag("a",
 					"DctmQueryTraversalManager's instantiation");
@@ -172,6 +178,7 @@ public class DctmSession implements Session {
 	}
 
 	public void setClientX(String clientX) throws RepositoryException {
+
 		boolean repoExcep = false;
 		Throwable rootCause = null;
 		String message = "";

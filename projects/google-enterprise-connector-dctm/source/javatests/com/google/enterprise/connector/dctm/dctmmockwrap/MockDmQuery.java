@@ -18,6 +18,7 @@ public class MockDmQuery implements IQuery {
 	private String query;
 
 	private static final String XPATH_QUERY_STRING_UNBOUNDED_DEFAULT = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
+
 	private static final String XPATH_QUERY_STRING_BOUNDED_DEFAULT = "//*[@jcr:primaryType = 'nt:resource' and @jcr:lastModified >= ''{0}'' and @jcr:uuid >= ''{1}''] order by @jcr:lastModified, @jcr:uuid";
 
 	public MockDmQuery() {
@@ -28,10 +29,12 @@ public class MockDmQuery implements IQuery {
 			throws RepositoryException {
 		if (query.equals("")) {
 			return null;
-		} else if (query.startsWith(XPATH_QUERY_STRING_UNBOUNDED_DEFAULT.substring(0, 15))) {
+		} else if (query.startsWith(XPATH_QUERY_STRING_UNBOUNDED_DEFAULT
+				.substring(0, 15))) {
 			try {
 				MockRepositoryDocumentStore a = null;
-				a = ((MockDmSession) sessionManager.getSession(sessionManager.getDocbaseName())).getStore();
+				a = ((MockDmSession) sessionManager.getSession(sessionManager
+						.getDocbaseName())).getStore();
 				MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
 				Query q = mrQueryMger.createQuery(this.query, "xpath");
 				QueryResult qr = q.execute();
@@ -47,7 +50,8 @@ public class MockDmQuery implements IQuery {
 			List filteredResults = new MockMockList(ids, sessionManager);
 			if (filteredResults != null) {
 				QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
-				MockDmCollection finalCollection = new MockDmCollection(filteredQR);
+				MockDmCollection finalCollection = new MockDmCollection(
+						filteredQR);
 				return finalCollection;
 			} else {
 				return null;// null value is tested in DctmAuthorizationManager
@@ -58,25 +62,28 @@ public class MockDmQuery implements IQuery {
 
 	public void setDQL(String dqlStatement) {
 		String goodQuery = "";
-		if (dqlStatement.indexOf("select r_object_id from ")==-1) {
-			if (dqlStatement.indexOf(" and r_modify_date >= ")!=-1) {
+		if (dqlStatement.indexOf("select r_object_id from ") == -1) {
+			if (dqlStatement.indexOf(" and r_modify_date >= ") != -1) {
 				goodQuery = XPATH_QUERY_STRING_BOUNDED_DEFAULT;
 			} else {
 				goodQuery = makeBoundedQuery(dqlStatement);
 			}
 			this.query = goodQuery;
 		} else {
-			this.query = dqlStatement;//Authorize query. Will be parsed later
+			this.query = dqlStatement;// Authorize query. Will be parsed later
 		}
 	}
-	
-	private String makeBoundedQuery(String dqlStatement){
-		int bound1 = dqlStatement.indexOf(" and r_modify_date >= '")+" and r_modify_date >= '".length();
+
+	private String makeBoundedQuery(String dqlStatement) {
+		int bound1 = dqlStatement.indexOf(" and r_modify_date >= '")
+				+ " and r_modify_date >= '".length();
 		int bound2 = dqlStatement.indexOf("' and i_chronicle_id >= '");
-		int bound3 = bound2+"' and i_chronicle_id >= '".length();
-		String date = dqlStatement.substring(bound1,bound2);
-		String id = dqlStatement.substring(bound3,dqlStatement.lastIndexOf("'"));
-		return MessageFormat.format(XPATH_QUERY_STRING_BOUNDED_DEFAULT,new Object[] {date,id});
+		int bound3 = bound2 + "' and i_chronicle_id >= '".length();
+		String date = dqlStatement.substring(bound1, bound2);
+		String id = dqlStatement.substring(bound3, dqlStatement
+				.lastIndexOf("'"));
+		return MessageFormat.format(XPATH_QUERY_STRING_BOUNDED_DEFAULT,
+				new Object[] { date, id });
 	}
 
 }

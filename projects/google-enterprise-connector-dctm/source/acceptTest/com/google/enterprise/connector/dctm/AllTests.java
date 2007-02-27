@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientATest;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientTest;
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientXATest;
@@ -22,7 +21,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class AllTests {
-	
+
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(AllTests.suite());
 	}
@@ -30,7 +29,7 @@ public class AllTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(
 				"Test for com.google.enterprise.connector.dctm");
-		//$JUnit-BEGIN$
+		// $JUnit-BEGIN$
 		suite.addTestSuite(DctmAuthorizationManagerTest.class);
 		suite.addTestSuite(DctmSysobjectValueTest.class);
 		suite.addTestSuite(DctmQueryTraversalManagerTest.class);
@@ -39,7 +38,7 @@ public class AllTests {
 		suite.addTestSuite(DctmSysobjectPropertyMapTest.class);
 		suite.addTestSuite(DctmSysobjectIteratorTest.class);
 		suite.addTestSuite(DctmConnectorTest.class);
-		
+
 		suite.addTestSuite(DmClientXTest.class);
 		suite.addTestSuite(DmClientTest.class);
 		suite.addTestSuite(DmSessionManagerTest.class);
@@ -48,7 +47,7 @@ public class AllTests {
 		suite.addTestSuite(DmQueryTest.class);
 		suite.addTestSuite(DmLoginInfoTest.class);
 		suite.addTestSuite(DmFormatTest.class);
-		
+
 		suite.addTestSuite(DmClientXATest.class);
 		suite.addTestSuite(DmClientATest.class);
 		suite.addTestSuite(DmSessionManagerATest.class);
@@ -57,9 +56,8 @@ public class AllTests {
 		suite.addTestSuite(DmQueryATest.class);
 		suite.addTestSuite(DmLoginInfoATest.class);
 		suite.addTestSuite(DmFormatATest.class);
-		
-		
-		//$JUnit-END$
+
+		// $JUnit-END$
 		return suite;
 	}
 

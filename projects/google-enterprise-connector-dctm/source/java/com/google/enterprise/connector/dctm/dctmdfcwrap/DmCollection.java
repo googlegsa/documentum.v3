@@ -1,16 +1,14 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.documentum.fc.client.IDfCollection;
-import com.documentum.fc.client.IDfTypedObject;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfValue;
 
 public class DmCollection implements ICollection {
-	
+
 	IDfCollection idfCollection;
 
 	public DmCollection(IDfCollection idfCollection) {

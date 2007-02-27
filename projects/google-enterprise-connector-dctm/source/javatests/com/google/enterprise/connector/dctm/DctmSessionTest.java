@@ -24,7 +24,6 @@ public class DctmSessionTest extends TestCase {
 		dctmSession = (DctmSession) connector.login();
 	}
 
-	
 	public void testGetQueryTraversalManager() throws RepositoryException {
 		QueryTraversalManager DctmQm = dctmSession.getQueryTraversalManager();
 		String serverUrl = ((DctmQueryTraversalManager) DctmQm).getServerUrl();
@@ -33,7 +32,6 @@ public class DctmSessionTest extends TestCase {
 		assertEquals(serverUrl, DmInitialize.DM_WEBTOP_SERVER_URL);
 	}
 
-	
 	public void testGetAuthenticationManager() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		AuthenticationManager DctmAm = dctmSession.getAuthenticationManager();
@@ -41,7 +39,6 @@ public class DctmSessionTest extends TestCase {
 
 	}
 
-	
 	public void testGetAuthorizationManager() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
 		AuthorizationManager DctmAz = dctmSession.getAuthorizationManager();

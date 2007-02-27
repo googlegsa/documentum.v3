@@ -30,12 +30,10 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		}
 
 		boolean authenticate = false;
-		
-		
-			authenticate = sessionManager.authenticate(sessionManager
-					.getDocbaseName());
-		
-		
+
+		authenticate = sessionManager.authenticate(sessionManager
+				.getDocbaseName());
+
 		if (DebugFinalData.debugInEclipse) {
 			System.out.println("DCTMAuthenticate method authenticate "
 					+ authenticate);
