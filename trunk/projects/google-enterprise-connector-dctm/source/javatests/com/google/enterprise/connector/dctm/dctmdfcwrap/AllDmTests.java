@@ -2,6 +2,7 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 public class AllDmTests {
 
 	public static void main(String[] args) {

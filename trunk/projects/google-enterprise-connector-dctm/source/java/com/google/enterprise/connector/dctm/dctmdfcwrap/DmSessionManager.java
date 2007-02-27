@@ -124,7 +124,7 @@ public class DmSessionManager implements ISessionManager {
 		return serverUrl;
 	}
 
-	public boolean authenticate(String docbaseName){
+	public boolean authenticate(String docbaseName) {
 		boolean authent = false;
 		try {
 			this.dfSessionManager.authenticate(docbaseName);
@@ -133,7 +133,7 @@ public class DmSessionManager implements ISessionManager {
 			if (DebugFinalData.debugInEclipse) {
 				System.out.println("trace DFException authenticate");
 			}
-			
+
 			authent = false;
 		}
 		return authent;

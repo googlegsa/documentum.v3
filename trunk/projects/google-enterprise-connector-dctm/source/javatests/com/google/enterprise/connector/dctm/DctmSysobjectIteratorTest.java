@@ -15,14 +15,14 @@ import junit.framework.TestCase;
 
 public class DctmSysobjectIteratorTest extends TestCase {
 	QueryTraversalManager qtm = null;
+
 	private final boolean DFC = true;
 
 	private String user, password, clientX, docbase;
-	
-	
+
 	public void setUp() throws Exception {
 		super.setUp();
-		
+
 		if (DFC) {
 			user = "queryUser";
 			password = "p@ssw0rd";
@@ -34,13 +34,12 @@ public class DctmSysobjectIteratorTest extends TestCase {
 			clientX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX";
 			docbase = "MockRepositoryEventLog7.txt";
 		}
-		
+
 		Session session = null;
 		Connector connector = null;
-		
 
 		connector = new DctmConnector();
-		
+
 		/**
 		 * Simulation of the setters used by Instance.xml
 		 */
@@ -54,43 +53,36 @@ public class DctmSysobjectIteratorTest extends TestCase {
 		/**
 		 * End simulation
 		 */
-		
+
 		session = (DctmSession) connector.login();
-		qtm = (DctmQueryTraversalManager) session
-				.getQueryTraversalManager();
+		qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();
 		qtm.setBatchHint(2);
 
-		
 	}
-	
+
 	public void testHasNext() throws RepositoryException {
-		int counter = 0;
+
 		ResultSet resultSet = qtm.startTraversal();
-		PropertyMap pm = null;
-		Property prop = null;
 		Iterator iter = resultSet.iterator();
 		boolean rep = iter.hasNext();
 		assertTrue(rep);
 	}
-	
 
 	public void testNext() throws RepositoryException {
 		int counter = 0;
 		ResultSet resultSet = qtm.startTraversal();
 		PropertyMap pm = null;
 		Property prop = null;
-		Property prop1 = null;
 		Iterator iter = resultSet.iterator();
-		
-		while(iter.hasNext()) {
+
+		while (iter.hasNext()) {
 			pm = (PropertyMap) iter.next();
 			prop = pm.getProperty(SpiConstants.PROPNAME_DOCID);
-			
+
 			assertNotNull(prop);
-		
+
 			if (counter == 2) {
-				System.out.println("counter == batchhint !!!!");
-				
+
 				break;
 			}
 

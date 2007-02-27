@@ -16,6 +16,10 @@ public class DctmConnector implements Connector {
 
 	private String webtopServerUrl;
 
+	private String authenticationType;
+
+	private String additionalWhereClause;
+
 	/**
 	 * Setters and getters for the data retrieved from Spring
 	 * 
@@ -77,13 +81,29 @@ public class DctmConnector implements Connector {
 		}
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
-				webtopServerUrl);
+				webtopServerUrl, additionalWhereClause);
 
 		if (DebugFinalData.debugInTomcat)
 			OutputPerformances.endFlag("conn",
 					"return Session from DctmConnector.login()");
 
 		return (sess);
+	}
+
+	public String getAuthenticationType() {
+		return authenticationType;
+	}
+
+	public void setAuthenticationType(String authenticationType) {
+		this.authenticationType = authenticationType;
+	}
+
+	public String getAdditionalWhereClause() {
+		return additionalWhereClause;
+	}
+
+	public void setAdditionalWhereClause(String additionalWhereClause) {
+		this.additionalWhereClause = additionalWhereClause;
 	}
 
 }

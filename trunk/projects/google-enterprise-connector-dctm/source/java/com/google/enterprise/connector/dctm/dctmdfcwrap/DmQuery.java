@@ -60,9 +60,9 @@ public class DmQuery implements IQuery {
 			RepositoryException re = new RepositoryException(de);
 			throw re;
 		}
-		
+
 		return new DmCollection(DfCollection);
-		
+
 	}
 
 }

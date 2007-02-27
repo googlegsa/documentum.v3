@@ -7,42 +7,47 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class DctmSysobjectIterator implements Iterator{
-    ICollection co;
-    ISessionManager sessMag;
-    IClientX clientX;
-    int index;
-	
-	DctmSysobjectIterator(ICollection co, ISessionManager sessMag, IClientX clientX){
-		this.co=co;
-		this.index=0;
-		this.sessMag=sessMag;
-		this.clientX=clientX;
+public class DctmSysobjectIterator implements Iterator {
+	ICollection co;
+
+	ISessionManager sessMag;
+
+	IClientX clientX;
+
+	int index;
+
+	DctmSysobjectIterator(ICollection co, ISessionManager sessMag,
+			IClientX clientX) {
+		this.co = co;
+		this.index = 0;
+		this.sessMag = sessMag;
+		this.clientX = clientX;
 	}
-	
+
 	public void remove() {
 		// TODO Auto-generated method stub
 
 	}
 
 	public boolean hasNext() {
-		boolean hasNextVal=false;
+		boolean hasNextVal = false;
 		try {
-			hasNextVal=co.next();
-		} catch (RepositoryException e) { 
+			hasNextVal = co.next();
+		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}
 		return hasNextVal;
 	}
 
-	public Object next(){
-		String crID="";
+	public Object next() {
+		String crID = "";
 		try {
 			crID = co.getValue("r_object_id").asString();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
 		}
-		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap(crID, sessMag, clientX);
+		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap(crID,
+				sessMag, clientX);
 		return pm;
 	}
 }

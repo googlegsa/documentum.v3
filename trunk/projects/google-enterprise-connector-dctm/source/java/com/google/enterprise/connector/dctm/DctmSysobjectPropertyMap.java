@@ -194,10 +194,11 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 					ValueType.STRING, mimetype));
 		} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
 			return null;
-		}else if(SpiConstants.PROPNAME_AUTH_VIEWPERMIT.equals(name)){
-			return (DctmSysobjectProperty)this.get(name);
+		} else if (SpiConstants.PROPNAME_AUTH_VIEWPERMIT.equals(name)) {
+			return (DctmSysobjectProperty) this.get(name);
 		}
-		return new DctmSysobjectProperty(name, new DctmSysobjectValue(object,name, ValueType.STRING));
+		return new DctmSysobjectProperty(name, new DctmSysobjectValue(object,
+				name, ValueType.STRING));
 	}
 
 	public Iterator getProperties() throws RepositoryException {
@@ -221,15 +222,15 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		return properties.iterator();
 	}
 
-	 public Property putProperty(Property p) throws RepositoryException {
-		    if (p == null) {
-		      throw new IllegalArgumentException();
-		    }
-		    String name = p.getName();
-		    if (name == null) {
-		      throw new IllegalArgumentException();
-		    }
-		    return (Property) this.put(name, p);
-	 }
-	
+	public Property putProperty(Property p) throws RepositoryException {
+		if (p == null) {
+			throw new IllegalArgumentException();
+		}
+		String name = p.getName();
+		if (name == null) {
+			throw new IllegalArgumentException();
+		}
+		return (Property) this.put(name, p);
+	}
+
 }

@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.util.Enumeration;
 
 import com.documentum.fc.client.IDfFormat;
-import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
@@ -179,4 +178,3 @@ public class DmSysObject implements ISysObject {
 	}
 
 }
-

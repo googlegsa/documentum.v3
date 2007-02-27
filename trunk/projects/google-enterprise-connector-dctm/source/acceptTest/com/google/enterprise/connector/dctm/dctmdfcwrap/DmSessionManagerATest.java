@@ -78,7 +78,7 @@ public class DmSessionManagerATest extends TestCase {
 	}
 
 	public void testNewSession() throws LoginException, RepositoryException {
-		ISession session =null;
+		ISession session = null;
 		try {
 			String user = DmInitialize.DM_LOGIN_OK4;
 			String password = DmInitialize.DM_PWD_OK4;

@@ -9,7 +9,6 @@ import java.util.Enumeration;
 
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfAttr;
-import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -51,9 +50,6 @@ public class DmSysObjectATest extends TestCase {
 
 		session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 		object = session.getObject(dctmClientX.getId(DmInitialize.DM_ID1));
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("setup");
-		}	
 		document = CreateNewDocument(session);
 	}
 
@@ -97,59 +93,48 @@ public class DmSysObjectATest extends TestCase {
 
 	public void testEnumAttrs() throws DfException, RepositoryException,
 			IOException {
-			Enumeration attrs = ((DmSysObject) document).enumAttrs();
-			Assert.assertNotNull(attrs);
-			while (attrs.hasMoreElements()) {
-				IDfAttr curAttr = (IDfAttr) attrs.nextElement();
-				String name = curAttr.getName();
-				if (DebugFinalData.debugInEclipse) {
-					System.out.println("name vaut " + name);
-				}	
-				if (name.equals("object_name")) {
-					String object_name = document.getString("object_name");
-					Assert.assertEquals(object_name, "Document creation test");
-				}
+		Enumeration attrs = ((DmSysObject) document).enumAttrs();
+		Assert.assertNotNull(attrs);
+		while (attrs.hasMoreElements()) {
+			IDfAttr curAttr = (IDfAttr) attrs.nextElement();
+			String name = curAttr.getName();
+			if (name.equals("object_name")) {
+				String object_name = document.getString("object_name");
+				Assert.assertEquals(object_name, "Document creation test");
 			}
+		}
 	}
 
 	public void testGetACLDomain() throws DfException, RepositoryException,
 			IOException {
 		String ACLDomain = ((DmSysObject) document).getACLDomain();
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("acldomain vaut " + ACLDomain);
-		}
 		Assert.assertNotNull(ACLDomain);
 		Assert.assertEquals(ACLDomain, DmInitialize.DM_LOGIN_OK1);
 	}
 
 	public void testGetACLName() throws DfException, RepositoryException,
 			IOException {
-		
-			String ACLName = ((DmSysObject) document).getACLName();
-			if (DebugFinalData.debugInEclipse) {
-				System.out.println("aclname vaut " + ACLName);
-			}
-			Assert.assertNotNull(ACLName);
+
+		String ACLName = ((DmSysObject) document).getACLName();
+
+		Assert.assertNotNull(ACLName);
 	}
 
 	public DmDocument CreateNewDocument(ISession session)
 			throws RepositoryException, IOException {
 
-			document = ((DmSession) session).newObject();
-			File f = new File("DocumentCreationTest.txt");
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
-			oos
-					.writeObject("Foundation Course Content Outline Overview Concepts The mission of Google and Google Enterprise");
-			document.setFileEx("DocumentCreationTest.txt", "text");
-			document.setObjectName("Document creation test");
-			document.save();
-			oos.close();
-			boolean del = f.delete();
-			if (DebugFinalData.debugInEclipse) {
-				System.out.println("del vaut " + del);
-			}
-			return document;
-	
+		document = ((DmSession) session).newObject();
+		File f = new File("DocumentCreationTest.txt");
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f));
+		oos
+				.writeObject("Foundation Course Content Outline Overview Concepts The mission of Google and Google Enterprise");
+		document.setFileEx("DocumentCreationTest.txt", "text");
+		document.setObjectName("Document creation test");
+		document.save();
+		oos.close();
+		f.delete();
+		return document;
+
 	}
 
 	public static void deleteDocument(DmDocument document)
@@ -159,9 +144,6 @@ public class DmSysObjectATest extends TestCase {
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("teardown");
-		}
 		deleteDocument(document);
 	}
 

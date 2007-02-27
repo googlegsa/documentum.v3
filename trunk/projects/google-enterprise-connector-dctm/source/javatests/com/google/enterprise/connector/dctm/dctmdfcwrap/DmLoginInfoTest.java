@@ -37,8 +37,7 @@ public class DmLoginInfoTest extends TestCase {
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setIdentity(docbase, loginInfo);
 		dctmClientX.setSessionManager(sessionManager);
-		String myUser = loginInfo.getUser();
-		Assert.assertEquals(myUser, DmInitialize.DM_LOGIN_OK1);
+		Assert.assertEquals(DmInitialize.DM_LOGIN_OK1, loginInfo.getUser());
 	}
 
 	public void testGetSetPassword() throws LoginException {
@@ -48,8 +47,7 @@ public class DmLoginInfoTest extends TestCase {
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setIdentity(docbase, loginInfo);
 		dctmClientX.setSessionManager(sessionManager);
-		String myPwd = loginInfo.getPassword();
-		Assert.assertEquals(myPwd, DmInitialize.DM_PWD_OK1);
+		Assert.assertEquals(DmInitialize.DM_PWD_OK1, loginInfo.getPassword());
 	}
 
 }

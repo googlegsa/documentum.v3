@@ -56,35 +56,43 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			System.out.println("dql " + dqlQuery);
 		}
 		query.setDQL(dqlQuery);
-	
-		ICollection collec = query.execute(sessionManagerUser,IQuery.DF_READ_QUERY);
-		resultSet = new DctmResultSet(collec,sessionManager, clientX);
-		
+
+		ICollection collec = query.execute(sessionManagerUser,
+				IQuery.DF_READ_QUERY);
+		resultSet = new DctmResultSet(collec, sessionManager, clientX);
+
 		Iterator iter = resultSet.iterator();
-		DctmSysobjectPropertyMap pm=null;
-		DctmSysobjectPropertyMap pmFalse=null;
+		DctmSysobjectPropertyMap pm = null;
+		DctmSysobjectPropertyMap pmFalse = null;
 		String id = "";
 		while (resultSet != null && iter.hasNext()) {
-			pm = (DctmSysobjectPropertyMap)iter.next();
-			id = pm.getProperty(SpiConstants.PROPNAME_DOCID).getValue().getString();
+			pm = (DctmSysobjectPropertyMap) iter.next();
+			id = pm.getProperty(SpiConstants.PROPNAME_DOCID).getValue()
+					.getString();
 			if (DebugFinalData.debugInEclipse) {
-				System.out.println("id vaut "+id);
-			}		
-			pm.putProperty(new DctmSysobjectProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT, new DctmSysobjectValue(ValueType.BOOLEAN,"true")));
+				System.out.println("id vaut " + id);
+			}
+			pm.putProperty(new DctmSysobjectProperty(
+					SpiConstants.PROPNAME_AUTH_VIEWPERMIT,
+					new DctmSysobjectValue(ValueType.BOOLEAN, "true")));
 			if (DebugFinalData.debugInEclipse) {
-				System.out.println("hasRight?  "+ true);
+				System.out.println("hasRight?  " + true);
 			}
 			docidList.remove(id);
 		}
-		
+
 		for (i = 0; i < docidList.size(); i++) {
-			pmFalse=new DctmSysobjectPropertyMap(docidList.get(i).toString(),sessionManagerUser,clientX);
+			pmFalse = new DctmSysobjectPropertyMap(docidList.get(i).toString(),
+					sessionManagerUser, clientX);
 			pmFalse.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,
 					docidList.get(i).toString()));
-			pmFalse.putProperty(new DctmSysobjectProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT, new DctmSysobjectValue(ValueType.BOOLEAN,"false")));
+			pmFalse.putProperty(new DctmSysobjectProperty(
+					SpiConstants.PROPNAME_AUTH_VIEWPERMIT,
+					new DctmSysobjectValue(ValueType.BOOLEAN, "false")));
 			if (DebugFinalData.debugInEclipse) {
-				System.out.println("docid from docidList : "+ docidList.get(i).toString());
-				System.out.println("hasRight?  "+ false);
+				System.out.println("docid from docidList : "
+						+ docidList.get(i).toString());
+				System.out.println("hasRight?  " + false);
 			}
 		}
 		return resultSet;

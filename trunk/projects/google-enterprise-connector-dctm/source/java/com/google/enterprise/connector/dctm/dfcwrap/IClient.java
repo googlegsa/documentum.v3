@@ -8,7 +8,7 @@ public interface IClient {
 
 	public ISession newSession(String string, ILoginInfo logInfo)
 			throws RepositoryException;
-	
+
 	public ISessionManager newSessionManager();
 
 }

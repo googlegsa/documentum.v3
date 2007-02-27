@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -30,32 +29,25 @@ public class DmSessionManagerTest extends TestCase {
 	private String pwdKO = DmInitialize.DM_PWD_KO;
 
 	public void setUp() throws Exception {
-		
+
 		super.setUp();
-		
+
 		IClientX dctmClientX;
 
-		IClient localClient=null;
+		IClient localClient = null;
 
 		dctmClientX = new DmClientX();
-		
+
 		localClient = dctmClientX.getLocalClient();
-		
+
 		sessionManager = localClient.newSessionManager();
 		loginInfo = dctmClientX.getLoginInfo();
 		loginInfo.setUser(user);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("setUser = "+user);
-		}
-		
+
 		loginInfo.setPassword(password);
-		
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("setPassword = "+password);
-		}
-		
+
 		sessionManager.setIdentity(docbase, loginInfo);
-	
+
 	}
 
 	public void testNewSession() throws LoginException, RepositoryException {
@@ -72,63 +64,43 @@ public class DmSessionManagerTest extends TestCase {
 		}
 	}
 
-	public void testAuthenticateOK() throws LoginException{ 
+	public void testAuthenticateOK() throws LoginException {
 		boolean rep = false;
-		
+
 		rep = sessionManager.authenticate(docbase);
-		
+
 		Assert.assertTrue(rep);
 
 		sessionManager.clearIdentity(docbase);
 		loginInfo.setUser(DmInitialize.DM_LOGIN_OK2);
 		loginInfo.setPassword(DmInitialize.DM_PWD_OK2);
-		
+
 		sessionManager.setIdentity(docbase, loginInfo);
 		rep = sessionManager.authenticate(docbase);
-	
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("rep de testAuthenticateOK vaut "+rep);
-		}
+
 		Assert.assertTrue(rep);
 	}
-	
-	
-	
-	public void testAuthenticateKO() throws LoginException{ 
+
+	public void testAuthenticateKO() throws LoginException {
 		boolean rep = false;
-		
+
 		rep = sessionManager.authenticate(docbase);
-		
+
 		Assert.assertTrue(rep);
 
 		sessionManager.clearIdentity(docbase);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("après clearIdentity");
-		}	
+
 		loginInfo.setUser(userKO);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("après setUser");
-		}	
+
 		loginInfo.setPassword(pwdKO);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("après setPassword");
-		}	
-		
+
 		sessionManager.setIdentity(docbase, loginInfo);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("après setIdentity");
-		}	
-	
-		
+
 		rep = sessionManager.authenticate(docbase);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("après authenticate");
-			System.out.println("rep de testAuthenticateKO vaut "+rep);
-		}	
+
 		Assert.assertFalse(rep);
 	}
-	
-	
+
 	public void testClearIdentity() throws LoginException {
 		sessionManager.clearIdentity(docbase);
 		ILoginInfo logInfo = sessionManager.getIdentity(docbase);

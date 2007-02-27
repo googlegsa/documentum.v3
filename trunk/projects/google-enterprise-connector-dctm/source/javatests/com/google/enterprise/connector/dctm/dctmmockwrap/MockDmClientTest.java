@@ -46,7 +46,7 @@ public class MockDmClientTest extends TestCase {
 
 	}
 
-	public void testSetAndClearIdentity(){
+	public void testSetAndClearIdentity() {
 		IClientX dctmClientX = new MockDmClient();
 		try {
 			IClient localClient = dctmClientX.getLocalClient();

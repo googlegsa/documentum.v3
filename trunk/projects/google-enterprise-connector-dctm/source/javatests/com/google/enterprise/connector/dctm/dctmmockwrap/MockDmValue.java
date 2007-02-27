@@ -7,15 +7,15 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
 public class MockDmValue implements IValue {
-	
+
 	private Value value;
-	
+
 	protected MockDmValue(Value val) {
-		value=val;
+		value = val;
 	}
 
-	public String asString() throws RepositoryException{
-		String ret="";
+	public String asString() throws RepositoryException {
+		String ret = "";
 		try {
 			ret = value.getString();
 		} catch (ValueFormatException e) {

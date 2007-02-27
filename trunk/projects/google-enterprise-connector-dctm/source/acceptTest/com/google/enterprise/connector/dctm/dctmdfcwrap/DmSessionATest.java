@@ -4,7 +4,6 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import com.documentum.fc.common.DfException;
-import com.google.enterprise.connector.dctm.DebugFinalData;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -48,9 +47,6 @@ public class DmSessionATest extends TestCase {
 			Assert.assertNotNull(session);
 			Assert.assertTrue(session instanceof DmSession);
 			String idString = DmInitialize.DM_ID1;
-			if (DebugFinalData.debugInEclipse) {
-				System.out.println("idString " + idString);
-			}	
 			IId id = dctmClientX.getId(idString);
 			ISysObject object = session.getObject(id);
 			Assert.assertNotNull(object);
@@ -73,31 +69,27 @@ public class DmSessionATest extends TestCase {
 			session = sessionManager.getSession(docbase);
 			String ticket = session
 					.getLoginTicketForUser(DmInitialize.DM_LOGIN_OK5);
-	
+
 			session = sessionManager.getSession(docbase);
-	
+
 			ISessionManager sessionManagerUser = dctmClientX.getLocalClient()
 					.newSessionManager();
 			loginInfo.setUser(DmInitialize.DM_LOGIN_OK5);
 			loginInfo.setPassword(DmInitialize.DM_PWD_OK5);
 			sessionManagerUser.setIdentity(docbase, loginInfo);
-	
+
 			Assert.assertNotNull(session);
 			Assert.assertTrue(session instanceof DmSession);
-			if (DebugFinalData.debugInEclipse) {
-				System.out.println("ticket vaut " + ticket);
-			}	
 			Assert.assertNotNull(ticket);
 			ILoginInfo loginUser = sessionManagerUser.getIdentity(docbase);
-			String myUser = loginUser.getUser();
-			Assert.assertEquals(myUser, DmInitialize.DM_LOGIN_OK5);
-			String myPassword = loginUser.getPassword();
-			Assert.assertEquals(myPassword, DmInitialize.DM_PWD_OK5);
-		}finally {
+			Assert.assertEquals(DmInitialize.DM_LOGIN_OK5, loginUser.getUser());
+			Assert.assertEquals(DmInitialize.DM_PWD_OK5, loginUser
+					.getPassword());
+		} finally {
 			if (session != null) {
 				sessionManager.release(session);
 			}
-		}	
+		}
 	}
 
 }

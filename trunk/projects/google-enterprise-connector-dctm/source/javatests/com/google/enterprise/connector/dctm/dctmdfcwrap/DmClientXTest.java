@@ -13,7 +13,6 @@ import junit.framework.TestCase;
 public class DmClientXTest extends TestCase {
 	IClientX clientX;
 
-	
 	public void setUp() throws Exception {
 		super.setUp();
 		clientX = new DmClientX();

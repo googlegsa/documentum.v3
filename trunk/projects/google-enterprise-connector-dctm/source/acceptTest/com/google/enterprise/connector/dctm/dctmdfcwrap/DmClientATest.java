@@ -23,7 +23,6 @@ public class DmClientATest extends TestCase {
 		localClient = dctmClientX.getLocalClient();
 	}
 
-	
 	public void testNewSession() throws RepositoryException {
 		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
 		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
@@ -35,13 +34,11 @@ public class DmClientATest extends TestCase {
 		Assert.assertNotNull(session);
 		Assert.assertTrue(session instanceof DmSession);
 	}
-	
-	
+
 	public void testNewSessionManager() throws RepositoryException {
 		ISessionManager sessionManager = localClient.newSessionManager();
 		Assert.assertNotNull(sessionManager);
 		Assert.assertTrue(sessionManager instanceof DmSessionManager);
 	}
-
 
 }
