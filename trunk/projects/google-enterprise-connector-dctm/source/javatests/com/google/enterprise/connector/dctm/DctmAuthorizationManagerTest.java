@@ -72,7 +72,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
 			expectedResults.put(DmInitialize.DM_ID2, Boolean.FALSE);
 			expectedResults.put(DmInitialize.DM_ID3, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_ID4, Boolean.FALSE);
+			expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
 			expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
 			testAuthorization((DctmAuthorizationManager) authorizationManager,
 					expectedResults, username);
@@ -87,14 +87,13 @@ public class DctmAuthorizationManagerTest extends TestCase {
 
 		ResultSet resultSet = authorizationManager.authorizeDocids(docids,
 				username);
-
 		for (Iterator i = resultSet.iterator(); i.hasNext();) {
+			
 			PropertyMap pm = (PropertyMap) i.next();
 			String uuid = pm.getProperty(SpiConstants.PROPNAME_DOCID)
 					.getValue().getString();
 			boolean ok = pm.getProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT)
 					.getValue().getBoolean();
-
 			Boolean expected = (Boolean) expectedResults.get(uuid);
 			Assert.assertEquals(username + " access to " + uuid, expected
 					.booleanValue(), ok);
