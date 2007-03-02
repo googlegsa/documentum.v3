@@ -2,14 +2,16 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 	<bean id="DctmConnector"
-		class="com.google.enterprise.connector.spi.SimpleConnectorType">
+		class="com.google.enterprise.connector.dctm.DctmConnectorType">
 		<property name="configKeys">
 			<list>
 				<value>login</value>
 				<value>password</value>
 				<value>docbase</value>
 				<value>clientX</value>
+				<value>authenticationType</value>
 				<value>webtopServerUrl</value>
+				<value>whereClause</value>
 			</list>
 		</property>
 	</bean>

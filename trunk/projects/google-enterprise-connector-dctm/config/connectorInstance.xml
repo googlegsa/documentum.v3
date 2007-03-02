@@ -6,7 +6,9 @@
 		<property name="docbase" value="${docbase}" />
 		<property name="login" value="${login}" />
 		<property name="password" value="${password}" />
-		<property name="clientX" value="${clientX}" />
+		<property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX" />
+		<property name="authenticationType" value="api" />
 		<property name="webtopServerUrl" value="${webtopServerUrl}" />
+		<property name="whereClause" value="${whereClause}" />
 	</bean>
 </beans>
