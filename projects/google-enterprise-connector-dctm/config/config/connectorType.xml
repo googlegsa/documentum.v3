@@ -11,7 +11,7 @@
 				<value>clientX</value>
 				<value>authenticationType</value>
 				<value>webtopServerUrl</value>
-				<value>additionalWhereClause</value>
+				<value>whereClause</value>
 			</list>
 		</property>
 	</bean>
