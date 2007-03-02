@@ -34,11 +34,7 @@ public class DctmSysobjectValue implements Value {
 		super();
 		this.sysObject = sysObject;
 		this.name = name;
-		try {
-			this.type = getType();
-		} catch (RepositoryException re) {
-			re.getMessage();
-		}
+		this.type = getType();
 		this.stringValue = null;
 	}
 
@@ -114,9 +110,14 @@ public class DctmSysobjectValue implements Value {
 		}
 	}
 
-	public ValueType getType() throws RepositoryException {
+	public ValueType getType() {
 
-		int dataType = sysObject.getAttrDataType(name);
+		int dataType;
+		try {
+			dataType = sysObject.getAttrDataType(name);
+		} catch (RepositoryException e) {
+			return null;
+		}
 
 		if (dataType == DmType.DF_STRING) {
 			return ValueType.STRING;

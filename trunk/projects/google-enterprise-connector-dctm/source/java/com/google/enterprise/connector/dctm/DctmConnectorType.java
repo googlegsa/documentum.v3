@@ -20,7 +20,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.spi.ConfigureResponse;
 import com.google.enterprise.connector.spi.ConnectorType;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.SimpleConnectorType;
 
 public class DctmConnectorType extends SimpleConnectorType implements
@@ -66,8 +65,7 @@ public class DctmConnectorType extends SimpleConnectorType implements
 	private static Logger logger = null;
 
 	static {
-		logger = Logger.getLogger(DctmConnectorType.class.getName());
-		logger.setLevel(Level.INFO);
+
 		mapError = new HashMap();
 		mapError
 				.put("DM_DOCBROKER_E_NO_SERVERS_FOR_DOCBASE",
@@ -90,14 +88,12 @@ public class DctmConnectorType extends SimpleConnectorType implements
 						"additional",
 						"Some required configuration is missing: Please check the additional where clause.");
 		mapError
-				.put(
-						"DM_QUERY_E_NOT_ATTRIBUTE",
+				.put("DM_QUERY_E_NOT_ATTRIBUTE",
 						"Some required configuration is missing: Syntax error in DQL filter :");
 		mapError
-		.put(
-				"additionalTooRestrictive",
-				"Some required configuration is missing: DQL Filter is too restrictive, no documents were found with this filter.");
-		
+				.put(
+						"additionalTooRestrictive",
+						"Some required configuration is missing: DQL Filter is too restrictive, no documents were found with this filter.");
 
 	}
 
@@ -143,13 +139,15 @@ public class DctmConnectorType extends SimpleConnectorType implements
 	}
 
 	public ConfigureResponse validateConfig(Map configData, String language) {
-		if (DebugFinalData.debugInEclipse) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
 			logger.log(Level.INFO, "DCTM ValidateConfig");
 		}
 		String form = null;
 		if (validateConfigMap(configData)) {
 			try {
-				logger.log(Level.INFO, "test connection to the docbase");
+				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+					logger.log(Level.INFO, "test connection to the docbase");
+				}
 				DctmSession session = new DctmSession(
 						"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX",
 						(String) configData.get("login"), (String) configData
@@ -181,7 +179,9 @@ public class DctmConnectorType extends SimpleConnectorType implements
 					returnMessage = (String) mapError.get(extractErrorMessage)
 							+ " " + e.getMessage();
 				}
-				logger.log(Level.WARNING, returnMessage);
+				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+					logger.log(Level.WARNING, returnMessage);
+				}
 				form = makeValidatedForm(configData);
 				return new ConfigureResponse(returnMessage, form);
 
@@ -196,8 +196,10 @@ public class DctmConnectorType extends SimpleConnectorType implements
 
 	private void checkAdditionalWhereClause(String additionalWhereClause,
 			DctmQueryTraversalManager qtm) throws RepositoryException {
-		logger.log(Level.INFO, "check additional where clause : "
-				+ additionalWhereClause);
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			logger.log(Level.INFO, "check additional where clause : "
+					+ additionalWhereClause);
+		}
 		if (!additionalWhereClause.toLowerCase().startsWith("and")) {
 			throw new RepositoryException("[additional]");
 		}
@@ -208,12 +210,12 @@ public class DctmConnectorType extends SimpleConnectorType implements
 		DctmResultSet restult = (DctmResultSet) qtm.execQuery(query);
 		Iterator iter = restult.iterator();
 		int counter = 0;
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			iter.next();
 			counter++;
 			break;
 		}
-		if(counter == 0){
+		if (counter == 0) {
 			throw new RepositoryException("[additionalTooRestrictive]");
 		}
 
@@ -221,15 +223,18 @@ public class DctmConnectorType extends SimpleConnectorType implements
 
 	private void testWebtopUrl(String webtopServerUrl)
 			throws RepositoryException {
-		logger.log(Level.INFO, "test connection to the webtop server : "
-				+ webtopServerUrl);
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			logger.log(Level.INFO, "test connection to the webtop server : "
+					+ webtopServerUrl);
+		}
 		HttpClient client = new HttpClient();
 		GetMethod getMethod = new GetMethod(webtopServerUrl);
 		try {
 			int status = client.executeMethod(getMethod);
 			if (status != 200) {
-				if (logger.getLevel().intValue() == Level.INFO.intValue())
+				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
 					logger.log(Level.INFO, "status " + status);
+				}
 				throw new RepositoryException(
 						"[status] Http request returned a " + status
 								+ " status");
