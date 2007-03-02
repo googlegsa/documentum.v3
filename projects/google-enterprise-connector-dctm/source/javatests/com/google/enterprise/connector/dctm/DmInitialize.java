@@ -35,7 +35,7 @@ public class DmInitialize {
 
 	public static String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
 
-	public static String DM_CHECKPOINT_QUERY_STRING = " and r_modify_date >= '2007-01-02 13:58:10' and i_chronicle_id >= '090000018000e100'";
+	public static String DM_CHECKPOINT_QUERY_STRING = " and r_modify_date >= '2007-01-02 13:58:10' and i_chronicle_id > '090000018000e100'";
 
 	public static String DM_QUERY_STRING_ENABLE = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' "
 			+ "order by r_modify_date, i_chronicle_id ENABLE (return_top 50)";
@@ -50,7 +50,7 @@ public class DmInitialize {
 
 	public static String DM_ID4 = "4c000001800001b8";
 
-	public static String DM_ID5 = "4c000001800001b8";
+	public static String DM_ID5 = "090000018000a5ee";
 
 	public DmInitialize(boolean DFC) {
 		if (!DFC) {

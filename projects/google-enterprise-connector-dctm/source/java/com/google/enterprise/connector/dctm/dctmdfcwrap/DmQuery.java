@@ -1,11 +1,14 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.common.DfException;
-import com.google.enterprise.connector.dctm.DebugFinalData;
+import com.google.enterprise.connector.dctm.DctmConnector;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -16,6 +19,12 @@ public class DmQuery implements IQuery {
 	IDfQuery idfQuery;
 
 	public static int DF_READ_QUERY = IDfQuery.DF_READ_QUERY;
+	private static Logger logger = null;
+
+	static {
+		logger = Logger.getLogger(DmQuery.class.getName());
+		logger.setLevel(Level.ALL);
+	}
 
 	public DmQuery(IDfQuery idfQuery) {
 		this.idfQuery = idfQuery;
@@ -32,26 +41,18 @@ public class DmQuery implements IQuery {
 
 	public ICollection execute(ISessionManager sessionManager, int queryType)
 			throws RepositoryException {
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("--- DmQuery execute ---");
-		}
-
 		if (!(sessionManager instanceof DmSessionManager)) {
 			throw new IllegalArgumentException();
 		}
 
 		DmSession idctmsession = null;
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("--- docbase vaut "
-					+ sessionManager.getDocbaseName());
-		}
 		idctmsession = (DmSession) sessionManager.getSession(sessionManager
 				.getDocbaseName());
 
 		IDfSession idfSession = idctmsession.getDfSession();
 		IDfCollection DfCollection = null;
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("--- IdfQuery vaut " + idfQuery.getDQL());
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==1) {
+			logger.info("value of IdfQuery " + idfQuery.getDQL());
 		}
 		try {
 			DfCollection = idfQuery.execute(idfSession, queryType);

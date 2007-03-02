@@ -3,7 +3,7 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
-import com.google.enterprise.connector.dctm.DebugFinalData;
+
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -153,10 +153,6 @@ public class DmFormatATest extends TestCase {
 		IDfId id = dfSession
 				.getIdByQualification("dm_sysobject where a_content_type = 'pdf'");
 		idString = id.toString();
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("idString getAnExistingPDFObjectId vaut "
-					+ idString);
-		}
 		return idString;
 
 	}

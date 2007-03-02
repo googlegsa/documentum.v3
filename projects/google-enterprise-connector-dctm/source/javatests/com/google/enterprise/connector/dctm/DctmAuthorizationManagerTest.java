@@ -88,7 +88,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 		ResultSet resultSet = authorizationManager.authorizeDocids(docids,
 				username);
 		for (Iterator i = resultSet.iterator(); i.hasNext();) {
-			
+
 			PropertyMap pm = (PropertyMap) i.next();
 			String uuid = pm.getProperty(SpiConstants.PROPNAME_DOCID)
 					.getValue().getString();

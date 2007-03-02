@@ -9,7 +9,6 @@ public class DmType implements IType {
 
 	public DmType(IDfType idfType) {
 		this.idfType = idfType;
-
 	}
 
 }

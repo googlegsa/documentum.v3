@@ -40,6 +40,22 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 
 	}
 
+	public void testStartTraversal() throws RepositoryException {
+
+		ResultSet resultset = null;
+		int counter = 0;
+
+		qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_UNBOUNDED);
+		resultset = qtm.startTraversal();
+		Iterator iter = resultset.iterator();
+		while (iter.hasNext()) {
+			iter.next();
+			counter++;
+		}
+		assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
+
+	}
+
 	public void testMakeCheckpointQueryString() {
 		String uuid = "090000018000e100";
 		String statement = "";
@@ -132,22 +148,6 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 				checkPoint);
 	}
 
-	public void testStartTraversal() throws RepositoryException {
-
-		ResultSet resultset = null;
-		int counter = 0;
-
-		qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_UNBOUNDED);
-		resultset = qtm.startTraversal();
-		Iterator iter = resultset.iterator();
-		while (iter.hasNext()) {
-			iter.next();
-			counter++;
-		}
-		assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
-
-	}
-
 	public void testResumeTraversal() throws RepositoryException {
 		ResultSet resultSet = null;
 
@@ -164,6 +164,31 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 		}
 
 		assertEquals(DmInitialize.DM_RETURN_TOP_BOUNDED, counter);
+	}
+
+	public void testResumeTraversalWithSimilarDate() throws RepositoryException {
+		ResultSet resultSet = null;
+
+		String checkPoint = "{\"uuid\":\"090000018000015d\",\"lastModified\":\"2006-12-14 20:09:13.000\"}";
+
+		qtm.setBatchHint(1);
+		resultSet = qtm.resumeTraversal(checkPoint);
+
+		DctmSysobjectIterator iter = (DctmSysobjectIterator) resultSet
+				.iterator();
+		while (iter.hasNext()) {
+			DctmSysobjectPropertyMap map = (DctmSysobjectPropertyMap) iter
+					.next();
+			String docId = map.getProperty(SpiConstants.PROPNAME_DOCID)
+					.getValue().getString();
+			String expectedid = "090000018000015e";
+			assertEquals(expectedid, docId);
+			String modifyDate = DctmSysobjectValue.calendarToIso8601(map
+					.getProperty(SpiConstants.PROPNAME_LASTMODIFY).getValue()
+					.getDate());
+			String expecterModifyDate = "2006-12-14 20:09:13.000";
+			assertEquals(expecterModifyDate, modifyDate);
+		}
 	}
 
 }

@@ -1,6 +1,8 @@
 package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +28,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	// TODO: add possibility for an administrator to change it
 	private String tableName = "dm_document";
 
-	private String whereBoundedClause = " and r_modify_date >= ''{0}'' and i_chronicle_id >= ''{1}''";
+	private String whereBoundedClause = " and r_modify_date >= ''{0}'' and i_chronicle_id > ''{1}''";
 
 	private String serverUrl;
 
@@ -35,6 +37,13 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	private ISessionManager sessionManager;
 
 	protected String additionalWhereClause;
+
+	private static Logger logger = null;
+
+	static {
+		logger = Logger.getLogger(DctmQueryTraversalManager.class.getName());
+		logger.setLevel(Level.ALL);
+	}
 
 	protected void setClientX(IClientX clientX) {
 		this.clientX = clientX;
@@ -58,21 +67,22 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	public DctmQueryTraversalManager(IClientX clientX, String webtopServerUrl,
 			String additionalWhereClause) throws RepositoryException {
-		if (DebugFinalData.debugInTomcat)
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("qtm", "Valuate IClient", null);
-
+		}
 		this.additionalWhereClause = additionalWhereClause;
 
 		setClientX(clientX);
 
-		if (DebugFinalData.debugInTomcat)
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("qtm", "Valuate IClient");
+		}
 
 		setSessionManager(clientX.getSessionManager());
 
 		this.serverUrl = webtopServerUrl;
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("serverUrl vaut " + this.serverUrl);
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			logger.info("webtop url " + serverUrl);
 		}
 
 	}
@@ -91,9 +101,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 *             condition.
 	 */
 	public ResultSet startTraversal() throws RepositoryException {
-		if (DebugFinalData.debugInEclipse) {
-			System.out
-					.println("--- DctmQueryTraversalManager startTraversal ---");
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			logger.info("Pull process started");
 		}
 
 		IQuery query = null;
@@ -120,10 +129,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 */
 	public ResultSet resumeTraversal(String checkPoint)
 			throws RepositoryException {
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("checkpoint vaut " + checkPoint);
-			System.out
-					.println("--- DctmQueryTraversalManager resumeTraversal !!! ---");
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			logger.info("value of checkpoint  " + checkPoint);
 		}
 
 		ResultSet resultSet = null;
@@ -171,6 +178,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 			jo.put("lastModified", dateString);
 			result = jo.toString();
 		} catch (JSONException e) {
+			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+				logger.severe("Unexpected JSON problem");
+			}
 			throw new RepositoryException("Unexpected JSON problem", e);
 		}
 		return result;
@@ -190,17 +200,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	}
 
 	public ResultSet execQuery(IQuery query) throws RepositoryException {
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("--- DctmQueryTraversalManager execQuery ---");
-		}
-
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("--- DctmQueryTraversalManager serverurl vaut "
-					+ serverUrl + " ---");
-		}
-
 		sessionManager.setServerUrl(serverUrl);
-		if (DebugFinalData.debugInTomcat) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("qtm", "Processing query", null);
 		}
 
@@ -208,7 +209,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 				.execute(sessionManager, IQuery.DF_READ_QUERY);
 		ResultSet rs = new DctmResultSet(collec, sessionManager, clientX);
 
-		if (DebugFinalData.debugInTomcat) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("qtm", "ResultSet built.");
 		}
 		return rs;
@@ -242,6 +243,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		try {
 			uuid = jo.getString("uuid");
 		} catch (JSONException e) {
+			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+				logger.severe("could not get uuid from checkPoint string: "
+						+ checkPoint);
+			}
 			throw new IllegalArgumentException(
 					"could not get uuid from checkPoint string: " + checkPoint);
 		}
@@ -254,6 +259,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		try {
 			dateString = jo.getString("lastModified");
 		} catch (JSONException e) {
+			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+				logger
+						.severe("could not get lastmodify from checkPoint string: "
+								+ checkPoint);
+			}
 			throw new IllegalArgumentException(
 					"could not get lastmodify from checkPoint string: "
 							+ checkPoint);
@@ -298,22 +308,24 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 						+ Integer.toString(batchHint) + ")");
 			}
 		}
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println(query.toString());
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			logger.info(query.toString());
 		}
 		return query.toString();
 	}
 
 	private String getCheckpointClause(String checkPoint)
 			throws RepositoryException {
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("checkpoint vaut " + checkPoint);
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			logger.info("value of checkpoint" + checkPoint);
 		}
 		JSONObject jo = null;
 
 		try {
 			jo = new JSONObject(checkPoint);
 		} catch (JSONException e) {
+			logger.severe("checkPoint string does not parse as JSON: "
+					+ checkPoint);
 			throw new IllegalArgumentException(
 					"checkPoint string does not parse as JSON: " + checkPoint);
 		}

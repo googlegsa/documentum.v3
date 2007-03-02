@@ -45,6 +45,7 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		specmeta.add("keywords");
 		specmeta.add("authors");
 		specmeta.add("r_creation_date");
+		specmeta.add("r_modify_date");
 	}
 
 	private static HashSet sysmeta = null;
@@ -155,6 +156,7 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 			String docbaseName = sessionManager.getDocbaseName();
 			session = sessionManager.getSession(docbaseName);
 			IId id = clientX.getId(docid);
+
 			object = session.getObject(id);
 		} finally {
 			if (session != null) {

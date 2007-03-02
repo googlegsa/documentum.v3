@@ -34,7 +34,7 @@ public class DctmSysobjectIterator implements Iterator {
 		try {
 			hasNextVal = co.next();
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+			return false;
 		}
 		return hasNextVal;
 	}
@@ -44,10 +44,8 @@ public class DctmSysobjectIterator implements Iterator {
 		try {
 			crID = co.getValue("r_object_id").asString();
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+			return null;
 		}
-		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap(crID,
-				sessMag, clientX);
-		return pm;
+		return new DctmSysobjectPropertyMap(crID, sessMag, clientX);
 	}
 }

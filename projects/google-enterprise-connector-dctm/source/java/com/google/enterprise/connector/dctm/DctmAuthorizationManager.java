@@ -1,5 +1,9 @@
 package com.google.enterprise.connector.dctm;
+
+import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -19,6 +23,13 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	private String queryStringAuthoriseDefault = "select r_object_id from dm_sysobject where r_object_id in (";
 
+	private static Logger logger = null;
+
+	static {
+		logger = Logger.getLogger(DctmAuthorizationManager.class.getName());
+		logger.setLevel(Level.ALL);
+	}
+
 	public DctmAuthorizationManager(IClientX clientX) {
 
 		setClientX(clientX);
@@ -28,7 +39,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	public ResultSet authorizeDocids(List docidList, String username)
 			throws RepositoryException {
-		int i = 0;
+
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
 		ISession session;
@@ -41,51 +52,59 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		ILoginInfo logInfo = clientX.getLoginInfo();
 		logInfo.setUser(username);
 		logInfo.setPassword(ticket);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("user vaut " + username);
+		
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
+			logger.log(Level.INFO, "authorisation for " + username);
 		}
 		sessionManagerUser
 				.setIdentity(sessionManager.getDocbaseName(), logInfo);
 		sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
 		dqlQuery = buildQuery(docidList);
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("dql " + dqlQuery);
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
+			logger.log(Level.INFO, "dql " + dqlQuery);
 		}
 		query.setDQL(dqlQuery);
 
 		ICollection collec = query.execute(sessionManagerUser,
 				IQuery.DF_READ_QUERY);
-		
+
 		SimpleResultSet simpleResultSet = new SimpleResultSet();
 
 		String id = "";
-		SimplePropertyMap simplePropertyMap ;
-		while(collec.next()){
-			id = collec.getString("r_object_id");
+		SimplePropertyMap simplePropertyMap;
+		Iterator iterDocIdList = docidList.iterator();
+		String object_id = "";
+		while (collec.next()) {
+			object_id += collec.getString("r_object_id") + " ";
+		}
+		while (iterDocIdList.hasNext()) {
+			id = (String) iterDocIdList.next();
 			simplePropertyMap = new SimplePropertyMap();
-			simplePropertyMap.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,new SimpleValue(ValueType.STRING,id)));
-			simplePropertyMap.putProperty(new SimpleProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT,new SimpleValue(ValueType.BOOLEAN,"true")));
-			simpleResultSet.add(simplePropertyMap);
-			if (DebugFinalData.debugInEclipse) {
-				System.out.println("id " + id);
-				System.out.println("hasRight?  " + true);
+			simplePropertyMap.putProperty(new SimpleProperty(
+					SpiConstants.PROPNAME_DOCID, new SimpleValue(
+							ValueType.STRING, id)));
+			if (object_id.indexOf(id) != -1) {
+				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
+					logger.info("id " + id);
+					logger.info("hasRight?  " + true);
+				}
+				simplePropertyMap.putProperty(new SimpleProperty(
+						SpiConstants.PROPNAME_AUTH_VIEWPERMIT, new SimpleValue(
+								ValueType.BOOLEAN, "true")));
+			} else {
+				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
+					logger.info("id " + id);
+					logger.info("hasRight?  " + false);
+				}
+				simplePropertyMap.putProperty(new SimpleProperty(
+						SpiConstants.PROPNAME_AUTH_VIEWPERMIT, new SimpleValue(
+								ValueType.BOOLEAN, "false")));
 			}
-			docidList.remove(id);
+			simpleResultSet.add(simplePropertyMap);
+
 		}
 
-		for (i = 0; i < docidList.size(); i++) {
-			id = docidList.get(i).toString();
-			simplePropertyMap = new SimplePropertyMap();
-			simplePropertyMap.putProperty(new SimpleProperty(SpiConstants.PROPNAME_DOCID,new SimpleValue(ValueType.STRING,id)));
-			simplePropertyMap.putProperty(new SimpleProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT,new SimpleValue(ValueType.BOOLEAN,"false")));
-			simpleResultSet.add(simplePropertyMap);
-			if (DebugFinalData.debugInEclipse) {
-				System.out.println("docid from docidList : "
-						+ docidList.get(i).toString());
-				System.out.println("hasRight?  " + false);
-			}
-		}
 		return simpleResultSet;
 	}
 
@@ -94,18 +113,11 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		String queryString;
 
 		queryString = queryStringAuthoriseDefault;
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("queryString avant boucle " + queryString);
-		}
-
 		for (i = 0; i < docidList.size() - 1; i++) {
 			queryString += "'" + docidList.get(i).toString() + "', ";
 
 		}
 		queryString += "'" + docidList.get(i).toString() + "')";
-		if (DebugFinalData.debugInEclipse) {
-			System.out.println("queryString après boucle " + queryString);
-		}
 
 		return queryString;
 	}
