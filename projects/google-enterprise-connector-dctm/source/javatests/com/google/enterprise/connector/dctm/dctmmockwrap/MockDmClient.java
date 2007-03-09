@@ -104,15 +104,19 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 
 	public boolean authenticate(String docbaseName) {
 		MockDmSession tmp;
+		System.out.println("authenticate method");
 		try {
 			tmp = createAuthenticatedSession(docbaseName,
 					(ILoginInfo) sessMgerCreds.get(docbaseName));
+			System.out.println("tmp vaut "+tmp);
 		} catch (RepositoryException e) {
+			System.out.println(e.getMessage());
 			return false;
 		}
 		if (tmp == null) {
 			return false;
 		} else {
+			System.out.println("tmp renvoie "+true);
 			return true;
 		}
 	}
@@ -226,7 +230,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 * Never called for mock
 	 */
 	public IId getId(String id) {
-		return null;
+		return new MockDmId(id);
 	}
 
 	/**
@@ -242,22 +246,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 */
 	public void setClient(IClient client) {
 
-	}
-
-	/**
-	 * Never called for mock
-	 */
-	public boolean authenticate(String docbaseName, ILoginInfo loginInfo)
-			throws LoginException {
-		return false;
-	}
-
-	/**
-	 * Never called for mock
-	 */
-	public ISession newSession(String docbase, ILoginInfo logInfo)
-			throws com.google.enterprise.connector.spi.RepositoryException {
-		return null;
 	}
 
 }

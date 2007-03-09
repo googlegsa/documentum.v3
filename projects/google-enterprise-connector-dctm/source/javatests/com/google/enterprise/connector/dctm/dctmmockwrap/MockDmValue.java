@@ -33,9 +33,9 @@ public class MockDmValue implements IValue {
 		return null;
 	}
 
-	public int getDataType() {
+	public int getDataType(){
 		// TODO Auto-generated method stub
-		return 0;
+		return value.getType();
 	}
 
 }
