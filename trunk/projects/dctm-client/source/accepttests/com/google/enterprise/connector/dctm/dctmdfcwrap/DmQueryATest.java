@@ -54,7 +54,7 @@ public class DmQueryATest extends TestCase {
 		Assert.assertTrue(query instanceof DmQuery);
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 		ICollection collec = query
-				.execute(sessionManager, IQuery.DF_READ_QUERY);
+				.execute(sessionManager, IQuery.READ_QUERY);
 		Assert.assertNotNull(collec);
 	}
 
