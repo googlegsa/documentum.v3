@@ -33,22 +33,7 @@ public class DmClient implements IClient {
 	public IQuery getQuery() {
 		return new DmQuery(new DfQuery());
 	}
-
-	public ISession newSession(String docbase, ILoginInfo logInfo)
-			throws LoginException {
-		IDfSession sessionUser = null;
-		IDfLoginInfo idfLogInfo = new DfLoginInfo();
-		idfLogInfo.setUser(logInfo.getUser());
-		idfLogInfo.setPassword(logInfo.getPassword());
-		try {
-			sessionUser = idfClient.newSession(docbase, idfLogInfo);
-		} catch (DfException de) {
-			LoginException re = new LoginException(de);
-			throw re;
-		}
-		return new DmSession(sessionUser);
-	}
-
+	
 	public ISessionManager getSessionManager() {
 		return dmSessionManager;
 	}
