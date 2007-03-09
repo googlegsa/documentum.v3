@@ -26,8 +26,6 @@ public interface ISysObject {
 
 	public IId getId(String name) throws RepositoryException;
 
-	public Enumeration enumAttrs() throws RepositoryException;
-
 	public IFormat getFormat() throws RepositoryException;
 
 	public int getAttrDataType(String name) throws RepositoryException;
