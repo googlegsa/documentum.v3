@@ -206,7 +206,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		}
 
 		ICollection collec = query
-				.execute(sessionManager, IQuery.DF_READ_QUERY);
+				.execute(sessionManager, IQuery.READ_QUERY);
 		ResultSet rs = new DctmResultSet(collec, sessionManager, clientX);
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
