@@ -4,6 +4,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.query.QueryResult;
@@ -30,7 +31,6 @@ public class MockDmCollection implements ICollection {
 
 	public boolean next() {
 		if (collection.hasNext()) {
-
 			currentNode = collection.nextNode();
 			return true;
 		}
@@ -48,6 +48,7 @@ public class MockDmCollection implements ICollection {
 		}
 	}
 
+	/*
 	protected Value[] getAuthorizedUsers() throws RepositoryException {
 		try {
 			Property tmp = currentNode.getProperty("acl");
@@ -58,30 +59,49 @@ public class MockDmCollection implements ICollection {
 			throw new RepositoryException(e);
 		}
 	}
-
-	public ResultSet buildResulSetFromCollection(
-			ISessionManager sessionManager, IClientX clientX)
-			throws RepositoryException {
-		SpiResultSetFromJcr test = new SpiResultSetFromJcr(collection);
-		return test;
-	}
+	*/
 
 	public IValue getValue(String attrName) throws RepositoryException {
+		Value val=null;
+		String name="";
 		if (attrName.equals("r_object_id")) {
-			Value tmp;
-			try {
-				tmp = currentNode.getProperty("docid").getValue();
-			} catch (ValueFormatException e) {
-				throw new RepositoryException(e);
-			} catch (PathNotFoundException e) {
-				throw new RepositoryException(e);
-			} catch (javax.jcr.RepositoryException e) {
-				throw new RepositoryException(e);
-			}
-			return new MockDmValue(tmp);
+			attrName="jcr:uuid";	
+		}else if(attrName.equals("object_name")){
+			attrName="name";	
+		}else if (attrName.equals("r_modify_date")){
+			attrName="google:lastmodify";
 		}
+			
+		try {
+			val = currentNode.getProperty(attrName).getValue();
+		} catch (ValueFormatException e) {
+			throw new RepositoryException(e);
+		} catch (PathNotFoundException e) {
+			throw new RepositoryException(e);
+		}catch (javax.jcr.RepositoryException e) {
+			throw new RepositoryException(e);
+		}
+		return new MockDmValue(val);
+		
+		/*
 		throw new RepositoryException(
 				"ICollection.getValue() is not implemented for " + attrName);
+		*/
+		/*
+		try {
+			for(PropertyIterator propIt = currentNode.getProperties();propIt.hasNext();){
+				Property nextProp=(Property)propIt.next();
+				String name=nextProp.getName();
+				System.out.println("name vaut "+name);
+			}
+		} catch (javax.jcr.RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	*/
+		
+		
+		
 	}
 
 }
