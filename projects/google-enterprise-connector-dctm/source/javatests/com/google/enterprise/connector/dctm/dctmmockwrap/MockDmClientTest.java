@@ -1,7 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSession;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -20,8 +18,6 @@ public class MockDmClientTest extends TestCase {
 	 * Useless test
 	 * 
 	 */
-	
-	
 	public void testGetLoginInfo() {
 		IClientX dctmClientX = new MockDmClient();
 

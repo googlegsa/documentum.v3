@@ -4,8 +4,7 @@ import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
-import com.google.enterprise.connector.dctm.DmInitialize;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX;
+import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -42,7 +41,6 @@ public class MockDmCollectionTest extends TestCase {
 		ili.setPassword("mark");
 		sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
 		sess7 = sessionManager.getSession("MockRepositoryEventLog7.txt");
-		DmInitialize dmInit=new DmInitialize(false);
 	}
 	
 	public void testNextAndGetString() {
@@ -98,7 +96,7 @@ public class MockDmCollectionTest extends TestCase {
 		query=localClient.getQuery();
 		///System.out.println("DM_QUERY_STRING_ENABLE vaut "+DmInitialize.DM_QUERY_STRING_ENABLE);
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec=query.execute(sessionManager,IQuery.DF_READ_QUERY);
+		ICollection collec=query.execute(sessionManager,IQuery.READ_QUERY);
 		if(collec.next()){
 			IValue val=collec.getValue("r_object_id");
 			Assert.assertTrue( val instanceof MockDmValue);
@@ -110,7 +108,7 @@ public class MockDmCollectionTest extends TestCase {
 		String rep="";
 		query=localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec=query.execute(sessionManager,IQuery.DF_READ_QUERY);
+		ICollection collec=query.execute(sessionManager,IQuery.READ_QUERY);
 		if(collec.next()){
 			rep=collec.getString("jcr:uuid");
 			Assert.assertEquals(rep,DmInitialize.DM_ID1);
