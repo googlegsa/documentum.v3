@@ -7,9 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.google.enterprise.connector.dctm.dctmdfcwrap.DmType;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
-import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.ValueType;
@@ -97,10 +97,10 @@ public class DctmSysobjectValue implements Value {
 
 	public String getString() throws IllegalArgumentException,
 			RepositoryException {
+		System.out.println("DctmSysObjectValue getString");
 		if (stringValue != null) {
 			return stringValue;
 		} else {
-
 			String str = sysObject.getString(name);
 			if (str != null) {
 				return str;
@@ -119,13 +119,13 @@ public class DctmSysobjectValue implements Value {
 			return null;
 		}
 
-		if (dataType == IType.STRING) {
+		if (dataType == DmType.DF_STRING) {
 			return ValueType.STRING;
-		} else if (dataType == IType.BOOLEAN) {
+		} else if (dataType == DmType.DF_BOOLEAN) {
 			return ValueType.BOOLEAN;
-		} else if (dataType == IType.INT) {
+		} else if (dataType == DmType.DF_INT) {
 			return ValueType.LONG;
-		} else if (dataType == IType.TIME) {
+		} else if (dataType == DmType.DF_TIME) {
 			return ValueType.DATE;
 		}
 		return null;
