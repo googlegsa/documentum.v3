@@ -91,20 +91,6 @@ public class DmSysObjectATest extends TestCase {
 		}
 	}
 
-	public void testEnumAttrs() throws DfException, RepositoryException,
-			IOException {
-		Enumeration attrs = ((DmSysObject) document).enumAttrs();
-		Assert.assertNotNull(attrs);
-		while (attrs.hasMoreElements()) {
-			IDfAttr curAttr = (IDfAttr) attrs.nextElement();
-			String name = curAttr.getName();
-			if (name.equals("object_name")) {
-				String object_name = document.getString("object_name");
-				Assert.assertEquals(object_name, "Document creation test");
-			}
-		}
-	}
-
 	public void testGetACLDomain() throws DfException, RepositoryException,
 			IOException {
 		String ACLDomain = ((DmSysObject) document).getACLDomain();
