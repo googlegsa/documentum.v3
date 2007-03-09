@@ -51,6 +51,17 @@ public class DmInitialize {
 	public static String DM_ID4 = "4c000001800001b8";
 
 	public static String DM_ID5 = "090000018000a5ee";
+	
+	public static boolean DM_ID2_IS_PUBLIC=false;
+	
+	public static String DM_DEFAULT_MIMETYPE = "application/octet-stream";
+	
+	public static int DM_DEFAULT_ATTRS=0;
+	
+	public static int DM_ID2_SIZE=16;
+	
+	public static String DM_FIRST_ATTR="google:ispublic";
+	
 
 	public DmInitialize(boolean DFC) {
 		if (!DFC) {
@@ -74,11 +85,17 @@ public class DmInitialize {
 			DM_CHECKPOINT_QUERY_STRING = " and @jcr:lastModified >= ''{0}''";
 			DM_QUERY_STRING_ENABLE = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
 			DM_FAlSE_PWD = "wdfshsgdh";
-			DM_ID1 = "doc1";
+			DM_ID1 = "users";
 			DM_ID2 = "doc2";
 			DM_ID3 = "doc3";
 			DM_ID4 = "doc10";
 			DM_ID5 = "doc26";
+			DM_ID2_IS_PUBLIC=false;
+			DM_ID2_SIZE=16;
+			DM_DEFAULT_ATTRS=2;
+			DM_FIRST_ATTR="google:ispublic";
+			DM_DEFAULT_MIMETYPE="application/octet-stream";
+			
 		}
 	}
 
