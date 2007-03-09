@@ -67,7 +67,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		query.setDQL(dqlQuery);
 
 		ICollection collec = query.execute(sessionManagerUser,
-				IQuery.DF_READ_QUERY);
+				IQuery.READ_QUERY);
 
 		SimpleResultSet simpleResultSet = new SimpleResultSet();
 
