@@ -6,9 +6,6 @@ public interface IClient {
 
 	public IQuery getQuery();
 
-	public ISession newSession(String string, ILoginInfo logInfo)
-			throws RepositoryException;
-
 	public ISessionManager newSessionManager();
 
 }
