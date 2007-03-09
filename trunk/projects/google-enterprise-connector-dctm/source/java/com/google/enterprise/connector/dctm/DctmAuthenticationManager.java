@@ -62,14 +62,6 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		loginInfo.setPassword(password);
 	}
 
-	public ILoginInfo getLoginInfo() {
-		return loginInfo;
-	}
-
-	public IClientX getClientX() {
-		return clientX;
-	}
-
 	public void setClientX(IClientX clientX) {
 		this.clientX = clientX;
 	}

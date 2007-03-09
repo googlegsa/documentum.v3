@@ -1,13 +1,11 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
-import com.documentum.fc.client.IDfType;
-
 public interface IType {
-	public static int DF_BOOLEAN = IDfType.DF_BOOLEAN;
-
-	public static int DF_STRING = IDfType.DF_STRING;
-
-	public static int DF_INT = IDfType.DF_INTEGER;
-
-	public static int DF_TIME = IDfType.DF_TIME;
+	public static int BOOLEAN = 0;
+	public static int INT = 1;
+	public static int STRING = 2;
+	public static int ID = 3;
+	public static int TIME = 4;
+	public static int DOUBLE = 5;
+	public static int UNDEFINED = 6;
 }

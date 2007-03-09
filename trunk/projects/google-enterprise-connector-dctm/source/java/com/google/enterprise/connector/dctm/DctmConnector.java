@@ -73,47 +73,27 @@ public class DctmConnector implements Connector {
 	}
 	
 	/**
-	 * Setters and getters for the data retrieved from Spring
+	 * Setters for the data retrieved from Spring
 	 * 
 	 */
 	public void setLogin(String login) {
 		this.login = login;
 	}
 	
-	public String getLogin() {
-		return login;
-	}
-	
 	public void setPassword(String password) {
 		this.password = password;
-	}
-	
-	public String getPassword() {
-		return password;
 	}
 	
 	public void setDocbase(String docbase) {
 		this.docbase = docbase;
 	}
 	
-	public String getDocbase() {
-		return docbase;
-	}
-	
 	public void setWebtopServerUrl(String wsu) {
 		this.webtopServerUrl = wsu;
 	}
 	
-	public String getWebtopServerUrl() {
-		return webtopServerUrl;
-	}
-	
 	public void setClientX(String clientX) {
 		this.clientX = clientX;
-	}
-	
-	public String getClientX() {
-		return clientX;
 	}
 	
 	public DctmConnector() {
@@ -144,16 +124,8 @@ public class DctmConnector implements Connector {
 		return (sess);
 	}
 	
-	public String getAuthenticationType() {
-		return authenticationType;
-	}
-	
 	public void setAuthenticationType(String authenticationType) {
 		this.authenticationType = authenticationType;
-	}
-	
-	public String getWhereClause() {
-		return whereClause;
 	}
 	
 	public void setWhereClause(String additionalWhereClause) {

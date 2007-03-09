@@ -14,8 +14,6 @@
 	<property name="jarfile.dir" value="../third_party/lib"/>
 
 	<property name="tests.src" value="source/javatests" />
-	<property name="perfstests.src" value="source/perftests" />
-	<property name="accepttests.src" value="source/acceptTest" />
 	<property name="tests.build" value="build/tests" />
 	<property name="tests.classes" value="${tests.build}/classes" />	
 
@@ -23,18 +21,18 @@
 	<property name="jarfile"  value="${jar.dir}/connector-dctm.jar" />
 	<property name="jarfile.test"  value="${jar.dir}/connector_dctm_test.jar" />
 	
-	<property name="dfc.jarfile" location="${jarfile.dir}/dfc.jar" />
 	<property name="json.jarfile" location="${jarfile.dir}/json.jar" />
 	<property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
 	<property name="junit.jarfile" location="${jarfile.dir}/junit.jar" />
 	<property name="log4j.jarfile" location="${jarfile.dir}/log4j-1.2.8.jar" />
+	<property name="commons-http.jarfile" location="${jarfile.dir}/commons-httpclient-3.0.1.jar" />
 	
 	<property name="spi.jarfile" value="${jarfile.dir}/connector_spi.jar" />
 	<property name="connector.jarfile" value="${jarfile.dir}/connector.jar" />
 	<property name="tests.jarfile" value="${jarfile.dir}/connector_tests.jar" />
 
 	<!-- =========================== TASKS =============================== -->
-	<target name="connector-dctm" depends="init,compile,compile_tests,compile_accepttests,compile_perftests,jar">
+	<target name="connector-dctm" depends="init,compile,compile_tests,jar">
 	</target>
 
 	<target name="init">
@@ -51,10 +49,9 @@
 		<javac srcdir="${src}" destdir="${classes}" debug="${COMPILE_DEBUG_FLAG}">
 			<classpath>
 				<pathelement location="${spi.jarfile}" />
-				<pathelement location="${dfc.jarfile}" />
 				<pathelement location="${json.jarfile}" />
-				<pathelement location="${jcr.jarfile}" />
 				<pathelement location="${log4j.jarfile}" />
+				<pathelement location="${commons-http.jarfile}" />
 			</classpath>
 		</javac>
 	</target>
@@ -71,46 +68,10 @@
 				<pathelement location="${jcr.jarfile}" />
 				<pathelement location="${classes}" />
 				<pathelement location="${log4j.jarfile}" />
-				<pathelement location="${dfc.jarfile}" />
 				
 			</classpath>
 		</javac>
 	</target>
-	<target name="compile_perftests" depends="init">
-			<!-- compile java source files for tests -->
-			<javac srcdir="${perfstests.src}" destdir="${tests.classes}" debug="${COMPILE_DEBUG_FLAG} ">
-				<classpath>
-					<pathelement location="${connector.jarfile}" />
-					<pathelement location="${tests.jarfile}" />
-					<pathelement location="${spi.jarfile}" />
-					<pathelement location="${junit.jarfile}" />
-					<pathelement location="${json.jarfile}" />
-					<pathelement location="${jcr.jarfile}" />
-					<pathelement location="${classes}" />
-					<pathelement location="${log4j.jarfile}" />
-					<pathelement location="${dfc.jarfile}" />
-					
-				</classpath>
-			</javac>
-		</target>
-
-	<target name="compile_accepttests" depends="init">
-				<!-- compile java source files for tests -->
-				<javac srcdir="${accepttests.src}" destdir="${tests.classes}" debug="${COMPILE_DEBUG_FLAG} ">
-					<classpath>
-						<pathelement location="${connector.jarfile}" />
-						<pathelement location="${tests.jarfile}" />
-						<pathelement location="${spi.jarfile}" />
-						<pathelement location="${junit.jarfile}" />
-						<pathelement location="${json.jarfile}" />
-						<pathelement location="${jcr.jarfile}" />
-						<pathelement location="${classes}" />
-						<pathelement location="${log4j.jarfile}" />
-						<pathelement location="${dfc.jarfile}" />
-						
-					</classpath>
-				</javac>
-			</target>
 
 	<target name="jar" description="connector-dctm">
 		<jar jarfile="${jarfile}">
