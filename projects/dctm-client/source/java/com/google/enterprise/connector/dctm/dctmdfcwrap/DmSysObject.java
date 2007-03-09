@@ -60,21 +60,6 @@ public class DmSysObject implements ISysObject {
 		return content;
 	}
 
-	public Enumeration enumAttrs() throws RepositoryException {
-		Enumeration attrs = null;
-
-		try {
-			attrs = idfSysObject.enumAttrs();
-		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
-		}
-		if (attrs != null) {
-			return attrs;
-		}
-		return null;
-	}
-
 	public String getACLDomain() throws RepositoryException {
 		try {
 			return idfSysObject.getACLDomain();
