@@ -206,7 +206,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		}
 
 		ICollection collec = query
-				.execute(sessionManager, IQuery.READ_QUERY);
+				.execute(sessionManager, IQuery.DF_READ_QUERY);
 		ResultSet rs = new DctmResultSet(collec, sessionManager, clientX);
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
@@ -217,6 +217,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	public Value fetchAndVerifyValueForCheckpoint(PropertyMap pm, String pName)
 			throws RepositoryException {
+		System.out.println("pName vaut "+pName);
 		Property property = pm.getProperty(pName);
 		if (property == null) {
 			throw new IllegalArgumentException("checkpoint must have a "

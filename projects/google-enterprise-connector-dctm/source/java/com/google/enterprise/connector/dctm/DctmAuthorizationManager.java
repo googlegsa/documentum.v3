@@ -67,7 +67,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		query.setDQL(dqlQuery);
 
 		ICollection collec = query.execute(sessionManagerUser,
-				IQuery.READ_QUERY);
+				IQuery.DF_READ_QUERY);
 
 		SimpleResultSet simpleResultSet = new SimpleResultSet();
 
@@ -102,7 +102,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 								ValueType.BOOLEAN, "false")));
 			}
 			simpleResultSet.add(simplePropertyMap);
-
 		}
 
 		return simpleResultSet;
