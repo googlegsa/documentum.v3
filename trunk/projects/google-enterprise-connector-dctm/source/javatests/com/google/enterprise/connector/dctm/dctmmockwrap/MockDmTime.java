@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import com.documentum.fc.common.IDfTime;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 
 public class MockDmTime implements ITime {

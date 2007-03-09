@@ -1,6 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import com.google.enterprise.connector.dctm.DmInitialize;
+import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
@@ -38,7 +38,6 @@ public class MockDmFormatTest extends TestCase {
 		ili.setPassword("mark");
 		sessionManager.setIdentity("SwordEventLog.txt", ili);
 		sess7 = sessionManager.getSession("SwordEventLog.txt");
-		DmInitialize dmInit=new DmInitialize(false);
 		query=localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 		
