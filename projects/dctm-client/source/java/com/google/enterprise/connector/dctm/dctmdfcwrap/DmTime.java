@@ -17,12 +17,6 @@ public class DmTime implements ITime {
 		this.idfTime = idfTime;
 	}
 
-	public String asString(String pattern) {
-		String time = null;
-		time = idfTime.asString(pattern);
-		return time;
-	}
-
 	public Date getDate() {
 		Date date = null;
 		date = idfTime.getDate();
