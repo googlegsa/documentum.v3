@@ -20,8 +20,6 @@ import junit.framework.TestCase;
 
 public class DmFormatATest extends TestCase {
 
-	DmInitialize initializer = new DmInitialize(true);
-
 	IClientX dctmClientX;
 
 	IClient localClient;
