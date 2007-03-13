@@ -23,7 +23,7 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		} else {
 			user = "mark";
 			password = "mark";
-			clientX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX";
+			clientX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
 			docbase = "MockRepositoryEventLog7.txt";
 		}
 
