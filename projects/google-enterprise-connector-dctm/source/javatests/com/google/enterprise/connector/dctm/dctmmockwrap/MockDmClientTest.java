@@ -14,10 +14,7 @@ import junit.framework.TestCase;
 
 public class MockDmClientTest extends TestCase {
 
-	/**
-	 * Useless test
-	 * 
-	 */
+	
 	public void testGetLoginInfo() {
 		IClientX dctmClientX = new MockDmClient();
 
@@ -136,12 +133,12 @@ public class MockDmClientTest extends TestCase {
 		}
 	}
 	
-	
 	public void testAuthenticate() {
 		try {
 			IClientX dctmClientX = new MockDmClient();
 			IClient localClient = dctmClientX.getLocalClient();
 			ISessionManager sessionManager = localClient.newSessionManager();
+			
 			ILoginInfo ili = new MockDmLoginInfo();
 			ili.setUser("mark");
 			ili.setPassword("mark");
@@ -149,10 +146,21 @@ public class MockDmClientTest extends TestCase {
 			boolean rep=sessionManager.authenticate("MockRepositoryEventLog7.txt");
 			System.out.println("rep vaut "+rep);
 			assertTrue(rep);
+			
+			sessionManager.clearIdentity("MockRepositoryEventLog7.txt");
+			ILoginInfo ili2 = new MockDmLoginInfo();
+			ili2.setUser("mark");
+			ili2.setPassword("hghfhgfhgf");
+			sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili2);
+			boolean rep2=sessionManager.authenticate("MockRepositoryEventLog7.txt");
+			System.out.println("rep2 vaut "+rep2);
+			assertFalse(rep2);
+			
 		} catch (RepositoryException e) {
 			
 		}
 	}
+	
 	
 	public void testGetQuery() {
 		IClientX dctmClientX = new MockDmClient();
@@ -236,7 +244,5 @@ public class MockDmClientTest extends TestCase {
 			e.printStackTrace();
 		}
 	}
-	
-	
 	
 }

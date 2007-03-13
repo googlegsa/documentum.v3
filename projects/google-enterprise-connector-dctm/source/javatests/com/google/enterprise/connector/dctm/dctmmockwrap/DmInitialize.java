@@ -27,11 +27,11 @@ public class DmInitialize {
 
 	public static String DM_DOCBASE = "SwordEventLog.txt";
 
-	public static int DM_RETURN_TOP_UNBOUNDED = 50;
+	public static int DM_RETURN_TOP_UNBOUNDED = 27;
 
 	public static int DM_RETURN_TOP_BOUNDED = 100;
 
-	public static String DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.DmClientX";
+	public static String DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
 
 	public static String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
 
@@ -59,7 +59,12 @@ public class DmInitialize {
 	
 	public static int DM_ID2_SIZE=16;
 	
+	public static int DM_ID2_TIMESTAMP=20;
+	
+	public static String DM_ID2_TIMESTRING="1970-01-01T01:00:00Z";
+	
 	public static String DM_FIRST_ATTR="google:ispublic";
 	
+	public static int DM_ID1_TYPE=1;
 	}
 

@@ -50,8 +50,6 @@ public class MockDmQuery implements IQuery {
 				System.out.println("lang vaut "+lang);
 				QueryResult qr = q.execute();
 				
-				
-				
 				/*
 				for(NodeIterator nodeIt=qr.getNodes();nodeIt.hasNext();){
 					Node myNode=nodeIt.nextNode();
@@ -83,6 +81,7 @@ public class MockDmQuery implements IQuery {
 	}
 
 	public void setDQL(String dqlStatement) {
+		
 		String goodQuery = "";
 		if (dqlStatement.indexOf("select r_object_id from ") == -1) {
 			if (dqlStatement.indexOf(" and r_modify_date >= ") != -1) {
@@ -94,7 +93,12 @@ public class MockDmQuery implements IQuery {
 		} else {
 			this.query = dqlStatement;// Authorize query. Will be parsed later
 		}
-//		*[@jcr:primaryType = nt:resource and @jcr:lastModified >= 'Tue, 15 Nov 1994 12:45:26 GMT'] order by @jcr:lastModified
+		
+		///this.query ="*[@jcr:primaryType='nt:resource' and @jcr:uuid in ('doc3', 'users', 'doc26', 'doc2', 'doc10')] order by @jcr:lastModified, @jcr:uuid";
+		///System.out.println("query vaut "+this.query);
+		///select r_object_id from dm_sysobject where r_object_id in ('doc3', 'users', 'doc26', 'doc2', 'doc10')
+		
+		//*[@jcr:primaryType = nt:resource and @jcr:lastModified >= 'Tue, 15 Nov 1994 12:45:26 GMT'] order by @jcr:lastModified
 	}
 
 	private String makeBoundedQuery(String dqlStatement) {
@@ -115,7 +119,6 @@ public class MockDmQuery implements IQuery {
 			formattedDate=dateTime.getFormattedDate();
 			System.out.println("formattedDate vaut "+formattedDate);
 		} catch (ParseException e){
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//Tue, 15 Nov 1994 12:45:26 GMT

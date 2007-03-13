@@ -47,11 +47,13 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 * through a newSession(docbase) call.
 	 */
 	public void setIdentity(String docbase, ILoginInfo identity) {
-		if (!sessMgerCreds.containsKey(docbase))
-			sessMgerCreds.put(docbase, identity);
-		else {
-			sessMgerCreds.remove(docbase);
-			sessMgerCreds.put(docbase, identity);
+		if(identity.getUser()!=null && identity.getPassword()!=null){
+			if (!sessMgerCreds.containsKey(docbase))
+				sessMgerCreds.put(docbase, identity);
+			else {
+				sessMgerCreds.remove(docbase);
+				sessMgerCreds.put(docbase, identity);
+			}
 		}
 	}
 
@@ -208,14 +210,21 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 		}
 
 		MockJcrSession sess = null;
+		System.out.println("iLI.getUser() vaut "+iLI.getUser());
+		System.out.println("iLI.getPassword() vaut "+iLI.getPassword());
 		try {
 			sess = (MockJcrSession) repo.login(creds);
+			System.out.println("sess vaut "+sess);
 		} catch (javax.jcr.LoginException e) {
 			throw new LoginException(e);
 		} catch (javax.jcr.RepositoryException e) {
 			throw new com.google.enterprise.connector.spi.RepositoryException(e);
 		}
-		return new MockDmSession(repo, sess, db);
+		if (sess != null){
+			return new MockDmSession(repo, sess, db);
+		}else{
+			return null;
+		}
 
 	}
 

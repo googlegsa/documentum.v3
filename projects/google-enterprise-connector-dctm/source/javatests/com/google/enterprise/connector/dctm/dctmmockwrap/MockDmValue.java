@@ -28,11 +28,6 @@ public class MockDmValue implements IValue {
 		return ret;
 	}
 
-	public ITime asTime() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public int getDataType(){
 		// TODO Auto-generated method stub
 		return value.getType();
