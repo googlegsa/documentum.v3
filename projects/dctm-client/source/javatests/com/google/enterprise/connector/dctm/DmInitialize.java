@@ -61,42 +61,5 @@ public class DmInitialize {
 	public static int DM_ID2_SIZE=16;
 	
 	public static String DM_FIRST_ATTR="google:ispublic";
-	
-
-	public DmInitialize(boolean DFC) {
-		if (!DFC) {
-			DM_LOGIN_OK1 = "joe";
-			DM_LOGIN_OK2 = "mary";
-			DM_LOGIN_OK3 = "user1";
-			DM_LOGIN_OK4 = "mark";
-			DM_LOGIN_OK5 = "bill";
-			DM_LOGIN_KO = "machinchouette";
-			DM_PWD_OK1 = "joe";
-			DM_PWD_OK2 = "mary";
-			DM_PWD_OK3 = "user1";
-			DM_PWD_OK4 = "mark";
-			DM_PWD_OK5 = "bill";
-			DM_PWD_KO = "wdfshsgdh";
-			DM_DOCBASE = "SwordEventLog.txt";
-			DM_RETURN_TOP_UNBOUNDED = 50;
-			DM_RETURN_TOP_BOUNDED = 100;
-			DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.DmClientX";
-			DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
-			DM_CHECKPOINT_QUERY_STRING = " and @jcr:lastModified >= ''{0}''";
-			DM_QUERY_STRING_ENABLE = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
-			DM_FAlSE_PWD = "wdfshsgdh";
-			DM_ID1 = "users";
-			DM_ID2 = "doc2";
-			DM_ID3 = "doc3";
-			DM_ID4 = "doc10";
-			DM_ID5 = "doc26";
-			DM_ID2_IS_PUBLIC=false;
-			DM_ID2_SIZE=16;
-			DM_DEFAULT_ATTRS=2;
-			DM_FIRST_ATTR="google:ispublic";
-			DM_DEFAULT_MIMETYPE="application/octet-stream";
-			
-		}
-	}
 
 }
