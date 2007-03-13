@@ -19,11 +19,6 @@ public class DmValue implements IValue {
 		return (rep);
 	}
 
-	public ITime asTime() {
-		IDfTime idfTime = null;
-		idfTime = idfValue.asTime();
-		return new DmTime(idfTime);
-	}
 
 	public int getDataType() {
 		int rep = 0;
