@@ -15,10 +15,6 @@ public class MockDmTime implements ITime {
 		this.time = time;
 	}
 	
-	public String asString(String pattern) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public Date getDate() {
 		return time;

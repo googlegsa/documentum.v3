@@ -35,7 +35,8 @@ public class MockDmSession implements ISession {
 	public String getLoginTicketForUser(String username) {
 		// this assumes that Mock authenticated the session by
 		// checking username==paswword
-		return mockJcrSession.getUserID();// The only security here is
+		///return mockJcrSession.getUserID();// The only security here is
+		return username;
 		// inherent to the fact that if
 		// authentication failed,
 		// Session==null the returning

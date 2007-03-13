@@ -37,16 +37,14 @@ public class MockDmCollectionTest extends TestCase {
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
 		ILoginInfo ili = new MockDmLoginInfo();
-		ili.setUser("mark");
-		ili.setPassword("mark");
+		ili.setUser(DmInitialize.DM_LOGIN_OK4);
+		ili.setPassword(DmInitialize.DM_PWD_OK4);
 		sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
 		sess7 = sessionManager.getSession("MockRepositoryEventLog7.txt");
 	}
 	
 	public void testNextAndGetString() {
 		try {
-			
-
 			MockRepositoryDocumentStore mrDS = ((MockDmSession) sess7)
 					.getStore();
 			MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(mrDS);
