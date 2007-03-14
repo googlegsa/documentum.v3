@@ -67,7 +67,14 @@ public class MockDmQuery implements IQuery {
 			String[] ids = this.query.split("', '");
 			ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
 					.length());
+			ids[ids.length-1]=ids[ids.length-1].substring(0,ids[ids.length-1].length()-2);
 			List filteredResults = new MockMockList(ids, sessionManager);
+			
+			System.out.println("autorize query");
+			for(int j=0;j<ids.length;j++){
+				System.out.println("mockdmquery j vaut "+ids[j]);
+			}
+			
 			if (filteredResults != null) {
 				QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
 				MockDmCollection finalCollection = new MockDmCollection(
