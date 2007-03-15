@@ -25,10 +25,8 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-
 		qtm = null;
 		Connector connector = new DctmConnector();
-
 		((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
 		((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
@@ -37,11 +35,9 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 				.setWebtopServerUrl(DmInitialize.DM_WEBTOP_SERVER_URL);
 		Session sess = (DctmSession) connector.login();
 		qtm = (DctmQueryTraversalManager) sess.getQueryTraversalManager();
-
 	}
 
 	public void testStartTraversal() throws RepositoryException {
-
 		ResultSet resultset = null;
 		int counter = 0;
 
@@ -53,7 +49,6 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 			counter++;
 		}
 		assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
-
 	}
 
 	public void testMakeCheckpointQueryString() {

@@ -57,7 +57,7 @@ public class DctmSysobjectPropertyMapTest extends TestCase {
 			iterator.next();
 			counter++;
 		}
-		assertEquals(8, counter);
+		assertEquals(9, counter);
 	}
 
 	public void testGetProperty() throws RepositoryException {
