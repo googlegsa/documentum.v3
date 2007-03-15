@@ -87,36 +87,22 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			DctmAuthorizationManager authorizationManager, Map expectedResults,
 			String username) throws RepositoryException {
 		
-		System.out.println("testAuthorization");
 		List docids = new LinkedList(expectedResults.keySet());
-		
-		for(int j=0;j<docids.size();j++){
-			String id=(String)docids.get(j);
-			System.out.println("j vaut "+id);
-		}
 		
 		assertNotNull(docids);
 		ResultSet resultSet = authorizationManager.authorizeDocids(docids,
 				username);
 		assertNotNull(resultSet);
 		for (Iterator i = resultSet.iterator(); i.hasNext();) {
-			System.out.println("dans boucle");
 			PropertyMap pm = (PropertyMap) i.next();
 			assertNotNull(pm);
-			System.out.println("pm vaut "+pm);
 			String uuid = pm.getProperty(SpiConstants.PROPNAME_DOCID)
 					.getValue().getString();
 			assertNotNull(uuid);
-			System.out.println("uuid vaut "+uuid);
-			///String test = pm.getProperty(SpiConstants.PROPNAME_ISPUBLIC).getValue().getString();
-			///assertNotNull(test);
-			///System.out.println("test vaut "+test);
 			boolean ok = pm.getProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT)
 					.getValue().getBoolean();
 			String test = pm.getProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT)
 			.getValue().getString();
-			System.out.println("ok vaut "+ok);
-			System.out.println("test vaut "+test);
 			Boolean expected = (Boolean) expectedResults.get(uuid);
 			Assert.assertEquals(username + " access to " + uuid, expected
 					.booleanValue(), ok);

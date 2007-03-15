@@ -36,8 +36,8 @@ public class MockDmFormatTest extends TestCase {
 		ILoginInfo ili = new MockDmLoginInfo();
 		ili.setUser("mark");
 		ili.setPassword("mark");
-		sessionManager.setIdentity("SwordEventLog.txt", ili);
-		sess7 = sessionManager.getSession("SwordEventLog.txt");
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
+		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 		query=localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 		

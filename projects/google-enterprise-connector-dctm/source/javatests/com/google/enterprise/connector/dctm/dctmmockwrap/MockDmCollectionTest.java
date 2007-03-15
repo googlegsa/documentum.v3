@@ -39,8 +39,8 @@ public class MockDmCollectionTest extends TestCase {
 		ILoginInfo ili = new MockDmLoginInfo();
 		ili.setUser(DmInitialize.DM_LOGIN_OK4);
 		ili.setPassword(DmInitialize.DM_PWD_OK4);
-		sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
-		sess7 = sessionManager.getSession("MockRepositoryEventLog7.txt");
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
+		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 	}
 	
 	public void testNextAndGetString() {
@@ -73,17 +73,6 @@ public class MockDmCollectionTest extends TestCase {
 			 * --> 1970-01-01T00:00:10.000Z jcr:uuid : --> doc1 acl : --> joe
 			 * --> mary google:ispublic : --> true
 			 */
-			
-			/*
-			assertEquals(co.getString("jcr:uuid"), "doc1");
-			try {
-				assertEquals(co.getAuthorizedUsers()[0].getString(), "joe");
-			} catch (Exception e) {
-				assertTrue(false);
-			}
-			*/
-
-
 		} catch (RepositoryException e) {
 			assertTrue(false);
 		}
@@ -92,7 +81,6 @@ public class MockDmCollectionTest extends TestCase {
 	public void testGetValue() throws RepositoryException {
 		IQuery query=null;
 		query=localClient.getQuery();
-		///System.out.println("DM_QUERY_STRING_ENABLE vaut "+DmInitialize.DM_QUERY_STRING_ENABLE);
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 		ICollection collec=query.execute(sessionManager,IQuery.READ_QUERY);
 		if(collec.next()){

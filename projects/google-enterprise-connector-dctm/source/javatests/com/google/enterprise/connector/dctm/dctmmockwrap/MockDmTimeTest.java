@@ -38,10 +38,10 @@ public class MockDmTimeTest extends TestCase {
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
 		ILoginInfo ili = new MockDmLoginInfo();
-		ili.setUser("mark");
-		ili.setPassword("mark");
-		sessionManager.setIdentity("SwordEventLog.txt", ili);
-		sess7 = sessionManager.getSession("SwordEventLog.txt");
+		ili.setUser(DmInitialize.DM_LOGIN_OK4);
+		ili.setPassword(DmInitialize.DM_PWD_OK4);
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
+		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 		query=localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 		id = dctmClientX.getId(DmInitialize.DM_ID2);

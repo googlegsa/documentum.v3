@@ -110,15 +110,12 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 		try {
 			tmp = createAuthenticatedSession(docbaseName,
 					(ILoginInfo) sessMgerCreds.get(docbaseName));
-			System.out.println("tmp vaut "+tmp);
 		} catch (RepositoryException e) {
-			System.out.println(e.getMessage());
 			return false;
 		}
 		if (tmp == null) {
 			return false;
 		} else {
-			System.out.println("tmp renvoie "+true);
 			return true;
 		}
 	}
@@ -210,11 +207,8 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 		}
 
 		MockJcrSession sess = null;
-		System.out.println("iLI.getUser() vaut "+iLI.getUser());
-		System.out.println("iLI.getPassword() vaut "+iLI.getPassword());
 		try {
 			sess = (MockJcrSession) repo.login(creds);
-			System.out.println("sess vaut "+sess);
 		} catch (javax.jcr.LoginException e) {
 			throw new LoginException(e);
 		} catch (javax.jcr.RepositoryException e) {

@@ -85,26 +85,6 @@ public class MockDmCollection implements ICollection {
 			throw new RepositoryException(e);
 		}
 		return new MockDmValue(val);
-		
-		/*
-		throw new RepositoryException(
-				"ICollection.getValue() is not implemented for " + attrName);
-		*/
-		/*
-		try {
-			for(PropertyIterator propIt = currentNode.getProperties();propIt.hasNext();){
-				Property nextProp=(Property)propIt.next();
-				String name=nextProp.getName();
-				System.out.println("name vaut "+name);
-			}
-		} catch (javax.jcr.RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	*/
-		
-		
-		
 	}
 
 }

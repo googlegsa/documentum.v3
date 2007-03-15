@@ -29,14 +29,16 @@ public class DmInitialize {
 
 	public static int DM_RETURN_TOP_UNBOUNDED = 27;
 
-	public static int DM_RETURN_TOP_BOUNDED = 100;
+	public static int DM_RETURN_TOP_BOUNDED = 27;
 
 	public static String DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
 
 	public static String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
 
-	public static String DM_CHECKPOINT_QUERY_STRING = " and @jcr:lastModified >= ''{0}''";
+	///public static String DM_CHECKPOINT_QUERY_STRING = " and @jcr:lastModified >= ''{0}''";
 
+	public static String DM_CHECKPOINT_QUERY_STRING = " and r_modify_date >= '1970-01-01 01:00:00.020' and i_chronicle_id > 'doc2'";
+	
 	public static String DM_QUERY_STRING_ENABLE = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
 
 	public static String DM_FAlSE_PWD = "wdfshsgdh";
