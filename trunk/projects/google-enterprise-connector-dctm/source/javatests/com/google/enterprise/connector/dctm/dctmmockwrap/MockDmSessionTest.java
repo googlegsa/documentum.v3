@@ -51,7 +51,6 @@ public class MockDmSessionTest extends TestCase {
 		try {
 			userID=sess7.getLoginTicketForUser(DmInitialize.DM_LOGIN_OK1);
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertEquals(userID,DmInitialize.DM_LOGIN_OK1);

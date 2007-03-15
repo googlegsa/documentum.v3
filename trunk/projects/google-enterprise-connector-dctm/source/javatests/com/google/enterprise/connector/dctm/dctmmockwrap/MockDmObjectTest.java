@@ -42,8 +42,8 @@ public class MockDmObjectTest extends TestCase {
 		ILoginInfo ili = new MockDmLoginInfo();
 		ili.setUser("mark");
 		ili.setPassword("mark");
-		sessionManager.setIdentity("SwordEventLog.txt", ili);
-		sess7 = sessionManager.getSession("SwordEventLog.txt");
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
+		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 		query=localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 		
@@ -93,7 +93,6 @@ public class MockDmObjectTest extends TestCase {
 	public void testGetAttrCount() {
 		try {
 			int count=object.getAttrCount();
-			System.out.println("count vaut "+count);
 			assertEquals(count,DmInitialize.DM_DEFAULT_ATTRS);
 		} catch (RepositoryException e) {
 			e.printStackTrace();
@@ -103,7 +102,6 @@ public class MockDmObjectTest extends TestCase {
 	public void testGetId() {
 		try {
 			IId ID=object.getId(DmInitialize.DM_ID2);
-			System.out.println("ID vaut "+ID.toString());
 			assertEquals(ID.toString(),DmInitialize.DM_ID2);
 		} catch (RepositoryException e) {
 			e.printStackTrace();
@@ -113,7 +111,6 @@ public class MockDmObjectTest extends TestCase {
 	public void testGetContentSize() {
 		try {
 			long size=object.getContentSize();
-			System.out.println("size vaut "+size);
 			assertEquals(size,DmInitialize.DM_ID2_SIZE);
 		} catch (RepositoryException e) {
 			e.printStackTrace();
@@ -123,8 +120,6 @@ public class MockDmObjectTest extends TestCase {
 	public void testGetTime() {
 		try {
 			ITime time=object.getTime("timestamp");
-			//System.out.println("testGetTime vaut "+((MockDmTime)time).getDate());
-			//System.out.println("time vaut "+((MockDmTime)time).getFormattedDate());
 			assertNotNull(time);
 		} catch (RepositoryException e) {
 			e.printStackTrace();
@@ -143,7 +138,6 @@ public class MockDmObjectTest extends TestCase {
 	public void testGetAttr(){
 		try {
 			IAttr attr=object.getAttr(1);
-			System.out.println("MockDmAttr vaut "+attr.getName());
 			assertEquals(attr.getName(),DmInitialize.DM_FIRST_ATTR);
 		} catch (RepositoryException e) {
 			e.printStackTrace();

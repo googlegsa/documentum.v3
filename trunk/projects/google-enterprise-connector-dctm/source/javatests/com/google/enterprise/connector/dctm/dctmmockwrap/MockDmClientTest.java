@@ -153,7 +153,6 @@ public class MockDmClientTest extends TestCase {
 			ili2.setPassword("hghfhgfhgf");
 			sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili2);
 			boolean rep2=sessionManager.authenticate("MockRepositoryEventLog7.txt");
-			System.out.println("rep2 vaut "+rep2);
 			assertFalse(rep2);
 			
 		} catch (RepositoryException e) {

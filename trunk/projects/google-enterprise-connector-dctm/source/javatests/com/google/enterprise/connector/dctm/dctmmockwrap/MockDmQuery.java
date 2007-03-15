@@ -25,8 +25,7 @@ public class MockDmQuery implements IQuery {
 	private static final String XPATH_QUERY_STRING_UNBOUNDED_DEFAULT = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
 
 	private static final String XPATH_QUERY_STRING_BOUNDED_DEFAULT = "//*[@jcr:primaryType = 'nt:resource' and @jcr:lastModified >= ''{0}''] order by @jcr:lastModified, @jcr:uuid";
-	///private static final String XPATH_QUERY_STRING_BOUNDED_DEFAULT = "//*[@jcr:primaryType = 'nt:resource' and @jcr:lastModified >= ''{0}''] order by @jcr:lastModified";
-	
+
 	public MockDmQuery() {
 		query = "";
 	}
@@ -50,14 +49,6 @@ public class MockDmQuery implements IQuery {
 				System.out.println("lang vaut "+lang);
 				QueryResult qr = q.execute();
 				
-				/*
-				for(NodeIterator nodeIt=qr.getNodes();nodeIt.hasNext();){
-					Node myNode=nodeIt.nextNode();
-					String lenom=myNode.getName();
-					System.out.println("lenom vaut "+lenom);
-				}
-				*/
-				
 				MockDmCollection co = new MockDmCollection(qr);
 				return co;
 			} catch (javax.jcr.RepositoryException e) {
@@ -69,11 +60,6 @@ public class MockDmQuery implements IQuery {
 					.length());
 			ids[ids.length-1]=ids[ids.length-1].substring(0,ids[ids.length-1].length()-2);
 			List filteredResults = new MockMockList(ids, sessionManager);
-			
-			System.out.println("autorize query");
-			for(int j=0;j<ids.length;j++){
-				System.out.println("mockdmquery j vaut "+ids[j]);
-			}
 			
 			if (filteredResults != null) {
 				QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
@@ -100,12 +86,6 @@ public class MockDmQuery implements IQuery {
 		} else {
 			this.query = dqlStatement;// Authorize query. Will be parsed later
 		}
-		
-		///this.query ="*[@jcr:primaryType='nt:resource' and @jcr:uuid in ('doc3', 'users', 'doc26', 'doc2', 'doc10')] order by @jcr:lastModified, @jcr:uuid";
-		///System.out.println("query vaut "+this.query);
-		///select r_object_id from dm_sysobject where r_object_id in ('doc3', 'users', 'doc26', 'doc2', 'doc10')
-		
-		//*[@jcr:primaryType = nt:resource and @jcr:lastModified >= 'Tue, 15 Nov 1994 12:45:26 GMT'] order by @jcr:lastModified
 	}
 
 	private String makeBoundedQuery(String dqlStatement) {
@@ -128,10 +108,6 @@ public class MockDmQuery implements IQuery {
 		} catch (ParseException e){
 			e.printStackTrace();
 		}
-		//Tue, 15 Nov 1994 12:45:26 GMT
-		//Thu, 1 Jan 1970 01:00:00 GMT
-		//"yyyy-MM-dd'T'HH:mm:ss'Z'"
-		//formattedDate="1994-12-03T12:45:26Z";
 		
 		String id = dqlStatement.substring(bound3, dqlStatement
 				.lastIndexOf("'"));

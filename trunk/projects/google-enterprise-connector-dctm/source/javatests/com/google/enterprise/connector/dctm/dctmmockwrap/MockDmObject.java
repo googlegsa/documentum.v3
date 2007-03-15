@@ -41,7 +41,6 @@ public class MockDmObject implements ISysObject {
 	}
 	
 	public long getContentSize() throws RepositoryException {
-		//TODO Auto-generated method stub
 		ByteArrayInputStream contentStream=null;
 		int avail=0;
 		try {
@@ -61,46 +60,14 @@ public class MockDmObject implements ISysObject {
 			e.printStackTrace();
 		}
 		return contentStream;
-		/*
-		MockRepositoryPropertyList pml=mockDocument.getProplist();
-		String nom=null;
-		String valeur=null;
-		
-		for(Iterator myIt=pml.iterator();myIt.hasNext();){
-			MockRepositoryProperty myPm=(MockRepositoryProperty)myIt.next();
-			nom=myPm.getName();
-			System.out.println("le nom vaut "+nom);
-			valeur=myPm.getValue();
-			System.out.println("la valeur vaut "+valeur);
-		}
-		
-		///MockRepositoryProperty pm=mockDocument.getProplist().getProperty("jcr:content");
-		///MockRepositoryProperty pm=mockDocument.getProplist().getProperty("google:ispublic");
-		String name= pm.getName();
-		System.out.println("name vaut "+name);
-		MockJcrValue propVal=new MockJcrValue(pm);
-		ByteArrayInputStream propISVal=null;
-		try {
-			propISVal=(ByteArrayInputStream)propVal.getStream();
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-		} catch (javax.jcr.RepositoryException e) {
-			e.printStackTrace();
-		}
-		return propISVal;
-		*/
-		
-		
 	}
 
 	public String getACLDomain() throws RepositoryException {
-		// TODO Auto-generated method stub
 		System.out.println("getACLDomain");
 		return "ACLDomain";
 	}
 
 	public String getACLName() throws RepositoryException {
-		// TODO Auto-generated method stub
 		System.out.println("getACLName");
 		return "ACLName";
 	}
@@ -152,28 +119,6 @@ public class MockDmObject implements ISysObject {
 		}
 	
 		return propStrVal;
-	/*
-	else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
-		return new DctmSysobjectProperty(name, new DctmSysobjectValue(
-				ValueType.STRING, sessionManager.getServerUrl() + docid));
-		SpiConstants.PROPNAME_SECURITYTOKEN
-		return new DctmSysobjectProperty(name, new DctmSysobjectValue(
-				ValueType.STRING, object.getACLDomain() + " "
-		SpiConstants.PROPNAME_ISPUBLIC
-		SpiConstants.PROPNAME_LASTMODIFY
-		return new DctmSysobjectProperty(name, new DctmSysobjectValue(
-				object, "r_modify_date", ValueType.DATE));
-		SpiConstants.PROPNAME_MIMETYPE
-		dctmForm = object.getFormat();
-		mimetype = dctmForm.getMIMEType();
-		return new DctmSysobjectProperty(name, new DctmSysobjectValue(
-				ValueType.STRING, mimetype));
-		SpiConstants.PROPNAME_SEARCHURL
-		SpiConstants.PROPNAME_AUTH_VIEWPERMIT
-	*/	
-		
-		
-	
 	}
 
 	public int getInt(String name) throws RepositoryException {
@@ -193,8 +138,6 @@ public class MockDmObject implements ISysObject {
 	}
 
 	public ITime getTime(String name) throws RepositoryException {
-		// TODO Auto-generated method stub
-		//return null;
 		Date propDateVal=null;
 		if (name.equals("r_modify_date")){
 			System.out.println("name origine vaut "+name);
@@ -204,26 +147,18 @@ public class MockDmObject implements ISysObject {
 		MockRepositoryProperty pm=mockDocument.getProplist().getProperty(name);
 		long time=0;
 		if (pm==null){
-			System.out.println("pm vaut null");
 			MockRepositoryDateTime dateTime=mockDocument.getTimeStamp();
-			System.out.println("datetime vaut "+dateTime);
 			time=dateTime.getTicks();
-			System.out.println("time vaut "+time);
 			propDateVal=new Date(time);
-			System.out.println("propDateVal vaut "+propDateVal.getTime());
 		}else{
 			String propVal=pm.getValue();
-			System.out.println("propVal vaut "+propVal);
 			SimpleDateFormat simple=new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z",new Locale("EN"));
 			ParsePosition myPos=new ParsePosition(0);
-			///Date propDateVal=simple.parse("Tue, 15 Nov 1994 12:45:26 GMT",myPos);
 			propDateVal=simple.parse(propVal,myPos);
 			time=propDateVal.getTime();
-			System.out.println("time vaut "+time);
 		}	
 	
 		return new MockDmTime(propDateVal);
-		///return new MockDmTime(time);
 	}
 
 	public double getDouble(String name) throws RepositoryException {
@@ -284,7 +219,6 @@ public class MockDmObject implements ISysObject {
 		for (Iterator mockIt=Mockpm.iterator(); mockIt.hasNext();) {
 			pm=(MockRepositoryProperty)mockIt.next();
 			String name=pm.getName();
-			System.out.println("name vaut "+name);
 			counter++;
 		}
 		return counter;

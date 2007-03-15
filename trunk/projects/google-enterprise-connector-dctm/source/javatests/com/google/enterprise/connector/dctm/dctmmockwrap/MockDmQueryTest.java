@@ -60,7 +60,6 @@ public class MockDmQueryTest extends TestCase {
 		try {
 			collec=query.execute(sessionManager,IQuery.READ_QUERY);
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertNotNull(collec);

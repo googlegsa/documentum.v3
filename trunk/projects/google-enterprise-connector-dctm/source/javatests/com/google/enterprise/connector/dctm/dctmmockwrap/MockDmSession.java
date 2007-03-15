@@ -50,26 +50,7 @@ public class MockDmSession implements ISession {
 	}
 
 	public ISysObject getObject(IId objectId) throws RepositoryException {
-		System.out.println("id vaut "+objectId.toString());
 		MockRepositoryDocument myDoc=mockRep.getRepo().getStore().getDocByID(objectId.toString());
-		///MockRepositoryDocument myDoc=mockRep.getRepo().getStore().getDocByID("doc2");
-		
-		///test parcours de la liste
-		/*
-		MockRepositoryPropertyList pml=myDoc.getProplist();
-		System.out.println("In MockDmSession getObject");
-		String nom=null;
-		String valeur=null;
-		for(Iterator myIt=pml.iterator();myIt.hasNext();){
-			MockRepositoryProperty myPm=(MockRepositoryProperty)myIt.next();
-			nom=myPm.getName();
-			System.out.println("le nom vaut "+nom);
-			valeur=myPm.getValue();
-			System.out.println("la valeur vaut "+valeur);
-		}
-		*/
-		///
-		
 		MockDmObject dctmMockRepositoryDocument = new MockDmObject(myDoc); 
 		return dctmMockRepositoryDocument;
 	}	
