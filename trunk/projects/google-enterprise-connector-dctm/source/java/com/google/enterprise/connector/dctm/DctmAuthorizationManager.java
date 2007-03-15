@@ -52,9 +52,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		ILoginInfo logInfo = clientX.getLoginInfo();
 		logInfo.setUser(username);
 		logInfo.setPassword(ticket);
-		System.out.println("ticket vaut "+ticket);
-		System.out.println("username vaut "+username);
-		System.out.println("docbase vaut "+sessionManager.getDocbaseName());
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
 			logger.log(Level.INFO, "authorisation for " + username);
 		}
@@ -63,7 +60,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
 		dqlQuery = buildQuery(docidList);
-		System.out.println("dqlQuery vaut "+dqlQuery);
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
 			logger.log(Level.INFO, "dql " + dqlQuery);
 		}
@@ -81,9 +77,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		while (collec.next()) {
 			object_id += collec.getString("r_object_id") + " ";
 		}
-		System.out.println("object_id vaut "+object_id);
 		while (iterDocIdList.hasNext()) {
 			id = (String) iterDocIdList.next();
+			System.out.println("id vaut "+id);
 			simplePropertyMap = new SimplePropertyMap();
 			simplePropertyMap.putProperty(new SimpleProperty(
 					SpiConstants.PROPNAME_DOCID, new SimpleValue(
@@ -106,6 +102,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 								ValueType.BOOLEAN, "false")));
 			}
 			simpleResultSet.add(simplePropertyMap);
+			
 		}
 
 		return simpleResultSet;
