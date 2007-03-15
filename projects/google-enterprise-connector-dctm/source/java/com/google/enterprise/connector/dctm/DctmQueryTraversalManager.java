@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -132,12 +133,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
 			logger.info("value of checkpoint  " + checkPoint);
 		}
-
+		
 		ResultSet resultSet = null;
-
+		System.out.println("value of checkpoint  " + checkPoint);
 		IQuery query = makeCheckpointQuery(buildQueryString(checkPoint));
 		resultSet = execQuery(query);
-
+		System.out.println("query vaut "+query);
 		return resultSet;
 	}
 
@@ -209,6 +210,18 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 				.execute(sessionManager, IQuery.READ_QUERY);
 		ResultSet rs = new DctmResultSet(collec, sessionManager, clientX);
 
+		///test
+		/*
+		int counter = 0;
+		ResultSet xs=rs;
+		for (Iterator iter = xs.iterator(); iter.hasNext();) {
+			iter.next();
+			counter++;
+		}
+		System.out.println("DctmQTM counter vaut "+counter);
+		*/
+		///	
+		
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("qtm", "ResultSet built.");
 		}
@@ -276,6 +289,10 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	public String makeCheckpointQueryString(String uuid, String c)
 			throws RepositoryException {
 
+		
+		System.out.println("makecheckpoint querystring");
+		System.out.println("uuid vaut "+uuid);
+		System.out.println("c vaut "+c);
 		Object[] arguments = { c, uuid };
 
 		String statement = MessageFormat.format(whereBoundedClause, arguments);
@@ -312,6 +329,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
 			logger.info(query.toString());
 		}
+		
+		System.out.println("buildQueryString checkpoint vaut "+checkpoint);
+		System.out.println("buildQueryString query vaut "+query.toString());
 		return query.toString();
 	}
 
