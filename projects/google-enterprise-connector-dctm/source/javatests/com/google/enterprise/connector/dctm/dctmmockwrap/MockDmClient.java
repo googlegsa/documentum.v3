@@ -47,7 +47,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 * through a newSession(docbase) call.
 	 */
 	public void setIdentity(String docbase, ILoginInfo identity) {
-		if(identity.getUser()!=null && identity.getPassword()!=null){
+		if (identity.getUser() != null && identity.getPassword() != null) {
 			if (!sessMgerCreds.containsKey(docbase))
 				sessMgerCreds.put(docbase, identity);
 			else {
@@ -106,7 +106,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 
 	public boolean authenticate(String docbaseName) {
 		MockDmSession tmp;
-		System.out.println("authenticate method");
 		try {
 			tmp = createAuthenticatedSession(docbaseName,
 					(ILoginInfo) sessMgerCreds.get(docbaseName));
@@ -214,9 +213,9 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 		} catch (javax.jcr.RepositoryException e) {
 			throw new com.google.enterprise.connector.spi.RepositoryException(e);
 		}
-		if (sess != null){
+		if (sess != null) {
 			return new MockDmSession(repo, sess, db);
-		}else{
+		} else {
 			return null;
 		}
 

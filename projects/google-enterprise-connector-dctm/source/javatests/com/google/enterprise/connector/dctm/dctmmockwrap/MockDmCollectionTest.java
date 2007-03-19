@@ -13,21 +13,22 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
-import com.google.enterprise.connector.jcradaptor.SpiResultSetFromJcr;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ResultSet;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class MockDmCollectionTest extends TestCase {
 	IClientX dctmClientX;
-	IClient localClient; 
-	ISessionManager sessionManager; 
-	ISession sess7; 
-	
+
+	IClient localClient;
+
+	ISessionManager sessionManager;
+
+	ISession sess7;
+
 	public void setUp() throws Exception {
 
 		super.setUp();
@@ -42,7 +43,7 @@ public class MockDmCollectionTest extends TestCase {
 		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
 		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 	}
-	
+
 	public void testNextAndGetString() {
 		try {
 			MockRepositoryDocumentStore mrDS = ((MockDmSession) sess7)
@@ -66,7 +67,6 @@ public class MockDmCollectionTest extends TestCase {
 			// now it begins
 			assertTrue(co.next());
 
-
 			// 2nd element of the collection looks like this :
 			/*
 			 * jcr:content : --> This is the public document. jcr:lastModified :
@@ -77,28 +77,28 @@ public class MockDmCollectionTest extends TestCase {
 			assertTrue(false);
 		}
 	}
-	
+
 	public void testGetValue() throws RepositoryException {
-		IQuery query=null;
-		query=localClient.getQuery();
+		IQuery query = null;
+		query = localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec=query.execute(sessionManager,IQuery.READ_QUERY);
-		if(collec.next()){
-			IValue val=collec.getValue("r_object_id");
-			Assert.assertTrue( val instanceof MockDmValue);
+		ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
+		if (collec.next()) {
+			IValue val = collec.getValue("r_object_id");
+			Assert.assertTrue(val instanceof MockDmValue);
 		}
 	}
-	
+
 	public void testGetString() throws RepositoryException {
-		IQuery query=null;
-		String rep="";
-		query=localClient.getQuery();
+		IQuery query = null;
+		String rep = "";
+		query = localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec=query.execute(sessionManager,IQuery.READ_QUERY);
-		if(collec.next()){
-			rep=collec.getString("jcr:uuid");
-			Assert.assertEquals(rep,DmInitialize.DM_ID1);
-		}	
+		ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
+		if (collec.next()) {
+			rep = collec.getString("jcr:uuid");
+			Assert.assertEquals(rep, DmInitialize.DM_ID1);
+		}
 	}
-	
+
 }

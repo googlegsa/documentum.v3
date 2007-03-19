@@ -18,7 +18,7 @@ import com.google.enterprise.connector.spi.SpiConstants;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-public class DctmAuthorizationManagerTest extends TestCase {
+public class DctmMockAuthorizationManagerTest extends TestCase {
 
 	public final void testAuthorizeDocids() throws RepositoryException {
 
@@ -36,7 +36,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 		authorizationManager = (DctmAuthorizationManager) sess
 				.getAuthorizationManager();
 		assertNotNull(authorizationManager);
-		
+
 		{
 			String username = DmInitialize.DM_LOGIN_OK2;
 
@@ -52,8 +52,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			testAuthorization((DctmAuthorizationManager) authorizationManager,
 					expectedResults, username);
 		}
-		
-		
+
 		{
 			String username = DmInitialize.DM_LOGIN_OK3;
 
@@ -66,7 +65,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			testAuthorization((DctmAuthorizationManager) authorizationManager,
 					expectedResults, username);
 		}
-		
+
 		{
 			String username = DmInitialize.DM_LOGIN_OK1;
 
@@ -76,19 +75,19 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
 			expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
 			expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
-			
+
 			testAuthorization((DctmAuthorizationManager) authorizationManager,
 					expectedResults, username);
 		}
-		
+
 	}
 
 	private void testAuthorization(
 			DctmAuthorizationManager authorizationManager, Map expectedResults,
 			String username) throws RepositoryException {
-		
+
 		List docids = new LinkedList(expectedResults.keySet());
-		
+
 		assertNotNull(docids);
 		ResultSet resultSet = authorizationManager.authorizeDocids(docids,
 				username);
@@ -101,8 +100,6 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			assertNotNull(uuid);
 			boolean ok = pm.getProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT)
 					.getValue().getBoolean();
-			String test = pm.getProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT)
-			.getValue().getString();
 			Boolean expected = (Boolean) expectedResults.get(uuid);
 			Assert.assertEquals(username + " access to " + uuid, expected
 					.booleanValue(), ok);

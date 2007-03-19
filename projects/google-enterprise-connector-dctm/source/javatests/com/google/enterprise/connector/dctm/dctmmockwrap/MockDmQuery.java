@@ -6,8 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
@@ -41,14 +39,10 @@ public class MockDmQuery implements IQuery {
 				a = ((MockDmSession) sessionManager.getSession(sessionManager
 						.getDocbaseName())).getStore();
 				MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
-				System.out.println("query vaut "+this.query);
+
 				Query q = mrQueryMger.createQuery(this.query, "xpath");
-				String state=q.getStatement();
-				System.out.println("state vaut "+state);
-				String lang=q.getLanguage();
-				System.out.println("lang vaut "+lang);
 				QueryResult qr = q.execute();
-				
+
 				MockDmCollection co = new MockDmCollection(qr);
 				return co;
 			} catch (javax.jcr.RepositoryException e) {
@@ -58,9 +52,10 @@ public class MockDmQuery implements IQuery {
 			String[] ids = this.query.split("', '");
 			ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
 					.length());
-			ids[ids.length-1]=ids[ids.length-1].substring(0,ids[ids.length-1].length()-2);
+			ids[ids.length - 1] = ids[ids.length - 1].substring(0,
+					ids[ids.length - 1].length() - 2);
 			List filteredResults = new MockMockList(ids, sessionManager);
-			
+
 			if (filteredResults != null) {
 				QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
 				MockDmCollection finalCollection = new MockDmCollection(
@@ -74,7 +69,7 @@ public class MockDmQuery implements IQuery {
 	}
 
 	public void setDQL(String dqlStatement) {
-		
+
 		String goodQuery = "";
 		if (dqlStatement.indexOf("select r_object_id from ") == -1) {
 			if (dqlStatement.indexOf(" and r_modify_date >= ") != -1) {
@@ -89,26 +84,26 @@ public class MockDmQuery implements IQuery {
 	}
 
 	private String makeBoundedQuery(String dqlStatement) {
-		System.out.println("dqlStatement vaut "+dqlStatement);
+
 		int bound1 = dqlStatement.indexOf(" and r_modify_date >= '")
 				+ " and r_modify_date >= '".length();
 		int bound2 = dqlStatement.indexOf("' and i_chronicle_id > '");
 		int bound3 = bound2 + "' and i_chronicle_id > '".length();
-		System.out.println("bound1 vaut "+bound1+" - bound2 vaut "+bound2);
+
 		String date = dqlStatement.substring(bound1, bound2);
-		
-		SimpleDateFormat df=new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.S");
-		String formattedDate="";
+
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.S");
+		String formattedDate = "";
 		try {
-			Date d1=df.parse(date);
-			System.out.println("date d1 vaut "+d1.getTime());
-			MockDmTime dateTime=new MockDmTime(d1);
-			formattedDate=dateTime.getFormattedDate();
-			System.out.println("formattedDate vaut "+formattedDate);
-		} catch (ParseException e){
+			Date d1 = df.parse(date);
+
+			MockDmTime dateTime = new MockDmTime(d1);
+			formattedDate = dateTime.getFormattedDate();
+
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		
+
 		String id = dqlStatement.substring(bound3, dqlStatement
 				.lastIndexOf("'"));
 		return MessageFormat.format(XPATH_QUERY_STRING_BOUNDED_DEFAULT,

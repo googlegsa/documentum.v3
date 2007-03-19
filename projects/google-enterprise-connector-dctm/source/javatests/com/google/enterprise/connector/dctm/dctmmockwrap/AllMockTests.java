@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

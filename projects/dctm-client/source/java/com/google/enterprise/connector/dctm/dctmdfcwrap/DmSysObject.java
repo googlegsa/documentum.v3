@@ -1,7 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import java.io.ByteArrayInputStream;
-import java.util.Enumeration;
 
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.client.IDfSysObject;

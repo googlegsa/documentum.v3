@@ -97,7 +97,6 @@ public class DctmSysobjectValue implements Value {
 
 	public String getString() throws IllegalArgumentException,
 			RepositoryException {
-		System.out.println("DctmSysObjectValue getString");
 		if (stringValue != null) {
 			return stringValue;
 		} else {

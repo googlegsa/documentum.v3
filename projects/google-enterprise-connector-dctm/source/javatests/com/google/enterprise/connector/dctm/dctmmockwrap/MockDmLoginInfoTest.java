@@ -11,33 +11,35 @@ import junit.framework.TestCase;
 public class MockDmLoginInfoTest extends TestCase {
 
 	IClientX dctmClientX;
-	IClient localClient; 
-	ISessionManager sessionManager; 
-	ISession sess7; 
+
+	IClient localClient;
+
+	ISessionManager sessionManager;
+
+	ISession sess7;
+
 	ILoginInfo ili;
-	
+
 	public void setUp() throws Exception {
 		super.setUp();
 		dctmClientX = new MockDmClient();
 		localClient = null;
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
-		
+
 		ili = new MockDmLoginInfo();
 	}
-	
-	
+
 	public void testSetGetUser() {
 		ili.setUser(DmInitialize.DM_LOGIN_OK4);
-		String user=ili.getUser();
-		assertEquals(user,DmInitialize.DM_LOGIN_OK4);
+		String user = ili.getUser();
+		assertEquals(user, DmInitialize.DM_LOGIN_OK4);
 	}
 
-	
 	public void testSetGetPassword() {
 		ili.setPassword(DmInitialize.DM_PWD_OK4);
-		String pwd=ili.getPassword();
-		assertEquals(pwd,DmInitialize.DM_PWD_OK4);
+		String pwd = ili.getPassword();
+		assertEquals(pwd, DmInitialize.DM_PWD_OK4);
 	}
 
 }

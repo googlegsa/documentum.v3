@@ -14,7 +14,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.TestCase;
 
-public class DctmSysobjectPropertyMapTest extends TestCase {
+public class DctmMockSysobjectPropertyMapTest extends TestCase {
 
 	IClientX dctmClientX = null;
 
@@ -24,9 +24,7 @@ public class DctmSysobjectPropertyMapTest extends TestCase {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		
-		
-		
+
 		dctmClientX = new MockDmClient();
 
 		localClient = dctmClientX.getLocalClient();
@@ -72,6 +70,5 @@ public class DctmSysobjectPropertyMapTest extends TestCase {
 		assertEquals("google:docid", property.getName());
 		assertEquals(DmInitialize.DM_ID1, property.getValue().getString());
 	}
-
 
 }

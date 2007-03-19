@@ -6,7 +6,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.TestCase;
 
-public class DctmConnectorTest extends TestCase {
+public class DctmMockConnectorTest extends TestCase {
 	public void testLogin() throws RepositoryException {
 
 		Connector connector = new DctmConnector();

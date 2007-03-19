@@ -14,6 +14,7 @@ import com.google.enterprise.connector.spi.SpiConstants;
 import junit.framework.TestCase;
 
 public class DctmSysobjectIteratorTest extends TestCase {
+	
 	QueryTraversalManager qtm = null;
 
 	private final boolean DFC = true;

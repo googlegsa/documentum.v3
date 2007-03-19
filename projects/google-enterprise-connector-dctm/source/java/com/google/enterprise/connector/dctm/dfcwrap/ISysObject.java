@@ -1,7 +1,6 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
 import java.io.ByteArrayInputStream;
-import java.util.Enumeration;
 
 import com.google.enterprise.connector.spi.RepositoryException;
 

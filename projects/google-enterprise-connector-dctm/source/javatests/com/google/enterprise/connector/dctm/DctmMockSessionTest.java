@@ -8,7 +8,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.TestCase;
 
-public class DctmSessionTest extends TestCase {
+public class DctmMockSessionTest extends TestCase {
 
 	DctmSession dctmSession = null;
 

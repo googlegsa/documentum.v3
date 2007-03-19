@@ -15,17 +15,25 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.TestCase;
 
 public class MockDmFormatTest extends TestCase {
-	
+
 	IClientX dctmClientX;
-	IClient localClient; 
-	ISessionManager sessionManager; 
+
+	IClient localClient;
+
+	ISessionManager sessionManager;
+
 	ISession sess7;
+
 	IId id;
+
 	ISysObject object;
+
 	IQuery query;
+
 	String crID;
+
 	IFormat format;
-	
+
 	public void setUp() throws Exception {
 
 		super.setUp();
@@ -38,34 +46,33 @@ public class MockDmFormatTest extends TestCase {
 		ili.setPassword("mark");
 		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
 		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-		query=localClient.getQuery();
+		query = localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		
+
 		id = dctmClientX.getId(DmInitialize.DM_ID2);
 		object = sess7.getObject(id);
 		try {
-			format=object.getFormat();
+			format = object.getFormat();
 		} catch (RepositoryException e) {
 			e.printStackTrace();
-		} 
-		
+		}
+
 	}
-	
+
 	public void testCanIndex() {
-		boolean indexable=false;
-			try {
-				indexable=((MockDmFormat)format).canIndex();
-			} catch (RepositoryException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			assertTrue(indexable);
+		boolean indexable = false;
+		try {
+			indexable = ((MockDmFormat) format).canIndex();
+		} catch (RepositoryException e) {
+
+		}
+		assertTrue(indexable);
 	}
 
 	public void testGetMIMEType() {
-		String mime="";
-		mime=((MockDmFormat)format).getMIMEType();
-		assertEquals(mime,DmInitialize.DM_DEFAULT_MIMETYPE);
+		String mime = "";
+		mime = ((MockDmFormat) format).getMIMEType();
+		assertEquals(mime, DmInitialize.DM_DEFAULT_MIMETYPE);
 	}
 
 }
