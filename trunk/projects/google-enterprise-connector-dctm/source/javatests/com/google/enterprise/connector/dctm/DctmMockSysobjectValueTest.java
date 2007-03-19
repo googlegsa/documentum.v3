@@ -17,7 +17,7 @@ import com.google.enterprise.connector.spi.ValueType;
 
 import junit.framework.TestCase;
 
-public class DctmSysobjectValueTest extends TestCase {
+public class DctmMockSysobjectValueTest extends TestCase {
 
 	IClientX dctmClientX = null;
 
@@ -55,8 +55,8 @@ public class DctmSysobjectValueTest extends TestCase {
 
 	public void testGetString() throws IllegalArgumentException,
 			RepositoryException {
-		DctmSysobjectValue dspm = new DctmSysobjectValue(object, "google:docid",
-				ValueType.STRING);
+		DctmSysobjectValue dspm = new DctmSysobjectValue(object,
+				"google:docid", ValueType.STRING);
 		assertEquals(DmInitialize.DM_ID1, dspm.getString());
 	}
 

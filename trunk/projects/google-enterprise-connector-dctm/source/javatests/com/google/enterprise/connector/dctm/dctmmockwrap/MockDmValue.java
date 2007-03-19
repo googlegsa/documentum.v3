@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 import javax.jcr.Value;
@@ -28,7 +27,7 @@ public class MockDmValue implements IValue {
 		return ret;
 	}
 
-	public int getDataType(){
+	public int getDataType() {
 		return value.getType();
 	}
 

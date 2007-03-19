@@ -156,7 +156,6 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 			String docbaseName = sessionManager.getDocbaseName();
 			session = sessionManager.getSession(docbaseName);
 			IId id = clientX.getId(docid);
-			System.out.println("docid vaut "+docid);
 			object = session.getObject(id);
 		} finally {
 			if (session != null) {
@@ -169,34 +168,27 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		IFormat dctmForm = null;
 		String mimetype = "";
 		fetch();
-		
+
 		if (name.equals(SpiConstants.PROPNAME_DOCID)) {
-			System.out.println("cas PROPNAME_DOCID "+SpiConstants.PROPNAME_DOCID);
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, docid));
 		} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
-			System.out.println("cas PROPNAME_CONTENT "+SpiConstants.PROPNAME_CONTENT);
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					object, "", ValueType.BINARY));
 		} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
-			System.out.println("cas PROPNAME_DISPLAYURL "+SpiConstants.PROPNAME_DISPLAYURL);
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, sessionManager.getServerUrl() + docid));
 		} else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
-			System.out.println("cas PROPNAME_SECURITYTOKEN "+SpiConstants.PROPNAME_SECURITYTOKEN);
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, object.getACLDomain() + " "
 							+ object.getACLName()));
 		} else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
-			System.out.println("cas PROPNAME_ISPUBLIC "+SpiConstants.PROPNAME_ISPUBLIC);
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.BOOLEAN, this.isPublic));
 		} else if (SpiConstants.PROPNAME_LASTMODIFY.equals(name)) {
-			System.out.println("cas PROPNAME_LASTMODIFY "+SpiConstants.PROPNAME_LASTMODIFY);
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					object, "r_modify_date", ValueType.DATE));
 		} else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
-			System.out.println("cas PROPNAME_MIMETYPE "+SpiConstants.PROPNAME_MIMETYPE);
 			dctmForm = object.getFormat();
 			mimetype = dctmForm.getMIMEType();
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(

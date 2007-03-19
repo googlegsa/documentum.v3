@@ -8,6 +8,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.TestCase;
 
 public class DctmSessionTest extends TestCase {
+	
 	DctmSession dctmSession = null;
 
 	DctmConnector connector = null;
@@ -25,24 +26,24 @@ public class DctmSessionTest extends TestCase {
 	}
 
 	public void testGetQueryTraversalManager() throws RepositoryException {
-		QueryTraversalManager DctmQm = dctmSession.getQueryTraversalManager();
-		String serverUrl = ((DctmQueryTraversalManager) DctmQm).getServerUrl();
-		assertNotNull(DctmQm);
+		QueryTraversalManager dctmQm = dctmSession.getQueryTraversalManager();
+		String serverUrl = ((DctmQueryTraversalManager) dctmQm).getServerUrl();
+		assertNotNull(dctmQm);
 
 		assertEquals(serverUrl, DmInitialize.DM_WEBTOP_SERVER_URL);
 	}
 
 	public void testGetAuthenticationManager() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		AuthenticationManager DctmAm = dctmSession.getAuthenticationManager();
-		assertNotNull(DctmAm);
+		AuthenticationManager dctmAm = dctmSession.getAuthenticationManager();
+		assertNotNull(dctmAm);
 
 	}
 
 	public void testGetAuthorizationManager() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		AuthorizationManager DctmAz = dctmSession.getAuthorizationManager();
-		assertNotNull(DctmAz);
+		AuthorizationManager dctmAz = dctmSession.getAuthorizationManager();
+		assertNotNull(dctmAz);
 	}
 
 }

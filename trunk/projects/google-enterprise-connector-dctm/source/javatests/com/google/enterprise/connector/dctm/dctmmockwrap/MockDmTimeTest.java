@@ -11,25 +11,29 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
-import com.google.enterprise.connector.mock.MockRepositoryDateTime;
-import com.google.enterprise.connector.mock.MockRepositoryProperty;
 
 import junit.framework.TestCase;
 
 public class MockDmTimeTest extends TestCase {
 
-	
 	IClientX dctmClientX;
-	IClient localClient; 
-	ISessionManager sessionManager; 
+
+	IClient localClient;
+
+	ISessionManager sessionManager;
+
 	ISession sess7;
+
 	IId id;
+
 	ISysObject object;
+
 	IQuery query;
+
 	String crID;
+
 	ITime time;
-	
-	
+
 	public void setUp() throws Exception {
 
 		super.setUp();
@@ -42,25 +46,23 @@ public class MockDmTimeTest extends TestCase {
 		ili.setPassword(DmInitialize.DM_PWD_OK4);
 		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
 		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-		query=localClient.getQuery();
+		query = localClient.getQuery();
 		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 		id = dctmClientX.getId(DmInitialize.DM_ID2);
 		object = sess7.getObject(id);
-		time=object.getTime("r_modify_date");
-	}
-	
-	
-	public void testGetDate() {
-		Date date=time.getDate();
-		long timeLong=DmInitialize.DM_ID2_TIMESTAMP;
-		Date propDateVal=new Date(timeLong);
-		assertEquals(date,propDateVal);
+		time = object.getTime("r_modify_date");
 	}
 
-	
+	public void testGetDate() {
+		Date date = time.getDate();
+		long timeLong = DmInitialize.DM_ID2_TIMESTAMP;
+		Date propDateVal = new Date(timeLong);
+		assertEquals(date, propDateVal);
+	}
+
 	public void testGetFormattedDate() {
-		String dateString=((MockDmTime)time).getFormattedDate();
-		assertEquals(dateString,DmInitialize.DM_ID2_TIMESTRING);
+		String dateString = ((MockDmTime) time).getFormattedDate();
+		assertEquals(dateString, DmInitialize.DM_ID2_TIMESTRING);
 	}
 
 }

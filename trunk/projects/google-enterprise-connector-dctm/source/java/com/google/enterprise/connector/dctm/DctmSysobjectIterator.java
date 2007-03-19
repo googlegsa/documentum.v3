@@ -30,7 +30,6 @@ public class DctmSysobjectIterator implements Iterator {
 	}
 
 	public boolean hasNext() {
-		System.out.println("boolean hasNext");
 		boolean hasNextVal = false;
 		try {
 			hasNextVal = co.next();

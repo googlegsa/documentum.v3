@@ -6,17 +6,19 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 
 import junit.framework.TestCase;
 
 public class MockDmIdTest extends TestCase {
 
 	IClientX dctmClientX;
-	IClient localClient; 
-	ISessionManager sessionManager; 
-	ISession sess7; 
-	
+
+	IClient localClient;
+
+	ISessionManager sessionManager;
+
+	ISession sess7;
+
 	public void setUp() throws Exception {
 		super.setUp();
 		dctmClientX = new MockDmClient();
@@ -29,11 +31,11 @@ public class MockDmIdTest extends TestCase {
 		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
 		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 	}
-	
+
 	public void testToString() {
 		IId id = dctmClientX.getId(DmInitialize.DM_ID2);
-		String idString=id.toString();
-		assertEquals(idString,DmInitialize.DM_ID2);
+		String idString = id.toString();
+		assertEquals(idString, DmInitialize.DM_ID2);
 	}
 
 }

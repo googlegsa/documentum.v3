@@ -13,7 +13,7 @@ import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionTest;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmTimeTest;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmValueTest;
 
-public class AllTests {
+public class AllMockTests {
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(AllTests.suite());
 	}
@@ -22,14 +22,14 @@ public class AllTests {
 		TestSuite suite = new TestSuite(
 				"Test for com.google.enterprise.connector.dctm");
 		// $JUnit-BEGIN$
-		suite.addTestSuite(DctmAuthorizationManagerTest.class);
-		suite.addTestSuite(DctmSysobjectValueTest.class);
-		suite.addTestSuite(DctmQueryTraversalManagerTest.class);
-		suite.addTestSuite(DctmAuthenticationManagerTest.class);
-		suite.addTestSuite(DctmSessionTest.class);
-		suite.addTestSuite(DctmSysobjectPropertyMapTest.class);
-		suite.addTestSuite(DctmSysobjectIteratorTest.class);
-		suite.addTestSuite(DctmConnectorTest.class);
+		suite.addTestSuite(DctmMockAuthorizationManagerTest.class);
+		suite.addTestSuite(DctmMockSysobjectValueTest.class);
+		suite.addTestSuite(DctmMockQueryTraversalManagerTest.class);
+		suite.addTestSuite(DctmMockAuthenticationManagerTest.class);
+		suite.addTestSuite(DctmMockSessionTest.class);
+		suite.addTestSuite(DctmMockSysobjectPropertyMapTest.class);
+		suite.addTestSuite(DctmMockSysobjectIteratorTest.class);
+		suite.addTestSuite(DctmMockConnectorTest.class);
 
 		suite.addTestSuite(MockDmClientTest.class);
 		suite.addTestSuite(MockDmSessionTest.class);
@@ -40,7 +40,7 @@ public class AllTests {
 		suite.addTestSuite(MockDmIdTest.class);
 		suite.addTestSuite(MockDmTimeTest.class);
 		suite.addTestSuite(MockDmValueTest.class);
-		
+
 		// $JUnit-END$
 		return suite;
 	}

@@ -7,7 +7,7 @@ import com.google.enterprise.connector.spi.Session;
 
 import junit.framework.TestCase;
 
-public class DctmAuthenticationManagerTest extends TestCase {
+public class DctmMockAuthenticationManagerTest extends TestCase {
 
 	public void testAuthenticate() throws RepositoryException {
 		Connector connector = new DctmConnector();
@@ -25,7 +25,8 @@ public class DctmAuthenticationManagerTest extends TestCase {
 
 		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK1,
 				DmInitialize.DM_PWD_OK1));
-		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,DmInitialize.DM_PWD_KO));
+		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
+				DmInitialize.DM_PWD_KO));
 		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
 				DmInitialize.DM_PWD_OK2));
 		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
@@ -42,7 +43,5 @@ public class DctmAuthenticationManagerTest extends TestCase {
 		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK5,
 				DmInitialize.DM_PWD_OK5));
 	}
-
-	
 
 }

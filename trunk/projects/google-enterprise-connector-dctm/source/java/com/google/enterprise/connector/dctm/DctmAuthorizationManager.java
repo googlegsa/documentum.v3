@@ -79,7 +79,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		}
 		while (iterDocIdList.hasNext()) {
 			id = (String) iterDocIdList.next();
-			System.out.println("id vaut "+id);
 			simplePropertyMap = new SimplePropertyMap();
 			simplePropertyMap.putProperty(new SimpleProperty(
 					SpiConstants.PROPNAME_DOCID, new SimpleValue(
@@ -102,7 +101,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 								ValueType.BOOLEAN, "false")));
 			}
 			simpleResultSet.add(simplePropertyMap);
-			
+
 		}
 
 		return simpleResultSet;
