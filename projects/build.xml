@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="GoogleDCTM" default="GoogleDCTM" basedir=".">
+
+	<!-- ========================= PROPERTIES ============================= -->
+	<property name="version" value="1.0" />
+
+	<!-- Define Directories. -->
+	<property name="dist" value="dist" />
+	<property name="config" value="google-enterprise-connector-dctm/config" />
+	<property name="jarfile.dir" value="third_party/lib"/>
+	<property name="core.dir" value="google-enterprise-connector-dctm"/>
+	<property name="core.classes" value="${core.dir}/build/classes" />
+		
+	<property name="build-client" value="dctm-client/build" />	
+	<property name="src-client" value="dctm-client/source/java" />
+	<property name="classes-client" value="${build-client}/classes" />	
+	
+	<property name="build-mock" value="google-enterprise-connector-dctm/build" />	
+	<property name="src-mock" value="google-enterprise-connector-dctm/source/java" />
+	<property name="classes-mock" value="${build-mock}/classes" />	
+
+	<property name="jar.dir"  value="${dist}/jar" />
+	<property name="jarfile"  value="${jar.dir}/connector-dctm.jar" />
+	
+	<property name="spi.jarfile" value="${jarfile.dir}/connector_spi.jar" />
+	<property name="dfc.jarfile" location="${jarfile.dir}/dfc.jar" />
+	<property name="json.jarfile" location="${jarfile.dir}/json.jar" />
+	<property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
+	<property name="log4j.jarfile" location="${jarfile.dir}/log4j-1.2.8.jar" />
+	<property name="commons-http.jarfile" location="${jarfile.dir}/commons-httpclient-3.0.jar" />
+
+	<!-- =========================== TASKS =============================== -->
+	<target name="GoogleDCTM" depends="init,compile-client,compile-mock,jar">
+	</target>
+
+	<target name="init">
+		<mkdir dir="${dist}" />
+		<mkdir dir="${build-client}" />
+		<mkdir dir="${classes-client}" />
+		<mkdir dir="${build-mock}" />
+		<mkdir dir="${classes-mockt}" />
+		<mkdir dir="${jar.dir}" />
+	</target>
+
+	<target name="compile-client" depends="init">
+		<!-- compile java source files -->
+		<javac srcdir="${src-client}" destdir="${classes-client}" debug="${COMPILE_DEBUG_FLAG}">
+			<classpath>
+				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${dfc.jarfile}" />
+				<pathelement location="${json.jarfile}" />
+				<pathelement location="${jcr.jarfile}" />
+				<pathelement location="${log4j.jarfile}" />
+				<pathelement location="${core.classes}" />
+			</classpath>
+		</javac>
+	</target>
+		
+	<target name="compile-mock" depends="init">
+		<!-- compile java source files -->
+		<javac srcdir="${src-mock}" destdir="${classes-mock}" debug="${COMPILE_DEBUG_FLAG}">
+			<classpath>
+				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${json.jarfile}" />
+				<pathelement location="${log4j.jarfile}" />
+				<pathelement location="${commons-http.jarfile}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" description="connector-dctm">
+		<jar jarfile="${jarfile}">
+			<fileset dir="${config}"/>
+			<fileset dir="${classes-client}"/>
+			<fileset dir="${classes-mock}"/>
+		</jar>
+	</target>
+
+	<target name="clean" description="Deletes all build files.">
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+</project>
