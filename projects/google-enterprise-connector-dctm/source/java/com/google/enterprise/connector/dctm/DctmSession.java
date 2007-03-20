@@ -48,37 +48,37 @@ public class DctmSession implements Session {
 	public DctmSession(String clientX, String login, String password,
 			String docbase, String wsu, String additionalWhereClause)
 			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
 			logger.info("DctmSession constructor with arguments");
 		}
 		ILoginInfo dctmLoginInfo = null;
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("a", "- builds an IClient", null);
 		}
 		setClientX(clientX);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("a", "- builds an ILocalClient",
 					null);
 		}
 		client = this.clientX.getLocalClient();
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("a", "- builds an ISessionManager",
 					null);
 		}
 		sessionManager = this.client.newSessionManager();
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("a", "");
 		}
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("a", "- builds credential objects",
 					null);
 		}
@@ -86,21 +86,21 @@ public class DctmSession implements Session {
 		dctmLoginInfo.setUser(login);
 		dctmLoginInfo.setPassword(password);
 		sessionManager.setIdentity(docbase, dctmLoginInfo);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("a", "");
 		}
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("a",
 					"- opens an authenticated ISession", null);
 		}
 		session = sessionManager.newSession(docbase);
 		this.clientX.setSessionManager(sessionManager);
 		sessionManager.release(session);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
 			logger.info("--- DctmSession avant setSessionManager ---");
 		}
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("a", "");
 		}
 
@@ -112,30 +112,27 @@ public class DctmSession implements Session {
 
 	public QueryTraversalManager getQueryTraversalManager()
 			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
 			logger.info("--- DctmSession getQueryTraversalManager---");
 		}
 
 		DctmQueryTraversalManager dctmQtm = null;
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("a",
 					"DctmQueryTraversalManager's instantiation", null);
 		}
-		
-
-			dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
-					additionalWhereClause);
-
-		
 
 		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
 				additionalWhereClause);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+
+		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
+				additionalWhereClause);
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("a",
 					"DctmQueryTraversalManager's instantiation");
 		}
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==4) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			logger.info("client " + client.getClass() + "---");
 		}
 
