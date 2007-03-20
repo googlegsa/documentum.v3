@@ -31,7 +31,7 @@
 	<property name="commons-http.jarfile" location="${jarfile.dir}/commons-httpclient-3.0.jar" />
 
 	<!-- =========================== TASKS =============================== -->
-	<target name="GoogleDCTM" depends="init,compile-client,compile-mock,jar">
+	<target name="GoogleDCTM" depends="init,compile-mock,compile-client,jar">
 	</target>
 
 	<target name="init">
@@ -39,7 +39,7 @@
 		<mkdir dir="${build-client}" />
 		<mkdir dir="${classes-client}" />
 		<mkdir dir="${build-mock}" />
-		<mkdir dir="${classes-mockt}" />
+		<mkdir dir="${classes-mock}" />
 		<mkdir dir="${jar.dir}" />
 	</target>
 
@@ -78,7 +78,8 @@
 	</target>
 
 	<target name="clean" description="Deletes all build files.">
-		<delete dir="${build}" />
+		<delete dir="${build-client}" />
+		<delete dir="${build-mock}" />
 		<delete dir="${dist}" />
 	</target>
 
