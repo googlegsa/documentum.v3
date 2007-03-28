@@ -42,7 +42,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		map.put("authenticationType", "api");
-		map.put("webtopServerUrl", "http://swp-srv-vmgsa:8080/webtop/");
+		map.put("webtopServerUrl", "http://swp-vm-wt:8080/webtop/");
 		map.put("additionalWhereClause", "and owner_name != 'Administrator'");
 		DctmConnectorType test = new DctmConnectorType();
 		String[] fiels = { "login", "password", "docbase", "clientX",
@@ -50,7 +50,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"additionalWhereClause" };
 		test.setConfigKeys(fiels);
 		ConfigureResponse resp = test.validateConfig(map, "en");
-		assertNull(resp.getMessage());
+		assertNull(resp);
 
 
 	}
@@ -68,7 +68,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		map.put("authenticationType", "api");
-		map.put("webtopServerUrl", "http://swp-srv-vmgsa:8080/webtop/");
+		map.put("webtopServerUrl", "http://swp-vm-wt:8080/webtop/");
 		map.put("additionalWhereClause", "and owner_name != 'Administrator'");
 		DctmConnectorType test = new DctmConnectorType();
 		String[] fiels = { "login", "password", "docbase", "clientX",
@@ -87,7 +87,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		map.put("authenticationType", "api");
-		map.put("webtopServerUrl", "http://swp-srv-vmgsa:8080/webtop/");
+		map.put("webtopServerUrl", "http://swp-vm-wt:8080/webtop/");
 		map.put("additionalWhereClause", "and owner_name != 'Administrator'");
 		DctmConnectorType test = new DctmConnectorType();
 		String[] fiels = { "login", "password", "docbase", "clientX",
@@ -108,7 +108,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		map.put("authenticationType", "api");
-		map.put("webtopServerUrl", "http://swp-srv-vmgs:8080/webtop/");
+		map.put("webtopServerUrl", "http://swp-vm-w:8080/webtop/");
 		map.put("additionalWhereClause", "and owner_name != 'Administrator'");
 		DctmConnectorType test = new DctmConnectorType();
 		String[] fiels = { "login", "password", "docbase", "clientX",
@@ -130,7 +130,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		map.put("authenticationType", "api");
-		map.put("webtopServerUrl", "http://swp-srv-vmgsa:8080/webto/");
+		map.put("webtopServerUrl", "http://swp-vm-wt:8080/webto/");
 		map.put("additionalWhereClause", "and owner_name != 'Administrator'");
 		DctmConnectorType test = new DctmConnectorType();
 		String[] fiels = { "login", "password", "docbase", "clientX",

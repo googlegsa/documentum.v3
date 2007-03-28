@@ -17,7 +17,6 @@ public class MockDmCollection implements ICollection {
 	private Node currentNode;
 
 	protected MockDmCollection(QueryResult mjQueryResult)
-
 	throws RepositoryException {
 		try {
 			collection = mjQueryResult.getNodes();

@@ -112,8 +112,7 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 
 	public void testIDfetchAndVerifyValueForCheckpoint()
 			throws RepositoryException {
-		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("doc2", qtm.getSessionManager(), qtm
+		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm.getSessionManager(), qtm
 				.getClientX());
 
 		String uuid = qtm.fetchAndVerifyValueForCheckpoint(pm,
@@ -124,8 +123,7 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 
 	public void testDatefetchAndVerifyValueForCheckpoint()
 			throws RepositoryException, ParseException {
-		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("doc2", qtm.getSessionManager(), qtm
+		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm.getSessionManager(), qtm
 				.getClientX());
 		Calendar calDate = null;
 
@@ -141,8 +139,7 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 	public void testCheckpoint() throws RepositoryException {
 
 		String checkPoint = null;
-		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("doc2", qtm.getSessionManager(), qtm
+		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm.getSessionManager(), qtm
 				.getClientX());
 		checkPoint = qtm.checkpoint(pm);
 
