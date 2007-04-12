@@ -22,17 +22,17 @@ public class DctmConnector implements Connector {
 
 	private String clientX;
 
-	private String webtopServerUrl;
+	private String webtop_server_url;
 
-	private String authenticationType;
+	private String authentication_type;
 
-	private String whereClause;
+	private String where_clause;
 
 	private static Logger logger = null;
 
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 
-	public static int DEBUG_LEVEL = 0;
+	public static int DEBUG_LEVEL = 1;
 
 	static {
 		logger = Logger.getLogger(DctmConnector.class.getName());
@@ -86,8 +86,8 @@ public class DctmConnector implements Connector {
 		this.docbase = docbase;
 	}
 
-	public void setWebtopServerUrl(String wsu) {
-		this.webtopServerUrl = wsu;
+	public void setWebtop_server_url(String wsu) {
+		this.webtop_server_url = wsu;
 	}
 
 	public void setClientX(String clientX) {
@@ -112,7 +112,7 @@ public class DctmConnector implements Connector {
 		}
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
-				webtopServerUrl, whereClause);
+				webtop_server_url, where_clause);
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("conn",
@@ -122,12 +122,12 @@ public class DctmConnector implements Connector {
 		return (sess);
 	}
 
-	public void setAuthenticationType(String authenticationType) {
-		this.authenticationType = authenticationType;
+	public void setAuthentication_type(String authenticationType) {
+		this.authentication_type = authenticationType;
 	}
 
-	public void setWhereClause(String additionalWhereClause) {
-		this.whereClause = additionalWhereClause;
+	public void setWhere_clause(String additionalWhereClause) {
+		this.where_clause = additionalWhereClause;
 	}
 
 }

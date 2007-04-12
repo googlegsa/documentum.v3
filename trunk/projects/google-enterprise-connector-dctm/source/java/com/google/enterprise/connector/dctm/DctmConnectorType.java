@@ -52,6 +52,10 @@ ConnectorType {
 	
 	private static final String DCTMCLASS = "clientX";
 	
+	private static final String AUTHENTICATIONTYPE = "authentication_type";
+	
+	private static final String RADIO = "radio";
+	
 	private List keys = null;
 	
 	private Set keySet = null;
@@ -85,14 +89,17 @@ ConnectorType {
 		mapError
 		.put(
 				"additional",
-		"Some required configuration is missing: Please check the additional where clause.");
+		"Some required configuration is missing: The additional where clause is not starting with the keyword 'AND'. Please check the additional where clause. ");
 		mapError
 		.put("DM_QUERY_E_NOT_ATTRIBUTE",
-		"Some required configuration is missing: Syntax error in DQL filter :");
+		"Some required configuration is missing: Syntax error in DQL filter. You have specified an invalid attribute name.");
 		mapError
 		.put(
 				"additionalTooRestrictive",
 		"Some required configuration is missing: DQL Filter is too restrictive, no documents were found with this filter.");
+		mapError
+		.put("DM_QUERY_E_SYNTAX",
+		"Some required configuration is missing: Syntax error in DQL filter. A Parser Error (syntax error) has occurred.");
 		
 	}
 	
@@ -152,22 +159,29 @@ ConnectorType {
 						(String) configData.get("login"), (String) configData
 						.get("password"), (String) configData
 						.get("docbase"), (String) configData
-						.get("webtopServerUrl"), (String) configData
-						.get("additionalWhereClause"));
+						.get("webtop_server_url"), (String) configData
+						.get("where_clause"));
 				
 				DctmAuthenticationManager authentManager = (DctmAuthenticationManager) session
 				.getAuthenticationManager();
 				authentManager.authenticate((String) configData.get("login"),
 						(String) configData.get("password"));
 				
-				testWebtopUrl((String) configData.get("webtopServerUrl"));
-				if ((String) configData.get("additionalWhereClause") != null
-						&& !((String) configData.get("additionalWhereClause"))
+				testWebtopUrl((String) configData.get("webtop_server_url"));
+				if ((String) configData.get("where_clause") != null
+						&& !((String) configData.get("where_clause"))
 						.equals("")) {
+					logger.log(Level.INFO, "check additional where clause : "
+							+ (String) configData
+							.get("where_clause"));
 					DctmQueryTraversalManager qtm = (DctmQueryTraversalManager) session
 					.getQueryTraversalManager();
+					
 					checkAdditionalWhereClause((String) configData
-							.get("additionalWhereClause"), qtm);
+							.get("where_clause"), qtm);
+				}else{
+					logger.log(Level.INFO, "No check additional where clause : "
+							);
 				}
 			} catch (RepositoryException e) {
 				String message = e.getMessage();
@@ -175,14 +189,16 @@ ConnectorType {
 				String extractErrorMessage = message.substring(message
 						.indexOf("[") + 1, message.indexOf("]"));
 				if (mapError.containsKey(extractErrorMessage)) {
-					returnMessage = (String) mapError.get(extractErrorMessage)
-					+ " " + e.getMessage();
+					returnMessage = "<p><font color=\"#FF0000\">" + (String) mapError.get(extractErrorMessage)+ "</font></p>";
+					//+ " " + e.getMessage();
+				}else{
+					returnMessage = e.getMessage();
 				}
 				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
 					logger.log(Level.WARNING, returnMessage);
 				}
 				form = makeValidatedForm(configData);
-				return new ConfigureResponse(returnMessage, form);
+				return new ConfigureResponse(returnMessage, returnMessage + "<br>" + form);
 				
 			}
 			return null;
@@ -201,14 +217,14 @@ ConnectorType {
 					+ additionalWhereClause);
 		}
 		if (!additionalWhereClause.toLowerCase().startsWith("and")) {
-			throw new RepositoryException("[additional]");
+			throw new RepositoryException("[additional] ");
 		}
 		IQuery query = qtm.getClientX().getQuery();
 		query
 		.setDQL("select r_object_id from dm_sysobject where r_object_type='dm_document' "
 				+ additionalWhereClause);
-		DctmResultSet restult = (DctmResultSet) qtm.execQuery(query);
-		Iterator iter = restult.iterator();
+		DctmResultSet result = (DctmResultSet) qtm.execQuery(query);
+		Iterator iter = result.iterator();
 		int counter = 0;
 		while (iter.hasNext()) {
 			iter.next();
@@ -267,7 +283,9 @@ ConnectorType {
 			String key = (String) i.next();
 			if (!key.equals(DCTMCLASS)) {
 				appendStartRow(buf, key);
-			} else {
+			} else if(key.equals(AUTHENTICATIONTYPE)){
+				appendStartHiddenRow(buf);
+			}else{
 				appendStartHiddenRow(buf);
 			}
 			
@@ -278,12 +296,21 @@ ConnectorType {
 				appendAttribute(buf, TYPE, PASSWORD);
 			} else if (key.equals(DCTMCLASS)) {
 				appendAttribute(buf, TYPE, HIDDEN);
-			} else {
+			} else if (key.equals(AUTHENTICATIONTYPE)){
+				appendRadioAttribute(buf, TYPE);
+			}else{
 				appendAttribute(buf, TYPE, TEXT);
 			}
 			appendAttribute(buf, VALUE, value);
 			appendAttribute(buf, NAME, key);
-			appendEndRow(buf);
+			if(key.equals(AUTHENTICATIONTYPE)){
+				buf.append(CLOSE_ELEMENT);
+				buf.append("Webtop");
+				buf.append(TD_END);
+				buf.append(TR_END);
+			}else{
+				appendEndRow(buf);	
+			}
 		}
 		// toss in all the stuff that's in the map but isn't in the keyset
 		// taking care to list them in alphabetic order (this is mainly for
@@ -308,7 +335,7 @@ ConnectorType {
 	private void appendStartRow(StringBuffer buf, String key) {
 		buf.append(TR_START);
 		buf.append(TD_START);
-		buf.append(key);
+		buf.append(formatAttributeName(key,true));
 		buf.append(TD_END);
 		buf.append(TD_START);
 	}
@@ -335,6 +362,17 @@ ConnectorType {
 		buf.append("\"");
 	}
 	
+	private String formatAttributeName(String name,boolean isName) {
+		String tmp = name.substring(0,1).toUpperCase() + name.substring(1,name.length()).toLowerCase();
+		if (isName) {
+			tmp = tmp.replaceAll("_"," ");
+			if (tmp.length()>1) {
+				tmp = tmp.substring(0,1).toUpperCase() + tmp.substring(1,tmp.length()).toLowerCase();
+			}
+		}
+		return tmp.replaceAll("<","&lt;").replaceAll(">","&gt;");
+	}
+	
 	/**
 	 * Make a config form snippet using the keys (in the supplied order) and, if
 	 * passed a non-null config map, pre-filling values in from that map
@@ -344,6 +382,7 @@ ConnectorType {
 	 */
 	private String makeConfigForm(Map configMap) {
 		StringBuffer buf = new StringBuffer(2048);
+		
 		for (Iterator i = keys.iterator(); i.hasNext();) {
 			String key = (String) i.next();
 			if (!key.equals(DCTMCLASS)) {
@@ -357,6 +396,8 @@ ConnectorType {
 				appendAttribute(buf, TYPE, PASSWORD);
 			} else if (key.equals(DCTMCLASS)) {
 				appendAttribute(buf, TYPE, HIDDEN);
+			}else if (key.equals(AUTHENTICATIONTYPE)) {
+				appendRadioAttribute(buf, TYPE);
 			} else {
 				appendAttribute(buf, TYPE, TEXT);
 			}
@@ -369,9 +410,22 @@ ConnectorType {
 					appendAttribute(buf, VALUE, value);
 				}
 			}
-			appendEndRow(buf);
+			if(key.equals(AUTHENTICATIONTYPE)){
+				buf.append(CLOSE_ELEMENT);
+				buf.append("Webtop");
+				buf.append(TD_END);
+				buf.append(TR_END);
+			}else{
+				appendEndRow(buf);	
+			}
+			
 		}
 		return buf.toString();
+	}
+
+	private void appendRadioAttribute(StringBuffer buf, String type2) {
+		buf.append(" "+type2 + "=\""+RADIO+"\" value=\"API\" name=\"authentication_type\">API<br/>");
+		buf.append("<input "+type2 + "=\""+RADIO+"\" value=\"Webtop\" checked");		
 	}
 	
 }

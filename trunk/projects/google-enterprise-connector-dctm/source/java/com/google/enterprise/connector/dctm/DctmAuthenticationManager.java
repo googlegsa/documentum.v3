@@ -48,6 +48,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
 		authenticate = sessionManager.authenticate(sessionManager
 				.getDocbaseName());
+		
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 2) {
 			logger.log(Level.INFO, "authentication status: " + authenticate);
