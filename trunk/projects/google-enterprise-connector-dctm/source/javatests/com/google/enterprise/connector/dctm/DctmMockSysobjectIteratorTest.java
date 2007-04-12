@@ -29,7 +29,7 @@ public class DctmMockSysobjectIteratorTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtopServerUrl(DmInitialize.DM_WEBTOP_SERVER_URL);
+				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
 		dctmSession = (DctmSession) connector.login();
 
 		qtm = (DctmQueryTraversalManager) dctmSession
@@ -54,7 +54,11 @@ public class DctmMockSysobjectIteratorTest extends TestCase {
 		Iterator iter = resultSet.iterator();
 
 		while (iter.hasNext()) {
-			pm = (PropertyMap) iter.next();
+			Object obj = iter.next();
+			assertTrue(obj instanceof PropertyMap);
+			assertTrue(obj instanceof DctmSysobjectPropertyMap);
+			
+			pm = (PropertyMap) obj;
 			prop = pm.getProperty(SpiConstants.PROPNAME_DOCID);
 
 			assertNotNull(prop);

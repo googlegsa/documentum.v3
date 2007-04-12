@@ -220,7 +220,7 @@ public class MockDmClientTest extends TestCase {
 	public void testGetDocBaseName() {
 		IClientX dctmClientX = new MockDmClient();
 		IClient localClient = null;
-		ISession session;
+
 		String docbase = "";
 		try {
 			localClient = dctmClientX.getLocalClient();
@@ -229,7 +229,7 @@ public class MockDmClientTest extends TestCase {
 			ili.setUser("mark");
 			ili.setPassword("mark");
 			sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
-			session = sessionManager.getSession("MockRepositoryEventLog7.txt");
+			sessionManager.getSession("MockRepositoryEventLog7.txt");
 			docbase = sessionManager.getDocbaseName();
 			Assert.assertEquals("MockRepositoryEventLog7.txt", docbase);
 

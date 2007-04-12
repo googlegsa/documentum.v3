@@ -40,8 +40,9 @@ public class DctmQueryTraversalUtilCall extends TestCase {
 		((DctmConnector) connector).setPassword(password);
 		((DctmConnector) connector).setDocbase(docbase);
 		((DctmConnector) connector)
-				.setWebtopServerUrl("http://swp-srv-vmgsa:8080/webtop/drl/objectId/");
+				.setWebtop_server_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
 		((DctmConnector) connector).setClientX(clientX);
+		((DctmConnector) connector).setWhere_clause("and folder('/test_docs',descend)");
 
 		/**
 		 * End simulation
