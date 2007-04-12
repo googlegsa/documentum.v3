@@ -7,8 +7,8 @@
 		<property name="login" value="${login}" />
 		<property name="password" value="${password}" />
 		<property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX" />
-		<property name="authenticationType" value="api" />
-		<property name="webtopServerUrl" value="${webtopServerUrl}" />
-		<property name="whereClause" value="${whereClause}" />
+		<property name="authentication_type" value="api" />
+		<property name="webtop_server_url" value="${webtop_server_url}" />
+		<property name="where_clause" value="${where_clause}" />
 	</bean>
 </beans>

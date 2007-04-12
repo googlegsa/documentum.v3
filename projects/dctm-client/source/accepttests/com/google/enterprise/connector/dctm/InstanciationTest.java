@@ -23,7 +23,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		((DctmConnector) connector)
-				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
+				.setWebtop_server_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
 
 		try {
 			session = (DctmSession) connector.login();
@@ -73,7 +73,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector).setPassword("passw0rd");// Bad password
 		((DctmConnector) connector).setDocbase("gsadctm");
 		((DctmConnector) connector)
-				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
+				.setWebtop_server_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
 
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -103,7 +103,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector).setDocbase("gzadctm");// docbase does not
 		// exist
 		((DctmConnector) connector)
-				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
+				.setWebtop_server_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 
@@ -129,7 +129,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector).setDocbase("erhgdwfgzsd");// docbase does
 		// not exist
 		((DctmConnector) connector)
-				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
+				.setWebtop_server_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient");
 
@@ -152,7 +152,7 @@ public class InstanciationTest extends TestCase {
 		((DctmConnector) connector).setPassword("p@ssword");
 		((DctmConnector) connector).setDocbase("gsadctm");
 		((DctmConnector) connector)
-				.setWebtopServerUrl("http://swp-vm-wt:8080/webtop/drl/objectId/");
+				.setWebtop_server_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
 
 		((DctmConnector) connector)
 				.setClientX("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");

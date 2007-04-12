@@ -13,14 +13,11 @@ public class MockDmSession implements ISession {
 
 	private MockJcrRepository mockRep;
 
-	private MockJcrSession mockJcrSession;
-
 	private String sessionFileNameSuffix;
 
 	public MockDmSession(MockJcrRepository mjR, MockJcrSession mjS,
 			String dbFileName) {
 		this.mockRep = mjR;
-		this.mockJcrSession = mjS;
 		this.sessionFileNameSuffix = dbFileName;
 	}
 

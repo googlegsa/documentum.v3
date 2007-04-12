@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.PropertyMap;
@@ -31,7 +30,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtopServerUrl(DmInitialize.DM_WEBTOP_SERVER_URL);
+				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
 		Session sess = (DctmSession) connector.login();
 		authorizationManager = (DctmAuthorizationManager) sess
 				.getAuthorizationManager();

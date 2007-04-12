@@ -34,7 +34,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtopServerUrl(DmInitialize.DM_WEBTOP_SERVER_URL);
+				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
 		Session sess = (DctmSession) connector.login();
 		authorizationManager = (DctmAuthorizationManager) sess
 				.getAuthorizationManager();
