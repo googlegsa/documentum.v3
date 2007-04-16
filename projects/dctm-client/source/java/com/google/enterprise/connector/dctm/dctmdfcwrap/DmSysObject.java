@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.IDfAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -80,7 +81,15 @@ public class DmSysObject implements ISysObject {
 
 	public String getString(String name) throws RepositoryException {
 		try {
-			return idfSysObject.getString(name);
+			DmAttr dmAttr = new DmAttr(idfSysObject.getAttr(0));
+			IDfAttr attr;
+			if(idfSysObject.getAttrDataType(name) == IDfAttr.DM_TIME){
+				return this.getTime(name).getDate().toString();
+			}
+			
+			String texte = idfSysObject.getAllRepeatingStrings(name,", ");
+			
+			return idfSysObject.getAllRepeatingStrings(name,", "); 
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
 			throw re;

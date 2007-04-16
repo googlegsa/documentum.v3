@@ -6,11 +6,13 @@ import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 public class DmAttr implements IAttr {
 	IDfAttr idfAttr;
 
+
 	public DmAttr(IDfAttr idfAttr) {
 		this.idfAttr = idfAttr;
 	}
 
 	public String getName() {
+		
 		return idfAttr.getName();
 	}
 
