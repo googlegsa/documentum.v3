@@ -81,14 +81,14 @@ public class DmSysObject implements ISysObject {
 
 	public String getString(String name) throws RepositoryException {
 		try {
-			DmAttr dmAttr = new DmAttr(idfSysObject.getAttr(0));
-			IDfAttr attr;
+			if(name.equals("r_object_id")){
+				return idfSysObject.getString(name);
+			}
 			if(idfSysObject.getAttrDataType(name) == IDfAttr.DM_TIME){
 				return this.getTime(name).getDate().toString();
+			}else if(idfSysObject.getAttrDataType(name) == IDfAttr.DM_ID){
+				return this.getId(name).toString();
 			}
-			
-			String texte = idfSysObject.getAllRepeatingStrings(name,", ");
-			
 			return idfSysObject.getAllRepeatingStrings(name,", "); 
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);

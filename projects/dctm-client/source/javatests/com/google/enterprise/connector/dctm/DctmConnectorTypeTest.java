@@ -75,8 +75,8 @@ public class DctmConnectorTypeTest extends TestCase {
 				"authentication_type", "webtop_server_url","where_clause" };
 		test.setConfigKeys(fiels);
 		ConfigureResponse resp = test.validateConfig(map, "en");
-		System.out.println(resp.getFormSnippet());
-		assertTrue(resp.getMessage().startsWith("Some required configuration is missing: Please check the credentials."));
+		System.out.println(resp.getMessage());
+		assertTrue(resp.getMessage().startsWith("<p><font color=\"#FF0000\">Some required configuration is missing: Please check the credentials."));
 	}
 	
 	public void testValidateConfigWithDocbaseError() {
@@ -97,7 +97,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		test.validateConfig(map, "en").getFormSnippet();
 
 		ConfigureResponse resp = test.validateConfig(map, "en");
-		assertTrue(resp.getMessage().startsWith("Some required configuration is missing: Docbase name is incorrect."));
+		assertTrue(resp.getMessage().startsWith("<p><font color=\"#FF0000\">Some required configuration is missing: Docbase name is incorrect."));
 	}
 	
 	public void testValidateConfigWithServerWebtopError() {
@@ -117,7 +117,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		test.setConfigKeys(fiels);
 		test.validateConfig(map, "en").getFormSnippet();
 		ConfigureResponse resp = test.validateConfig(map, "en");
-		assertTrue(resp.getMessage().startsWith("Some required configuration is missing: Please check the webtop server url."));
+		assertTrue(resp.getMessage().startsWith("<p><font color=\"#FF0000\">Some required configuration is missing: Please check the webtop server url."));
 		
 
 	}
@@ -138,7 +138,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"where_clause" };
 		test.setConfigKeys(fiels);
 		ConfigureResponse resp = test.validateConfig(map, "en");
-		assertTrue(resp.getMessage().startsWith("Some required configuration is missing: Please check the webtop server url and that the server is up and running."));		
+		assertTrue(resp.getMessage().startsWith("<p><font color=\"#FF0000\">Some required configuration is missing: Please check the webtop server url and that the server is up and running."));		
 
 	}
 	public void testValidateConfigWithQueryError() {
@@ -157,7 +157,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"where_clause" };
 		test.setConfigKeys(fiels);
 		ConfigureResponse resp = test.validateConfig(map, "en");
-		assertTrue(resp.getMessage().startsWith("Some required configuration is missing: The additional where clause is not starting with the keyword 'AND'. Please check the additional where clause."));		
+		assertTrue(resp.getMessage().startsWith("<p><font color=\"#FF0000\">Some required configuration is missing: The additional where clause is not starting with the keyword 'AND'. Please check the additional where clause."));		
 
 	}
 	public void testValidateConfigWithAnotherQueryError() {
@@ -176,7 +176,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"where_clause" };
 		test.setConfigKeys(fiels);
 		ConfigureResponse resp = test.validateConfig(map, "en");
-		assertTrue(resp.getMessage().startsWith("Some required configuration is missing: Syntax error in DQL filter. You have specified an invalid attribute name."));		
+		assertTrue(resp.getMessage().startsWith("<p><font color=\"#FF0000\">Some required configuration is missing: Syntax error in DQL filter. You have specified an invalid attribute name."));		
 
 	}
 
@@ -196,7 +196,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"where_clause" };
 		test.setConfigKeys(fiels);
 		ConfigureResponse resp = test.validateConfig(map, "en");
-		assertTrue(resp.getMessage().startsWith("Some required configuration is missing: Syntax error in DQL filter. A Parser Error (syntax error) has occurred."));		
+		assertTrue(resp.getMessage().startsWith("<p><font color=\"#FF0000\">Some required configuration is missing: Syntax error in DQL filter. A Parser Error (syntax error) has occurred."));		
 
 	}
 
