@@ -123,8 +123,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_LASTMODIFY).getDate();
-
-		calDate = DctmSysobjectValue.iso8601ToCalendar("2007-01-02 14:19:29");
+		calDate = DctmSysobjectValue.iso8601ToCalendar("2007-04-17 13:55:36");
 		assertEquals(c.getTimeInMillis(), calDate.getTimeInMillis());
 		assertEquals(c, calDate);
 	}
@@ -139,7 +138,7 @@ public class DctmQueryTraversalManagerTest extends TestCase {
 
 		assertNotNull(checkPoint);
 		assertEquals(
-				"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-01-02 14:19:29.000\"}",
+				"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-04-17 13:55:36.000\"}",
 				checkPoint);
 	}
 

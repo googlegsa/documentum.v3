@@ -32,7 +32,7 @@ public class DctmConnector implements Connector {
 
 	public static boolean DEBUG = true;
 
-	public static int DEBUG_LEVEL = 1;
+	public static int DEBUG_LEVEL = 4;
 
 	static {
 		logger = Logger.getLogger(DctmConnector.class.getName());

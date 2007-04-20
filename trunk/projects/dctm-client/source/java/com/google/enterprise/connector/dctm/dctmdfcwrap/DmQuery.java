@@ -19,6 +19,7 @@ public class DmQuery implements IQuery {
 	IDfQuery idfQuery;
 
 	public static int DF_READ_QUERY = IDfQuery.DF_READ_QUERY;
+
 	private static Logger logger = null;
 
 	static {
@@ -51,7 +52,7 @@ public class DmQuery implements IQuery {
 
 		IDfSession idfSession = idctmsession.getDfSession();
 		IDfCollection DfCollection = null;
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of IdfQuery " + idfQuery.getDQL());
 		}
 		try {

@@ -13,4 +13,9 @@ public class MockDmId implements IId {
 	public String toString() {
 		return docId;
 	}
+
+	public String getId() {
+
+		return docId;
+	}
 }

@@ -14,6 +14,8 @@ import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
 
+import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -93,10 +95,8 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
 		assertNotNull(resultSet);
 		for (Iterator i = resultSet.iterator(); i.hasNext();) {
 			PropertyMap pm = (PropertyMap) i.next();
-			assertNotNull(pm);
 			String uuid = pm.getProperty(SpiConstants.PROPNAME_DOCID)
 					.getValue().getString();
-			assertNotNull(uuid);
 			boolean ok = pm.getProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT)
 					.getValue().getBoolean();
 			Boolean expected = (Boolean) expectedResults.get(uuid);
