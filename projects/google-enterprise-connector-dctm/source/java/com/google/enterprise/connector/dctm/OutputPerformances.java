@@ -29,7 +29,7 @@ public class OutputPerformances {
 
 			appender = new RollingFileAppender(layout,
 					"logs/dctmOutputPerformances.log", false);
-			appender.setMaxBackupIndex(10);
+			appender.setMaxBackupIndex(100);
 			appender.setMaxFileSize("1MB");
 
 		} catch (Exception e) {

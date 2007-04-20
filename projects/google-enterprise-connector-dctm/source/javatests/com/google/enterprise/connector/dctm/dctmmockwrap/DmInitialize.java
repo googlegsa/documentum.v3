@@ -38,7 +38,7 @@ public class DmInitialize {
 	// /public static String DM_CHECKPOINT_QUERY_STRING = " and
 	// @jcr:lastModified >= ''{0}''";
 
-	public static String DM_CHECKPOINT_QUERY_STRING = " and r_modify_date >= '1970-01-01 01:00:00.020' and i_chronicle_id > 'doc2'";
+	public static String DM_CHECKPOINT_QUERY_STRING = " and ((r_modify_date = '1970-01-01 01:00:00.020'  and r_object_id > 'doc2') OR ( r_modify_date > '1970-01-01 01:00:00.020'))";
 
 	public static String DM_QUERY_STRING_ENABLE = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
 

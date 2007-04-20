@@ -66,4 +66,5 @@ public class DmClientX implements IClientX {
 	public IQuery getQuery() {
 		return new DmQuery(new DfQuery());
 	}
+
 }

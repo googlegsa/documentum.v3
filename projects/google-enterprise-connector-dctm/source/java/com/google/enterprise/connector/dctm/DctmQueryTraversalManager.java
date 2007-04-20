@@ -23,12 +23,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	private IClientX clientX;
 
-	private String order_by = " order by r_modify_date, i_chronicle_id";
+	private String order_by = " order by r_modify_date,r_object_id";
 
 	// TODO: add possibility for an administrator to change it
 	private String tableName = "dm_document";
 
-	private String whereBoundedClause = " and r_modify_date >= ''{0}'' and i_chronicle_id > ''{1}''";
+	private String whereBoundedClause = " and ((r_modify_date = ''{0}''  and r_object_id > ''{1}'') OR ( r_modify_date > ''{2}''))";
 
 	private String serverUrl;
 
@@ -101,7 +101,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 *             condition.
 	 */
 	public ResultSet startTraversal() throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("Pull process started");
 		}
 		IQuery query = makeCheckpointQuery(buildQueryString(null));
@@ -123,7 +123,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 */
 	public ResultSet resumeTraversal(String checkPoint)
 			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of checkpoint  " + checkPoint);
 		}
 
@@ -263,9 +263,9 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return dateString;
 	}
 
-	public String makeCheckpointQueryString(String uuid, String c)
-			throws RepositoryException {
-		Object[] arguments = { c, uuid };
+	public String makeCheckpointQueryString(String uuid, String c
+			) throws RepositoryException {
+		Object[] arguments = { c, uuid, c };
 
 		String statement = MessageFormat.format(whereBoundedClause, arguments);
 
