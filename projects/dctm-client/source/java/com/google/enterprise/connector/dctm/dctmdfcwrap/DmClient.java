@@ -4,10 +4,13 @@ import com.documentum.com.IDfClientX;
 import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfClient;
 import com.documentum.fc.client.IDfSessionManager;
+import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmClient implements IClient {
 	IDfClient idfClient;
@@ -38,5 +41,14 @@ public class DmClient implements IClient {
 		DmSessionManager dctmSessionManager = new DmSessionManager(
 				newSessionManager);
 		return dctmSessionManager;
+	}
+
+	public IDocbaseMap getDocbaseMap() throws RepositoryException {
+		try {
+			return (IDocbaseMap) new DmDocbaseMap(this.idfClient.getDocbaseMap());
+		} catch (DfException e) {
+			throw new RepositoryException(e);
+		}
+		
 	}
 }
