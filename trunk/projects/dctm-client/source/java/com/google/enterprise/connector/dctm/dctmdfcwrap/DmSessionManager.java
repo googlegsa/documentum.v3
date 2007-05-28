@@ -15,7 +15,7 @@ import com.google.enterprise.connector.dctm.DctmConnector;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSessionManager implements ISessionManager {
@@ -38,19 +38,19 @@ public class DmSessionManager implements ISessionManager {
 		this.dfSessionManager = DfSessionManager;
 	}
 
-	public ISession getSession(String docbase) throws LoginException,
+	public ISession getSession(String docbase) throws RepositoryLoginException,
 			RepositoryException {
 		IDfSession DfSession = null;
 		try {
 			DfSession = dfSessionManager.getSession(docbase);
 		} catch (DfIdentityException iE) {
-			LoginException le = new LoginException(iE);
+			RepositoryLoginException le = new RepositoryLoginException(iE);
 			throw le;
 		} catch (DfAuthenticationException iE) {
-			LoginException le = new LoginException(iE);
+			RepositoryLoginException le = new RepositoryLoginException(iE);
 			throw le;
 		} catch (DfPrincipalException iE) {
-			LoginException le = new LoginException(iE);
+			RepositoryLoginException le = new RepositoryLoginException(iE);
 			throw le;
 		} catch (DfServiceException iE) {
 			RepositoryException re = new RepositoryException(iE);
@@ -60,7 +60,7 @@ public class DmSessionManager implements ISessionManager {
 	}
 
 	public void setIdentity(String docbase, ILoginInfo identity)
-			throws LoginException {
+			throws RepositoryLoginException {
 		if (!(identity instanceof DmLoginInfo)) {
 			throw new IllegalArgumentException();
 		}
@@ -69,7 +69,7 @@ public class DmSessionManager implements ISessionManager {
 		try {
 			dfSessionManager.setIdentity(docbase, idfLoginInfo);
 		} catch (DfServiceException iE) {
-			LoginException le = new LoginException(iE);
+			RepositoryLoginException le = new RepositoryLoginException(iE);
 			throw le;
 		}
 	}
@@ -79,25 +79,25 @@ public class DmSessionManager implements ISessionManager {
 		return new DmLoginInfo(idfLoginInfo);
 	}
 
-	public ISession newSession(String docbase) throws LoginException,
+	public ISession newSession(String docbase) throws RepositoryLoginException,
 			RepositoryException {
 		IDfSession idfSession = null;
 		String error = null;
 		try {
 			idfSession = dfSessionManager.newSession(docbase);
 		} catch (DfIdentityException iE) {
-			LoginException le = new LoginException(iE);
-			throw le;
+			
+			throw new RepositoryLoginException(iE);
 		} catch (DfAuthenticationException iE) {
-			LoginException le = new LoginException(iE);
-			throw le;
+			throw new RepositoryLoginException(iE);
 		} catch (DfPrincipalException iE) {
-			LoginException le = new LoginException(iE);
-			throw le;
+			throw new RepositoryLoginException(iE);
 		} catch (DfServiceException iE) {
-			RepositoryException re = new RepositoryException(iE);
-			throw re;
+			throw new RepositoryException(iE);
+		}catch (NoClassDefFoundError iE) {
+			throw new RepositoryException(iE);
 		}
+		
 		if (error != null) {
 			return null;
 		}

@@ -1,7 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
-import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.common.DfException;
 
@@ -13,7 +13,7 @@ public class DmFormat implements IFormat {
 		this.idfFormat = idfFormat;
 	}
 
-	public boolean canIndex() throws LoginException {
+	public boolean canIndex() throws RepositoryLoginException {
 		boolean rep = false;
 		try {
 			if (idfFormat != null) {
@@ -23,7 +23,7 @@ public class DmFormat implements IFormat {
 			}
 
 		} catch (DfException de) {
-			LoginException le = new LoginException(de);
+			RepositoryLoginException le = new RepositoryLoginException(de);
 			throw le;
 		}
 		return rep;
