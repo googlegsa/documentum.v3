@@ -124,8 +124,6 @@ public class DctmConnectorType implements ConnectorType {
 		try {
 			resource = ResourceBundle.getBundle("DctmConnectorType", language);
 		} catch (Exception e) {
-			System.out.println(e.getLocalizedMessage());
-			e.printStackTrace();
 			return new ConfigureResponse("", "");
 		}
 		if (initialConfigForm != null) {

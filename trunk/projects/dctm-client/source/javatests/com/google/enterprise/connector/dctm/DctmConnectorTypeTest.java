@@ -26,7 +26,6 @@ public class DctmConnectorTypeTest extends TestCase {
 				+ "\r\n<td><input type=\"hidden\" value=\"\" name=\"clientX\"/></td>\r\n</tr>\r\n<tr>\r\n<td><input type=\"hidden\" value=\"\" name=\"authentication_type\"/></td>"
 				+ "\r\n</tr>\r\n<tr>\r\n<td>Display URL</td>\r\n<td><input type=\"text\" value=\"\" name=\"webtop_display_url\"/></td>"
 				+ "\r\n</tr>\r\n<tr>\r\n<td><input type=\"hidden\" value=\"\" name=\"where_clause\"/></td>\r\n</tr>\r\n<tr>\r\n<td><input type=CHECKBOX name=\"is_public\" />Make public</td>\r\n</tr>\r\n";
-		System.out.println(test.getConfigForm(Locale.US).getFormSnippet());
 
 		assertEquals(expectedForm, test.getConfigForm(Locale.US)
 				.getFormSnippet());
