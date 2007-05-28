@@ -7,7 +7,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.Assert;
@@ -54,7 +54,7 @@ public class DmSessionManagerATest extends TestCase {
 		}
 	}
 
-	public void testSetIdentity() throws LoginException {
+	public void testSetIdentity() throws RepositoryLoginException {
 		String user = DmInitialize.DM_LOGIN_OK4;
 		String password = DmInitialize.DM_PWD_OK4;
 		String docbase = DmInitialize.DM_DOCBASE;
@@ -64,7 +64,7 @@ public class DmSessionManagerATest extends TestCase {
 		sessionManager.setIdentity(docbase, loginInfo);
 	}
 
-	public void testGetIdentity() throws LoginException {
+	public void testGetIdentity() throws RepositoryLoginException {
 		String user = DmInitialize.DM_LOGIN_OK4;
 		String password = DmInitialize.DM_PWD_OK4;
 		String docbase = DmInitialize.DM_DOCBASE;
@@ -77,7 +77,7 @@ public class DmSessionManagerATest extends TestCase {
 
 	}
 
-	public void testNewSession() throws LoginException, RepositoryException {
+	public void testNewSession() throws RepositoryLoginException, RepositoryException {
 		ISession session = null;
 		try {
 			String user = DmInitialize.DM_LOGIN_OK4;
@@ -96,7 +96,7 @@ public class DmSessionManagerATest extends TestCase {
 		}
 	}
 
-	public void testAuthenticateOK() throws LoginException, DfException {
+	public void testAuthenticateOK() throws RepositoryLoginException, DfException {
 		String user = DmInitialize.DM_LOGIN_OK4;
 		String password = DmInitialize.DM_PWD_OK4;
 		String docbase = DmInitialize.DM_DOCBASE;
@@ -107,7 +107,7 @@ public class DmSessionManagerATest extends TestCase {
 		Assert.assertTrue(rep);
 	}
 
-	public void testAuthenticateK0() throws LoginException, DfException {
+	public void testAuthenticateK0() throws RepositoryLoginException, DfException {
 		String user = DmInitialize.DM_LOGIN_KO;
 		String password = DmInitialize.DM_PWD_KO;
 		String docbase = DmInitialize.DM_DOCBASE;
@@ -118,7 +118,7 @@ public class DmSessionManagerATest extends TestCase {
 		Assert.assertFalse(rep);
 	}
 
-	public void testClearIdentity() throws LoginException {
+	public void testClearIdentity() throws RepositoryLoginException {
 		String user = DmInitialize.DM_LOGIN_OK4;
 		String password = DmInitialize.DM_PWD_OK4;
 		String docbase = DmInitialize.DM_DOCBASE;

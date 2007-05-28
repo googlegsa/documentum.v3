@@ -32,7 +32,7 @@ public class AllTests {
 		// $JUnit-BEGIN$
 		suite.addTestSuite(DctmAuthorizationManagerTest.class);
 		suite.addTestSuite(DctmSysobjectValueTest.class);
-		suite.addTestSuite(DctmQueryTraversalManagerTest.class);
+		suite.addTestSuite(DctmTraversalManagerTest.class);
 		suite.addTestSuite(DctmAuthenticationManagerTest.class);
 		suite.addTestSuite(DctmSessionTest.class);
 		suite.addTestSuite(DctmSysobjectPropertyMapTest.class);

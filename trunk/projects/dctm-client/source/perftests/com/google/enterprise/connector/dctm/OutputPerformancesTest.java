@@ -6,8 +6,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.google.enterprise.connector.spi.Connector;
-import com.google.enterprise.connector.spi.LoginException;
-import com.google.enterprise.connector.spi.QueryTraversalManager;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
+import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
@@ -34,7 +34,7 @@ public class OutputPerformancesTest extends TestCase {
 		docbase = "gsadctm";
 		Session session = null;
 		Connector connector = null;
-		QueryTraversalManager qtm = null;
+		TraversalManager qtm = null;
 		connector = new DctmConnector();
 
 		((DctmConnector) connector).setLogin(user);
@@ -43,9 +43,9 @@ public class OutputPerformancesTest extends TestCase {
 		((DctmConnector) connector).setClientX(clientX);
 		try {
 			session = (DctmSession) connector.login();
-			qtm = (DctmQueryTraversalManager) session
-					.getQueryTraversalManager();
-		} catch (LoginException e) {
+			qtm = (DctmTraversalManager) session
+					.getTraversalManager();
+		} catch (RepositoryLoginException e) {
 			throw new AssertionFailedError(
 					"Login exception on post login tests. "
 							+ "Check initial values. (" + e.getMessage()
