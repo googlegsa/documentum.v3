@@ -6,7 +6,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.Assert;
@@ -50,7 +50,7 @@ public class DmSessionManagerTest extends TestCase {
 
 	}
 
-	public void testNewSession() throws LoginException, RepositoryException {
+	public void testNewSession() throws RepositoryLoginException, RepositoryException {
 
 		ISession session = null;
 		try {
@@ -64,7 +64,7 @@ public class DmSessionManagerTest extends TestCase {
 		}
 	}
 
-	public void testAuthenticateOK() throws LoginException {
+	public void testAuthenticateOK() throws RepositoryLoginException {
 		boolean rep = false;
 
 		rep = sessionManager.authenticate(docbase);
@@ -81,7 +81,7 @@ public class DmSessionManagerTest extends TestCase {
 		Assert.assertTrue(rep);
 	}
 
-	public void testAuthenticateKO() throws LoginException {
+	public void testAuthenticateKO() throws RepositoryLoginException {
 		boolean rep = false;
 
 		rep = sessionManager.authenticate(docbase);
@@ -101,7 +101,7 @@ public class DmSessionManagerTest extends TestCase {
 		Assert.assertFalse(rep);
 	}
 
-	public void testClearIdentity() throws LoginException {
+	public void testClearIdentity() throws RepositoryLoginException {
 		sessionManager.clearIdentity(docbase);
 		ILoginInfo logInfo = sessionManager.getIdentity(docbase);
 		Assert.assertNull(((DmLoginInfo) logInfo).getIdfLoginInfo());

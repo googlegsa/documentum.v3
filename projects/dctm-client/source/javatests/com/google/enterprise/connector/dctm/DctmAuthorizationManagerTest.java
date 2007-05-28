@@ -6,13 +6,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.enterprise.connector.manager.UserPassIdentity;
 import com.google.enterprise.connector.spi.AuthorizationManager;
+import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.Connector;
-import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.Session;
-import com.google.enterprise.connector.spi.SpiConstants;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -34,7 +33,8 @@ public class DctmAuthorizationManagerTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+		((DctmConnector) connector).setIs_public("false");
 		Session sess = (DctmSession) connector.login();
 		authorizationManager = (DctmAuthorizationManager) sess
 				.getAuthorizationManager();
@@ -83,17 +83,17 @@ public class DctmAuthorizationManagerTest extends TestCase {
 	private void testAuthorization(
 			DctmAuthorizationManager authorizationManager, Map expectedResults,
 			String username) throws RepositoryException {
+
 		List docids = new LinkedList(expectedResults.keySet());
 
-		ResultSet resultSet = authorizationManager.authorizeDocids(docids,
-				username);
-		for (Iterator i = resultSet.iterator(); i.hasNext();) {
-
-			PropertyMap pm = (PropertyMap) i.next();
-			String uuid = pm.getProperty(SpiConstants.PROPNAME_DOCID)
-					.getValue().getString();
-			boolean ok = pm.getProperty(SpiConstants.PROPNAME_AUTH_VIEWPERMIT)
-					.getValue().getBoolean();
+		assertNotNull(docids);
+		List list = authorizationManager.authorizeDocids(docids,
+				new UserPassIdentity(username, null));
+		assertNotNull(list);
+		for (Iterator i = list.iterator(); i.hasNext();) {
+			AuthorizationResponse pm = (AuthorizationResponse) i.next();
+			String uuid = pm.getDocid();
+			boolean ok = pm.isValid();
 			Boolean expected = (Boolean) expectedResults.get(uuid);
 			Assert.assertEquals(username + " access to " + uuid, expected
 					.booleanValue(), ok);
