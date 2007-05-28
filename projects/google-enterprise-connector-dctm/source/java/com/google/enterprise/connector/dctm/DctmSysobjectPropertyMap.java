@@ -20,9 +20,6 @@ import com.google.enterprise.connector.spi.ValueType;
 
 public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 126421624L;
 
 	private String docid;
@@ -141,10 +138,11 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 	}
 
 	public DctmSysobjectPropertyMap(String docid,
-			ISessionManager sessionManager, IClientX clientX) {
+			ISessionManager sessionManager, IClientX clientX , String isPublic) {
 		this.docid = docid;
 		this.sessionManager = sessionManager;
 		this.clientX = clientX;
+		this.isPublic = isPublic;
 	}
 
 	private void fetch() throws RepositoryException {
@@ -168,7 +166,6 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		IFormat dctmForm = null;
 		String mimetype = "";
 		fetch();
-
 		if (name.equals(SpiConstants.PROPNAME_DOCID)) {
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, docid));
@@ -185,7 +182,7 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		} else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.BOOLEAN, this.isPublic));
-		} else if (SpiConstants.PROPNAME_LASTMODIFY.equals(name)) {
+		} else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					object, "r_modify_date", ValueType.DATE));
 		} else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
@@ -195,9 +192,7 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 					ValueType.STRING, mimetype));
 		} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
 			return null;
-		} else if (SpiConstants.PROPNAME_AUTH_VIEWPERMIT.equals(name)) {
-			return (DctmSysobjectProperty) this.get(name);
-		}
+		}		
 		return new DctmSysobjectProperty(name, new DctmSysobjectValue(object,
 				name, ValueType.STRING));
 	}
@@ -210,14 +205,17 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		// propNames.add(thisone);
 		// return propNames.iterator();
 		fetch();
+		
 		HashSet properties = new HashSet();
-
+		DctmSysobjectProperty dctmProps = null;
 		for (int i = 0; i < object.getAttrCount(); i++) {
 			IAttr curAttr = object.getAttr(i);
 			String name = curAttr.getName();
 			if (!sysmeta.contains(name) || specmeta.contains(name)) {
-				properties.add(new DctmSysobjectProperty(name,
-						new DctmSysobjectValue(object, name)));
+				dctmProps = new DctmSysobjectProperty(name,
+						new DctmSysobjectValue(object, name));
+				if(dctmProps.getValue().getString() != null && !dctmProps.getValue().getString().equals(""))
+					properties.add(dctmProps);
 			}
 		}
 		return properties.iterator();

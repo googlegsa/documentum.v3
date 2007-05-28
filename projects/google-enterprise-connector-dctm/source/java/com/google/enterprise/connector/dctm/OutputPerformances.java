@@ -84,17 +84,17 @@ public class OutputPerformances {
 			logger.debug("Time elapsed : " + elapsed + " ms");
 
 		}
-		System.runFinalization();
-		System.gc();
-		Runtime rt = Runtime.getRuntime();
-		long free = rt.freeMemory();
-		long tot = rt.totalMemory();
-		free = (tot - free) / 1024;
-		long initialMem = Long
-				.parseLong((String) OutputPerformances.memoryFlags
-						.get(identifier));
+		/*System.runFinalization();
+		 System.gc();
+		 Runtime rt = Runtime.getRuntime();
+		 long free = rt.freeMemory();
+		 long tot = rt.totalMemory();
+		 free = (tot - free) / 1024;
+		 long initialMem = Long
+		 .parseLong((String) OutputPerformances.memoryFlags
+		 .get(identifier));*/
 		OutputPerformances.memoryFlags.remove(identifier);
-		long used = free - initialMem;
-		logger.debug("Memory spent : " + used + " KBytes");
+		/*long used = free - initialMem;
+		 logger.debug("Memory spent : " + used + " KBytes");*/
 	}
 }
