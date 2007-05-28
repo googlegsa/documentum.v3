@@ -12,7 +12,7 @@ public class DctmSimplePerfTest {
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for dctmQueryTraversalUtilCall");
 
-		suite.addTestSuite(DctmQueryTraversalUtilCall.class);
+		suite.addTestSuite(DctmTraversalUtilCall.class);
 
 		return suite;
 	}
