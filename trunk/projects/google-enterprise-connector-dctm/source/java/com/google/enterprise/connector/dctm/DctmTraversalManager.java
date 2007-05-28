@@ -19,7 +19,6 @@ import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.Value;
 
-
 public class DctmTraversalManager implements TraversalManager {
 
 	private IClientX clientX;
@@ -69,7 +68,8 @@ public class DctmTraversalManager implements TraversalManager {
 	}
 
 	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-			String additionalWhereClause, boolean isPublic) throws RepositoryException {
+			String additionalWhereClause, boolean isPublic)
+			throws RepositoryException {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("qtm", "Valuate IClient", null);
 		}
@@ -87,7 +87,7 @@ public class DctmTraversalManager implements TraversalManager {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("webtop url " + serverUrl);
 		}
-		
+
 		this.isPublic = isPublic;
 
 	}
@@ -206,7 +206,8 @@ public class DctmTraversalManager implements TraversalManager {
 		}
 
 		ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
-		PropertyMapList propertyMapList = new DctmResultSet(collec, sessionManager, clientX, isPublic);
+		PropertyMapList propertyMapList = new DctmResultSet(collec,
+				sessionManager, clientX, isPublic);
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("qtm", "ResultSet built.");
@@ -271,8 +272,8 @@ public class DctmTraversalManager implements TraversalManager {
 		return dateString;
 	}
 
-	public String makeCheckpointQueryString(String uuid, String c
-			) throws RepositoryException {
+	public String makeCheckpointQueryString(String uuid, String c)
+			throws RepositoryException {
 		Object[] arguments = { c, uuid, c };
 
 		String statement = MessageFormat.format(whereBoundedClause, arguments);

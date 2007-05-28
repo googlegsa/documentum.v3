@@ -16,16 +16,19 @@ public class DctmSysobjectIterator implements Iterator {
 
 	int index;
 
+	boolean isPublic = false;
+
 	DctmSysobjectIterator(ICollection co, ISessionManager sessMag,
-			IClientX clientX) {
+			IClientX clientX, boolean isPublic) {
 		this.co = co;
 		this.index = 0;
 		this.sessMag = sessMag;
 		this.clientX = clientX;
+		this.isPublic = isPublic;
 	}
 
 	public void remove() {
-		// TODO Auto-generated method stub
+		
 
 	}
 
@@ -46,6 +49,7 @@ public class DctmSysobjectIterator implements Iterator {
 		} catch (RepositoryException e) {
 			return null;
 		}
-		return new DctmSysobjectPropertyMap(crID, sessMag, clientX);
+		return new DctmSysobjectPropertyMap(crID, sessMag, clientX,
+				isPublic ? "true" : "false");
 	}
 }

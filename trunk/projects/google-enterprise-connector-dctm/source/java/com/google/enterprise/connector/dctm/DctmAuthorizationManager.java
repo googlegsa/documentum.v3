@@ -11,7 +11,12 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.*;
+
+import com.google.enterprise.connector.spi.AuthorizationManager;
+import com.google.enterprise.connector.spi.AuthenticationIdentity;
+import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.SimplePropertyMapList;
+import com.google.enterprise.connector.spi.AuthorizationResponse;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
 
@@ -37,9 +42,10 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	}
 
-	public ResultSet authorizeDocids(List docidList, String username)
+	public List authorizeDocids(List docidList,
+			AuthenticationIdentity authenticationIdentity)
 			throws RepositoryException {
-
+		String username = authenticationIdentity.getUsername();
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
 		ISession session;
@@ -68,10 +74,10 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		ICollection collec = query.execute(sessionManagerUser,
 				IQuery.READ_QUERY);
 
-		SimpleResultSet simpleResultSet = new SimpleResultSet();
+		SimplePropertyMapList simplePropertyMapList = new SimplePropertyMapList();
 
 		String id = "";
-		SimplePropertyMap simplePropertyMap;
+		AuthorizationResponse authorizationResponse;
 		Iterator iterDocIdList = docidList.iterator();
 		String object_id = "";
 		while (collec.next()) {
@@ -79,32 +85,24 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		}
 		while (iterDocIdList.hasNext()) {
 			id = (String) iterDocIdList.next();
-			simplePropertyMap = new SimplePropertyMap();
-			simplePropertyMap.putProperty(new SimpleProperty(
-					SpiConstants.PROPNAME_DOCID, new SimpleValue(
-							ValueType.STRING, id)));
 			if (object_id.indexOf(id) != -1) {
 				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
 					logger.info("id " + id);
 					logger.info("hasRight?  " + true);
 				}
-				simplePropertyMap.putProperty(new SimpleProperty(
-						SpiConstants.PROPNAME_AUTH_VIEWPERMIT, new SimpleValue(
-								ValueType.BOOLEAN, "true")));
+				authorizationResponse = new AuthorizationResponse(true, id);
 			} else {
 				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
 					logger.info("id " + id);
 					logger.info("hasRight?  " + false);
 				}
-				simplePropertyMap.putProperty(new SimpleProperty(
-						SpiConstants.PROPNAME_AUTH_VIEWPERMIT, new SimpleValue(
-								ValueType.BOOLEAN, "false")));
+				authorizationResponse = new AuthorizationResponse(false, id);
 			}
-			simpleResultSet.add(simplePropertyMap);
+			simplePropertyMapList.add(authorizationResponse);
 
 		}
 
-		return simpleResultSet;
+		return simplePropertyMapList;
 	}
 
 	private String buildQuery(List docidList) {
@@ -121,9 +119,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		return queryString;
 	}
 
-	public ResultSet authorizeTokens(List tokenList, String username)
+	public List authorizeTokens(List tokenList, String username)
 			throws RepositoryException {
-		ResultSet responses = null;
+		List responses = null;
 		return responses;
 	}
 

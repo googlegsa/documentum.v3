@@ -22,17 +22,19 @@ public class DctmConnector implements Connector {
 
 	private String clientX;
 
-	private String webtop_server_url;
+	private String webtop_display_url;
 
 	private String authentication_type;
 
 	private String where_clause;
 
+	private String is_public;
+
 	private static Logger logger = null;
 
 	public static boolean DEBUG = true;
 
-	public static int DEBUG_LEVEL = 4;
+	public static int DEBUG_LEVEL = 1;
 
 	static {
 		logger = Logger.getLogger(DctmConnector.class.getName());
@@ -86,8 +88,8 @@ public class DctmConnector implements Connector {
 		this.docbase = docbase;
 	}
 
-	public void setWebtop_server_url(String wsu) {
-		this.webtop_server_url = wsu;
+	public void setWebtop_display_url(String wsu) {
+		this.webtop_display_url = wsu;
 	}
 
 	public void setClientX(String clientX) {
@@ -99,9 +101,11 @@ public class DctmConnector implements Connector {
 	}
 
 	public Session login() throws RepositoryException {
-		if (DEBUG && DEBUG_LEVEL == 1) {
+		if (DEBUG && DEBUG_LEVEL >= 1) {
 			logger.log(Level.INFO, "login in the docbase " + docbase
-					+ " and user " + login);
+					+ " and user " + login + " " + clientX + " " + login + " "
+					+ password + " " + docbase + " " + webtop_display_url + " "
+					+ where_clause + " " + is_public.equals("on"));
 		}
 
 		if (DEBUG && DEBUG_LEVEL == 4) {
@@ -112,7 +116,7 @@ public class DctmConnector implements Connector {
 		}
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
-				webtop_server_url, where_clause);
+				webtop_display_url, where_clause, is_public.equals("on"));
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("conn",
@@ -128,6 +132,18 @@ public class DctmConnector implements Connector {
 
 	public void setWhere_clause(String additionalWhereClause) {
 		this.where_clause = additionalWhereClause;
+	}
+
+	public String getIs_public() {
+		return is_public;
+	}
+
+	public void setIs_public(String is_public) {
+		this.is_public = is_public;
+	}
+
+	public String getAuthentication_type() {
+		return authentication_type;
 	}
 
 }

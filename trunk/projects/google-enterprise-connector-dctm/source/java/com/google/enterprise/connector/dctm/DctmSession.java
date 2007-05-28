@@ -10,9 +10,9 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
-import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
+import com.google.enterprise.connector.spi.TraversalManager;
 
 public class DctmSession implements Session {
 	IClientX clientX;
@@ -28,6 +28,8 @@ public class DctmSession implements Session {
 	protected String additionalWhereClause;
 
 	String docbase;
+
+	boolean isPublic = false;
 
 	private static Logger logger = null;
 
@@ -46,9 +48,9 @@ public class DctmSession implements Session {
 	 */
 
 	public DctmSession(String clientX, String login, String password,
-			String docbase, String wsu, String additionalWhereClause)
-			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			String docbase, String wsu, String additionalWhereClause,
+			boolean isPublic) throws RepositoryException {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("DctmSession constructor with arguments");
 		}
 		ILoginInfo dctmLoginInfo = null;
@@ -97,7 +99,7 @@ public class DctmSession implements Session {
 		session = sessionManager.newSession(docbase);
 		this.clientX.setSessionManager(sessionManager);
 		sessionManager.release(session);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("--- DctmSession avant setSessionManager ---");
 		}
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
@@ -108,26 +110,27 @@ public class DctmSession implements Session {
 		this.additionalWhereClause = additionalWhereClause;
 		sessionManager.setDocbaseName(docbase);
 		sessionManager.setServerUrl(wsu);
+
+		this.isPublic = isPublic;
 	}
 
-	public QueryTraversalManager getQueryTraversalManager()
-			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+	public TraversalManager getTraversalManager() throws RepositoryException {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("--- DctmSession getQueryTraversalManager---");
 		}
 
-		DctmQueryTraversalManager dctmQtm = null;
+		DctmTraversalManager dctmTm = null;
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("a",
 					"DctmQueryTraversalManager's instantiation", null);
 		}
 
-		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
-				additionalWhereClause);
+		dctmTm = new DctmTraversalManager(clientX, webtopServerUrl,
+				additionalWhereClause, isPublic);
 
-		dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
-				additionalWhereClause);
+		//dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
+		//		additionalWhereClause);
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("a",
 					"DctmQueryTraversalManager's instantiation");
@@ -136,7 +139,7 @@ public class DctmSession implements Session {
 			logger.info("client " + client.getClass() + "---");
 		}
 
-		return dctmQtm;
+		return dctmTm;
 	}
 
 	/**
@@ -192,6 +195,8 @@ public class DctmSession implements Session {
 			throw new RepositoryException(e);
 		} catch (ClassNotFoundException e) {
 			throw new RepositoryException(e);
+		} catch (NoClassDefFoundError e) {
+			throw new RepositoryException(e);
 		}
 		this.clientX = cl;
 	}
@@ -215,4 +220,5 @@ public class DctmSession implements Session {
 	public void setClientX(IClientX clientX) {
 		this.clientX = clientX;
 	}
+
 }

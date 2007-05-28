@@ -1,17 +1,17 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
-import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface ISessionManager {
-	public ISession getSession(String docbase) throws LoginException,
+	public ISession getSession(String docbase) throws RepositoryLoginException,
 			RepositoryException;
 
-	public ISession newSession(String docbase) throws LoginException,
+	public ISession newSession(String docbase) throws RepositoryLoginException,
 			RepositoryException;
 
 	public void setIdentity(String docbase, ILoginInfo identity)
-			throws LoginException;
+			throws RepositoryLoginException;
 
 	public void release(ISession session);
 
