@@ -5,16 +5,16 @@ import java.util.Iterator;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
-import com.google.enterprise.connector.spi.QueryTraversalManager;
+import com.google.enterprise.connector.spi.PropertyMapList;
+import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.SpiConstants;
 
 import junit.framework.TestCase;
 
 public class DctmMockSysobjectIteratorTest extends TestCase {
 
-	QueryTraversalManager qtm = null;
+	TraversalManager qtm = null;
 
 	DctmSession dctmSession = null;
 
@@ -29,29 +29,30 @@ public class DctmMockSysobjectIteratorTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+		((DctmConnector) connector).setIs_public("false");
 		dctmSession = (DctmSession) connector.login();
 
-		qtm = (DctmQueryTraversalManager) dctmSession
-				.getQueryTraversalManager();
+		qtm = (DctmTraversalManager) dctmSession
+				.getTraversalManager();
 		qtm.setBatchHint(2);
 
 	}
 
 	public void testHasNext() throws RepositoryException {
 
-		ResultSet resultSet = qtm.startTraversal();
-		Iterator iter = resultSet.iterator();
+		PropertyMapList propertyMapList = qtm.startTraversal();
+		Iterator iter = propertyMapList.iterator();
 		boolean rep = iter.hasNext();
 		assertTrue(rep);
 	}
 
 	public void testNext() throws RepositoryException {
 		int counter = 0;
-		ResultSet resultSet = qtm.startTraversal();
+		PropertyMapList propertyMapList = qtm.startTraversal();
 		PropertyMap pm = null;
 		Property prop = null;
-		Iterator iter = resultSet.iterator();
+		Iterator iter = propertyMapList.iterator();
 
 		while (iter.hasNext()) {
 			Object obj = iter.next();

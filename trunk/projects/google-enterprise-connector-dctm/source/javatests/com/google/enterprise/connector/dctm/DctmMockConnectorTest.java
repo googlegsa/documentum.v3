@@ -15,8 +15,9 @@ public class DctmMockConnectorTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-
+				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+		((DctmConnector) connector)
+		.setIs_public("true");
 		DctmSession dctmSession = (DctmSession) connector.login();
 		assertNotNull(dctmSession);
 		assertEquals(DmInitialize.DM_WEBTOP_SERVER_URL,

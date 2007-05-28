@@ -24,7 +24,7 @@ public class AllMockTests {
 		// $JUnit-BEGIN$
 		suite.addTestSuite(DctmMockAuthorizationManagerTest.class);
 		suite.addTestSuite(DctmMockSysobjectValueTest.class);
-		suite.addTestSuite(DctmMockQueryTraversalManagerTest.class);
+		suite.addTestSuite(DctmMockTraversalManagerTest.class);
 		suite.addTestSuite(DctmMockAuthenticationManagerTest.class);
 		suite.addTestSuite(DctmMockSessionTest.class);
 		suite.addTestSuite(DctmMockSysobjectPropertyMapTest.class);

@@ -8,6 +8,7 @@ import javax.jcr.SimpleCredentials;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
@@ -18,8 +19,8 @@ import com.google.enterprise.connector.mock.MockRepositoryEventList;
 
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
-import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 //Implements four interfaces to simulate the session pool.
 //Does not manage multiple sessions for the same docbase (for the moment) 
@@ -87,7 +88,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 			}
 			return currentSession;
 		} else
-			throw new LoginException("newSession(" + docbase
+			throw new RepositoryLoginException("newSession(" + docbase
 					+ ") called for docbase " + docbase
 					+ " without setting any credentials prior to this call");
 	}
@@ -184,7 +185,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 * @throws com.google.enterprise.connector.spi.RepositoryException
 	 */
 	private MockDmSession createAuthenticatedSession(String db, ILoginInfo iLI)
-			throws RepositoryException, LoginException {
+			throws RepositoryException, RepositoryLoginException {
 		// db is actually the suffix of the filename that is used to create the
 		// eventlist.
 		// As there is no way we can retrieve it, we will store it in the
@@ -202,14 +203,14 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 			creds = new SimpleCredentials(iLI.getUser(), iLI.getPassword()
 					.toCharArray());
 		} else {
-			throw new LoginException("No credentials defined for " + db);
+			throw new RepositoryLoginException("No credentials defined for " + db);
 		}
 
 		MockJcrSession sess = null;
 		try {
 			sess = (MockJcrSession) repo.login(creds);
 		} catch (javax.jcr.LoginException e) {
-			throw new LoginException(e);
+			throw new RepositoryLoginException(e);
 		} catch (javax.jcr.RepositoryException e) {
 			throw new com.google.enterprise.connector.spi.RepositoryException(e);
 		}
@@ -248,6 +249,10 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	 */
 	public void setClient(IClient client) {
 
+	}
+
+	public IDocbaseMap getDocbaseMap() throws RepositoryException {
+		return null;
 	}
 
 }

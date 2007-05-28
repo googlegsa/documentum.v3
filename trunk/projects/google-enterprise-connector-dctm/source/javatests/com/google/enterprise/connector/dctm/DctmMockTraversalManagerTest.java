@@ -9,20 +9,20 @@ import org.json.JSONObject;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.Connector;
+import com.google.enterprise.connector.spi.PropertyMapList;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
 
 import junit.framework.TestCase;
 
-public class DctmMockQueryTraversalManagerTest extends TestCase {
+public class DctmMockTraversalManagerTest extends TestCase {
 
 	Session session = null;
 
 	Connector connector = null;
 
-	DctmQueryTraversalManager qtm = null;
+	DctmTraversalManager qtm = null;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -35,21 +35,23 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+		((DctmConnector) connector)
+		.setIs_public("true");
 		session = (DctmSession) connector.login();
-		qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();
+		qtm = (DctmTraversalManager) session.getTraversalManager();
 
 	}
 
 	public void testStartTraversal() throws RepositoryException {
 
-		ResultSet resultset = null;
+		PropertyMapList propertyMapList = null;
 		int counter = 0;
 
 		qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_UNBOUNDED);
-		resultset = qtm.startTraversal();
+		propertyMapList = qtm.startTraversal();
 
-		for (Iterator iter = resultset.iterator(); iter.hasNext();) {
+		for (Iterator iter = propertyMapList.iterator(); iter.hasNext();) {
 			iter.next();
 			counter++;
 		}
@@ -113,7 +115,7 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 	public void testIDfetchAndVerifyValueForCheckpoint()
 			throws RepositoryException {
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX());
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false");
 
 		String uuid = qtm.fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
@@ -124,11 +126,11 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 	public void testDatefetchAndVerifyValueForCheckpoint()
 			throws RepositoryException, ParseException {
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX());
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false");
 		Calendar calDate = null;
 
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,
-				SpiConstants.PROPNAME_LASTMODIFY).getDate();
+				SpiConstants.PROPNAME_LASTMODIFIED).getDate();
 
 		calDate = DctmSysobjectValue
 				.iso8601ToCalendar("1970-01-01 01:00:00.020");
@@ -140,7 +142,7 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 
 		String checkPoint = null;
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX());
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false");
 		checkPoint = qtm.checkpoint(pm);
 
 		assertNotNull(checkPoint);
@@ -152,7 +154,7 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 	public void testResumeTraversal() throws RepositoryException {
 
 		session = (DctmSession) connector.login();
-		qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();
+		qtm = (DctmTraversalManager) session.getTraversalManager();
 		DctmResultSet resultSet = null;
 
 		String checkPoint = "{\"uuid\":\"doc2\",\"lastModified\":\"1969-01-01 01:00:00.010\"}";
@@ -180,16 +182,16 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 	}
 
 	public void testResumeTraversalWithSimilarDate() throws RepositoryException {
-		ResultSet resultSet = null;
+		PropertyMapList propertyMapList = null;
 
 		String checkPoint = "{\"uuid\":\"doc2\",\"lastModified\":\"1970-01-01 01:00:00.010\"}";
 
 		qtm.setBatchHint(1);
-		resultSet = qtm.resumeTraversal(checkPoint);
+		propertyMapList = qtm.resumeTraversal(checkPoint);
 
-		DctmSysobjectIterator iter = (DctmSysobjectIterator) resultSet
+		DctmSysobjectIterator iter = (DctmSysobjectIterator) propertyMapList
 				.iterator();
-		while (iter.hasNext()) {
+		if (iter.hasNext()) {
 			DctmSysobjectPropertyMap map = (DctmSysobjectPropertyMap) iter
 					.next();
 			String docId = map.getProperty(SpiConstants.PROPNAME_DOCID)
@@ -197,7 +199,7 @@ public class DctmMockQueryTraversalManagerTest extends TestCase {
 			String expectedid = "users";
 			assertEquals(expectedid, docId);
 			String modifyDate = DctmSysobjectValue.calendarToIso8601(map
-					.getProperty(SpiConstants.PROPNAME_LASTMODIFY).getValue()
+					.getProperty(SpiConstants.PROPNAME_LASTMODIFIED).getValue()
 					.getDate());
 			String expecterModifyDate = "1994-11-15 13:45:26.000";
 			assertEquals(expecterModifyDate, modifyDate);

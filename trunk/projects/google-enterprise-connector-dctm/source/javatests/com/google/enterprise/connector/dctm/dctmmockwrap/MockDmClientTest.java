@@ -6,8 +6,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -74,7 +74,7 @@ public class MockDmClientTest extends TestCase {
 			try {
 				sessionManager.newSession("MockRepositoryEventLog7.txt");
 				assertTrue(false);
-			} catch (LoginException e) {
+			} catch (RepositoryLoginException e) {
 				assertEquals(
 						e.getMessage(),
 						"newSession(MockRepositoryEventLog7.txt) called for docbase "

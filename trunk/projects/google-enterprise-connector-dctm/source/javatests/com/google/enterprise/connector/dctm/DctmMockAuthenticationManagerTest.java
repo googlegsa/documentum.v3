@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
+import com.google.enterprise.connector.manager.UserPassIdentity;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
@@ -16,32 +17,32 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-
+				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+		((DctmConnector) connector)
+		.setIs_public("true");
 		Session sess = (DctmSession) connector.login();
 
 		DctmAuthenticationManager authentManager = (DctmAuthenticationManager) sess
 				.getAuthenticationManager();
 
-		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK1,
-				DmInitialize.DM_PWD_OK1));
-		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
-				DmInitialize.DM_PWD_KO));
-		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
-				DmInitialize.DM_PWD_OK2));
-		assertFalse(authentManager.authenticate(DmInitialize.DM_LOGIN_OK2,
-				DmInitialize.DM_PWD_KO));
+		assertTrue(authentManager.authenticate(new UserPassIdentity(DmInitialize.DM_LOGIN_OK1,
+				DmInitialize.DM_PWD_OK1)).isValid());
+		assertFalse(authentManager.authenticate(new UserPassIdentity(DmInitialize.DM_LOGIN_OK2, DmInitialize.DM_PWD_KO)).isValid());
+		assertTrue(authentManager.authenticate(new UserPassIdentity(DmInitialize.DM_LOGIN_OK2,
+				DmInitialize.DM_PWD_OK2)).isValid());
+		assertFalse(authentManager.authenticate(new UserPassIdentity(DmInitialize.DM_LOGIN_OK2,
+				DmInitialize.DM_PWD_KO)).isValid());
 		assertFalse(authentManager
-				.authenticate(DmInitialize.DM_LOGIN_OK2, null));
-		assertFalse(authentManager.authenticate(null, DmInitialize.DM_PWD_OK1));
-		assertFalse(authentManager.authenticate(null, null));
+				.authenticate(new UserPassIdentity(DmInitialize.DM_LOGIN_OK2, null)).isValid());
+		assertFalse(authentManager.authenticate(new UserPassIdentity(null, DmInitialize.DM_PWD_OK1)).isValid());
+		assertFalse(authentManager.authenticate(new UserPassIdentity(null, null)).isValid());
 
-		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK3,
-				DmInitialize.DM_PWD_OK3));
-		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK1,
-				DmInitialize.DM_PWD_OK1));
-		assertTrue(authentManager.authenticate(DmInitialize.DM_LOGIN_OK5,
-				DmInitialize.DM_PWD_OK5));
+		assertTrue(authentManager.authenticate(new UserPassIdentity(DmInitialize.DM_LOGIN_OK3,
+				DmInitialize.DM_PWD_OK3)).isValid());
+		assertTrue(authentManager.authenticate(new UserPassIdentity(DmInitialize.DM_LOGIN_OK1,
+				DmInitialize.DM_PWD_OK1)).isValid());
+		assertTrue(authentManager.authenticate(new UserPassIdentity(DmInitialize.DM_LOGIN_OK5,
+				DmInitialize.DM_PWD_OK5)).isValid());
 	}
 
 }
