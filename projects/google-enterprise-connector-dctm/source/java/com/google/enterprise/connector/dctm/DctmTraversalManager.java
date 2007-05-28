@@ -13,13 +13,14 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
-import com.google.enterprise.connector.spi.QueryTraversalManager;
+import com.google.enterprise.connector.spi.PropertyMapList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.Value;
-import com.google.enterprise.connector.spi.ResultSet;
 
-public class DctmQueryTraversalManager implements QueryTraversalManager {
+
+public class DctmTraversalManager implements TraversalManager {
 
 	private IClientX clientX;
 
@@ -38,10 +39,12 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	protected String additionalWhereClause;
 
+	private boolean isPublic;
+
 	private static Logger logger = null;
 
 	static {
-		logger = Logger.getLogger(DctmQueryTraversalManager.class.getName());
+		logger = Logger.getLogger(DctmTraversalManager.class.getName());
 		logger.setLevel(Level.ALL);
 	}
 
@@ -65,8 +68,8 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		return serverUrl;
 	}
 
-	public DctmQueryTraversalManager(IClientX clientX, String webtopServerUrl,
-			String additionalWhereClause) throws RepositoryException {
+	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
+			String additionalWhereClause, boolean isPublic) throws RepositoryException {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("qtm", "Valuate IClient", null);
 		}
@@ -81,9 +84,11 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		setSessionManager(clientX.getSessionManager());
 
 		this.serverUrl = webtopServerUrl;
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("webtop url " + serverUrl);
 		}
+		
+		this.isPublic = isPublic;
 
 	}
 
@@ -100,7 +105,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 *             if the Repository is unreachable or similar exceptional
 	 *             condition.
 	 */
-	public ResultSet startTraversal() throws RepositoryException {
+	public PropertyMapList startTraversal() throws RepositoryException {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("Pull process started");
 		}
@@ -121,16 +126,16 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 *         checkpoint.
 	 * @throws RepositoryException
 	 */
-	public ResultSet resumeTraversal(String checkPoint)
+	public PropertyMapList resumeTraversal(String checkPoint)
 			throws RepositoryException {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of checkpoint  " + checkPoint);
 		}
 
-		ResultSet resultSet = null;
+		PropertyMapList propertyMapList = null;
 		IQuery query = makeCheckpointQuery(buildQueryString(checkPoint));
-		resultSet = execQuery(query);
-		return resultSet;
+		propertyMapList = execQuery(query);
+		return propertyMapList;
 	}
 
 	/**
@@ -158,7 +163,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 				SpiConstants.PROPNAME_DOCID).getString();
 
 		Value value = fetchAndVerifyValueForCheckpoint(pm,
-				SpiConstants.PROPNAME_LASTMODIFY);
+				SpiConstants.PROPNAME_LASTMODIFIED);
 
 		String dateString = DctmSysobjectValue.calendarToIso8601(value
 				.getDate());
@@ -170,7 +175,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 			jo.put("lastModified", dateString);
 			result = jo.toString();
 		} catch (JSONException e) {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 				logger.severe("Unexpected JSON problem");
 			}
 			throw new RepositoryException("Unexpected JSON problem", e);
@@ -188,22 +193,25 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 	 * @throws RepositoryException
 	 */
 	public void setBatchHint(int batchHint) throws RepositoryException {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			logger.info("batchHint of " + batchHint);
+		}
 		this.batchHint = batchHint;
 	}
 
-	public ResultSet execQuery(IQuery query) throws RepositoryException {
+	public PropertyMapList execQuery(IQuery query) throws RepositoryException {
 		sessionManager.setServerUrl(serverUrl);
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.setPerfFlag("qtm", "Processing query", null);
 		}
 
 		ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
-		ResultSet rs = new DctmResultSet(collec, sessionManager, clientX);
+		PropertyMapList propertyMapList = new DctmResultSet(collec, sessionManager, clientX, isPublic);
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
 			OutputPerformances.endFlag("qtm", "ResultSet built.");
 		}
-		return rs;
+		return propertyMapList;
 	}
 
 	public Value fetchAndVerifyValueForCheckpoint(PropertyMap pm, String pName)
@@ -234,7 +242,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		try {
 			uuid = jo.getString("uuid");
 		} catch (JSONException e) {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 				logger.severe("could not get uuid from checkPoint string: "
 						+ checkPoint);
 			}
@@ -250,7 +258,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		try {
 			dateString = jo.getString("lastModified");
 		} catch (JSONException e) {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 				logger
 						.severe("could not get lastmodify from checkPoint string: "
 								+ checkPoint);
@@ -298,7 +306,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 						+ Integer.toString(batchHint) + ")");
 			}
 		}
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info(query.toString());
 		}
 
@@ -307,7 +315,7 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 
 	private String getCheckpointClause(String checkPoint)
 			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of checkpoint" + checkPoint);
 		}
 		JSONObject jo = null;
@@ -324,6 +332,14 @@ public class DctmQueryTraversalManager implements QueryTraversalManager {
 		String c = extractNativeDateFromCheckpoint(jo, checkPoint);
 		String queryString = makeCheckpointQueryString(uuid, c);
 		return queryString;
+	}
+
+	public boolean isPublic() {
+		return isPublic;
+	}
+
+	public void setPublic(boolean isPublic) {
+		this.isPublic = isPublic;
 	}
 
 }
