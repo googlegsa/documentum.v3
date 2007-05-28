@@ -49,7 +49,7 @@ public class DctmSysobjectPropertyMapTest extends TestCase {
 	public void testGetProperties() throws RepositoryException {
 
 		DctmSysobjectPropertyMap dctmSpm = new DctmSysobjectPropertyMap(
-				DmInitialize.DM_ID1, sessionManager, dctmClientX);
+				DmInitialize.DM_ID1, sessionManager, dctmClientX, "false");
 
 		Iterator iterator = dctmSpm.getProperties();
 		int counter = 0;
@@ -57,12 +57,12 @@ public class DctmSysobjectPropertyMapTest extends TestCase {
 			iterator.next();
 			counter++;
 		}
-		assertEquals(9, counter);
+		assertEquals(5, counter);
 	}
 
 	public void testGetProperty() throws RepositoryException {
 		DctmSysobjectPropertyMap dctmSpm = new DctmSysobjectPropertyMap(
-				DmInitialize.DM_ID1, sessionManager, dctmClientX);
+				DmInitialize.DM_ID1, sessionManager, dctmClientX, "false");
 		Property property = dctmSpm.getProperty("r_object_id");
 		assertTrue(property instanceof DctmSysobjectProperty);
 		assertEquals("r_object_id", property.getName());

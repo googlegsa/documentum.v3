@@ -5,17 +5,17 @@ import java.util.Iterator;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.PropertyMap;
-import com.google.enterprise.connector.spi.QueryTraversalManager;
+import com.google.enterprise.connector.spi.PropertyMapList;
+import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.ResultSet;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
 
 import junit.framework.TestCase;
 
 public class DctmSysobjectIteratorTest extends TestCase {
-	
-	QueryTraversalManager qtm = null;
+
+	TraversalManager qtm = null;
 
 	private final boolean DFC = true;
 
@@ -48,22 +48,23 @@ public class DctmSysobjectIteratorTest extends TestCase {
 		((DctmConnector) connector).setPassword(password);
 		((DctmConnector) connector).setDocbase(docbase);
 		((DctmConnector) connector)
-				.setWebtop_server_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
+				.setWebtop_display_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
 		((DctmConnector) connector).setClientX(clientX);
+		((DctmConnector) connector).setIs_public("false");
 
 		/**
 		 * End simulation
 		 */
 
 		session = (DctmSession) connector.login();
-		qtm = (DctmQueryTraversalManager) session.getQueryTraversalManager();
+		qtm = (DctmTraversalManager) session.getTraversalManager();
 		qtm.setBatchHint(2);
 
 	}
 
 	public void testHasNext() throws RepositoryException {
 
-		ResultSet resultSet = qtm.startTraversal();
+		PropertyMapList resultSet = qtm.startTraversal();
 		Iterator iter = resultSet.iterator();
 		boolean rep = iter.hasNext();
 		assertTrue(rep);
@@ -71,7 +72,7 @@ public class DctmSysobjectIteratorTest extends TestCase {
 
 	public void testNext() throws RepositoryException {
 		int counter = 0;
-		ResultSet resultSet = qtm.startTraversal();
+		PropertyMapList resultSet = qtm.startTraversal();
 		PropertyMap pm = null;
 		Property prop = null;
 		Iterator iter = resultSet.iterator();

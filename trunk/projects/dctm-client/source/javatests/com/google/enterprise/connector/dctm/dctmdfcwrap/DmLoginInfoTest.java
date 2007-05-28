@@ -5,7 +5,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.LoginException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -30,7 +30,7 @@ public class DmLoginInfoTest extends TestCase {
 
 	}
 
-	public void testGetSetUser() throws LoginException {
+	public void testGetSetUser() throws RepositoryLoginException {
 		String user = DmInitialize.DM_LOGIN_OK1;
 		String docbase = DmInitialize.DM_DOCBASE;
 		loginInfo.setUser(user);
@@ -40,7 +40,7 @@ public class DmLoginInfoTest extends TestCase {
 		Assert.assertEquals(DmInitialize.DM_LOGIN_OK1, loginInfo.getUser());
 	}
 
-	public void testGetSetPassword() throws LoginException {
+	public void testGetSetPassword() throws RepositoryLoginException {
 		String password = DmInitialize.DM_PWD_OK1;
 		String docbase = DmInitialize.DM_DOCBASE;
 		loginInfo.setPassword(password);

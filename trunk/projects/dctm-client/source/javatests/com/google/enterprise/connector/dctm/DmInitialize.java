@@ -51,15 +51,15 @@ public class DmInitialize {
 	public static String DM_ID4 = "4c000001800001b8";
 
 	public static String DM_ID5 = "090000018000a5ee";
-	
-	public static boolean DM_ID2_IS_PUBLIC=false;
-	
+
+	public static boolean DM_ID2_IS_PUBLIC = false;
+
 	public static String DM_DEFAULT_MIMETYPE = "application/octet-stream";
-	
-	public static int DM_DEFAULT_ATTRS=0;
-	
-	public static int DM_ID2_SIZE=16;
-	
-	public static String DM_FIRST_ATTR="google:ispublic";
+
+	public static int DM_DEFAULT_ATTRS = 0;
+
+	public static int DM_ID2_SIZE = 16;
+
+	public static String DM_FIRST_ATTR = "google:ispublic";
 
 }
