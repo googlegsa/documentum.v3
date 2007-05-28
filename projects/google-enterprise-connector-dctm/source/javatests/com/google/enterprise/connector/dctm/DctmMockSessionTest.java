@@ -3,8 +3,8 @@ package com.google.enterprise.connector.dctm;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
-import com.google.enterprise.connector.spi.QueryTraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.TraversalManager;
 
 import junit.framework.TestCase;
 
@@ -22,13 +22,14 @@ public class DctmMockSessionTest extends TestCase {
 		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
-				.setWebtop_server_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+		((DctmConnector) connector).setIs_public("false");
 		dctmSession = (DctmSession) connector.login();
 	}
 
 	public void testGetQueryTraversalManager() throws RepositoryException {
-		QueryTraversalManager DctmQm = dctmSession.getQueryTraversalManager();
-		String serverUrl = ((DctmQueryTraversalManager) DctmQm).getServerUrl();
+		TraversalManager DctmQm = dctmSession.getTraversalManager();
+		String serverUrl = ((DctmTraversalManager) DctmQm).getServerUrl();
 		assertNotNull(DctmQm);
 
 		assertEquals(serverUrl, DmInitialize.DM_WEBTOP_SERVER_URL);

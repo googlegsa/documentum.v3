@@ -12,8 +12,8 @@ import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.MockRepositoryProperty;
 import com.google.enterprise.connector.mock.MockRepositoryPropertyList;
-import com.google.enterprise.connector.spi.LoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 /**
  * @author jpasquon This list will be utilized only by the MockJcrQueryResult
@@ -27,7 +27,7 @@ public class MockMockList implements List {
 	private Set set = new HashSet(1, 1);
 
 	protected MockMockList(String[] ids, ISessionManager sessionManager)
-			throws LoginException, RepositoryException {
+			throws RepositoryLoginException, RepositoryException {
 		String claimant = sessionManager.getIdentity(
 				sessionManager.getDocbaseName()).getUser();
 		MockRepositoryDocumentStore store = ((MockDmSession) sessionManager
