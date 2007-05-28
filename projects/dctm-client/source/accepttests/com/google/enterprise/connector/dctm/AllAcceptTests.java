@@ -21,7 +21,7 @@ public class AllAcceptTests {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(
-				"Test for com.google.enterprise.connector.dctm");
+				"Acceptance Test for com.google.enterprise.connector.dctm");
 		// $JUnit-BEGIN$
 		suite.addTestSuite(DmClientXATest.class);
 		suite.addTestSuite(DmClientATest.class);
