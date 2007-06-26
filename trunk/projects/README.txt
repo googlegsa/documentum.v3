@@ -11,6 +11,7 @@ REQUIRED FILES to compile and run the tests
 •	jcr-1.0.jar
 •	junit.jar (in third_party/lib folder of the project)
 •	spring.jar (in third_party/lib folder of the project)
+•	commons-logging.jar (in third_party/lib folder of the project)
 •	connector_spi.jar (to copy in third_party/lib folder of the project)
 •	connector.jar (to copy in third_party/lib folder of the project
 •	connector_tests.jar (to copy in third_party/lib folder of the project
