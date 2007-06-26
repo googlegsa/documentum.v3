@@ -9,6 +9,7 @@
 	<property name="dist" value="dist" />
 	<property name="config" value="google-enterprise-connector-dctm/config" />
 	<property name="jarfile.dir" value="third_party/lib"/>
+	<property name="dctm_jarfile.dir" value="dctm_third_party/lib"/>
 	<property name="core.dir" value="google-enterprise-connector-dctm"/>
 	<property name="core.classes" value="${core.dir}/build/classes" />
 		
@@ -24,11 +25,12 @@
 	<property name="jarfile"  value="${jar.dir}/connector-dctm.jar" />
 	
 	<property name="spi.jarfile" value="${jarfile.dir}/connector_spi.jar" />
-	<property name="dfc.jarfile" location="${jarfile.dir}/dfc.jar" />
+	<property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
 	<property name="json.jarfile" location="${jarfile.dir}/json.jar" />
 	<property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
-	<property name="log4j.jarfile" location="${jarfile.dir}/log4j-1.2.8.jar" />
-	<property name="commons-http.jarfile" location="${jarfile.dir}/commons-httpclient-3.0.jar" />
+	<property name="commons-http.jarfile" location="${dctm_jarfile.dir}/commons-httpclient-3.0.1.jar" />
+	<property name="spring.jarfile" value="${jarfile.dir}/spring.jar" />
+	<property name="spring-framework.jarfile" value="${jarfile.dir}/spring-context.jar" />
 
 	<!-- =========================== TASKS =============================== -->
 	<target name="GoogleDCTM" depends="init,compile-mock,compile-client,jar">
@@ -51,8 +53,11 @@
 				<pathelement location="${dfc.jarfile}" />
 				<pathelement location="${json.jarfile}" />
 				<pathelement location="${jcr.jarfile}" />
-				<pathelement location="${log4j.jarfile}" />
+				<pathelement location="${spring-framework.jarfile}" />
+				<pathelement location="${spring.jarfile}" />
 				<pathelement location="${core.classes}" />
+
+
 			</classpath>
 		</javac>
 	</target>
@@ -61,9 +66,10 @@
 		<!-- compile java source files -->
 		<javac srcdir="${src-mock}" destdir="${classes-mock}" debug="${COMPILE_DEBUG_FLAG}">
 			<classpath>
+				<pathelement location="${spring-framework.jarfile}" />
+				<pathelement location="${spring.jarfile}" />
 				<pathelement location="${spi.jarfile}" />
 				<pathelement location="${json.jarfile}" />
-				<pathelement location="${log4j.jarfile}" />
 				<pathelement location="${commons-http.jarfile}" />
 			</classpath>
 		</javac>

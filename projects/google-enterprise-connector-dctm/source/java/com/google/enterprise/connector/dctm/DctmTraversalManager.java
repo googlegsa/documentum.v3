@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +41,10 @@ public class DctmTraversalManager implements TraversalManager {
 
 	private boolean isPublic;
 
+	private HashSet included_meta;
+
+	private HashSet excluded_meta;
+
 	private static Logger logger = null;
 
 	static {
@@ -68,18 +73,11 @@ public class DctmTraversalManager implements TraversalManager {
 	}
 
 	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-			String additionalWhereClause, boolean isPublic)
+			String additionalWhereClause, boolean isPublic, HashSet included_meta, HashSet excluded_meta)
 			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("qtm", "Valuate IClient", null);
-		}
 		this.additionalWhereClause = additionalWhereClause;
 
 		setClientX(clientX);
-
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("qtm", "Valuate IClient");
-		}
 
 		setSessionManager(clientX.getSessionManager());
 
@@ -89,7 +87,8 @@ public class DctmTraversalManager implements TraversalManager {
 		}
 
 		this.isPublic = isPublic;
-
+		this.included_meta = included_meta;
+		this.excluded_meta =excluded_meta;
 	}
 
 	/**
@@ -161,7 +160,7 @@ public class DctmTraversalManager implements TraversalManager {
 	public String checkpoint(PropertyMap pm) throws RepositoryException {
 		String uuid = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
-
+		
 		Value value = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_LASTMODIFIED);
 
@@ -201,17 +200,15 @@ public class DctmTraversalManager implements TraversalManager {
 
 	public PropertyMapList execQuery(IQuery query) throws RepositoryException {
 		sessionManager.setServerUrl(serverUrl);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("qtm", "Processing query", null);
-		}
-
-		ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
-		PropertyMapList propertyMapList = new DctmResultSet(collec,
-				sessionManager, clientX, isPublic);
-
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("qtm", "ResultSet built.");
-		}
+		ICollection collec = null;
+		PropertyMapList propertyMapList;
+		
+		
+		collec = query.execute(sessionManager, IQuery.READ_QUERY);
+		propertyMapList = new DctmPropertyMapList(collec,
+				sessionManager, clientX, isPublic, included_meta, excluded_meta);
+		
+		
 		return propertyMapList;
 	}
 

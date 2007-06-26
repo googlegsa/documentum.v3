@@ -21,10 +21,10 @@ public class DmId implements IId {
 
 	public void setidfId(IDfId idfId) {
 		this.idfId = idfId;
-		
+
 	}
-	
-	public String getId(){
+
+	public String getId() {
 		return this.idfId.getId();
 	}
 

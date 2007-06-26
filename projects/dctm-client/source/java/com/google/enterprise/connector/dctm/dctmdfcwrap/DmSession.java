@@ -13,9 +13,11 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class DmSession implements ISession {
 
 	IDfSession idfSession;
+	
 
-	public DmSession(IDfSession DfSession) {
-		this.idfSession = DfSession;
+	public DmSession(IDfSession dfSession) {
+		this.idfSession = dfSession;
+		
 	}
 
 	public ISysObject getObject(IId objectId) throws RepositoryException {

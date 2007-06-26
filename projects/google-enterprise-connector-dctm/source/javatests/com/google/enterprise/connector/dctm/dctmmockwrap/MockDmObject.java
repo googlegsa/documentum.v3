@@ -192,7 +192,8 @@ public class MockDmObject implements ISysObject {
 	}
 
 	public IId getId(String id) throws RepositoryException {
-		return new MockDmId(id);
+		
+		return new MockDmId(this.mockDocument.getDocID());
 	}
 
 	public IFormat getFormat() throws RepositoryException {

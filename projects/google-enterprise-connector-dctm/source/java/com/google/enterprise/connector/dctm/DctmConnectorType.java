@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
@@ -17,6 +18,10 @@ import java.util.logging.Logger;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -27,6 +32,7 @@ import com.google.enterprise.connector.spi.ConnectorType;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DctmConnectorType implements ConnectorType {
+	
 	private static final String HIDDEN = "hidden";
 
 	private static final String VALUE = "value";
@@ -66,22 +72,18 @@ public class DctmConnectorType implements ConnectorType {
 	private static final String WHERECLAUSE = "where_clause";
 
 	private static final String DOCBASENAME = "docbase";
-
-	//	private static final String RADIO = "radio";
+	
+	private static final String DISPLAYURL = "webtop_display_url";
 
 	private static final String CHECKBOX = "CHECKBOX";
 
 	private static final String CHECKED = "CHECKED";
-
-	// private static final String RADIO = "radio";
 
 	private List keys = null;
 
 	private Set keySet = null;
 
 	private String initialConfigForm = null;
-
-	//	private static HashMap mapError = null;
 
 	private static Logger logger = null;
 
@@ -120,11 +122,11 @@ public class DctmConnectorType implements ConnectorType {
 	}
 
 	public ConfigureResponse getConfigForm(Locale language) {
-		logger.info(language.getLanguage());
 		try {
 			resource = ResourceBundle.getBundle("DctmConnectorType", language);
-		} catch (Exception e) {
-			return new ConfigureResponse("", "");
+		} catch (MissingResourceException e) {
+			resource = null;
+			return new ConfigureResponse("", "The internationalization package is not installed. Please, install it.");
 		}
 		if (initialConfigForm != null) {
 			return new ConfigureResponse("", initialConfigForm);
@@ -138,36 +140,34 @@ public class DctmConnectorType implements ConnectorType {
 	}
 
 	public ConfigureResponse validateConfig(Map configData, Locale language) {
-		logger.info(language.getLanguage());
 		resource = ResourceBundle.getBundle("DctmConnectorType", language);
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.log(Level.INFO, "DCTM ValidateConfig");
 		}
 		String form = null;
-		if (validateConfigMap(configData)) {
+		DctmSession session ;
+		String validation = validateConfigMap(configData);
+		if (validation.equals("")) {
 			try {
-				String isPublic = (String) configData.get(ISPUBLIC);
-				if (isPublic == null) {
-					isPublic = "false";
-				}
+				
 				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 					logger.log(Level.INFO, "test connection to the docbase");
 				}
-				DctmSession session = new DctmSession(
-						"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX",
-						(String) configData.get("login"), (String) configData
-								.get("password"), (String) configData
-								.get("docbase"), (String) configData
-								.get("webtop_display_url"), (String) configData
-								.get(WHERECLAUSE), isPublic.equals("on"));
-
-				DctmAuthenticationManager authentManager = (DctmAuthenticationManager) session
-						.getAuthenticationManager();
-				authentManager.authenticate(new DctmAuthenticationIdentity(
-						(String) configData.get("login"), (String) configData
-								.get("password")));
-
-				testWebtopUrl((String) configData.get("webtop_display_url"));
+				Properties p = new Properties();
+				p.putAll(configData);
+				String isPublic = (String) configData.get(ISPUBLIC);
+				if (isPublic == null) {
+					p.put(ISPUBLIC,"false");
+				}
+				Resource res = new ClassPathResource("config/connectorInstanceDocumentum.xml");
+				XmlBeanFactory factory = new XmlBeanFactory(res);
+				PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
+				cfg.setProperties(p);
+				cfg.postProcessBeanFactory(factory);
+				DctmConnector conn = (DctmConnector) factory
+						.getBean("DctmConnectorInstance");
+				session = (DctmSession) conn.login();
+				testWebtopUrl((String) configData.get(DISPLAYURL));			
 				if ((String) configData.get(WHERECLAUSE) != null
 						&& !((String) configData.get(WHERECLAUSE)).equals("")) {
 					DctmTraversalManager qtm = (DctmTraversalManager) session
@@ -178,39 +178,47 @@ public class DctmConnectorType implements ConnectorType {
 				}
 
 			} catch (RepositoryException e) {
-				String message = e.getMessage();
-				String returnMessage = null;
-				String extractErrorMessage = null;
-				String bundleMessage = null;
-				if (message.indexOf("[") != -1) {
-					extractErrorMessage = message.substring(message
-							.indexOf("[") + 1, message.indexOf("]"));
-				} else {
-					extractErrorMessage = e.getCause().getClass().getName();
-				}
-				try {
-					bundleMessage = resource.getString(extractErrorMessage);
-				} catch (MissingResourceException mre) {
-					bundleMessage = resource.getString("DEFAULT_ERROR_MESSAGE")
-							+ " " + e.getMessage();
-				}
-				returnMessage = "<p><font color=\"#FF0000\">" + bundleMessage
-						+ "</font></p>";
-				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-					logger.log(Level.WARNING, returnMessage);
-				}
-				form = makeValidatedForm(configData);
-				return new ConfigureResponse(returnMessage, returnMessage
-						+ "<br>" + form);
+				return createErrorMessage(configData, e);
 
+			}finally{
+				
 			}
 			return null;
 		}
 
 		form = makeValidatedForm(configData);
-		return new ConfigureResponse("Some required configuration is missing",
-				form);
+		return new ConfigureResponse(resource.getString(validation+"_error"),
+				"<p><font color=\"#FF0000\">" + resource.getString(validation+"_error")
+				+ "</font></p><br>" + form);
 
+	}
+
+	private ConfigureResponse createErrorMessage(Map configData, RepositoryException e) {
+		String form;
+		String message = e.getMessage();
+		String returnMessage = null;
+		String extractErrorMessage = null;
+		String bundleMessage = null;
+		if (message.indexOf("[") != -1) {
+			extractErrorMessage = message.substring(message
+					.indexOf("[") + 1, message.indexOf("]"));
+		} else {
+			extractErrorMessage = e.getCause().getClass().getName();
+		}
+		try {
+			bundleMessage = resource.getString(extractErrorMessage);
+		} catch (MissingResourceException mre) {
+			bundleMessage = resource.getString("DEFAULT_ERROR_MESSAGE")
+					+ " " + e.getMessage();
+		}
+		returnMessage = "<p><font color=\"#FF0000\">" + bundleMessage
+				+ "</font></p>";
+		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
+			logger.log(Level.WARNING, returnMessage);
+		}
+		form = makeValidatedForm(configData);
+		return new ConfigureResponse(returnMessage, returnMessage
+				+ "<br>" + form);
 	}
 
 	private void checkAdditionalWhereClause(String additionalWhereClause,
@@ -226,7 +234,7 @@ public class DctmConnectorType implements ConnectorType {
 		query
 				.setDQL("select r_object_id from dm_sysobject where r_object_type='dm_document' "
 						+ additionalWhereClause);
-		DctmResultSet result = (DctmResultSet) qtm.execQuery(query);
+		DctmPropertyMapList result = (DctmPropertyMapList) qtm.execQuery(query);
 		Iterator iter = result.iterator();
 		int counter = 0;
 		while (iter.hasNext()) {
@@ -269,17 +277,17 @@ public class DctmConnectorType implements ConnectorType {
 
 	}
 
-	private boolean validateConfigMap(Map configData) {
+	private String validateConfigMap(Map configData) {
 		for (Iterator i = keys.iterator(); i.hasNext();) {
 			String key = (String) i.next();
 			String val = (String) configData.get(key);
 			if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE)
 					&& !key.equals(WHERECLAUSE) && !key.equals(ISPUBLIC)
 					&& (val == null || val.length() == 0)) {
-				return false;
+				return key;
 			}
 		}
-		return true;
+		return "";
 	}
 
 	private String makeValidatedForm(Map configMap) {
@@ -292,6 +300,14 @@ public class DctmConnectorType implements ConnectorType {
 			}
 			if (key.equals(ISPUBLIC)) {
 				appendCheckBox(buf, key, resource.getString(key), value);
+				appendStartHiddenRow(buf);
+				buf.append(OPEN_ELEMENT);
+				buf.append(INPUT);
+				appendAttribute(buf, TYPE, HIDDEN);
+				appendAttribute(buf, VALUE, "false");
+				appendAttribute(buf, NAME, key);
+				appendEndRow(buf);
+				value = "";
 			} else {
 				if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE)
 						&& !key.equals(WHERECLAUSE)) {
@@ -357,27 +373,6 @@ public class DctmConnectorType implements ConnectorType {
 		buf.append(TR_END);
 
 	}
-
-	//	private void appendEndRowRadioButton(StringBuffer buf, String value) {
-	//	buf.append(CLOSE_ELEMENT);
-	//	buf.append(value);
-	//	buf.append(TD_END);
-	//	buf.append(TR_END);
-	//	}
-	//	
-
-	//	private void appendRadioAttribute(StringBuffer buf, String type2,
-	//	String value1, String value2, String key, String value) {
-	//	buf.append(" " + type2 + "=\"" + RADIO + "\" value=\"" + value1
-	//	+ "\" name=\"" + key + "\" " );
-	//	if(value != null && value.equals("true"))
-	//	buf.append("checked" );
-	//	buf.append(">"+ value1 + "<br/>");
-	//	buf.append("<input " + type2 + "=\"" + RADIO + "\" value=\"" + value2
-	//	+ "\" ");
-	//	if(value != null && value.equals("false"))
-	//	buf.append("checked" );
-	//	}
 
 	private void appendDropDownListAttribute(StringBuffer buf, String type2,
 			String value) {
@@ -456,13 +451,10 @@ public class DctmConnectorType implements ConnectorType {
 
 	public ConfigureResponse getPopulatedConfigForm(Map configMap,
 			Locale language) {
-		logger.info(language.getLanguage());
 		resource = ResourceBundle.getBundle("DctmConnectorType", language);
 		ConfigureResponse result = new ConfigureResponse("",
 				makeValidatedForm(configMap));
 		return result;
 	}
-
-	
 
 }

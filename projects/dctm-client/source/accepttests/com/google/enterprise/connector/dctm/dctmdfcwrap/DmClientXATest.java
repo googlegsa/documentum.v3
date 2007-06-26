@@ -18,10 +18,6 @@ public class DmClientXATest extends TestCase {
 		clientX = new DmClientX();
 	}
 
-	/*
-	 * Test method for
-	 * 'com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX.getId(String)'
-	 */
 	public void testGetId() {
 		IId id = clientX.getId("xxxxxxxxxxxxxxxx");
 		Assert.assertTrue(id instanceof DmId);

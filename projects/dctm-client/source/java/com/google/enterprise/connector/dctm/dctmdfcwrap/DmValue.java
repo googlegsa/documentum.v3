@@ -17,7 +17,6 @@ public class DmValue implements IValue {
 		return (rep);
 	}
 
-
 	public int getDataType() {
 		int rep = 0;
 		rep = idfValue.getDataType();

@@ -43,11 +43,11 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			String username = DmInitialize.DM_LOGIN_OK2;
 
 			Map expectedResults = new HashMap();
-			expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_ID2, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID2, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID3, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
 			testAuthorization((DctmAuthorizationManager) authorizationManager,
 					expectedResults, username);
 		}
@@ -56,11 +56,11 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			String username = DmInitialize.DM_LOGIN_OK3;
 
 			Map expectedResults = new HashMap();
-			expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_ID2, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_ID3, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID2, Boolean.FALSE);
+			expectedResults.put(DmInitialize.DM_VSID3, Boolean.FALSE);
+			expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
 			testAuthorization((DctmAuthorizationManager) authorizationManager,
 					expectedResults, username);
 		}
@@ -69,11 +69,11 @@ public class DctmAuthorizationManagerTest extends TestCase {
 			String username = DmInitialize.DM_LOGIN_OK5;
 
 			Map expectedResults = new HashMap();
-			expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_ID2, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_ID3, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID2, Boolean.FALSE);
+			expectedResults.put(DmInitialize.DM_VSID3, Boolean.FALSE);
+			expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
+			expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
 			testAuthorization((DctmAuthorizationManager) authorizationManager,
 					expectedResults, username);
 		}

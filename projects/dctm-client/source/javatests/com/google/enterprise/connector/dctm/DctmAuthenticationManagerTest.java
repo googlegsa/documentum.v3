@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.manager.UserPassIdentity;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryException;

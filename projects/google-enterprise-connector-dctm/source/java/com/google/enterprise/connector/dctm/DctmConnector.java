@@ -1,10 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,47 +25,19 @@ public class DctmConnector implements Connector {
 	private String where_clause;
 
 	private String is_public;
+	
+	private HashSet included_meta;
+	
+	private HashSet excluded_meta;
 
 	private static Logger logger = null;
 
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
-	public static int DEBUG_LEVEL = 1;
+	public static int DEBUG_LEVEL = 3;
 
 	static {
 		logger = Logger.getLogger(DctmConnector.class.getName());
-
-		File propertiesFile = new File("../config/logging.properties");
-		Properties properties = null;
-		FileInputStream fileInputStream = null;
-		if (propertiesFile.isFile() == true) {
-			try {
-				fileInputStream = new FileInputStream(propertiesFile);
-			} catch (FileNotFoundException e) {
-				logger.setLevel(Level.OFF);
-			}
-			if (fileInputStream != null) {
-				properties = new Properties();
-				try {
-					properties.load(fileInputStream);
-					DEBUG = properties.getProperty("DEBUG").equals("true");
-					DEBUG_LEVEL = Integer.parseInt(properties
-							.getProperty("LEVEL"));
-				} catch (IOException e) {
-
-					fileInputStream = null;
-					properties = null;
-				} finally {
-					try {
-						fileInputStream.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-
-					}
-				}
-			}
-		}
-
 	}
 
 	/**
@@ -108,20 +76,9 @@ public class DctmConnector implements Connector {
 					+ where_clause + " " + is_public.equals("on"));
 		}
 
-		if (DEBUG && DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("conn",
-					"DctmConnector.login() :\n\t\t\t\t Instantiates a new "
-							+ "DctmSession from 9 String (~250 chars) and :",
-					null);
-		}
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
-				webtop_display_url, where_clause, is_public.equals("on"));
-
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("conn",
-					"return Session from DctmConnector.login()");
-		}
+				webtop_display_url, where_clause, is_public.equals("on"), included_meta, excluded_meta);
 
 		return (sess);
 	}
@@ -144,6 +101,31 @@ public class DctmConnector implements Connector {
 
 	public String getAuthentication_type() {
 		return authentication_type;
+	}
+
+	public HashSet getIncluded_meta() {
+		
+		return included_meta;
+	}
+
+	public void setIncluded_meta(HashSet included_meta) {
+		this.included_meta = included_meta;
+	}
+
+	public HashSet getExcluded_meta() {
+		return excluded_meta;
+	}
+
+	public void setExcluded_meta(HashSet excluded_meta) {
+		this.excluded_meta = excluded_meta;
+	}
+
+	public static boolean isDEBUG() {
+		return DEBUG;
+	}
+
+	public static void setDEBUG(boolean debug) {
+		DEBUG = debug;
 	}
 
 }

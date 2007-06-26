@@ -57,7 +57,7 @@ public class DmFormatTest extends TestCase {
 
 	public void testGetMIMEType() throws DfException, RepositoryException {
 		String mimetype = dctmForm.getMIMEType();
-		Assert.assertEquals(mimetype, "text/plain");
+		Assert.assertEquals(mimetype, "application/msword");
 	}
 
 }

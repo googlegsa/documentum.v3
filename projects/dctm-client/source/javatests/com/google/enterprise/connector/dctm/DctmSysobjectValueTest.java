@@ -78,6 +78,8 @@ public class DctmSysobjectValueTest extends TestCase {
 		String milliseconds = c.get(Calendar.MILLISECOND) + "";
 		if (milliseconds.length() == 2) {
 			milliseconds = "0" + milliseconds;
+		}else if(milliseconds.length() == 1){
+			milliseconds = "00" + milliseconds;
 		}
 		String expectedDate = "2007-01-28 14:11:00." + milliseconds;
 		String receivedDate = DctmSysobjectValue.calendarToIso8601(c);

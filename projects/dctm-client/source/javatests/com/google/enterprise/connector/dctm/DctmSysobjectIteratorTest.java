@@ -80,15 +80,15 @@ public class DctmSysobjectIteratorTest extends TestCase {
 		while (iter.hasNext()) {
 			pm = (PropertyMap) iter.next();
 			prop = pm.getProperty(SpiConstants.PROPNAME_DOCID);
-
+			counter++;
 			assertNotNull(prop);
-
 			if (counter == 2) {
-
+				
 				break;
 			}
 
 		}
+		assertEquals(2,counter);
 
 	}
 

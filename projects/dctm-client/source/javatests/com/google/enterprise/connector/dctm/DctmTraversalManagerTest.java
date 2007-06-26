@@ -106,27 +106,27 @@ public class DctmTraversalManagerTest extends TestCase {
 	public void testIDfetchAndVerifyValueForCheckpoint()
 			throws RepositoryException {
 		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm
+		pm = new DctmSysobjectPropertyMap("0900000180000523", qtm
 				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
-				: "false");
+				: "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
 
 		String uuid = qtm.fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
 
-		assertEquals(uuid, "0900000180010b17");
+		assertEquals(uuid, "0900000180000523");
 	}
 
 	public void testDatefetchAndVerifyValueForCheckpoint()
 			throws RepositoryException, ParseException {
 		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm
+		pm = new DctmSysobjectPropertyMap("0900000180000523", qtm
 				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
-				: "false");
+				: "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
 		Calendar calDate = null;
 
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_LASTMODIFIED).getDate();
-		calDate = DctmSysobjectValue.iso8601ToCalendar("2007-04-17 13:55:36");
+		calDate = DctmSysobjectValue.iso8601ToCalendar("2006-12-14 22:35:58");
 		assertEquals(c.getTimeInMillis(), calDate.getTimeInMillis());
 		assertEquals(c, calDate);
 	}
@@ -135,14 +135,14 @@ public class DctmTraversalManagerTest extends TestCase {
 
 		String checkPoint = null;
 		DctmSysobjectPropertyMap pm = null;
-		pm = new DctmSysobjectPropertyMap("0900000180010b17", qtm
+		pm = new DctmSysobjectPropertyMap("0900000180000523", qtm
 				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
-				: "false");
+				: "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
 		checkPoint = qtm.checkpoint(pm);
 
 		assertNotNull(checkPoint);
 		assertEquals(
-				"{\"uuid\":\"0900000180010b17\",\"lastModified\":\"2007-04-17 13:55:36.000\"}",
+				"{\"uuid\":\"0900000180000523\",\"lastModified\":\"2006-12-14 22:35:58.000\"}",
 				checkPoint);
 	}
 

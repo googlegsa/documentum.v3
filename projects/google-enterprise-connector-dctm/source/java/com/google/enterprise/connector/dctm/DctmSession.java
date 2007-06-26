@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,6 +32,10 @@ public class DctmSession implements Session {
 
 	boolean isPublic = false;
 
+	private HashSet included_meta;
+
+	private HashSet excluded_meta;
+
 	private static Logger logger = null;
 
 	static {
@@ -44,101 +49,60 @@ public class DctmSession implements Session {
 	 * @param login
 	 * @param password
 	 * @param docbase
+	 * @param excluded_meta 
+	 * @param included_meta 
 	 * @throws RepositoryException
 	 */
 
 	public DctmSession(String clientX, String login, String password,
 			String docbase, String wsu, String additionalWhereClause,
-			boolean isPublic) throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info("DctmSession constructor with arguments");
-		}
-		ILoginInfo dctmLoginInfo = null;
+			boolean isPublic, HashSet included_meta, HashSet excluded_meta)
+			throws RepositoryException {
+		try {
+			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
+				logger.info("DctmSession constructor with arguments");
+			}
+			ILoginInfo dctmLoginInfo = null;
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("a", "- builds an IClient", null);
-		}
-		setClientX(clientX);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("a", "");
-		}
+			setClientX(clientX);
+			
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("a", "- builds an ILocalClient",
-					null);
-		}
-		client = this.clientX.getLocalClient();
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("a", "");
-		}
+			
+			client = this.clientX.getLocalClient();
+			
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("a", "- builds an ISessionManager",
-					null);
-		}
-		sessionManager = this.client.newSessionManager();
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("a", "");
-		}
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("a", "- builds credential objects",
-					null);
-		}
-		dctmLoginInfo = this.clientX.getLoginInfo();
-		dctmLoginInfo.setUser(login);
-		dctmLoginInfo.setPassword(password);
-		sessionManager.setIdentity(docbase, dctmLoginInfo);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("a", "");
-		}
+			
+			sessionManager = this.client.newSessionManager();
+			
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("a",
-					"- opens an authenticated ISession", null);
-		}
-		session = sessionManager.newSession(docbase);
-		this.clientX.setSessionManager(sessionManager);
-		sessionManager.release(session);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info("--- DctmSession avant setSessionManager ---");
-		}
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("a", "");
-		}
+			dctmLoginInfo = this.clientX.getLoginInfo();
+			dctmLoginInfo.setUser(login);
+			dctmLoginInfo.setPassword(password);
+			sessionManager.setIdentity(docbase, dctmLoginInfo);
+			
+			session = sessionManager.newSession(docbase);
+			this.clientX.setSessionManager(sessionManager);
 
-		webtopServerUrl = wsu;
-		this.additionalWhereClause = additionalWhereClause;
-		sessionManager.setDocbaseName(docbase);
-		sessionManager.setServerUrl(wsu);
+			webtopServerUrl = wsu;
+			this.additionalWhereClause = additionalWhereClause;
+			sessionManager.setDocbaseName(docbase);
+			sessionManager.setServerUrl(wsu);
 
-		this.isPublic = isPublic;
+			this.isPublic = isPublic;
+			this.included_meta = included_meta;
+			this.excluded_meta = excluded_meta;
+		} finally {
+			if (session != null){
+				sessionManager.release(session);
+			}
+		}
 	}
 
 	public TraversalManager getTraversalManager() throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info("--- DctmSession getQueryTraversalManager---");
-		}
 
 		DctmTraversalManager dctmTm = null;
-
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.setPerfFlag("a",
-					"DctmQueryTraversalManager's instantiation", null);
-		}
-
 		dctmTm = new DctmTraversalManager(clientX, webtopServerUrl,
-				additionalWhereClause, isPublic);
-
-		//dctmQtm = new DctmQueryTraversalManager(clientX, webtopServerUrl,
-		//		additionalWhereClause);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			OutputPerformances.endFlag("a",
-					"DctmQueryTraversalManager's instantiation");
-		}
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 4) {
-			logger.info("client " + client.getClass() + "---");
-		}
-
+				additionalWhereClause, isPublic, included_meta, excluded_meta);
 		return dctmTm;
 	}
 

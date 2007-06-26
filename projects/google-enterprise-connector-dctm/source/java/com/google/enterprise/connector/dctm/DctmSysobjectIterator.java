@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.HashSet;
 import java.util.Iterator;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -18,13 +19,19 @@ public class DctmSysobjectIterator implements Iterator {
 
 	boolean isPublic = false;
 
+	private HashSet included_meta;
+
+	private HashSet excluded_meta;
+
 	DctmSysobjectIterator(ICollection co, ISessionManager sessMag,
-			IClientX clientX, boolean isPublic) {
+			IClientX clientX, boolean isPublic, HashSet included_meta, HashSet excluded_meta) {
 		this.co = co;
 		this.index = 0;
 		this.sessMag = sessMag;
 		this.clientX = clientX;
 		this.isPublic = isPublic;
+		this.included_meta = included_meta;
+		this.excluded_meta = excluded_meta;
 	}
 
 	public void remove() {
@@ -50,6 +57,6 @@ public class DctmSysobjectIterator implements Iterator {
 			return null;
 		}
 		return new DctmSysobjectPropertyMap(crID, sessMag, clientX,
-				isPublic ? "true" : "false");
+				isPublic ? "true" : "false", included_meta, excluded_meta);
 	}
 }

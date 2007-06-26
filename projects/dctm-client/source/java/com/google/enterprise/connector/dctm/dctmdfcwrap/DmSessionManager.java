@@ -1,8 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.documentum.fc.client.DfAuthenticationException;
 import com.documentum.fc.client.DfIdentityException;
 import com.documentum.fc.client.DfPrincipalException;
@@ -11,7 +8,6 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfLoginInfo;
-import com.google.enterprise.connector.dctm.DctmConnector;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -25,13 +21,6 @@ public class DmSessionManager implements ISessionManager {
 	private String docbaseName;
 
 	private String serverUrl;
-	
-	private static Logger logger = null;
-
-	static {
-		logger = Logger.getLogger(DmSessionManager.class.getName());
-		logger.setLevel(Level.ALL);
-	}
 
 	public DmSessionManager(IDfSessionManager DfSessionManager) {
 
@@ -82,11 +71,11 @@ public class DmSessionManager implements ISessionManager {
 	public ISession newSession(String docbase) throws RepositoryLoginException,
 			RepositoryException {
 		IDfSession idfSession = null;
-		String error = null;
+		
 		try {
 			idfSession = dfSessionManager.newSession(docbase);
 		} catch (DfIdentityException iE) {
-			
+
 			throw new RepositoryLoginException(iE);
 		} catch (DfAuthenticationException iE) {
 			throw new RepositoryLoginException(iE);
@@ -94,12 +83,8 @@ public class DmSessionManager implements ISessionManager {
 			throw new RepositoryLoginException(iE);
 		} catch (DfServiceException iE) {
 			throw new RepositoryException(iE);
-		}catch (NoClassDefFoundError iE) {
+		} catch (NoClassDefFoundError iE) {
 			throw new RepositoryException(iE);
-		}
-		
-		if (error != null) {
-			return null;
 		}
 		return new DmSession(idfSession);
 	}
@@ -115,7 +100,6 @@ public class DmSessionManager implements ISessionManager {
 
 	public void setServerUrl(String serverUrl) {
 		this.serverUrl = serverUrl;
-		
 
 	}
 
@@ -138,10 +122,6 @@ public class DmSessionManager implements ISessionManager {
 			this.dfSessionManager.authenticate(docbaseName);
 			authent = true;
 		} catch (DfException e) {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL==1) {
-				logger.info("trace DFException authenticate");
-			}
-
 			authent = false;
 		}
 		return authent;

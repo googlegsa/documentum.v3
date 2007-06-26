@@ -115,7 +115,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
 	public void testIDfetchAndVerifyValueForCheckpoint()
 			throws RepositoryException {
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false");
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
 
 		String uuid = qtm.fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
@@ -126,7 +126,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
 	public void testDatefetchAndVerifyValueForCheckpoint()
 			throws RepositoryException, ParseException {
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false");
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
 		Calendar calDate = null;
 
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,
@@ -142,7 +142,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
 
 		String checkPoint = null;
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false");
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
 		checkPoint = qtm.checkpoint(pm);
 
 		assertNotNull(checkPoint);
@@ -155,7 +155,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
 
 		session = (DctmSession) connector.login();
 		qtm = (DctmTraversalManager) session.getTraversalManager();
-		DctmResultSet resultSet = null;
+		DctmPropertyMapList resultSet = null;
 
 		String checkPoint = "{\"uuid\":\"doc2\",\"lastModified\":\"1969-01-01 01:00:00.010\"}";
 		// /query vaut //*[@jcr:primaryType = nt:resource and @jcr:lastModified
@@ -169,7 +169,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
 		// 10000)
 
 		qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_BOUNDED);
-		resultSet = (DctmResultSet) qtm.resumeTraversal(checkPoint);
+		resultSet = (DctmPropertyMapList) qtm.resumeTraversal(checkPoint);
 		assertNotNull(resultSet);
 
 		int counter = 0;

@@ -45,10 +45,11 @@ public class DmClient implements IClient {
 
 	public IDocbaseMap getDocbaseMap() throws RepositoryException {
 		try {
-			return (IDocbaseMap) new DmDocbaseMap(this.idfClient.getDocbaseMap());
+			return (IDocbaseMap) new DmDocbaseMap(this.idfClient
+					.getDocbaseMap());
 		} catch (DfException e) {
 			throw new RepositoryException(e);
 		}
-		
+
 	}
 }
