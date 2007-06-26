@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import com.google.enterprise.connector.pusher.DocPusher;
 import com.google.enterprise.connector.pusher.GsaFeedConnection;
+import com.google.enterprise.connector.pusher.PushException;
 
 import com.google.enterprise.connector.spi.PropertyMap;
 import com.google.enterprise.connector.spi.PropertyMapList;
@@ -16,7 +17,7 @@ public class DctmTraversalUtil {
 
 	public static void runTraversal(
 			TraversalManager queryTraversalManager, int batchHint)
-			throws RepositoryException {
+			throws RepositoryException, PushException {
 
 		DctmTraversalManager dctmTM = (DctmTraversalManager) queryTraversalManager;
 		dctmTM.setBatchHint(batchHint);

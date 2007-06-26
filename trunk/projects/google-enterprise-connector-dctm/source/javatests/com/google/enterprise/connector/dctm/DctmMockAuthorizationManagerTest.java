@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.enterprise.connector.manager.UserPassIdentity;
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.Connector;
@@ -91,7 +90,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
 		List docids = new LinkedList(expectedResults.keySet());
 
 		assertNotNull(docids);
-		List list = authorizationManager.authorizeDocids(docids,new UserPassIdentity(username,null)
+		List list = authorizationManager.authorizeDocids(docids,new DctmAuthenticationIdentity(username,null)
 				);
 		assertNotNull(list);
 		for (Iterator i = list.iterator(); i.hasNext();) {

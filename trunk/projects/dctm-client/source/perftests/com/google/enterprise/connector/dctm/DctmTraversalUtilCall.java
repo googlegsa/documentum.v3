@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import com.google.enterprise.connector.pusher.PushException;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.TraversalManager;
@@ -62,6 +63,10 @@ public class DctmTraversalUtilCall{
 			re.printStackTrace();
 			System.out.println("Root Cause : " + re.getCause()
 					+ " ; Message : " + re.getMessage());
+		} catch (PushException e) {
+			e.printStackTrace();
+			System.out.println("Root Cause : " + e.getCause()
+					+ " ; Message : " + e.getMessage());
 		}
 
 	}

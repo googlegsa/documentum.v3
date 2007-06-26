@@ -1,6 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
-import com.google.enterprise.connector.manager.UserPassIdentity;
+
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
@@ -31,33 +31,33 @@ public class DctmAuthenticationManagerTest extends TestCase {
 				.getAuthenticationManager();
 
 		assertTrue(authentManager.authenticate(
-				new UserPassIdentity(DmInitialize.DM_LOGIN_OK1,
+				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK1,
 						DmInitialize.DM_PWD_OK1)).isValid());
 		assertFalse(authentManager.authenticate(
-				new UserPassIdentity(DmInitialize.DM_LOGIN_OK2,
+				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
 						DmInitialize.DM_PWD_KO)).isValid());
 		assertTrue(authentManager.authenticate(
-				new UserPassIdentity(DmInitialize.DM_LOGIN_OK2,
+				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
 						DmInitialize.DM_PWD_OK2)).isValid());
 		assertFalse(authentManager.authenticate(
-				new UserPassIdentity(DmInitialize.DM_LOGIN_OK2,
+				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
 						DmInitialize.DM_PWD_KO)).isValid());
 		assertFalse(authentManager.authenticate(
-				new UserPassIdentity(DmInitialize.DM_LOGIN_OK2, null))
+				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2, null))
 				.isValid());
 		assertFalse(authentManager.authenticate(
-				new UserPassIdentity(null, DmInitialize.DM_PWD_OK1)).isValid());
+				new DctmAuthenticationIdentity(null, DmInitialize.DM_PWD_OK1)).isValid());
 		assertFalse(authentManager.authenticate(
-				new UserPassIdentity(null, null)).isValid());
+				new DctmAuthenticationIdentity(null, null)).isValid());
 
 		assertTrue(authentManager.authenticate(
-				new UserPassIdentity(DmInitialize.DM_LOGIN_OK3,
+				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK3,
 						DmInitialize.DM_PWD_OK3)).isValid());
 		assertTrue(authentManager.authenticate(
-				new UserPassIdentity(DmInitialize.DM_LOGIN_OK1,
+				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK1,
 						DmInitialize.DM_PWD_OK1)).isValid());
 		assertTrue(authentManager.authenticate(
-				new UserPassIdentity(DmInitialize.DM_LOGIN_OK5,
+				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK5,
 						DmInitialize.DM_PWD_OK5)).isValid());
 	}
 
