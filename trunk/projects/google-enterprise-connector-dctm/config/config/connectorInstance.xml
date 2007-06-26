@@ -9,7 +9,102 @@
 		<property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX" />
 		<property name="authentication_type" value="api" />
 		<property name="webtop_display_url" value="${webtop_display_url}" />
-		<property name="where_clause" value="" />
-		<property name="is_public" value="" />
+		<property name="where_clause" value="${where_clause}" />
+		<property name="is_public" value="${is_public}" />
+		<property name="included_meta">
+			<set>
+				<value>object_name</value>
+				<value>r_object_type</value>
+				<value>title</value>
+				<value>subject</value>
+				<value>keywords</value>
+				<value>authors</value>
+				<value>r_creation_date</value>
+				<value>r_modify_date</value>
+				<value>r_content_size</value>
+				<value>a_content_type</value>
+			</set>
+		</property>
+		<property name="excluded_meta">
+			<set>
+				<value>i_vstamp</value>
+				<value>i_is_replica</value>
+				<value>i_retainer_id</value>
+				<value>r_aspect_name</value>
+				<value>i_retain_until</value>
+				<value>a_last_review_date</value>
+				<value>a_is_signed</value>
+				<value>a_extended_properties</value>
+				<value>r_full_content_size</value>
+				<value>a_controlling_app</value>
+				<value>a_is_template</value>
+				<value>language_code</value>
+				<value>a_category</value>
+				<value>a_effective_flag</value>
+				<value>a_effective_label</value>
+				<value>a_publish_formats</value>
+				<value>a_expiration_date</value>
+				<value>a_effective_date</value>
+				<value>r_alias_set_id</value>
+				<value>r_current_state</value>
+				<value>r_resume_state</value>
+				<value>r_policy_id</value>
+				<value>r_is_public</value>
+				<value>r_creator_name</value>
+				<value>a_special_app</value>
+				<value>i_is_reference</value>
+				<value>acl_name</value>
+				<value>acl_domain</value>
+				<value>r_has_events</value>
+				<value>r_frozen_flag</value>
+				<value>r_immutable_flag</value>
+				<value>i_branch_cnt</value>
+				<value>i_direct_dsc</value>
+				<value>r_version_label</value>
+				<value>log_entry</value>
+				<value>r_lock_machine</value>
+				<value>r_lock_date</value>
+				<value>r_lock_owner</value>
+				<value>i_latest_flag</value>
+				<value>i_chronicle_id</value>
+				<value>group_permit</value>
+				<value>world_permit</value>
+				<value>object_name</value>
+				<value>i_antecedent_id</value>
+				<value>group_name</value>
+				<value>owner_permit</value>
+				<value>owner_name</value>
+				<value>i_cabinet_id</value>
+				<value>a_storage_type</value>
+				<value>a_full_text</value>
+				<value>r_page_cnt</value>
+				<value>i_contents_id</value>
+				<value>r_is_virtual_doc</value>
+				<value>resolution_label</value>
+				<value>r_has_frzn_assembly</value>
+				<value>r_frzn_assembly_cnt</value>
+				<value>r_assembled_from_id</value>
+				<value>r_link_high_cnt</value>
+				<value>r_link_cnt</value>
+				<value>r_order_no</value>
+				<value>r_composite_label</value>
+				<value>r_component_label</value>
+				<value>r_composite_id</value>
+				<value>i_folder_id</value>
+				<value>i_has_folder</value>
+				<value>a_link_resolved</value>
+				<value>i_reference_cnt</value>
+				<value>a_compound_architecture</value>
+				<value>a_archive</value>
+				<value>i_is_deleted</value>
+				<value>a_retention_date</value>
+				<value>a_is_hidden</value>
+				<value>r_access_date</value>
+				<value>r_modifier</value>
+				<value>a_status</value>
+				<value>a_application_type</value>
+			</set>
+		</property>
 	</bean>
+	
 </beans>

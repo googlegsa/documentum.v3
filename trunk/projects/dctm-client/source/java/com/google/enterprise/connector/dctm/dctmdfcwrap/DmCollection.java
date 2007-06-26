@@ -12,9 +12,7 @@ public class DmCollection implements ICollection {
 	IDfCollection idfCollection;
 
 	public DmCollection(IDfCollection idfCollection) {
-
 		this.idfCollection = idfCollection;
-
 	}
 
 	public IValue getValue(String attrName) throws RepositoryException {
@@ -47,9 +45,16 @@ public class DmCollection implements ICollection {
 		try {
 			return this.idfCollection.getString(colName);
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e.getMessage(), e
-					.getCause());
-			throw re;
+			
+			throw new RepositoryException(e);
+		}
+	}
+	
+	public void close() throws RepositoryException{
+		try {
+			this.idfCollection.close();
+		} catch (DfException e) {
+			throw new RepositoryException(e);
 		}
 	}
 }

@@ -32,22 +32,16 @@ public class DmSessionATest extends TestCase {
 		localClient = dctmClientX.getLocalClient();
 		sessionManager = localClient.newSessionManager();
 		loginInfo = dctmClientX.getLoginInfo();
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
+		loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+		session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 
 	}
 
 	public void testGetObject() throws RepositoryException, DfException {
 		try {
-			String user = DmInitialize.DM_LOGIN_OK1;
-			String password = DmInitialize.DM_PWD_OK1;
-			String docbase = DmInitialize.DM_DOCBASE;
-			loginInfo.setUser(user);
-			loginInfo.setPassword(password);
-			sessionManager.setIdentity(docbase, loginInfo);
-			session = sessionManager.getSession(docbase);
-			Assert.assertNotNull(session);
-			Assert.assertTrue(session instanceof DmSession);
-			String idString = DmInitialize.DM_ID1;
-			IId id = dctmClientX.getId(idString);
+			IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 			ISysObject object = session.getObject(id);
 			Assert.assertNotNull(object);
 			Assert.assertTrue(object instanceof DmSysObject);
@@ -60,28 +54,21 @@ public class DmSessionATest extends TestCase {
 
 	public void testGetLoginTicketForUser() throws RepositoryException {
 		try {
-			String userAdmin = DmInitialize.DM_LOGIN_OK1;
-			String passwordAdmin = DmInitialize.DM_PWD_OK1;
-			String docbase = DmInitialize.DM_DOCBASE;
-			loginInfo.setUser(userAdmin);
-			loginInfo.setPassword(passwordAdmin);
-			sessionManager.setIdentity(docbase, loginInfo);
-			session = sessionManager.getSession(docbase);
+
 			String ticket = session
 					.getLoginTicketForUser(DmInitialize.DM_LOGIN_OK5);
 
-			session = sessionManager.getSession(docbase);
+			session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 
 			ISessionManager sessionManagerUser = dctmClientX.getLocalClient()
 					.newSessionManager();
 			loginInfo.setUser(DmInitialize.DM_LOGIN_OK5);
 			loginInfo.setPassword(DmInitialize.DM_PWD_OK5);
-			sessionManagerUser.setIdentity(docbase, loginInfo);
+			sessionManagerUser.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
 
-			Assert.assertNotNull(session);
-			Assert.assertTrue(session instanceof DmSession);
 			Assert.assertNotNull(ticket);
-			ILoginInfo loginUser = sessionManagerUser.getIdentity(docbase);
+			ILoginInfo loginUser = sessionManagerUser
+					.getIdentity(DmInitialize.DM_DOCBASE);
 			Assert.assertEquals(DmInitialize.DM_LOGIN_OK5, loginUser.getUser());
 			Assert.assertEquals(DmInitialize.DM_PWD_OK5, loginUser
 					.getPassword());

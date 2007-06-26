@@ -17,28 +17,10 @@ public class DmQueryATest extends TestCase {
 
 	IClientX dctmClientX;
 
-	IClient localClient;
-
-	ISessionManager sessionManager;
-
-	ISession session;
-
-	ILoginInfo loginInfo;
-
 	public void setUp() throws Exception {
 		super.setUp();
 		dctmClientX = new DmClientX();
-		localClient = dctmClientX.getLocalClient();
-		sessionManager = localClient.newSessionManager();
-		loginInfo = dctmClientX.getLoginInfo();
-		String user = DmInitialize.DM_LOGIN_OK1;
-		String password = DmInitialize.DM_PWD_OK1;
-		String docbase = DmInitialize.DM_DOCBASE;
-		loginInfo.setUser(user);
-		loginInfo.setPassword(password);
-		sessionManager.setDocbaseName(docbase);
-		sessionManager.setIdentity(docbase, loginInfo);
-		dctmClientX.setSessionManager(sessionManager);
+
 	}
 
 	public void testSetDQL() {
@@ -49,13 +31,32 @@ public class DmQueryATest extends TestCase {
 	}
 
 	public void testExecute() throws RepositoryException {
-		IQuery query = dctmClientX.getQuery();
-		Assert.assertNotNull(query);
-		Assert.assertTrue(query instanceof DmQuery);
-		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec = query
-				.execute(sessionManager, IQuery.READ_QUERY);
-		Assert.assertNotNull(collec);
+		IClient localClient = dctmClientX.getLocalClient();
+
+		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
+		ISessionManager sessionManager = localClient.newSessionManager();
+		ISession session = null;
+		try {
+
+			loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
+			loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
+
+			sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
+			sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+
+			dctmClientX.setSessionManager(sessionManager);
+			IQuery query = dctmClientX.getQuery();
+			Assert.assertNotNull(query);
+			Assert.assertTrue(query instanceof DmQuery);
+			query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
+			ICollection collec = query.execute(sessionManager,
+					IQuery.READ_QUERY);
+			Assert.assertNotNull(collec);
+			session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+		} finally {
+			if(session != null)
+				sessionManager.release(session);
+		}
 	}
 
 }

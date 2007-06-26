@@ -22,7 +22,7 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 
 	private static final long serialVersionUID = 126421624L;
 
-	private String docid;
+	private String docId;
 
 	private ISysObject object = null;
 
@@ -31,121 +31,25 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 	private IClientX clientX;
 
 	private String isPublic = "false";
+	
+	private String versionId;
 
-	private static HashSet specmeta = null;
-	static {
-		specmeta = new HashSet();
-		specmeta.add("object_name");
-		specmeta.add("r_object_type");
-		specmeta.add("title");
-		specmeta.add("subject");
-		specmeta.add("keywords");
-		specmeta.add("authors");
-		specmeta.add("r_creation_date");
-		specmeta.add("r_modify_date");
-	}
+	private HashSet included_meta;
 
-	private static HashSet sysmeta = null;
-	static {
-		sysmeta = new HashSet();
-		sysmeta.add("object_name");
-		sysmeta.add("r_object_type");
-		sysmeta.add("title");
-		sysmeta.add("subject");
-		sysmeta.add("keywords");
-		sysmeta.add("i_vstamp");
-		sysmeta.add("i_is_replica");
-		sysmeta.add("i_retainer_id");
-		sysmeta.add("r_aspect_name");
-		sysmeta.add("i_retain_until");
-		sysmeta.add("a_last_review_date");
-		sysmeta.add("a_is_signed");
-		sysmeta.add("a_extended_properties");
-		sysmeta.add("r_full_content_size");
-		sysmeta.add("a_controlling_app");
-		sysmeta.add("a_is_template");
-		sysmeta.add("language_code");
-		sysmeta.add("a_category");
-		sysmeta.add("a_effective_flag");
-		sysmeta.add("a_effective_flag");
-		sysmeta.add("a_effective_label");
-		sysmeta.add("a_publish_formats");
-		sysmeta.add("a_expiration_date");
-		sysmeta.add("a_effective_date");
-		sysmeta.add("r_alias_set_id");
-		sysmeta.add("r_current_state");
-		sysmeta.add("r_resume_state");
-		sysmeta.add("r_policy_id");
-		sysmeta.add("r_is_public");
-		sysmeta.add("r_creator_name");
-		sysmeta.add("a_special_app");
-		sysmeta.add("i_is_reference");
-		sysmeta.add("acl_name");
-		sysmeta.add("acl_domain");
-		sysmeta.add("r_has_events");
-		sysmeta.add("r_frozen_flag");
-		sysmeta.add("r_immutable_flag");
-		sysmeta.add("i_branch_cnt");
-		sysmeta.add("i_direct_dsc");
-		sysmeta.add("r_version_label");
-		sysmeta.add("log_entry");
-		sysmeta.add("r_lock_machine");
-		sysmeta.add("r_lock_date");
-		sysmeta.add("r_lock_owner");
-		sysmeta.add("i_latest_flag");
-		sysmeta.add("i_chronicle_id");
-		sysmeta.add("group_permit");
-		sysmeta.add("world_permit");
-		sysmeta.add("object_name");
-		sysmeta.add("i_antecedent_id");
-		sysmeta.add("group_name");
-		sysmeta.add("owner_permit");
-		sysmeta.add("owner_name");
-		sysmeta.add("i_cabinet_id");
-		sysmeta.add("a_storage_type");
-		sysmeta.add("object_name");
-		sysmeta.add("a_full_text");
-		sysmeta.add("r_content_size");
-		sysmeta.add("r_page_cnt");
-		sysmeta.add("a_content_type");
-		sysmeta.add("i_contents_id");
-		sysmeta.add("r_is_virtual_doc");
-		sysmeta.add("resolution_label");
-		sysmeta.add("r_has_frzn_assembly");
-		sysmeta.add("r_frzn_assembly_cnt");
-		sysmeta.add("r_assembled_from_id");
-		sysmeta.add("r_link_high_cnt");
-		sysmeta.add("r_link_cnt");
-		sysmeta.add("r_order_no");
-		sysmeta.add("r_composite_label");
-		sysmeta.add("r_component_label");
-		sysmeta.add("r_composite_id");
-		sysmeta.add("i_folder_id");
-		sysmeta.add("i_has_folder");
-		sysmeta.add("a_link_resolved");
-		sysmeta.add("i_reference_cnt");
-		sysmeta.add("a_compound_architecture");
-		sysmeta.add("a_archive");
-		sysmeta.add("i_is_deleted");
-		sysmeta.add("a_retention_date");
-		sysmeta.add("a_is_hidden");
-		sysmeta.add("r_access_date");
-		sysmeta.add("r_modifier");
-		sysmeta.add("r_modify_date");
-		sysmeta.add("r_creation_date");
-		sysmeta.add("a_status");
-		sysmeta.add("a_application_type");
-	}
-
+	private HashSet excluded_meta;
+	
 	public DctmSysobjectPropertyMap(String docid,
-			ISessionManager sessionManager, IClientX clientX , String isPublic) {
-		this.docid = docid;
+			ISessionManager sessionManager, IClientX clientX , String isPublic, HashSet included_meta, HashSet excluded_meta) {
+		this.docId = docid;
 		this.sessionManager = sessionManager;
 		this.clientX = clientX;
 		this.isPublic = isPublic;
+		this.included_meta = included_meta;
+		this.excluded_meta = excluded_meta;
 	}
 
 	private void fetch() throws RepositoryException {
+		
 		if (object != null) {
 			return;
 		}
@@ -153,8 +57,10 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		try {
 			String docbaseName = sessionManager.getDocbaseName();
 			session = sessionManager.getSession(docbaseName);
-			IId id = clientX.getId(docid);
+			
+			IId id = clientX.getId(docId);
 			object = session.getObject(id);
+			versionId = object.getId("i_chronicle_id").getId();
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
@@ -168,13 +74,13 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		fetch();
 		if (name.equals(SpiConstants.PROPNAME_DOCID)) {
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
-					ValueType.STRING, docid));
+					ValueType.STRING, versionId));
 		} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					object, "", ValueType.BINARY));
 		} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
-					ValueType.STRING, sessionManager.getServerUrl() + docid));
+					ValueType.STRING, sessionManager.getServerUrl() + docId));
 		} else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
 			return new DctmSysobjectProperty(name, new DctmSysobjectValue(
 					ValueType.STRING, object.getACLDomain() + " "
@@ -205,13 +111,12 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		// propNames.add(thisone);
 		// return propNames.iterator();
 		fetch();
-		
 		HashSet properties = new HashSet();
 		DctmSysobjectProperty dctmProps = null;
 		for (int i = 0; i < object.getAttrCount(); i++) {
 			IAttr curAttr = object.getAttr(i);
 			String name = curAttr.getName();
-			if (!sysmeta.contains(name) || specmeta.contains(name)) {
+			if (!excluded_meta.contains(name) || included_meta.contains(name)) {
 				dctmProps = new DctmSysobjectProperty(name,
 						new DctmSysobjectValue(object, name));
 				if(dctmProps.getValue().getString() != null && !dctmProps.getValue().getString().equals(""))

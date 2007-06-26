@@ -30,8 +30,7 @@ public class DmSysObject implements ISysObject {
 			idfFormat = idfSysObject.getFormat();
 
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 
 		return new DmFormat(idfFormat);
@@ -42,8 +41,7 @@ public class DmSysObject implements ISysObject {
 		try {
 			contentSize = idfSysObject.getContentSize();
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 		return contentSize;
 
@@ -54,8 +52,7 @@ public class DmSysObject implements ISysObject {
 		try {
 			content = idfSysObject.getContent();
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 		return content;
 	}
@@ -64,8 +61,7 @@ public class DmSysObject implements ISysObject {
 		try {
 			return idfSysObject.getACLDomain();
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 
 	}
@@ -74,99 +70,101 @@ public class DmSysObject implements ISysObject {
 		try {
 			return idfSysObject.getACLName();
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 	}
 
 	public String getString(String name) throws RepositoryException {
 		try {
-			if(name.equals("r_object_id")){
+			if (name.equals("r_object_id") || name.equals("i_chronicle_id")) {
 				return idfSysObject.getString(name);
 			}
-			if(idfSysObject.getAttrDataType(name) == IDfAttr.DM_TIME){
+			if (idfSysObject.getAttrDataType(name) == IDfAttr.DM_TIME) {
 				return this.getTime(name).getDate().toString();
-			}else if(idfSysObject.getAttrDataType(name) == IDfAttr.DM_ID){
+			} else if (idfSysObject.getAttrDataType(name) == IDfAttr.DM_ID) {
 				return this.getId(name).toString();
 			}
-			return idfSysObject.getAllRepeatingStrings(name,", "); 
+			return idfSysObject.getAllRepeatingStrings(name, ", ");
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			// if the attribute name does not exist for the type
+			if (e.getMessage().indexOf("DM_API_E_BADATTRNAME") != -1) {
+				return "";
+			}
+			throw new RepositoryException(e);
 		}
 
 	}
+
 
 	public boolean getBoolean(String name) throws RepositoryException {
 		try {
 			return idfSysObject.getBoolean(name);
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 
 	}
 
 	public double getDouble(String name) throws RepositoryException {
+		
 		try {
 			return idfSysObject.getDouble(name);
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 	}
 
 	public IId getId(String name) throws RepositoryException {
+		
 		try {
 			return new DmId(idfSysObject.getId(name));
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 	}
 
 	public int getInt(String name) throws RepositoryException {
+		
 		try {
 			return idfSysObject.getInt(name);
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 	}
 
 	public ITime getTime(String name) throws RepositoryException {
+//		
 		try {
 			return new DmTime(idfSysObject.getTime(name));
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 	}
 
 	public int getAttrDataType(String name) throws RepositoryException {
+		
 		try {
 			return idfSysObject.getAttrDataType(name);
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 	}
 
 	public int getAttrCount() throws RepositoryException {
+		
 		try {
 			return idfSysObject.getAttrCount();
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 	}
 
 	public IAttr getAttr(int attrIndex) throws RepositoryException {
+		
 		try {
 			return new DmAttr(idfSysObject.getAttr(attrIndex));
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			throw new RepositoryException(e);
 		}
 	}
 

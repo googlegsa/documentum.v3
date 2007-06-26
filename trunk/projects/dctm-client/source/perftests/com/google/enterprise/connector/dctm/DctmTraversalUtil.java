@@ -22,7 +22,7 @@ public class DctmTraversalUtil {
 		dctmTM.setBatchHint(batchHint);
 		System.out.println(batchHint);
 
-		PropertyMapList resultSet = dctmTM.startTraversal();
+		PropertyMapList propertyMapList = dctmTM.startTraversal();
 		// int nb=resultSet.size();
 		// System.out.println("nb vaut "+nb);
 		// The real connector manager will not always start from the beginning.
@@ -34,13 +34,13 @@ public class DctmTraversalUtil {
 		// the connector. If it can find no stored checkpoint, it assumes that
 		// it has never run this connector before and starts from the beginning,
 		// as here.
-		if (resultSet == null) {
+		if (propertyMapList == null) {
 			// in this test program, we will stop in this situation. The real
 			// connector manager might wait for a while, then try again
 			return;
 		}
 
-		DocPusher push = new DocPusher(new GsaFeedConnection("8.6.46.39",
+		DocPusher push = new DocPusher(new GsaFeedConnection("8.6.49.36",
 				19900));
 //		DocPusher push = new DocPusher(new GsaFeedConnection("swp-gsa-demo",
 //				19900));
@@ -49,7 +49,8 @@ public class DctmTraversalUtil {
 			int counter = 0;
 
 			PropertyMap pm = null;
-			for (Iterator iter = resultSet.iterator(); iter.hasNext();) {
+			for (Iterator iter = propertyMapList.iterator(); iter.hasNext();) {
+				System.out.println("pm change");
 				pm = (PropertyMap) iter.next();
 				counter++;
 
@@ -71,35 +72,18 @@ public class DctmTraversalUtil {
 				System.out.println("counter " + counter + " " + k);
 				System.out.println(pm.getProperty(SpiConstants.PROPNAME_DISPLAYURL).getValue().getString());
 				push.take(pm, "dctm");
+				
 
 			}
-
-			if (counter == 0) {
-				// this test program stops if it receives zero results in a
-				// resultSet.
-				// the real connector Manager might wait a while, then try again
-				break;
-			}
-			if (pm == null) {
+			if(pm == null){
 				System.out.println("pm null");
 			}
-			String checkPointString = dctmTM.checkpoint(pm);
-
-			resultSet = dctmTM.resumeTraversal(checkPointString);
-
-			// the real connector manager will call checkpoint (as here) as soon
-			// as possible after processing the last property map it wants to
-			// process.
-			// It would then store the checkpoint string it received in
-			// persistent
-			// store.
-			// Unlike here, it might not then immediately turn around and call
-			// resumeTraversal. For example, it may have received a shutdown
-			// command,
-			// so it won't call resumeTraversal again until it starts up again.
-			// Or, it may be running this connector on a schedule and there may
-			// be a
-			// scheduled pause.
+			String checkpoint = "";
+			if(counter != 0){
+				System.out.println("appel checkpoint");
+				checkpoint = dctmTM.checkpoint(pm);
+			}
+			dctmTM.resumeTraversal(checkpoint);
 		}
 	}
 

@@ -47,6 +47,7 @@ public class DmQuery implements IQuery {
 		}
 
 		DmSession idctmsession = null;
+		
 		idctmsession = (DmSession) sessionManager.getSession(sessionManager
 				.getDocbaseName());
 
@@ -61,8 +62,11 @@ public class DmQuery implements IQuery {
 
 			RepositoryException re = new RepositoryException(de);
 			throw re;
+		} finally {
+			if (idctmsession != null) {
+				sessionManager.release(idctmsession);
+			}
 		}
-
 		return new DmCollection(DfCollection);
 
 	}

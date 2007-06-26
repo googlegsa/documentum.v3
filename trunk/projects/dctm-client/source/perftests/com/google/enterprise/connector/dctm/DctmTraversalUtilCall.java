@@ -1,20 +1,18 @@
 package com.google.enterprise.connector.dctm;
 
-import junit.framework.TestCase;
-
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
-public class DctmTraversalUtilCall extends TestCase {
+public class DctmTraversalUtilCall{
 
-	private final boolean DFC = true;
 
-	private String user, password, clientX, docbase;
+	public static void main(String[] args) {
+		final boolean DFC = true;
 
-	public void testTraversal() {
+		String user, password, clientX, docbase;
 		if (DFC) {
 			user = "queryUser";
 			password = "p@ssw0rd";
@@ -44,6 +42,8 @@ public class DctmTraversalUtilCall extends TestCase {
 		((DctmConnector) connector).setClientX(clientX);
 		((DctmConnector) connector).setWhere_clause("and folder('/test_docs',descend)");
 		((DctmConnector) connector).setIs_public("false");
+		((DctmConnector) connector).setIncluded_meta(DmInitialize.included_meta);
+		((DctmConnector) connector).setExcluded_meta(DmInitialize.excluded_meta);
 		/**
 		 * End simulation
 		 */
@@ -52,12 +52,14 @@ public class DctmTraversalUtilCall extends TestCase {
 			session = (DctmSession) connector.login();
 			qtm = (DctmTraversalManager) session
 					.getTraversalManager();
-			DctmTraversalUtil.runTraversal(qtm, 1000);
+			DctmTraversalUtil.runTraversal(qtm, 100);
 
 		} catch (RepositoryLoginException le) {
+			le.printStackTrace();
 			System.out.println("Root Cause : " + le.getCause()
 					+ " ; Message : " + le.getMessage());
 		} catch (RepositoryException re) {
+			re.printStackTrace();
 			System.out.println("Root Cause : " + re.getCause()
 					+ " ; Message : " + re.getMessage());
 		}

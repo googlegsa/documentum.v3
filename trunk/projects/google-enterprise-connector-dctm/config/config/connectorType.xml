@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean id="DctmConnector"
+	<bean id="EMC_Documentum_Content_Server_5.3"
 		class="com.google.enterprise.connector.dctm.DctmConnectorType">
 		<property name="configKeys">
 			<list>
@@ -15,5 +15,6 @@
 				<value>is_public</value>
 			</list>
 		</property>
+		
 	</bean>
 </beans>

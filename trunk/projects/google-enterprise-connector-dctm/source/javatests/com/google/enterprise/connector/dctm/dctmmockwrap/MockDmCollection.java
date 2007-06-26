@@ -35,9 +35,10 @@ public class MockDmCollection implements ICollection {
 
 	public String getString(String colName) throws RepositoryException {
 		try {
-			if (colName.equals("r_object_id")) {
+			if (colName.equals("r_object_id") || colName.equals("i_chronicle_id")) {
 				colName = "jcr:uuid";
 			}
+			
 			Property tmp = currentNode.getProperty(colName);
 			return tmp.getString();
 		} catch (PathNotFoundException e) {
@@ -75,6 +76,11 @@ public class MockDmCollection implements ICollection {
 			throw new RepositoryException(e);
 		}
 		return new MockDmValue(val);
+	}
+
+	public void close() throws RepositoryException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
