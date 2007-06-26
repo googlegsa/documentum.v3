@@ -30,7 +30,6 @@
 	<property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
 	<property name="commons-http.jarfile" location="${dctm_jarfile.dir}/commons-httpclient-3.0.1.jar" />
 	<property name="spring.jarfile" value="${jarfile.dir}/spring.jar" />
-	<property name="spring-framework.jarfile" value="${jarfile.dir}/spring-context.jar" />
 
 	<!-- =========================== TASKS =============================== -->
 	<target name="GoogleDCTM" depends="init,compile-mock,compile-client,jar">
@@ -53,7 +52,6 @@
 				<pathelement location="${dfc.jarfile}" />
 				<pathelement location="${json.jarfile}" />
 				<pathelement location="${jcr.jarfile}" />
-				<pathelement location="${spring-framework.jarfile}" />
 				<pathelement location="${spring.jarfile}" />
 				<pathelement location="${core.classes}" />
 
@@ -66,7 +64,6 @@
 		<!-- compile java source files -->
 		<javac srcdir="${src-mock}" destdir="${classes-mock}" debug="${COMPILE_DEBUG_FLAG}">
 			<classpath>
-				<pathelement location="${spring-framework.jarfile}" />
 				<pathelement location="${spring.jarfile}" />
 				<pathelement location="${spi.jarfile}" />
 				<pathelement location="${json.jarfile}" />
