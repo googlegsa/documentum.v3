@@ -31,8 +31,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
 				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-		((DctmConnector) connector)
-		.setIs_public("false");
+		((DctmConnector) connector).setIs_public("false");
 		Session sess = (DctmSession) connector.login();
 		authorizationManager = (DctmAuthorizationManager) sess
 				.getAuthorizationManager();
@@ -90,8 +89,8 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
 		List docids = new LinkedList(expectedResults.keySet());
 
 		assertNotNull(docids);
-		List list = authorizationManager.authorizeDocids(docids,new DctmAuthenticationIdentity(username,null)
-				);
+		List list = authorizationManager.authorizeDocids(docids,
+				new DctmAuthenticationIdentity(username, null));
 		assertNotNull(list);
 		for (Iterator i = list.iterator(); i.hasNext();) {
 			AuthorizationResponse pm = (AuthorizationResponse) i.next();

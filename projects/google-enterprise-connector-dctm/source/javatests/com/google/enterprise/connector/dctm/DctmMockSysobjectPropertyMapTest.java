@@ -51,7 +51,8 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 	public void testGetProperties() throws RepositoryException {
 
 		DctmSysobjectPropertyMap dctmSpm = new DctmSysobjectPropertyMap(
-				DmInitialize.DM_ID1, sessionManager, dctmClientX, "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
+				DmInitialize.DM_ID1, sessionManager, dctmClientX, "false",
+				DmInitialize.included_meta, DmInitialize.excluded_meta);
 
 		Iterator iterator = dctmSpm.getProperties();
 		int counter = 0;
@@ -64,7 +65,8 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 
 	public void testGetProperty() throws RepositoryException {
 		DctmSysobjectPropertyMap dctmSpm = new DctmSysobjectPropertyMap(
-				DmInitialize.DM_ID1, sessionManager, dctmClientX,"false", DmInitialize.included_meta, DmInitialize.excluded_meta);
+				DmInitialize.DM_ID1, sessionManager, dctmClientX, "false",
+				DmInitialize.included_meta, DmInitialize.excluded_meta);
 		Property property = dctmSpm.getProperty("google:docid");
 		assertTrue(property instanceof DctmSysobjectProperty);
 		assertEquals("google:docid", property.getName());

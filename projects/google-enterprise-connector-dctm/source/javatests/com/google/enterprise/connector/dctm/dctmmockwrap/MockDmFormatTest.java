@@ -54,7 +54,6 @@ public class MockDmFormatTest extends TestCase {
 		try {
 			format = object.getFormat();
 		} catch (RepositoryException e) {
-			e.printStackTrace();
 		}
 
 	}

@@ -49,8 +49,8 @@ public class DctmSession implements Session {
 	 * @param login
 	 * @param password
 	 * @param docbase
-	 * @param excluded_meta 
-	 * @param included_meta 
+	 * @param excluded_meta
+	 * @param included_meta
 	 * @throws RepositoryException
 	 */
 
@@ -65,21 +65,16 @@ public class DctmSession implements Session {
 			ILoginInfo dctmLoginInfo = null;
 
 			setClientX(clientX);
-			
 
-			
 			client = this.clientX.getLocalClient();
-			
 
-			
 			sessionManager = this.client.newSessionManager();
-			
 
 			dctmLoginInfo = this.clientX.getLoginInfo();
 			dctmLoginInfo.setUser(login);
 			dctmLoginInfo.setPassword(password);
 			sessionManager.setIdentity(docbase, dctmLoginInfo);
-			
+
 			session = sessionManager.newSession(docbase);
 			this.clientX.setSessionManager(sessionManager);
 
@@ -92,7 +87,7 @@ public class DctmSession implements Session {
 			this.included_meta = included_meta;
 			this.excluded_meta = excluded_meta;
 		} finally {
-			if (session != null){
+			if (session != null) {
 				sessionManager.release(session);
 			}
 		}

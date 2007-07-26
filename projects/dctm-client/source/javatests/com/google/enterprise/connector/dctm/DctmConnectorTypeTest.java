@@ -236,11 +236,10 @@ public class DctmConnectorTypeTest extends TestCase {
 				+ "\r\n</tr>\r\n<tr>\r\n<td><input type=\"hidden\" value=\"an owner_name != 'Administrator'\" name=\"where_clause\"/></td>\r\n</tr>\r\n"
 				+ "<tr>\r\n<td><input type=CHECKBOX name=\"is_public\" CHECKED/>Make public</td>\r\n</tr>\r\n"
 				+ "<tr>\r\n<td><input type=\"hidden\" value=\"false\" name=\"is_public\"/></td>\r\n</tr>\r\n";
-		
+
 		assertEquals(expectedForm, test.getPopulatedConfigForm(map, Locale.US)
 				.getFormSnippet());
 
 	}
-	
-	
+
 }

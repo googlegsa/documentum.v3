@@ -30,7 +30,8 @@ public class DctmPropertyMapList extends LinkedList implements PropertyMapList {
 	}
 
 	public DctmPropertyMapList(ICollection co, ISessionManager sessMag,
-			IClientX clientX, boolean isPublic, HashSet included_meta, HashSet excluded_meta) {
+			IClientX clientX, boolean isPublic, HashSet included_meta,
+			HashSet excluded_meta) {
 		this.collec = co;
 		this.clientX = clientX;
 		this.sessMag = sessMag;

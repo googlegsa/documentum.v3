@@ -170,7 +170,7 @@ public class DmFormatATest extends TestCase {
 	}
 
 	protected void tearDown() throws Exception {
-		if(session != null)
+		if (session != null)
 			sessionManager.release(session);
 	}
 

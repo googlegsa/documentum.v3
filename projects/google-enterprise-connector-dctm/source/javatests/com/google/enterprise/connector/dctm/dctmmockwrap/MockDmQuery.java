@@ -101,7 +101,7 @@ public class MockDmQuery implements IQuery {
 			formattedDate = dateTime.getFormattedDate();
 
 		} catch (ParseException e) {
-			e.printStackTrace();
+
 		}
 
 		String id = dqlStatement.substring(bound3, dqlStatement

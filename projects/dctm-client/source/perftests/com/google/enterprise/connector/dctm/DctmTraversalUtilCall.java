@@ -7,8 +7,7 @@ import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
-public class DctmTraversalUtilCall{
-
+public class DctmTraversalUtilCall {
 
 	public static void main(String[] args) {
 		final boolean DFC = true;
@@ -41,32 +40,34 @@ public class DctmTraversalUtilCall{
 		((DctmConnector) connector)
 				.setWebtop_display_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
 		((DctmConnector) connector).setClientX(clientX);
-		((DctmConnector) connector).setWhere_clause("and folder('/test_docs',descend)");
+		((DctmConnector) connector)
+				.setWhere_clause("and folder('/test_docs',descend)");
 		((DctmConnector) connector).setIs_public("false");
-		((DctmConnector) connector).setIncluded_meta(DmInitialize.included_meta);
-		((DctmConnector) connector).setExcluded_meta(DmInitialize.excluded_meta);
+		((DctmConnector) connector)
+				.setIncluded_meta(DmInitialize.included_meta);
+		((DctmConnector) connector)
+				.setExcluded_meta(DmInitialize.excluded_meta);
 		/**
 		 * End simulation
 		 */
 
 		try {
 			session = (DctmSession) connector.login();
-			qtm = (DctmTraversalManager) session
-					.getTraversalManager();
+			qtm = (DctmTraversalManager) session.getTraversalManager();
 			DctmTraversalUtil.runTraversal(qtm, 100);
 
 		} catch (RepositoryLoginException le) {
-			le.printStackTrace();
+
 			System.out.println("Root Cause : " + le.getCause()
 					+ " ; Message : " + le.getMessage());
 		} catch (RepositoryException re) {
-			re.printStackTrace();
+
 			System.out.println("Root Cause : " + re.getCause()
 					+ " ; Message : " + re.getMessage());
 		} catch (PushException e) {
-			e.printStackTrace();
-			System.out.println("Root Cause : " + e.getCause()
-					+ " ; Message : " + e.getMessage());
+
+			System.out.println("Root Cause : " + e.getCause() + " ; Message : "
+					+ e.getMessage());
 		}
 
 	}

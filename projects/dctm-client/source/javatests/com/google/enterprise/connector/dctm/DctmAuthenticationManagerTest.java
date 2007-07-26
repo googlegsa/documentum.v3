@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
@@ -42,11 +41,13 @@ public class DctmAuthenticationManagerTest extends TestCase {
 		assertFalse(authentManager.authenticate(
 				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
 						DmInitialize.DM_PWD_KO)).isValid());
+		assertFalse(authentManager
+				.authenticate(
+						new DctmAuthenticationIdentity(
+								DmInitialize.DM_LOGIN_OK2, null)).isValid());
 		assertFalse(authentManager.authenticate(
-				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2, null))
+				new DctmAuthenticationIdentity(null, DmInitialize.DM_PWD_OK1))
 				.isValid());
-		assertFalse(authentManager.authenticate(
-				new DctmAuthenticationIdentity(null, DmInitialize.DM_PWD_OK1)).isValid());
 		assertFalse(authentManager.authenticate(
 				new DctmAuthenticationIdentity(null, null)).isValid());
 

@@ -73,7 +73,7 @@ public class DmInitialize {
 	public static int DM_ID1_TYPE = 1;
 
 	public static HashSet excluded_meta = null;
-	
+
 	static {
 		excluded_meta = new HashSet();
 		excluded_meta.add("i_vstamp");
@@ -156,7 +156,7 @@ public class DmInitialize {
 		excluded_meta.add("a_status");
 		excluded_meta.add("a_application_type");
 	}
-	
+
 	public static HashSet included_meta = null;
 	static {
 		included_meta = new HashSet();

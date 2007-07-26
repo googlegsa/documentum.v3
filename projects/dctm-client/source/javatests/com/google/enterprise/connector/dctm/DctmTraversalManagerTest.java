@@ -59,7 +59,7 @@ public class DctmTraversalManagerTest extends TestCase {
 			statement = qtm.makeCheckpointQueryString(uuid,
 					"2007-01-02 13:58:10");
 		} catch (RepositoryException re) {
-			re.printStackTrace();
+
 		}
 
 		assertNotNull(statement);
@@ -108,7 +108,8 @@ public class DctmTraversalManagerTest extends TestCase {
 		DctmSysobjectPropertyMap pm = null;
 		pm = new DctmSysobjectPropertyMap("0900000180000523", qtm
 				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
-				: "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
+				: "false", DmInitialize.included_meta,
+				DmInitialize.excluded_meta);
 
 		String uuid = qtm.fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
@@ -121,7 +122,8 @@ public class DctmTraversalManagerTest extends TestCase {
 		DctmSysobjectPropertyMap pm = null;
 		pm = new DctmSysobjectPropertyMap("0900000180000523", qtm
 				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
-				: "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
+				: "false", DmInitialize.included_meta,
+				DmInitialize.excluded_meta);
 		Calendar calDate = null;
 
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,
@@ -137,7 +139,8 @@ public class DctmTraversalManagerTest extends TestCase {
 		DctmSysobjectPropertyMap pm = null;
 		pm = new DctmSysobjectPropertyMap("0900000180000523", qtm
 				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
-				: "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
+				: "false", DmInitialize.included_meta,
+				DmInitialize.excluded_meta);
 		checkPoint = qtm.checkpoint(pm);
 
 		assertNotNull(checkPoint);

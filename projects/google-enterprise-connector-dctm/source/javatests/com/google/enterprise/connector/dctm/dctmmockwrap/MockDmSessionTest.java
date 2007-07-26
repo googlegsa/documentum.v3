@@ -51,7 +51,7 @@ public class MockDmSessionTest extends TestCase {
 		try {
 			userID = sess7.getLoginTicketForUser(DmInitialize.DM_LOGIN_OK1);
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+
 		}
 		assertEquals(userID, DmInitialize.DM_LOGIN_OK1);
 	}
@@ -71,7 +71,7 @@ public class MockDmSessionTest extends TestCase {
 					.getBoolean("google:ispublic");
 			assertEquals(idString, DmInitialize.DM_ID2_IS_PUBLIC);
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+
 		}
 
 	}

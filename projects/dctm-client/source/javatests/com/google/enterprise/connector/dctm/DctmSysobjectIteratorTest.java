@@ -83,12 +83,12 @@ public class DctmSysobjectIteratorTest extends TestCase {
 			counter++;
 			assertNotNull(prop);
 			if (counter == 2) {
-				
+
 				break;
 			}
 
 		}
-		assertEquals(2,counter);
+		assertEquals(2, counter);
 
 	}
 

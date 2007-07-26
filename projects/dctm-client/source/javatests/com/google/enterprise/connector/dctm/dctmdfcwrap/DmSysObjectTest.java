@@ -22,10 +22,12 @@ public class DmSysObjectTest extends TestCase {
 	ISession session = null;
 
 	ISessionManager sessionManager;
+
 	IClientX dctmClientX;
+
 	public void setUp() throws Exception {
 		super.setUp();
-		
+
 		IClient localClient;
 
 		ILoginInfo loginInfo;
@@ -38,7 +40,9 @@ public class DmSysObjectTest extends TestCase {
 		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
 
 		session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+
 		object = session.getObject(dctmClientX.getId(DmInitialize.DM_ID1));
+		object.setSessionManager(sessionManager);
 
 	}
 
@@ -64,18 +68,35 @@ public class DmSysObjectTest extends TestCase {
 		}
 
 	}
-	public void testGetString() throws RepositoryException{
-		try{
+
+	public void testGetString() throws RepositoryException {
+		try {
 			object = session.getObject(dctmClientX.getId("0900000180041704"));
-			assertEquals("Alpha, Beta",object.getString("keywords"));
-			assertEquals("Marketing Plan",object.getString("title"));
-			assertEquals("Fri Apr 13 15:08:03 CEST 2007",object.getString("r_creation_date"));
-		}finally{
+			assertEquals("Alpha, Beta", object.getString("keywords"));
+			assertEquals("Marketing Plan", object.getString("title"));
+			assertEquals("Fri Apr 13 15:08:03 CEST 2007", object
+					.getString("r_creation_date"));
+		} finally {
 			if (session != null) {
 				sessionManager.release(session);
 			}
 		}
 	}
-	
+
+	public void testGetContent() throws RepositoryException {
+		try {
+			object = session.getObject(dctmClientX.getId("0900000180041704"));
+			sessionManager.release(session);
+			object.getContent();
+			// assertEquals("Alpha, Beta",object.getString("keywords"));
+			// assertEquals("Marketing Plan",object.getString("title"));
+			// assertEquals("Fri Apr 13 15:08:03 CEST
+			// 2007",object.getString("r_creation_date"));
+		} finally {
+			// if (session != null) {
+			// sessionManager.release(session);
+			// }
+		}
+	}
 
 }

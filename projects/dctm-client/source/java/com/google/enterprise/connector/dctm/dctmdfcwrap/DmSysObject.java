@@ -9,6 +9,7 @@ import com.documentum.fc.common.IDfAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -49,6 +50,7 @@ public class DmSysObject implements ISysObject {
 
 	public ByteArrayInputStream getContent() throws RepositoryException {
 		ByteArrayInputStream content = null;
+
 		try {
 			content = idfSysObject.getContent();
 		} catch (DfException e) {
@@ -95,7 +97,6 @@ public class DmSysObject implements ISysObject {
 
 	}
 
-
 	public boolean getBoolean(String name) throws RepositoryException {
 		try {
 			return idfSysObject.getBoolean(name);
@@ -106,7 +107,7 @@ public class DmSysObject implements ISysObject {
 	}
 
 	public double getDouble(String name) throws RepositoryException {
-		
+
 		try {
 			return idfSysObject.getDouble(name);
 		} catch (DfException e) {
@@ -115,7 +116,7 @@ public class DmSysObject implements ISysObject {
 	}
 
 	public IId getId(String name) throws RepositoryException {
-		
+
 		try {
 			return new DmId(idfSysObject.getId(name));
 		} catch (DfException e) {
@@ -124,7 +125,7 @@ public class DmSysObject implements ISysObject {
 	}
 
 	public int getInt(String name) throws RepositoryException {
-		
+
 		try {
 			return idfSysObject.getInt(name);
 		} catch (DfException e) {
@@ -133,7 +134,7 @@ public class DmSysObject implements ISysObject {
 	}
 
 	public ITime getTime(String name) throws RepositoryException {
-//		
+		//		
 		try {
 			return new DmTime(idfSysObject.getTime(name));
 		} catch (DfException e) {
@@ -142,7 +143,7 @@ public class DmSysObject implements ISysObject {
 	}
 
 	public int getAttrDataType(String name) throws RepositoryException {
-		
+
 		try {
 			return idfSysObject.getAttrDataType(name);
 		} catch (DfException e) {
@@ -151,7 +152,7 @@ public class DmSysObject implements ISysObject {
 	}
 
 	public int getAttrCount() throws RepositoryException {
-		
+
 		try {
 			return idfSysObject.getAttrCount();
 		} catch (DfException e) {
@@ -160,12 +161,24 @@ public class DmSysObject implements ISysObject {
 	}
 
 	public IAttr getAttr(int attrIndex) throws RepositoryException {
-		
+
 		try {
 			return new DmAttr(idfSysObject.getAttr(attrIndex));
 		} catch (DfException e) {
 			throw new RepositoryException(e);
 		}
+	}
+
+	public void setSessionManager(ISessionManager sessionManager)
+			throws RepositoryException {
+		DmSessionManager dmSessionManager = (DmSessionManager) sessionManager;
+		try {
+			this.idfSysObject.setSessionManager(dmSessionManager
+					.getSessionManager());
+		} catch (DfException e) {
+			throw new RepositoryException(e);
+		}
+
 	}
 
 }

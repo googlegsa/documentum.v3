@@ -168,8 +168,7 @@ public class MockDmClientTest extends TestCase {
 			assertNotNull(query);
 			Assert.assertTrue(query instanceof MockDmQuery);
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 	}
 
@@ -192,8 +191,7 @@ public class MockDmClientTest extends TestCase {
 			Assert.assertEquals(user, "mark");
 			Assert.assertEquals(pwd, "mark");
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 	}
 
@@ -212,8 +210,7 @@ public class MockDmClientTest extends TestCase {
 			Assert.assertNotNull(session);
 			Assert.assertTrue(session instanceof MockDmSession);
 		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 	}
 

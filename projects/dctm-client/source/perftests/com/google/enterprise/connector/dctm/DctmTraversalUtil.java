@@ -12,12 +12,10 @@ import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-
 public class DctmTraversalUtil {
 
-	public static void runTraversal(
-			TraversalManager queryTraversalManager, int batchHint)
-			throws RepositoryException, PushException {
+	public static void runTraversal(TraversalManager queryTraversalManager,
+			int batchHint) throws RepositoryException, PushException {
 
 		DctmTraversalManager dctmTM = (DctmTraversalManager) queryTraversalManager;
 		dctmTM.setBatchHint(batchHint);
@@ -41,10 +39,10 @@ public class DctmTraversalUtil {
 			return;
 		}
 
-		DocPusher push = new DocPusher(new GsaFeedConnection("8.6.49.36",
-				19900));
-//		DocPusher push = new DocPusher(new GsaFeedConnection("swp-gsa-demo",
-//				19900));
+		DocPusher push = new DocPusher(
+				new GsaFeedConnection("8.6.49.36", 19900));
+		// DocPusher push = new DocPusher(new GsaFeedConnection("swp-gsa-demo",
+		// 19900));
 
 		while (true) {
 			int counter = 0;
@@ -71,16 +69,17 @@ public class DctmTraversalUtil {
 					k++;
 				}
 				System.out.println("counter " + counter + " " + k);
-				System.out.println(pm.getProperty(SpiConstants.PROPNAME_DISPLAYURL).getValue().getString());
+				System.out.println(pm.getProperty(
+						SpiConstants.PROPNAME_DISPLAYURL).getValue()
+						.getString());
 				push.take(pm, "dctm");
-				
 
 			}
-			if(pm == null){
+			if (pm == null) {
 				System.out.println("pm null");
 			}
 			String checkpoint = "";
-			if(counter != 0){
+			if (counter != 0) {
 				System.out.println("appel checkpoint");
 				checkpoint = dctmTM.checkpoint(pm);
 			}

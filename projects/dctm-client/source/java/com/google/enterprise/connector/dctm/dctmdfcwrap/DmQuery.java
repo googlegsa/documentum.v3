@@ -47,17 +47,17 @@ public class DmQuery implements IQuery {
 		}
 
 		DmSession idctmsession = null;
-		
+
 		idctmsession = (DmSession) sessionManager.getSession(sessionManager
 				.getDocbaseName());
 
 		IDfSession idfSession = idctmsession.getDfSession();
-		IDfCollection DfCollection = null;
+		IDfCollection dfCollection = null;
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of IdfQuery " + idfQuery.getDQL());
 		}
 		try {
-			DfCollection = idfQuery.execute(idfSession, queryType);
+			dfCollection = idfQuery.execute(idfSession, queryType);
 		} catch (DfException de) {
 
 			RepositoryException re = new RepositoryException(de);
@@ -67,7 +67,7 @@ public class DmQuery implements IQuery {
 				sessionManager.release(idctmsession);
 			}
 		}
-		return new DmCollection(DfCollection);
+		return new DmCollection(dfCollection);
 
 	}
 
