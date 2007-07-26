@@ -7,6 +7,5 @@ public interface IDocbaseMap {
 	public int getDocbaseCount() throws RepositoryException;
 
 	public String getDocbaseName(int i) throws RepositoryException;
-		
 
 }

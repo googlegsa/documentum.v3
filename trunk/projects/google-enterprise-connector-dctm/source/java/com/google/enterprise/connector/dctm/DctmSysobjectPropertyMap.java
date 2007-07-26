@@ -31,15 +31,16 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 	private IClientX clientX;
 
 	private String isPublic = "false";
-	
+
 	private String versionId;
 
 	private HashSet included_meta;
 
 	private HashSet excluded_meta;
-	
+
 	public DctmSysobjectPropertyMap(String docid,
-			ISessionManager sessionManager, IClientX clientX , String isPublic, HashSet included_meta, HashSet excluded_meta) {
+			ISessionManager sessionManager, IClientX clientX, String isPublic,
+			HashSet included_meta, HashSet excluded_meta) {
 		this.docId = docid;
 		this.sessionManager = sessionManager;
 		this.clientX = clientX;
@@ -49,7 +50,7 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 	}
 
 	private void fetch() throws RepositoryException {
-		
+
 		if (object != null) {
 			return;
 		}
@@ -57,10 +58,11 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 		try {
 			String docbaseName = sessionManager.getDocbaseName();
 			session = sessionManager.getSession(docbaseName);
-			
+
 			IId id = clientX.getId(docId);
 			object = session.getObject(id);
 			versionId = object.getId("i_chronicle_id").getId();
+			object.setSessionManager(sessionManager);
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
@@ -98,7 +100,7 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 					ValueType.STRING, mimetype));
 		} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
 			return null;
-		}		
+		}
 		return new DctmSysobjectProperty(name, new DctmSysobjectValue(object,
 				name, ValueType.STRING));
 	}
@@ -119,7 +121,8 @@ public class DctmSysobjectPropertyMap extends HashMap implements PropertyMap {
 			if (!excluded_meta.contains(name) || included_meta.contains(name)) {
 				dctmProps = new DctmSysobjectProperty(name,
 						new DctmSysobjectValue(object, name));
-				if(dctmProps.getValue().getString() != null && !dctmProps.getValue().getString().equals(""))
+				if (dctmProps.getValue().getString() != null
+						&& !dctmProps.getValue().getString().equals(""))
 					properties.add(dctmProps);
 			}
 		}

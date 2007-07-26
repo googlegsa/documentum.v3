@@ -32,4 +32,7 @@ public interface ISysObject {
 	public int getAttrCount() throws RepositoryException;
 
 	public IAttr getAttr(int attrIndex) throws RepositoryException;
+
+	public void setSessionManager(ISessionManager sessionManager)
+			throws RepositoryException;
 }

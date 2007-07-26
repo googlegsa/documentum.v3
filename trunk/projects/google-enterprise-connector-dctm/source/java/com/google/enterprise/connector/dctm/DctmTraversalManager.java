@@ -73,7 +73,8 @@ public class DctmTraversalManager implements TraversalManager {
 	}
 
 	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-			String additionalWhereClause, boolean isPublic, HashSet included_meta, HashSet excluded_meta)
+			String additionalWhereClause, boolean isPublic,
+			HashSet included_meta, HashSet excluded_meta)
 			throws RepositoryException {
 		this.additionalWhereClause = additionalWhereClause;
 
@@ -88,7 +89,7 @@ public class DctmTraversalManager implements TraversalManager {
 
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
-		this.excluded_meta =excluded_meta;
+		this.excluded_meta = excluded_meta;
 	}
 
 	/**
@@ -160,7 +161,7 @@ public class DctmTraversalManager implements TraversalManager {
 	public String checkpoint(PropertyMap pm) throws RepositoryException {
 		String uuid = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
-		
+
 		Value value = fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_LASTMODIFIED);
 
@@ -202,13 +203,11 @@ public class DctmTraversalManager implements TraversalManager {
 		sessionManager.setServerUrl(serverUrl);
 		ICollection collec = null;
 		PropertyMapList propertyMapList;
-		
-		
+
 		collec = query.execute(sessionManager, IQuery.READ_QUERY);
-		propertyMapList = new DctmPropertyMapList(collec,
-				sessionManager, clientX, isPublic, included_meta, excluded_meta);
-		
-		
+		propertyMapList = new DctmPropertyMapList(collec, sessionManager,
+				clientX, isPublic, included_meta, excluded_meta);
+
 		return propertyMapList;
 	}
 

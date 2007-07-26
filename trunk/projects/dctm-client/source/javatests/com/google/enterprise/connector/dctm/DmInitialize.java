@@ -45,23 +45,23 @@ public class DmInitialize {
 	public static String DM_FAlSE_PWD = "false";
 
 	public static String DM_ID1 = "0900000180041d34";
-	
+
 	public static String DM_VSID1 = "0900000180041702";
 
 	public static String DM_ID2 = "0900000180041d34";
-	
+
 	public static String DM_VSID2 = "0900000180041702";
-	
+
 	public static String DM_ID3 = "100000018000017d";
 
 	public static String DM_VSID3 = "100000018000017d";
-	
+
 	public static String DM_ID4 = "4c000001800001b8";
-	
+
 	public static String DM_VSID4 = "4c000001800001b8";
 
 	public static String DM_ID5 = "0900000180005a5b";
-	
+
 	public static String DM_VSID5 = "0900000180005a5b ";
 
 	public static boolean DM_ID2_IS_PUBLIC = false;
@@ -73,9 +73,9 @@ public class DmInitialize {
 	public static int DM_ID2_SIZE = 16;
 
 	public static String DM_FIRST_ATTR = "google:ispublic";
-	
+
 	public static HashSet excluded_meta = null;
-	
+
 	static {
 		excluded_meta = new HashSet();
 		excluded_meta.add("i_vstamp");
@@ -158,7 +158,7 @@ public class DmInitialize {
 		excluded_meta.add("a_status");
 		excluded_meta.add("a_application_type");
 	}
-	
+
 	public static HashSet included_meta = null;
 	static {
 		included_meta = new HashSet();

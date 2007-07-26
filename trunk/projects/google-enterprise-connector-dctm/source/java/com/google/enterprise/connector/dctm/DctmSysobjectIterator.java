@@ -2,6 +2,7 @@ package com.google.enterprise.connector.dctm;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -23,8 +24,14 @@ public class DctmSysobjectIterator implements Iterator {
 
 	private HashSet excluded_meta;
 
+	private static Logger logger = null;
+	static {
+		logger = Logger.getLogger(DctmSysobjectIterator.class.getName());
+	}
+
 	DctmSysobjectIterator(ICollection co, ISessionManager sessMag,
-			IClientX clientX, boolean isPublic, HashSet included_meta, HashSet excluded_meta) {
+			IClientX clientX, boolean isPublic, HashSet included_meta,
+			HashSet excluded_meta) {
 		this.co = co;
 		this.index = 0;
 		this.sessMag = sessMag;
@@ -35,7 +42,6 @@ public class DctmSysobjectIterator implements Iterator {
 	}
 
 	public void remove() {
-		
 
 	}
 
@@ -44,7 +50,23 @@ public class DctmSysobjectIterator implements Iterator {
 		try {
 			hasNextVal = co.next();
 		} catch (RepositoryException e) {
+			try {
+				co.close();
+			} catch (RepositoryException e1) {
+				logger
+						.info("minor error while closing the collection of results "
+								+ e1.getMessage());
+			}
 			return false;
+		}
+		if (hasNextVal == false) {
+			try {
+				co.close();
+			} catch (RepositoryException e1) {
+				logger
+						.info("minor error while closing the collection of results "
+								+ e1.getMessage());
+			}
 		}
 		return hasNextVal;
 	}

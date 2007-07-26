@@ -61,7 +61,7 @@ public class MockDmValueTest extends TestCase {
 			String valSg = val.asString();
 			assertEquals(valSg, DmInitialize.DM_ID1);
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+			
 		}
 	}
 
@@ -72,7 +72,7 @@ public class MockDmValueTest extends TestCase {
 			int type = ((MockDmValue) val).getDataType();
 			assertEquals(type, DmInitialize.DM_ID1_TYPE);
 		} catch (RepositoryException e) {
-			e.printStackTrace();
+			
 		}
 	}
 

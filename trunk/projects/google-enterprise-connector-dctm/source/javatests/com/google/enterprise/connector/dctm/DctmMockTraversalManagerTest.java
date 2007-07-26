@@ -36,8 +36,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
 		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
 		((DctmConnector) connector)
 				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-		((DctmConnector) connector)
-		.setIs_public("true");
+		((DctmConnector) connector).setIs_public("true");
 		session = (DctmSession) connector.login();
 		qtm = (DctmTraversalManager) session.getTraversalManager();
 
@@ -68,7 +67,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
 			statement = qtm.makeCheckpointQueryString(uuid,
 					"1970-01-01 01:00:00.020");
 		} catch (RepositoryException re) {
-			re.printStackTrace();
+
 		}
 
 		assertNotNull(statement);
@@ -115,7 +114,9 @@ public class DctmMockTraversalManagerTest extends TestCase {
 	public void testIDfetchAndVerifyValueForCheckpoint()
 			throws RepositoryException {
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
+				: "false", DmInitialize.included_meta,
+				DmInitialize.excluded_meta);
 
 		String uuid = qtm.fetchAndVerifyValueForCheckpoint(pm,
 				SpiConstants.PROPNAME_DOCID).getString();
@@ -126,7 +127,9 @@ public class DctmMockTraversalManagerTest extends TestCase {
 	public void testDatefetchAndVerifyValueForCheckpoint()
 			throws RepositoryException, ParseException {
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
+				: "false", DmInitialize.included_meta,
+				DmInitialize.excluded_meta);
 		Calendar calDate = null;
 
 		Calendar c = qtm.fetchAndVerifyValueForCheckpoint(pm,
@@ -142,7 +145,9 @@ public class DctmMockTraversalManagerTest extends TestCase {
 
 		String checkPoint = null;
 		DctmSysobjectPropertyMap pm = new DctmSysobjectPropertyMap("doc2", qtm
-				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true" : "false", DmInitialize.included_meta, DmInitialize.excluded_meta);
+				.getSessionManager(), qtm.getClientX(), qtm.isPublic() ? "true"
+				: "false", DmInitialize.included_meta,
+				DmInitialize.excluded_meta);
 		checkPoint = qtm.checkpoint(pm);
 
 		assertNotNull(checkPoint);

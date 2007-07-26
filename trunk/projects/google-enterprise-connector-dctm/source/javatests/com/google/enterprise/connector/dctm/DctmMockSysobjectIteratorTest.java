@@ -33,8 +33,7 @@ public class DctmMockSysobjectIteratorTest extends TestCase {
 		((DctmConnector) connector).setIs_public("false");
 		dctmSession = (DctmSession) connector.login();
 
-		qtm = (DctmTraversalManager) dctmSession
-				.getTraversalManager();
+		qtm = (DctmTraversalManager) dctmSession.getTraversalManager();
 		qtm.setBatchHint(2);
 
 	}
@@ -58,7 +57,7 @@ public class DctmMockSysobjectIteratorTest extends TestCase {
 			Object obj = iter.next();
 			assertTrue(obj instanceof PropertyMap);
 			assertTrue(obj instanceof DctmSysobjectPropertyMap);
-			
+
 			pm = (PropertyMap) obj;
 			prop = pm.getProperty(SpiConstants.PROPNAME_DOCID);
 

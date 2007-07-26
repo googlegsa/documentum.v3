@@ -8,7 +8,7 @@ public interface ICollection {
 	public boolean next() throws RepositoryException;
 
 	public String getString(String colName) throws RepositoryException;
-	
+
 	public void close() throws RepositoryException;
 
 }

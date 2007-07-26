@@ -71,7 +71,7 @@ public class DmSessionManager implements ISessionManager {
 	public ISession newSession(String docbase) throws RepositoryLoginException,
 			RepositoryException {
 		IDfSession idfSession = null;
-		
+
 		try {
 			idfSession = dfSessionManager.newSession(docbase);
 		} catch (DfIdentityException iE) {
@@ -129,6 +129,10 @@ public class DmSessionManager implements ISessionManager {
 
 	public void clearIdentity(String docbase) {
 		this.dfSessionManager.clearIdentity(docbase);
+	}
+
+	public IDfSessionManager getSessionManager() {
+		return this.dfSessionManager;
 	}
 
 }

@@ -32,7 +32,7 @@ import com.google.enterprise.connector.spi.ConnectorType;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DctmConnectorType implements ConnectorType {
-	
+
 	private static final String HIDDEN = "hidden";
 
 	private static final String VALUE = "value";
@@ -72,7 +72,7 @@ public class DctmConnectorType implements ConnectorType {
 	private static final String WHERECLAUSE = "where_clause";
 
 	private static final String DOCBASENAME = "docbase";
-	
+
 	private static final String DISPLAYURL = "webtop_display_url";
 
 	private static final String CHECKBOX = "CHECKBOX";
@@ -126,7 +126,8 @@ public class DctmConnectorType implements ConnectorType {
 			resource = ResourceBundle.getBundle("DctmConnectorType", language);
 		} catch (MissingResourceException e) {
 			resource = null;
-			return new ConfigureResponse("", "The internationalization package is not installed. Please, install it.");
+			return new ConfigureResponse("",
+					"The internationalization package is not installed. Please, install it.");
 		}
 		if (initialConfigForm != null) {
 			return new ConfigureResponse("", initialConfigForm);
@@ -145,11 +146,11 @@ public class DctmConnectorType implements ConnectorType {
 			logger.log(Level.INFO, "DCTM ValidateConfig");
 		}
 		String form = null;
-		DctmSession session ;
+		DctmSession session;
 		String validation = validateConfigMap(configData);
 		if (validation.equals("")) {
 			try {
-				
+
 				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 					logger.log(Level.INFO, "test connection to the docbase");
 				}
@@ -157,9 +158,10 @@ public class DctmConnectorType implements ConnectorType {
 				p.putAll(configData);
 				String isPublic = (String) configData.get(ISPUBLIC);
 				if (isPublic == null) {
-					p.put(ISPUBLIC,"false");
+					p.put(ISPUBLIC, "false");
 				}
-				Resource res = new ClassPathResource("config/connectorInstanceDocumentum.xml");
+				Resource res = new ClassPathResource(
+						"config/connectorInstanceDocumentum.xml");
 				XmlBeanFactory factory = new XmlBeanFactory(res);
 				PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
 				cfg.setProperties(p);
@@ -167,7 +169,7 @@ public class DctmConnectorType implements ConnectorType {
 				DctmConnector conn = (DctmConnector) factory
 						.getBean("DctmConnectorInstance");
 				session = (DctmSession) conn.login();
-				testWebtopUrl((String) configData.get(DISPLAYURL));			
+				testWebtopUrl((String) configData.get(DISPLAYURL));
 				if ((String) configData.get(WHERECLAUSE) != null
 						&& !((String) configData.get(WHERECLAUSE)).equals("")) {
 					DctmTraversalManager qtm = (DctmTraversalManager) session
@@ -180,36 +182,38 @@ public class DctmConnectorType implements ConnectorType {
 			} catch (RepositoryException e) {
 				return createErrorMessage(configData, e);
 
-			}finally{
-				
+			} finally {
+
 			}
 			return null;
 		}
 
 		form = makeValidatedForm(configData);
-		return new ConfigureResponse(resource.getString(validation+"_error"),
-				"<p><font color=\"#FF0000\">" + resource.getString(validation+"_error")
-				+ "</font></p><br>" + form);
+		return new ConfigureResponse(resource.getString(validation + "_error"),
+				"<p><font color=\"#FF0000\">"
+						+ resource.getString(validation + "_error")
+						+ "</font></p><br>" + form);
 
 	}
 
-	private ConfigureResponse createErrorMessage(Map configData, RepositoryException e) {
+	private ConfigureResponse createErrorMessage(Map configData,
+			RepositoryException e) {
 		String form;
 		String message = e.getMessage();
 		String returnMessage = null;
 		String extractErrorMessage = null;
 		String bundleMessage = null;
 		if (message.indexOf("[") != -1) {
-			extractErrorMessage = message.substring(message
-					.indexOf("[") + 1, message.indexOf("]"));
+			extractErrorMessage = message.substring(message.indexOf("[") + 1,
+					message.indexOf("]"));
 		} else {
 			extractErrorMessage = e.getCause().getClass().getName();
 		}
 		try {
 			bundleMessage = resource.getString(extractErrorMessage);
 		} catch (MissingResourceException mre) {
-			bundleMessage = resource.getString("DEFAULT_ERROR_MESSAGE")
-					+ " " + e.getMessage();
+			bundleMessage = resource.getString("DEFAULT_ERROR_MESSAGE") + " "
+					+ e.getMessage();
 		}
 		returnMessage = "<p><font color=\"#FF0000\">" + bundleMessage
 				+ "</font></p>";
@@ -217,8 +221,8 @@ public class DctmConnectorType implements ConnectorType {
 			logger.log(Level.WARNING, returnMessage);
 		}
 		form = makeValidatedForm(configData);
-		return new ConfigureResponse(returnMessage, returnMessage
-				+ "<br>" + form);
+		return new ConfigureResponse(returnMessage, returnMessage + "<br>"
+				+ form);
 	}
 
 	private void checkAdditionalWhereClause(String additionalWhereClause,
@@ -383,13 +387,25 @@ public class DctmConnectorType implements ConnectorType {
 							"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX")
 					.newInstance();
 		} catch (InstantiationException e) {
-
+			logger
+					.info("minor error while building the configuration form. The docbase will be added manually. "
+							+ e.getLocalizedMessage());
+			return;
 		} catch (IllegalAccessException e) {
-
+			logger
+					.info("minor error while building the configuration form. The docbase will be added manually. "
+							+ e.getLocalizedMessage());
+			return;
 		} catch (ClassNotFoundException e) {
-
+			logger
+					.info("minor error while building the configuration form. The docbase will be added manually. "
+							+ e.getLocalizedMessage());
+			return;
 		} catch (NoClassDefFoundError e) {
-
+			logger
+					.info("minor error while building the configuration form. The docbase will be added manually. "
+							+ e.getLocalizedMessage());
+			return;
 		}
 		IClient client;
 		buf.append(SELECT_START);
@@ -413,7 +429,9 @@ public class DctmConnectorType implements ConnectorType {
 			}
 		} catch (RepositoryException e) {
 
-			e.printStackTrace();
+			logger
+					.info("minor error while building the configuration form. The docbase will be added manually. "
+							+ e.getLocalizedMessage());
 		}
 		buf.append(SELECT_END);
 

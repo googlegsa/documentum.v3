@@ -54,7 +54,7 @@ public class DmQueryATest extends TestCase {
 			Assert.assertNotNull(collec);
 			session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 		} finally {
-			if(session != null)
+			if (session != null)
 				sessionManager.release(session);
 		}
 	}

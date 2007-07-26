@@ -50,7 +50,8 @@ public class DmSessionManagerTest extends TestCase {
 
 	}
 
-	public void testNewSession() throws RepositoryLoginException, RepositoryException {
+	public void testNewSession() throws RepositoryLoginException,
+			RepositoryException {
 
 		ISession session = null;
 		try {

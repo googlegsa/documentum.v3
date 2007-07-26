@@ -25,16 +25,16 @@ public class DctmConnector implements Connector {
 	private String where_clause;
 
 	private String is_public;
-	
+
 	private HashSet included_meta;
-	
+
 	private HashSet excluded_meta;
 
 	private static Logger logger = null;
 
 	public static boolean DEBUG = false;
 
-	public static int DEBUG_LEVEL = 3;
+	public static int DEBUG_LEVEL = 1;
 
 	static {
 		logger = Logger.getLogger(DctmConnector.class.getName());
@@ -78,7 +78,8 @@ public class DctmConnector implements Connector {
 
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
-				webtop_display_url, where_clause, is_public.equals("on"), included_meta, excluded_meta);
+				webtop_display_url, where_clause, is_public.equals("on"),
+				included_meta, excluded_meta);
 
 		return (sess);
 	}
@@ -104,7 +105,7 @@ public class DctmConnector implements Connector {
 	}
 
 	public HashSet getIncluded_meta() {
-		
+
 		return included_meta;
 	}
 

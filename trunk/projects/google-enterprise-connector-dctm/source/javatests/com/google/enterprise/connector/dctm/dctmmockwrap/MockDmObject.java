@@ -13,6 +13,7 @@ import javax.jcr.ValueFormatException;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.mock.MockRepositoryDateTime;
@@ -38,7 +39,7 @@ public class MockDmObject implements ISysObject {
 					.getContentStream();
 			avail = contentStream.available();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+
 		}
 		return avail;
 	}
@@ -49,7 +50,7 @@ public class MockDmObject implements ISysObject {
 			contentStream = (ByteArrayInputStream) mockDocument
 					.getContentStream();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+
 		}
 		return contentStream;
 	}
@@ -74,11 +75,11 @@ public class MockDmObject implements ISysObject {
 			try {
 				propStrVal = propVal.getString();
 			} catch (ValueFormatException e) {
-				e.printStackTrace();
+
 			} catch (IllegalStateException e) {
-				e.printStackTrace();
+
 			} catch (javax.jcr.RepositoryException e) {
-				e.printStackTrace();
+
 			}
 		} else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
 			name = "docid";
@@ -91,11 +92,11 @@ public class MockDmObject implements ISysObject {
 			try {
 				propStrVal = propVal.getString();
 			} catch (ValueFormatException e) {
-				e.printStackTrace();
+
 			} catch (IllegalStateException e) {
-				e.printStackTrace();
+
 			} catch (javax.jcr.RepositoryException e) {
-				e.printStackTrace();
+
 			}
 		} else {
 			MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
@@ -104,11 +105,11 @@ public class MockDmObject implements ISysObject {
 			try {
 				propStrVal = propVal.getString();
 			} catch (ValueFormatException e) {
-				e.printStackTrace();
+
 			} catch (IllegalStateException e) {
-				e.printStackTrace();
+
 			} catch (javax.jcr.RepositoryException e) {
-				e.printStackTrace();
+
 			}
 		}
 
@@ -123,11 +124,11 @@ public class MockDmObject implements ISysObject {
 		try {
 			propIntVal = (int) propVal.getLong();
 		} catch (ValueFormatException e) {
-			e.printStackTrace();
+
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+
 		} catch (javax.jcr.RepositoryException e) {
-			e.printStackTrace();
+
 		}
 		return propIntVal;
 	}
@@ -165,11 +166,11 @@ public class MockDmObject implements ISysObject {
 		try {
 			propDblVal = propVal.getDouble();
 		} catch (ValueFormatException e) {
-			e.printStackTrace();
+
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+
 		} catch (javax.jcr.RepositoryException e) {
-			e.printStackTrace();
+
 		}
 		return propDblVal;
 	}
@@ -182,17 +183,17 @@ public class MockDmObject implements ISysObject {
 		try {
 			propBlVal = propVal.getBoolean();
 		} catch (ValueFormatException e) {
-			e.printStackTrace();
+
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+
 		} catch (javax.jcr.RepositoryException e) {
-			e.printStackTrace();
+
 		}
 		return propBlVal;
 	}
 
 	public IId getId(String id) throws RepositoryException {
-		
+
 		return new MockDmId(this.mockDocument.getDocID());
 	}
 
@@ -230,6 +231,11 @@ public class MockDmObject implements ISysObject {
 			counter++;
 		}
 		return null;
+	}
+
+	public void setSessionManager(ISessionManager sessionManager)
+			throws RepositoryException {
+
 	}
 
 }

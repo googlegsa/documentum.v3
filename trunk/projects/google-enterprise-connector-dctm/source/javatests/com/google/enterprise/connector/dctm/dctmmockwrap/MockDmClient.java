@@ -203,7 +203,8 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 			creds = new SimpleCredentials(iLI.getUser(), iLI.getPassword()
 					.toCharArray());
 		} else {
-			throw new RepositoryLoginException("No credentials defined for " + db);
+			throw new RepositoryLoginException("No credentials defined for "
+					+ db);
 		}
 
 		MockJcrSession sess = null;
