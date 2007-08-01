@@ -54,7 +54,7 @@ public class DctmTraversalUtilCall {
 		try {
 			session = (DctmSession) connector.login();
 			qtm = (DctmTraversalManager) session.getTraversalManager();
-			DctmTraversalUtil.runTraversal(qtm, 100);
+			DctmTraversalUtil.runTraversal(qtm, 10);
 
 		} catch (RepositoryLoginException le) {
 

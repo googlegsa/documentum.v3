@@ -62,7 +62,7 @@ public class MockDmObjectTest extends TestCase {
 			assertNotNull(value);
 			assertEquals(value, DmInitialize.DM_ID2);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -71,7 +71,7 @@ public class MockDmObjectTest extends TestCase {
 			ByteArrayInputStream value = object.getContent();
 			assertNotNull(value);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -80,7 +80,7 @@ public class MockDmObjectTest extends TestCase {
 			boolean value = object.getBoolean("google:ispublic");
 			assertEquals(value, DmInitialize.DM_ID2_IS_PUBLIC);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -89,7 +89,7 @@ public class MockDmObjectTest extends TestCase {
 			IFormat format = object.getFormat();
 			assertEquals(format.getMIMEType(), DmInitialize.DM_DEFAULT_MIMETYPE);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -98,7 +98,7 @@ public class MockDmObjectTest extends TestCase {
 			int count = object.getAttrCount();
 			assertEquals(count, DmInitialize.DM_DEFAULT_ATTRS);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -107,7 +107,7 @@ public class MockDmObjectTest extends TestCase {
 			IId ID = object.getId(DmInitialize.DM_ID2);
 			assertEquals(ID.toString(), DmInitialize.DM_ID2);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -116,7 +116,7 @@ public class MockDmObjectTest extends TestCase {
 			long size = object.getContentSize();
 			assertEquals(size, DmInitialize.DM_ID2_SIZE);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -125,7 +125,7 @@ public class MockDmObjectTest extends TestCase {
 			ITime time = object.getTime("timestamp");
 			assertNotNull(time);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -134,7 +134,7 @@ public class MockDmObjectTest extends TestCase {
 			int type = object.getAttrDataType("google:ispublic");
 			assertEquals(type, 1);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
@@ -143,7 +143,7 @@ public class MockDmObjectTest extends TestCase {
 			IAttr attr = object.getAttr(1);
 			assertEquals(attr.getName(), DmInitialize.DM_FIRST_ATTR);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 

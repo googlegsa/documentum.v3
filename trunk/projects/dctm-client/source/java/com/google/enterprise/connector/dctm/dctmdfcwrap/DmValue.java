@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.common.IDfValue;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 
 public class DmValue implements IValue {
@@ -12,14 +13,24 @@ public class DmValue implements IValue {
 	}
 
 	public String asString() {
-		String rep = null;
-		rep = idfValue.asString();
-		return (rep);
+		return idfValue.asString();
 	}
 
-	public int getDataType() {
-		int rep = 0;
-		rep = idfValue.getDataType();
-		return (rep);
+	
+
+	public boolean asBoolean() {
+		return idfValue.asBoolean();
+	}
+
+	public double asDouble() {
+		return idfValue.asDouble();
+	}
+
+	public long asInteger() {
+		return idfValue.asInteger();
+	}
+
+	public ITime asTime() {
+		return new DmTime(idfValue.asTime());
 	}
 }

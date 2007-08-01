@@ -12,6 +12,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSysObject implements ISysObject {
@@ -86,7 +87,7 @@ public class DmSysObject implements ISysObject {
 			} else if (idfSysObject.getAttrDataType(name) == IDfAttr.DM_ID) {
 				return this.getId(name).toString();
 			}
-			return idfSysObject.getAllRepeatingStrings(name, ", ");
+			return idfSysObject.getString(name);
 		} catch (DfException e) {
 			// if the attribute name does not exist for the type
 			if (e.getMessage().indexOf("DM_API_E_BADATTRNAME") != -1) {
@@ -133,8 +134,7 @@ public class DmSysObject implements ISysObject {
 		}
 	}
 
-	public ITime getTime(String name) throws RepositoryException {
-		//		
+	public ITime getTime(String name) throws RepositoryException {	
 		try {
 			return new DmTime(idfSysObject.getTime(name));
 		} catch (DfException e) {
@@ -171,6 +171,7 @@ public class DmSysObject implements ISysObject {
 
 	public void setSessionManager(ISessionManager sessionManager)
 			throws RepositoryException {
+		
 		DmSessionManager dmSessionManager = (DmSessionManager) sessionManager;
 		try {
 			this.idfSysObject.setSessionManager(dmSessionManager
@@ -180,5 +181,34 @@ public class DmSysObject implements ISysObject {
 		}
 
 	}
+
+	public IValue getRepeatingValue(String name, int index) throws RepositoryException {
+		try {
+			return new DmValue(idfSysObject.getRepeatingValue(name,index));
+		} catch (DfException e) {
+			throw new RepositoryException(e);
+		}
+		
+	}
+
+	public int findAttrIndex(String name) throws RepositoryException {
+		try {
+			return idfSysObject.findAttrIndex(name);
+		} catch (DfException e) {
+			throw new RepositoryException(e);
+		}
+	}
+
+	public int getValueCount(String name) throws RepositoryException {
+		
+		try {
+			return idfSysObject.getValueCount(name);
+		} catch (DfException e) {
+			throw new RepositoryException(e);
+		}
+	}
+
+
+	
 
 }

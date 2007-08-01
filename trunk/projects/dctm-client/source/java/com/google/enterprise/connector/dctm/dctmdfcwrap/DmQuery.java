@@ -7,6 +7,7 @@ import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;
+import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.DctmConnector;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -18,7 +19,6 @@ public class DmQuery implements IQuery {
 
 	IDfQuery idfQuery;
 
-	public static int DF_READ_QUERY = IDfQuery.DF_READ_QUERY;
 
 	private static Logger logger = null;
 
@@ -46,27 +46,22 @@ public class DmQuery implements IQuery {
 			throw new IllegalArgumentException();
 		}
 
-		DmSession idctmsession = null;
+		DmSessionManager dmSessionManager = (DmSessionManager) sessionManager;
+		IDfSessionManager idfSessionmanager = dmSessionManager.getDfSessionManager();
 
-		idctmsession = (DmSession) sessionManager.getSession(sessionManager
-				.getDocbaseName());
-
-		IDfSession idfSession = idctmsession.getDfSession();
-		IDfCollection dfCollection = null;
+		
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of IdfQuery " + idfQuery.getDQL());
 		}
+		IDfSession idfSession = null;
+		IDfCollection dfCollection = null;
 		try {
+			idfSession = idfSessionmanager.getSession(sessionManager.getDocbaseName());
 			dfCollection = idfQuery.execute(idfSession, queryType);
+			
 		} catch (DfException de) {
-
-			RepositoryException re = new RepositoryException(de);
-			throw re;
-		} finally {
-			if (idctmsession != null) {
-				sessionManager.release(idctmsession);
-			}
-		}
+			throw new RepositoryException(de);
+		} 
 		return new DmCollection(dfCollection);
 
 	}

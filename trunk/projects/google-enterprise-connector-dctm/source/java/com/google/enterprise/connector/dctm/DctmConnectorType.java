@@ -238,11 +238,10 @@ public class DctmConnectorType implements ConnectorType {
 		query
 				.setDQL("select r_object_id from dm_sysobject where r_object_type='dm_document' "
 						+ additionalWhereClause);
-		DctmPropertyMapList result = (DctmPropertyMapList) qtm.execQuery(query);
-		Iterator iter = result.iterator();
+		DctmDocumentList result = (DctmDocumentList) qtm.execQuery(query);
+		
 		int counter = 0;
-		while (iter.hasNext()) {
-			iter.next();
+		while (result.nextDocument() !=  null) {
 			counter++;
 			break;
 		}

@@ -83,4 +83,8 @@ public class MockDmCollection implements ICollection {
 
 	}
 
+	public int getState() {
+		return ICollection.DF_READY_STATE;
+	}
+
 }
