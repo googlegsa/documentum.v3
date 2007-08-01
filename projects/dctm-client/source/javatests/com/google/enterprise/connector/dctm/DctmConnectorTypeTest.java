@@ -159,13 +159,13 @@ public class DctmConnectorTypeTest extends TestCase {
 
 	public void testValidateConfigWithAnotherQueryError() {
 		HashMap map = new HashMap();
-		map.put("login", "queryUser");
+		map.put("login", "user1");
 		map.put("password", "p@ssw0rd");
 		map.put("docbase", "gsadctm");
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		map.put("authentication_type", "api");
-		map.put("webtop_display_url", "http://swp-vm-wt:8080/webtop/");
+		map.put("webtop_display_url", "http://swp-vm-wt:8080/webtop/drl/objectId/");
 		map.put("where_clause", "and owne_name != 'Administrator'");
 		map.put("is_public", "false");
 		DctmConnectorType test = new DctmConnectorType();

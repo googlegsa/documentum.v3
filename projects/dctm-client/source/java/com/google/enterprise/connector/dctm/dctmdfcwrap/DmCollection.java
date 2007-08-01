@@ -18,6 +18,7 @@ public class DmCollection implements ICollection {
 	public IValue getValue(String attrName) throws RepositoryException {
 		IDfValue dfValue = null;
 		try {
+
 			dfValue = idfCollection.getValue(attrName);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
@@ -31,10 +32,10 @@ public class DmCollection implements ICollection {
 		try {
 			rep = idfCollection.next();
 		} catch (DfException e) {
-			RepositoryException re = new RepositoryException(e);
-			throw re;
+			e.printStackTrace();
+			throw new RepositoryException(e);
 		}
-		return (rep);
+		return rep;
 	}
 
 	public IDfCollection getIDfCollection() {
@@ -56,5 +57,9 @@ public class DmCollection implements ICollection {
 		} catch (DfException e) {
 			throw new RepositoryException(e);
 		}
+	}
+
+	public int getState() {
+		return this.idfCollection.getState();
 	}
 }

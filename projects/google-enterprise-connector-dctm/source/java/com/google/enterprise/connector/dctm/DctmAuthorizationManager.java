@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -15,7 +16,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.SimplePropertyMapList;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
@@ -50,8 +50,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		String dqlQuery = "";
 		ISession session = sessionManager.getSession(sessionManager
 				.getDocbaseName());
-		SimplePropertyMapList simplePropertyMapList = new SimplePropertyMapList();
-
+		DctmDocumentList dctmDocumentList = new DctmDocumentList();
+		HashSet dctmList = new HashSet();
 		try {
 			ISessionManager sessionManagerUser = clientX.getLocalClient()
 					.newSessionManager();
@@ -97,8 +97,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 					}
 					authorizationResponse = new AuthorizationResponse(false, id);
 				}
-				simplePropertyMapList.add(authorizationResponse);
-
+				dctmDocumentList.add(authorizationResponse);
+				dctmList.add(authorizationResponse);
 			}
 			collec.close();
 		} finally {
@@ -106,7 +106,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 				sessionManager.release(session);
 			}
 		}
-		return simplePropertyMapList;
+		
+		return dctmDocumentList;
 	}
 
 	private String buildQuery(List docidList) {

@@ -61,19 +61,9 @@ public class MockDmValueTest extends TestCase {
 			String valSg = val.asString();
 			assertEquals(valSg, DmInitialize.DM_ID1);
 		} catch (RepositoryException e) {
-			
+
 		}
 	}
 
-	public void testGetDataType() {
-		try {
-			IValue val = collec.getValue("r_object_id");
-			Assert.assertTrue(val instanceof MockDmValue);
-			int type = ((MockDmValue) val).getDataType();
-			assertEquals(type, DmInitialize.DM_ID1_TYPE);
-		} catch (RepositoryException e) {
-			
-		}
-	}
 
 }

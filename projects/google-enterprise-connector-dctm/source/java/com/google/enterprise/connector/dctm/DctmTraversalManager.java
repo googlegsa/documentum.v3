@@ -12,13 +12,9 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.Property;
-import com.google.enterprise.connector.spi.PropertyMap;
-import com.google.enterprise.connector.spi.PropertyMapList;
+import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.TraversalManager;
-import com.google.enterprise.connector.spi.Value;
 
 public class DctmTraversalManager implements TraversalManager {
 
@@ -29,7 +25,7 @@ public class DctmTraversalManager implements TraversalManager {
 	// TODO: add possibility for an administrator to change it
 	private String tableName = "dm_document";
 
-	private String whereBoundedClause = " and ((r_modify_date = ''{0}''  and r_object_id > ''{1}'') OR ( r_modify_date > ''{2}''))";
+	private String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{2}'',''yyyy-mm-dd hh:mi:ss'')))";
 
 	private String serverUrl;
 
@@ -105,7 +101,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 *             if the Repository is unreachable or similar exceptional
 	 *             condition.
 	 */
-	public PropertyMapList startTraversal() throws RepositoryException {
+	public DocumentList startTraversal() throws RepositoryException {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("Pull process started");
 		}
@@ -126,63 +122,19 @@ public class DctmTraversalManager implements TraversalManager {
 	 *         checkpoint.
 	 * @throws RepositoryException
 	 */
-	public PropertyMapList resumeTraversal(String checkPoint)
+	public DocumentList resumeTraversal(String checkPoint)
 			throws RepositoryException {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of checkpoint  " + checkPoint);
 		}
 
-		PropertyMapList propertyMapList = null;
+		DocumentList documentList = null;
 		IQuery query = makeCheckpointQuery(buildQueryString(checkPoint));
-		propertyMapList = execQuery(query);
-		return propertyMapList;
+		documentList = execQuery(query);
+		return documentList;
 	}
 
-	/**
-	 * Checkpoints the traversal process. The caller passes in a property map
-	 * taken from the {@link ResultSet} object that it obtained from either the
-	 * startTraversal or resumeTraversal methods. This property map is the last
-	 * document that the caller successfully processed. This is NOT necessarily
-	 * the last object from the result set - the caller may consume as much or
-	 * as little of a result set as it chooses. If the implementation wants the
-	 * caller to persist the traversal state, then it should write a string
-	 * representation of that state and return it. If the implementation prefers
-	 * to maintain state itself, it should use this call as a signal to commit
-	 * its state, up to the document passed in.
-	 * 
-	 * @param pm
-	 *            A property map obtained from a ResultSet obtained from either
-	 *            {@link #startTraversal()} or {link
-	 *            {@link #resumeTraversal(String)}.
-	 * @return A string that can be used by a subsequent call to the
-	 *         {@link #resumeTraversal(String)} method.
-	 * @throws RepositoryException
-	 */
-	public String checkpoint(PropertyMap pm) throws RepositoryException {
-		String uuid = fetchAndVerifyValueForCheckpoint(pm,
-				SpiConstants.PROPNAME_DOCID).getString();
-
-		Value value = fetchAndVerifyValueForCheckpoint(pm,
-				SpiConstants.PROPNAME_LASTMODIFIED);
-
-		String dateString = DctmSysobjectValue.calendarToIso8601(value
-				.getDate());
-
-		String result = null;
-		try {
-			JSONObject jo = new JSONObject();
-			jo.put("uuid", uuid);
-			jo.put("lastModified", dateString);
-			result = jo.toString();
-		} catch (JSONException e) {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-				logger.severe("Unexpected JSON problem");
-			}
-			throw new RepositoryException("Unexpected JSON problem", e);
-		}
-		return result;
-	}
-
+	
 	/**
 	 * Sets the preferred batch size. The caller advises the implementation that
 	 * the result sets returned by startTraversal or resumeTraversal need not be
@@ -199,34 +151,21 @@ public class DctmTraversalManager implements TraversalManager {
 		this.batchHint = batchHint;
 	}
 
-	public PropertyMapList execQuery(IQuery query) throws RepositoryException {
+	protected DocumentList execQuery(IQuery query) throws RepositoryException {
 		sessionManager.setServerUrl(serverUrl);
 		ICollection collec = null;
-		PropertyMapList propertyMapList;
-
-		collec = query.execute(sessionManager, IQuery.READ_QUERY);
-		propertyMapList = new DctmPropertyMapList(collec, sessionManager,
+		DocumentList documentList;
+		
+		collec = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
+		documentList = new DctmDocumentList(collec, sessionManager,
 				clientX, isPublic, included_meta, excluded_meta);
 
-		return propertyMapList;
+		return documentList;
 	}
 
-	public Value fetchAndVerifyValueForCheckpoint(PropertyMap pm, String pName)
-			throws RepositoryException {
-		Property property = pm.getProperty(pName);
-		if (property == null) {
-			throw new IllegalArgumentException("checkpoint must have a "
-					+ pName + " property");
-		}
-		Value value = property.getValue();
-		if (value == null) {
-			throw new IllegalArgumentException("checkpoint " + pName
-					+ " property must have a non-null value");
-		}
-		return value;
-	}
 
-	private IQuery makeCheckpointQuery(String queryString)
+
+	protected IQuery makeCheckpointQuery(String queryString)
 			throws RepositoryException {
 		IQuery query = null;
 		query = clientX.getQuery();
@@ -234,7 +173,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return query;
 	}
 
-	public String extractDocidFromCheckpoint(JSONObject jo, String checkPoint) {
+	protected String extractDocidFromCheckpoint(JSONObject jo, String checkPoint) {
 		String uuid = null;
 		try {
 			uuid = jo.getString("uuid");
@@ -249,7 +188,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return uuid;
 	}
 
-	public String extractNativeDateFromCheckpoint(JSONObject jo,
+	protected String extractNativeDateFromCheckpoint(JSONObject jo,
 			String checkPoint) {
 		String dateString = null;
 		try {
@@ -268,7 +207,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return dateString;
 	}
 
-	public String makeCheckpointQueryString(String uuid, String c)
+	protected String makeCheckpointQueryString(String uuid, String c)
 			throws RepositoryException {
 		Object[] arguments = { c, uuid, c };
 
@@ -277,7 +216,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return statement;
 	}
 
-	private String buildQueryString(String checkpoint)
+	protected String buildQueryString(String checkpoint)
 			throws RepositoryException {
 
 		StringBuffer query = new StringBuffer(
@@ -306,11 +245,10 @@ public class DctmTraversalManager implements TraversalManager {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info(query.toString());
 		}
-
 		return query.toString();
 	}
 
-	private String getCheckpointClause(String checkPoint)
+	protected String getCheckpointClause(String checkPoint)
 			throws RepositoryException {
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of checkpoint" + checkPoint);

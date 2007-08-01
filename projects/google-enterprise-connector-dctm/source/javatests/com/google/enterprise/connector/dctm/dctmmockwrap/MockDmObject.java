@@ -16,10 +16,12 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.mock.MockRepositoryDateTime;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryProperty;
 import com.google.enterprise.connector.mock.MockRepositoryPropertyList;
+import com.google.enterprise.connector.mock.MockRepositoryProperty.PropertyType;
 import com.google.enterprise.connector.mock.jcr.MockJcrValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
@@ -138,7 +140,6 @@ public class MockDmObject implements ISysObject {
 		if (name.equals("r_modify_date")) {
 			name = "google:lastmodify";
 		}
-
 		MockRepositoryProperty pm = mockDocument.getProplist()
 				.getProperty(name);
 		long time = 0;
@@ -236,6 +237,22 @@ public class MockDmObject implements ISysObject {
 	public void setSessionManager(ISessionManager sessionManager)
 			throws RepositoryException {
 
+	}
+
+	public IValue getRepeatingValue(String name, int index)
+			throws RepositoryException {
+		return new MockDmValue(new MockJcrValue(new MockRepositoryProperty(
+				name, PropertyType.STRING, getString(name))));
+	}
+
+	public int findAttrIndex(String name) throws RepositoryException {
+
+		return 0;
+	}
+
+	public int getValueCount(String name) throws RepositoryException {
+
+		return 1;
 	}
 
 }

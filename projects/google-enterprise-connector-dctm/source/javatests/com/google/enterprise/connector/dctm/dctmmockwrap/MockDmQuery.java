@@ -41,8 +41,8 @@ public class MockDmQuery implements IQuery {
 				MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
 
 				Query q = mrQueryMger.createQuery(this.query, "xpath");
+				
 				QueryResult qr = q.execute();
-
 				MockDmCollection co = new MockDmCollection(qr);
 				return co;
 			} catch (javax.jcr.RepositoryException e) {
@@ -69,10 +69,10 @@ public class MockDmQuery implements IQuery {
 	}
 
 	public void setDQL(String dqlStatement) {
-
 		String goodQuery = "";
-		if (dqlStatement.indexOf("select i_chronicle_id from ") == -1) {
-			if (dqlStatement.indexOf(" and r_modify_date >= ") != -1) {
+		if (dqlStatement.indexOf("select i_chronicle_id, r_object_id, r_modify_date from ") != -1) {
+			
+			if (dqlStatement.indexOf(" r_modify_date > ") != -1) {
 				goodQuery = makeBoundedQuery(dqlStatement);
 			} else {
 				goodQuery = XPATH_QUERY_STRING_UNBOUNDED_DEFAULT;
@@ -85,14 +85,14 @@ public class MockDmQuery implements IQuery {
 
 	private String makeBoundedQuery(String dqlStatement) {
 
-		int bound1 = dqlStatement.indexOf(" and r_modify_date >= '")
-				+ " and r_modify_date >= '".length();
-		int bound2 = dqlStatement.indexOf("' and i_chronicle_id > '");
-		int bound3 = bound2 + "' and i_chronicle_id > '".length();
+		int bound1 = dqlStatement.indexOf("r_modify_date = date('")
+				+ "r_modify_date = date('".length();
+		int bound2 = dqlStatement.indexOf("','yyyy-mm-dd hh:mi:ss')  and");
+		int bound3 = bound2 + "','yyyy-mm-dd hh:mi:ss')  and".length();
 
 		String date = dqlStatement.substring(bound1, bound2);
 
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.S");
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 		String formattedDate = "";
 		try {
 			Date d1 = df.parse(date);

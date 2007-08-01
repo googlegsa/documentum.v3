@@ -72,7 +72,7 @@ public class DmSysObjectTest extends TestCase {
 	public void testGetString() throws RepositoryException {
 		try {
 			object = session.getObject(dctmClientX.getId("0900000180041704"));
-			assertEquals("Alpha, Beta", object.getString("keywords"));
+			assertEquals("Alpha", object.getString("keywords"));
 			assertEquals("Marketing Plan", object.getString("title"));
 			assertEquals("Fri Apr 13 15:08:03 CEST 2007", object
 					.getString("r_creation_date"));

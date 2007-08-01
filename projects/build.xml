@@ -25,7 +25,8 @@
 	<property name="jar.dir"  value="${dist}/jar" />
 	<property name="jarfile"  value="${jar.dir}/connector-dctm.jar" />
 	
-	<property name="spi.jarfile" value="${jarfile.dir}/connector_spi.jar" />
+	<property name="spi.jarfile" value="${jarfile.dir}/connector-spi.jar" />
+	<property name="cm.jarfile" value="${jarfile.dir}/connector.jar" />
 	<property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
 	<property name="json.jarfile" location="${jarfile.dir}/json.jar" />
 	<property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
@@ -50,6 +51,7 @@
 		<javac srcdir="${src-client}" destdir="${classes-client}" debug="${COMPILE_DEBUG_FLAG}">
 			<classpath>
 				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${cm.jarfile}" />
 				<pathelement location="${dfc.jarfile}" />
 				<pathelement location="${json.jarfile}" />
 				<pathelement location="${jcr.jarfile}" />
@@ -67,6 +69,7 @@
 			<classpath>
 				<pathelement location="${spring.jarfile}" />
 				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${cm.jarfile}" />
 				<pathelement location="${json.jarfile}" />
 				<pathelement location="${commons-http.jarfile}" />
 			</classpath>

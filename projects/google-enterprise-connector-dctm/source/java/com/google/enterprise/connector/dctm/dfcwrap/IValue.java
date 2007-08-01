@@ -6,5 +6,12 @@ public interface IValue {
 
 	public String asString() throws RepositoryException;
 
-	public int getDataType();
+	public boolean asBoolean() throws RepositoryException;
+
+	public double asDouble() throws RepositoryException;
+
+	public long asInteger() throws RepositoryException;
+
+	public ITime asTime() throws RepositoryException;
+	
 }
