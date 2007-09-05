@@ -123,7 +123,7 @@ public class DctmConnectorType implements ConnectorType {
 
 	public ConfigureResponse getConfigForm(Locale language) {
 		try {
-			resource = ResourceBundle.getBundle("DctmConnectorType", language);
+			resource = ResourceBundle.getBundle("DctmConnectorResources", language);
 		} catch (MissingResourceException e) {
 			resource = null;
 			return new ConfigureResponse("",
@@ -141,7 +141,7 @@ public class DctmConnectorType implements ConnectorType {
 	}
 
 	public ConfigureResponse validateConfig(Map configData, Locale language) {
-		resource = ResourceBundle.getBundle("DctmConnectorType", language);
+		resource = ResourceBundle.getBundle("DctmConnectorResources", language);
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.log(Level.INFO, "DCTM ValidateConfig");
 		}
@@ -468,7 +468,7 @@ public class DctmConnectorType implements ConnectorType {
 
 	public ConfigureResponse getPopulatedConfigForm(Map configMap,
 			Locale language) {
-		resource = ResourceBundle.getBundle("DctmConnectorType", language);
+		resource = ResourceBundle.getBundle("DctmConnectorResources", language);
 		ConfigureResponse result = new ConfigureResponse("",
 				makeValidatedForm(configMap));
 		return result;
