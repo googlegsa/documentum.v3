@@ -69,8 +69,9 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 				DmInitialize.included_meta, DmInitialize.excluded_meta);
 		Property property = dctmSpm.findProperty("google:docid");
 		assertTrue(property instanceof DctmSysobjectProperty);
-		
-		assertEquals("google:docid", ((DctmSysobjectProperty)property).getName());
+
+		assertEquals("google:docid", ((DctmSysobjectProperty) property)
+				.getName());
 		assertEquals(DmInitialize.DM_ID1, property.nextValue().toString());
 	}
 

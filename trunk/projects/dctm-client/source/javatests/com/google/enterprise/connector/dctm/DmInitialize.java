@@ -38,7 +38,7 @@ public class DmInitialize {
 	public static String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
 
 	public static String DM_CHECKPOINT_QUERY_STRING = " and ((r_modify_date = date('2007-01-02 13:58:10','yyyy-mm-dd hh:mi:ss')  and r_object_id > '090000018000e100') OR ( r_modify_date > date('2007-01-02 13:58:10','yyyy-mm-dd hh:mi:ss')))";
-	
+
 	public static String DM_CHECKPOINT = "{\"uuid\":\"0900000180041d34\",\"lastModified\":\"2007-04-19 15:28:16\"}";
 
 	public static String DM_QUERY_STRING_ENABLE = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document'"

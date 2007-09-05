@@ -32,9 +32,9 @@ public class DctmConnector implements Connector {
 
 	private static Logger logger = null;
 
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 
-	public static int DEBUG_LEVEL = 1;
+	public static int DEBUG_LEVEL = 2;
 
 	static {
 		logger = Logger.getLogger(DctmConnector.class.getName());

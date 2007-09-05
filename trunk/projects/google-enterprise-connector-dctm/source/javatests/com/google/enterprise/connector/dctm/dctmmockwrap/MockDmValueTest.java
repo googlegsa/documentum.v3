@@ -65,5 +65,4 @@ public class MockDmValueTest extends TestCase {
 		}
 	}
 
-
 }

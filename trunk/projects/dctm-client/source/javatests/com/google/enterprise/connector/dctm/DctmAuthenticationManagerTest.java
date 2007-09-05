@@ -45,12 +45,6 @@ public class DctmAuthenticationManagerTest extends TestCase {
 				.authenticate(
 						new DctmAuthenticationIdentity(
 								DmInitialize.DM_LOGIN_OK2, null)).isValid());
-		assertFalse(authentManager.authenticate(
-				new DctmAuthenticationIdentity(null, DmInitialize.DM_PWD_OK1))
-				.isValid());
-		assertFalse(authentManager.authenticate(
-				new DctmAuthenticationIdentity(null, null)).isValid());
-
 		assertTrue(authentManager.authenticate(
 				new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK3,
 						DmInitialize.DM_PWD_OK3)).isValid());

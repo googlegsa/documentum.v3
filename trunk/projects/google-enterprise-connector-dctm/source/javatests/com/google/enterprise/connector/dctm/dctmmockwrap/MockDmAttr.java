@@ -12,17 +12,17 @@ public class MockDmAttr implements IAttr {
 	}
 
 	public String getName() {
-		
+
 		return mockProp.getName();
 	}
 
 	public int getDataType() {
 		String type = mockProp.getType().toString();
-		if(type.equals("string")){
+		if (type.equals("string")) {
 			return IAttr.DM_STRING;
-		}else if(type.equals("date")){
+		} else if (type.equals("date")) {
 			return IAttr.DM_TIME;
-		}else if(type.equals("integer")){
+		} else if (type.equals("integer")) {
 			return IAttr.DM_INTEGER;
 		}
 		return IAttr.DM_UNDEFINED;

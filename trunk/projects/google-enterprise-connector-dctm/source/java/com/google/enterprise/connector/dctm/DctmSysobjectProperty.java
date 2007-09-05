@@ -12,7 +12,7 @@ public class DctmSysobjectProperty implements Property {
 	private String name;
 
 	private Iterator iter;
-	
+
 	public DctmSysobjectProperty(String name, HashSet hashSet) {
 		this.name = name;
 		this.iter = hashSet.iterator();
@@ -23,11 +23,11 @@ public class DctmSysobjectProperty implements Property {
 	}
 
 	public Value nextValue() throws RepositoryException {
-		if(iter.hasNext()){
-			return (Value)iter.next();
+		if (iter.hasNext()) {
+			return (Value) iter.next();
 		}
 		return null;
-	
+
 	}
 
 }

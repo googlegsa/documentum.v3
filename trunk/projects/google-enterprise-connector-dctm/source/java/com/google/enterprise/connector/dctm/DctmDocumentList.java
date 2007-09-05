@@ -21,7 +21,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	private static final long serialVersionUID = 9081981L;
 
 	ICollection collec;
-	
+
 	IClientX clientX;
 
 	ISessionManager sessMag;
@@ -33,11 +33,11 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	private HashSet excluded_meta;
 
 	private static Logger logger;
-	
-	static{
+
+	static {
 		logger = Logger.getLogger(DctmDocumentList.class.getName());
 	}
-	
+
 	private DctmSysobjectDocument dctmSysobjectDocument;
 
 	public DctmDocumentList() {
@@ -53,23 +53,24 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
 		this.excluded_meta = excluded_meta;
-				
+
 	}
 
 	public Document nextDocument() throws RepositoryException {
-		if(collec.getState() == ICollection.DF_CLOSED_STATE){
+		if (collec.getState() == ICollection.DF_CLOSED_STATE) {
 			return null;
 		}
-		if(collec.next()){
-			
+		if (collec.next()) {
+
 			String crID = "";
 			try {
 				crID = collec.getString("r_object_id");
 			} catch (RepositoryException e) {
 				return null;
 			}
-			dctmSysobjectDocument = new DctmSysobjectDocument(crID, sessMag, clientX,
-					isPublic ? "true" : "false", included_meta, excluded_meta);
+			dctmSysobjectDocument = new DctmSysobjectDocument(crID, sessMag,
+					clientX, isPublic ? "true" : "false", included_meta,
+					excluded_meta);
 			return dctmSysobjectDocument;
 		}
 		collec.close();
@@ -77,10 +78,12 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	}
 
 	public String checkpoint() throws RepositoryException {
-		DctmSysobjectProperty prop = ((DctmSysobjectProperty)(dctmSysobjectDocument.findProperty("r_object_id")));
-		String uuid = ((StringValue)prop.nextValue()).toString();
-		prop = (DctmSysobjectProperty) dctmSysobjectDocument.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
-		String dateString = ((DctmDateValue)prop.nextValue()).toDctmFormat();
+		DctmSysobjectProperty prop = ((DctmSysobjectProperty) (dctmSysobjectDocument
+				.findProperty("r_object_id")));
+		String uuid = ((StringValue) prop.nextValue()).toString();
+		prop = (DctmSysobjectProperty) dctmSysobjectDocument
+				.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
+		String dateString = ((DctmDateValue) prop.nextValue()).toDctmFormat();
 		String result = null;
 		try {
 			JSONObject jo = new JSONObject();
@@ -91,14 +94,18 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 				logger.severe("Unexpected JSON problem");
 			}
+			StackTraceElement[] test = e.getStackTrace();
+			for (int i = 0; i < test.length; i++) {
+				System.out.println(test[i].toString());
+			}
 			collec.close();
 			throw new RepositoryException("Unexpected JSON problem", e);
-		}finally{
-			if(collec.getState() != ICollection.DF_CLOSED_STATE){
+		} finally {
+			if (collec.getState() != ICollection.DF_CLOSED_STATE) {
 				collec.close();
 			}
 		}
-		
+
 		return result;
 	}
 }

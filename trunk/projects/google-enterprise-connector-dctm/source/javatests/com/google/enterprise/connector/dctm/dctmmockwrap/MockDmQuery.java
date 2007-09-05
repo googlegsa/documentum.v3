@@ -41,7 +41,7 @@ public class MockDmQuery implements IQuery {
 				MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
 
 				Query q = mrQueryMger.createQuery(this.query, "xpath");
-				
+
 				QueryResult qr = q.execute();
 				MockDmCollection co = new MockDmCollection(qr);
 				return co;
@@ -70,8 +70,9 @@ public class MockDmQuery implements IQuery {
 
 	public void setDQL(String dqlStatement) {
 		String goodQuery = "";
-		if (dqlStatement.indexOf("select i_chronicle_id, r_object_id, r_modify_date from ") != -1) {
-			
+		if (dqlStatement
+				.indexOf("select i_chronicle_id, r_object_id, r_modify_date from ") != -1) {
+
 			if (dqlStatement.indexOf(" r_modify_date > ") != -1) {
 				goodQuery = makeBoundedQuery(dqlStatement);
 			} else {

@@ -12,9 +12,9 @@ REQUIRED FILES to compile and run the tests
 •	junit.jar (in third_party/lib folder of the project)
 •	spring.jar (in third_party/lib folder of the project)
 •	commons-logging.jar (in third_party/lib folder of the project)
-•	connector_spi.jar (to copy in third_party/lib folder of the project)
+•	connector-spi.jar (to copy in third_party/lib folder of the project)
 •	connector.jar (to copy in third_party/lib folder of the project
-•	connector_tests.jar (to copy in third_party/lib folder of the project
+•	connector-tests.jar (to copy in third_party/lib folder of the project
 
 
 To build and run the junit tests for the connector manager, you must download 
@@ -27,7 +27,12 @@ CONFIGURATION
 Open Eclipse and create a java project from the existing source "connector-dctm"
 Add to the classpath of the project all the jars that are in third_party\lib and dctm_third_party\lib
 Also, add to the classpath 3 Class folders linked to the folder 
-•	google_enterprise_connector_dctm/i18n
 •	google_enterprise_connector_dctm/config
 •	<Documentum root folder>/config
+
+JUNIT TESTS
+To run the unit tests, open the classes 
+•	com.google.enterprise.connector.dctm.DmInitialize in the folder dctm-client/source/javatests
+•	com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize in the folder google-enterprise-connector-dctm/source/javatests
+to add your environment configuration.
 

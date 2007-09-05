@@ -60,13 +60,13 @@ public class DctmSysobjectDocumentTest extends TestCase {
 		Property property = dctmSpm.findProperty("keywords");
 		assertTrue(property instanceof DctmSysobjectProperty);
 		Value val = null;
-		
-		while ((val = property.nextValue()) != null){
+
+		while ((val = property.nextValue()) != null) {
 			assertTrue(val instanceof StringValue);
 		}
 		property = dctmSpm.findProperty("r_object_id");
 		assertTrue(property instanceof DctmSysobjectProperty);
-	
+
 		assertEquals(DmInitialize.DM_ID2, property.nextValue().toString());
 		property = dctmSpm.findProperty(SpiConstants.PROPNAME_DOCID);
 		assertTrue(property instanceof DctmSysobjectProperty);

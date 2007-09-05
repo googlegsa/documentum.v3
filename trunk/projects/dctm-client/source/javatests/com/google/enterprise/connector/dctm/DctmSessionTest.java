@@ -31,7 +31,7 @@ public class DctmSessionTest extends TestCase {
 		String serverUrl = ((DctmTraversalManager) dctmQm).getServerUrl();
 		assertNotNull(dctmQm);
 
-		assertEquals(DmInitialize.DM_WEBTOP_SERVER_URL,serverUrl );
+		assertEquals(DmInitialize.DM_WEBTOP_SERVER_URL, serverUrl);
 	}
 
 	public void testGetAuthenticationManager() throws InstantiationException,
