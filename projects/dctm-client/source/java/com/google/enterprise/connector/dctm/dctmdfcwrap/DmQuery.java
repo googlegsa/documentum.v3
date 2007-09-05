@@ -19,7 +19,6 @@ public class DmQuery implements IQuery {
 
 	IDfQuery idfQuery;
 
-
 	private static Logger logger = null;
 
 	static {
@@ -47,21 +46,22 @@ public class DmQuery implements IQuery {
 		}
 
 		DmSessionManager dmSessionManager = (DmSessionManager) sessionManager;
-		IDfSessionManager idfSessionmanager = dmSessionManager.getDfSessionManager();
+		IDfSessionManager idfSessionmanager = dmSessionManager
+				.getDfSessionManager();
 
-		
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.info("value of IdfQuery " + idfQuery.getDQL());
 		}
 		IDfSession idfSession = null;
 		IDfCollection dfCollection = null;
 		try {
-			idfSession = idfSessionmanager.getSession(sessionManager.getDocbaseName());
+			idfSession = idfSessionmanager.getSession(sessionManager
+					.getDocbaseName());
 			dfCollection = idfQuery.execute(idfSession, queryType);
-			
+
 		} catch (DfException de) {
 			throw new RepositoryException(de);
-		} 
+		}
 		return new DmCollection(dfCollection);
 
 	}

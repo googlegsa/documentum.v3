@@ -29,7 +29,7 @@ public class MockDmValue implements IValue {
 	}
 
 	public boolean asBoolean() throws RepositoryException {
-		
+
 		boolean ret = false;
 		try {
 			ret = value.getBoolean();
@@ -45,16 +45,16 @@ public class MockDmValue implements IValue {
 
 	public double asDouble() throws RepositoryException {
 		double ret = 0;
-			try {
-				ret = value.getLong();
-			} catch (ValueFormatException e) {
-				throw new RepositoryException(e);
-			} catch (IllegalStateException e) {
-				throw new RepositoryException(e);
-			} catch (javax.jcr.RepositoryException e) {
-				throw new RepositoryException(e);
-			}
-			return ret;
+		try {
+			ret = value.getLong();
+		} catch (ValueFormatException e) {
+			throw new RepositoryException(e);
+		} catch (IllegalStateException e) {
+			throw new RepositoryException(e);
+		} catch (javax.jcr.RepositoryException e) {
+			throw new RepositoryException(e);
+		}
+		return ret;
 	}
 
 	public long asInteger() throws RepositoryException {

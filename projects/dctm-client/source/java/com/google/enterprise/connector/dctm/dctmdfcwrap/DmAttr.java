@@ -13,8 +13,7 @@ public class DmAttr implements IAttr {
 	public String getName() {
 
 		return idfAttr.getName();
-		
-		
+
 	}
 
 	public int getDataType() {

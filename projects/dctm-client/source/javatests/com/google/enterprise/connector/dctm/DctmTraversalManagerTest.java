@@ -9,7 +9,6 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
 
-
 import junit.framework.TestCase;
 
 public class DctmTraversalManagerTest extends TestCase {
@@ -41,9 +40,9 @@ public class DctmTraversalManagerTest extends TestCase {
 
 		qtm.setBatchHint(DmInitialize.DM_RETURN_TOP_UNBOUNDED);
 		list = qtm.startTraversal();
-		
+
 		while (list.nextDocument() != null) {
-			
+
 			counter++;
 		}
 		assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
@@ -111,7 +110,7 @@ public class DctmTraversalManagerTest extends TestCase {
 		int counter = 0;
 
 		while (propertyMapList.nextDocument() != null) {
-			
+
 			counter++;
 		}
 
@@ -126,16 +125,16 @@ public class DctmTraversalManagerTest extends TestCase {
 		qtm.setBatchHint(1);
 		documentList = qtm.resumeTraversal(checkPoint);
 
-		
 		DctmSysobjectDocument map = null;
 		while ((map = (DctmSysobjectDocument) documentList.nextDocument()) != null) {
-			
+
 			String docId = map.findProperty(SpiConstants.PROPNAME_DOCID)
 					.nextValue().toString();
 			String expectedid = "090000018000015e";
 			assertEquals(expectedid, docId);
-			 DctmDateValue date = (DctmDateValue) map.findProperty(SpiConstants.PROPNAME_LASTMODIFIED).nextValue();
-			 String modifyDate = date.toDctmFormat();
+			DctmDateValue date = (DctmDateValue) map.findProperty(
+					SpiConstants.PROPNAME_LASTMODIFIED).nextValue();
+			String modifyDate = date.toDctmFormat();
 			String expecterModifyDate = "2006-12-14 20:09:13";
 			assertEquals(expecterModifyDate, modifyDate);
 		}

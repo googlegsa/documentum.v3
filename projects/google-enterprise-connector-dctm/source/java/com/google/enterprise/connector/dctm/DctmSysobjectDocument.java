@@ -98,7 +98,8 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 					+ object.getACLName()));
 			return new DctmSysobjectProperty(name, hashSet);
 		} else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
-			hashSet.add(BooleanValue.getBooleanValue(this.isPublic.equals("true")));
+			hashSet.add(BooleanValue.makeBooleanValue(this.isPublic
+					.equals("true")));
 			return new DctmSysobjectProperty(name, hashSet);
 		} else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
 			hashSet.add(new DctmDateValue(getDate("r_modify_date")));
@@ -121,7 +122,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		for (int j = 0; j < i; j++) {
 			val = object.getRepeatingValue(name, j);
 			if (attr.getDataType() == IAttr.DM_BOOLEAN) {
-				hashSet.add(BooleanValue.getBooleanValue(val.asBoolean()));
+				hashSet.add(BooleanValue.makeBooleanValue(val.asBoolean()));
 			} else if (attr.getDataType() == IAttr.DM_DOUBLE) {
 				hashSet.add(new DoubleValue(val.asDouble()));
 			} else if (attr.getDataType() == IAttr.DM_ID) {

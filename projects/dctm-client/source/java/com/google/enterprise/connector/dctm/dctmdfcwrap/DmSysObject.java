@@ -134,7 +134,7 @@ public class DmSysObject implements ISysObject {
 		}
 	}
 
-	public ITime getTime(String name) throws RepositoryException {	
+	public ITime getTime(String name) throws RepositoryException {
 		try {
 			return new DmTime(idfSysObject.getTime(name));
 		} catch (DfException e) {
@@ -171,7 +171,7 @@ public class DmSysObject implements ISysObject {
 
 	public void setSessionManager(ISessionManager sessionManager)
 			throws RepositoryException {
-		
+
 		DmSessionManager dmSessionManager = (DmSessionManager) sessionManager;
 		try {
 			this.idfSysObject.setSessionManager(dmSessionManager
@@ -182,13 +182,14 @@ public class DmSysObject implements ISysObject {
 
 	}
 
-	public IValue getRepeatingValue(String name, int index) throws RepositoryException {
+	public IValue getRepeatingValue(String name, int index)
+			throws RepositoryException {
 		try {
-			return new DmValue(idfSysObject.getRepeatingValue(name,index));
+			return new DmValue(idfSysObject.getRepeatingValue(name, index));
 		} catch (DfException e) {
 			throw new RepositoryException(e);
 		}
-		
+
 	}
 
 	public int findAttrIndex(String name) throws RepositoryException {
@@ -200,15 +201,12 @@ public class DmSysObject implements ISysObject {
 	}
 
 	public int getValueCount(String name) throws RepositoryException {
-		
+
 		try {
 			return idfSysObject.getValueCount(name);
 		} catch (DfException e) {
 			throw new RepositoryException(e);
 		}
 	}
-
-
-	
 
 }

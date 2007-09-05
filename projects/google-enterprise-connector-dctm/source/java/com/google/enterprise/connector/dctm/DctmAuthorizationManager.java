@@ -51,7 +51,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		ISession session = sessionManager.getSession(sessionManager
 				.getDocbaseName());
 		DctmDocumentList dctmDocumentList = new DctmDocumentList();
-		HashSet dctmList = new HashSet();
+
 		try {
 			ISessionManager sessionManagerUser = clientX.getLocalClient()
 					.newSessionManager();
@@ -98,7 +98,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 					authorizationResponse = new AuthorizationResponse(false, id);
 				}
 				dctmDocumentList.add(authorizationResponse);
-				dctmList.add(authorizationResponse);
 			}
 			collec.close();
 		} finally {
@@ -106,7 +105,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 				sessionManager.release(session);
 			}
 		}
-		
+
 		return dctmDocumentList;
 	}
 

@@ -180,7 +180,4 @@ public class DctmSession implements Session {
 		this.clientX = clientX;
 	}
 
-	
-
-	
 }

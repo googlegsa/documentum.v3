@@ -48,7 +48,7 @@ public class DctmTraversalUtil {
 		while (true) {
 			counter = 0;
 			Document pm = null;
-			while((pm = documentList.nextDocument()) != null) {
+			while ((pm = documentList.nextDocument()) != null) {
 				System.out.println("pm change");
 				counter++;
 

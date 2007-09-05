@@ -16,8 +16,6 @@ public class DmValue implements IValue {
 		return idfValue.asString();
 	}
 
-	
-
 	public boolean asBoolean() {
 		return idfValue.asBoolean();
 	}

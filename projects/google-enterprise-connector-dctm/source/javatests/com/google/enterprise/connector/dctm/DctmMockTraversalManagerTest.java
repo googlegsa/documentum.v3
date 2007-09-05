@@ -46,7 +46,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
 		documentList = qtm.startTraversal();
 
 		while (documentList.nextDocument() != null) {
-			
+
 			counter++;
 		}
 
@@ -107,8 +107,6 @@ public class DctmMockTraversalManagerTest extends TestCase {
 
 	}
 
-
-
 	public void testResumeTraversal() throws RepositoryException {
 
 		session = (DctmSession) connector.login();
@@ -127,6 +125,5 @@ public class DctmMockTraversalManagerTest extends TestCase {
 
 		assertEquals(DmInitialize.DM_RETURN_TOP_BOUNDED, counter);
 	}
-
 
 }

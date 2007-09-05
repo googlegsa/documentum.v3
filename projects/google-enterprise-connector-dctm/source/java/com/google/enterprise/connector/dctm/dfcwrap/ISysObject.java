@@ -35,13 +35,12 @@ public interface ISysObject {
 
 	public void setSessionManager(ISessionManager sessionManager)
 			throws RepositoryException;
-	
+
 	public IValue getRepeatingValue(String name, int index)
 			throws RepositoryException;
-	
+
 	public int findAttrIndex(String name) throws RepositoryException;
-	
+
 	public int getValueCount(String name) throws RepositoryException;
-	
-		
+
 }

@@ -165,7 +165,8 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
 		map.put("authentication_type", "api");
-		map.put("webtop_display_url", "http://swp-vm-wt:8080/webtop/drl/objectId/");
+		map.put("webtop_display_url",
+				"http://swp-vm-wt:8080/webtop/drl/objectId/");
 		map.put("where_clause", "and owne_name != 'Administrator'");
 		map.put("is_public", "false");
 		DctmConnectorType test = new DctmConnectorType();

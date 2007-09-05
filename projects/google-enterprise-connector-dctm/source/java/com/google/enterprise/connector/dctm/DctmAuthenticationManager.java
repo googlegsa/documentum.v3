@@ -39,7 +39,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		String password = authenticationIdentity.getPassword();
 
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 2) {
-			logger.warning("authentication process for user  " + username);
+			logger.warning("authentication process for user " + username);
 		}
 		setLoginInfo(username, password);
 		sessionManager.clearIdentity(sessionManager.getDocbaseName());
@@ -52,7 +52,6 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
 			return new AuthenticationResponse(false, "");
 		}
-
 		boolean authenticate = false;
 
 		authenticate = sessionManager.authenticate(sessionManager

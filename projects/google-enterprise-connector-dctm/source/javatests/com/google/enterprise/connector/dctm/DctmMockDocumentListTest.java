@@ -34,8 +34,10 @@ public class DctmMockDocumentListTest extends TestCase {
 		qtm.setBatchHint(2);
 
 	}
+
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.DctmDocumentList.nextDocument()'
+	 * Test method for
+	 * 'com.google.enterprise.connector.dctm.DctmDocumentList.nextDocument()'
 	 */
 	public void testNextDocument() throws RepositoryException {
 		int counter = 0;
@@ -44,12 +46,12 @@ public class DctmMockDocumentListTest extends TestCase {
 		Property prop = null;
 
 		while ((pm = propertyMapList.nextDocument()) != null) {
-			
+
 			assertTrue(pm instanceof DctmSysobjectDocument);
 			prop = pm.findProperty(SpiConstants.PROPNAME_DOCID);
 
 			assertNotNull(prop);
-			assertEquals("users",prop.nextValue().toString());
+			assertEquals("users", prop.nextValue().toString());
 			counter++;
 			if (counter == 1) {
 
@@ -60,18 +62,18 @@ public class DctmMockDocumentListTest extends TestCase {
 	}
 
 	/*
-	 * Test method for 'com.google.enterprise.connector.dctm.DctmDocumentList.checkpoint()'
+	 * Test method for
+	 * 'com.google.enterprise.connector.dctm.DctmDocumentList.checkpoint()'
 	 */
 	public void testCheckpoint() throws RepositoryException {
 		String checkPoint = null;
-		
+
 		int counter = 0;
 		DocumentList propertyMapList = qtm.startTraversal();
-		
 
 		while ((propertyMapList.nextDocument()) != null) {
 			counter++;
-			
+
 		}
 		checkPoint = propertyMapList.checkpoint();
 		assertEquals(

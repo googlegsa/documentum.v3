@@ -134,7 +134,6 @@ public class DctmTraversalManager implements TraversalManager {
 		return documentList;
 	}
 
-	
 	/**
 	 * Sets the preferred batch size. The caller advises the implementation that
 	 * the result sets returned by startTraversal or resumeTraversal need not be
@@ -155,15 +154,13 @@ public class DctmTraversalManager implements TraversalManager {
 		sessionManager.setServerUrl(serverUrl);
 		ICollection collec = null;
 		DocumentList documentList;
-		
+
 		collec = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
-		documentList = new DctmDocumentList(collec, sessionManager,
-				clientX, isPublic, included_meta, excluded_meta);
+		documentList = new DctmDocumentList(collec, sessionManager, clientX,
+				isPublic, included_meta, excluded_meta);
 
 		return documentList;
 	}
-
-
 
 	protected IQuery makeCheckpointQuery(String queryString)
 			throws RepositoryException {
