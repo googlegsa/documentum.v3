@@ -20,15 +20,14 @@ public class DctmConnectorTypeTest extends TestCase {
 				"is_public" };
 		test.setConfigKeys(fiels);
 		String expectedForm = "<tr>\r\n"
-				+ "<td>Username</td>\r\n<td><input type=\"text\" value=\"\" name=\"login\"/></td>\r\n</tr>"
+				+ "<td>Username</td>\r\n<td><input type=\"text\" size=\"50\" value=\"\" name=\"login\"/></td>\r\n</tr>"
 				+ "\r\n<tr>\r\n<td>Password</td>\r\n<td><input type=\"password\" value=\"\" name=\"password\"/></td>"
-				+ "\r\n</tr>\r\n<tr>\r\n<td>Repository</td>\r\n<td><select name=\"docbase\">\n\t<option value=\"gsadctm\">gsadctm</option>\n\t<option value=\"gdoc\">gdoc</option>\n</select>\r\n<tr>"
+				+ "\r\n</tr>\r\n<tr>\r\n<td>Repository</td>\r\n<td><select name=\"docbase\">\n\t<option value=\"gdoc\">gdoc</option>\n</select>\r\n<tr>"
 				+ "\r\n<td><input type=\"hidden\" value=\"\" name=\"clientX\"/></td>\r\n</tr>\r\n<tr>\r\n<td><input type=\"hidden\" value=\"\" name=\"authentication_type\"/></td>"
-				+ "\r\n</tr>\r\n<tr>\r\n<td>Webtop URL</td>\r\n<td><input type=\"text\" value=\"\" name=\"webtop_display_url\"/></td>"
+				+ "\r\n</tr>\r\n<tr>\r\n<td>Webtop URL</td>\r\n<td><input type=\"text\" size=\"50\" value=\"\" name=\"webtop_display_url\"/></td>"
 				+ "\r\n</tr>\r\n<tr>\r\n<td><input type=\"hidden\" value=\"\" name=\"where_clause\"/></td>\r\n</tr>\r\n<tr>\r\n<td><input type=CHECKBOX name=\"is_public\" />Make public</td>\r\n</tr>\r\n"
 				+ "<tr>\r\n<td><input type=\"hidden\" value=\"false\" name=\"is_public\"/></td>\r\n</tr>\r\n";
-
-		assertEquals(expectedForm, test.getConfigForm(Locale.US)
+		assertEquals(expectedForm, test.getConfigForm(Locale.ENGLISH)
 				.getFormSnippet());
 
 	}
@@ -52,7 +51,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
-		ConfigureResponse resp = test.validateConfig(map, Locale.US);
+		ConfigureResponse resp = test.validateConfig(map, Locale.US, null);
 		assertNull(resp);
 
 	}
@@ -78,7 +77,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
-		ConfigureResponse resp = test.validateConfig(map, Locale.US);
+		ConfigureResponse resp = test.validateConfig(map, Locale.US, null);
 		assertTrue(resp
 				.getMessage()
 				.startsWith(
@@ -101,7 +100,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
-		ConfigureResponse resp = test.validateConfig(map, Locale.US);
+		ConfigureResponse resp = test.validateConfig(map, Locale.US, null);
 		assertTrue(resp
 				.getMessage()
 				.startsWith(
@@ -125,7 +124,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
-		ConfigureResponse resp = test.validateConfig(map, Locale.US);
+		ConfigureResponse resp = test.validateConfig(map, Locale.US, null);
 		assertTrue(resp
 				.getMessage()
 				.startsWith(
@@ -149,7 +148,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
-		ConfigureResponse resp = test.validateConfig(map, Locale.US);
+		ConfigureResponse resp = test.validateConfig(map, Locale.US, null);
 		assertTrue(resp
 				.getMessage()
 				.startsWith(
@@ -174,7 +173,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
-		ConfigureResponse resp = test.validateConfig(map, Locale.US);
+		ConfigureResponse resp = test.validateConfig(map, Locale.US, null);
 		assertTrue(resp
 				.getMessage()
 				.startsWith(
@@ -198,7 +197,7 @@ public class DctmConnectorTypeTest extends TestCase {
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
-		ConfigureResponse resp = test.validateConfig(map, Locale.US);
+		ConfigureResponse resp = test.validateConfig(map, Locale.US, null);
 		assertTrue(resp
 				.getMessage()
 				.startsWith(

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>DCTMGsa</name>
+	<name>DCTM</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -16,7 +16,7 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>DCTM_config</name>
+			<name>DFCRessources</name>
 			<type>2</type>
 			<location>C:/Documentum/config</location>
 		</link>

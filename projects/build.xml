@@ -8,7 +8,6 @@
 	<!-- Define Directories. -->
 	<property name="dist" value="dist" />
 	<property name="config" value="google-enterprise-connector-dctm/config" />
-	<property name="i18n" value="google-enterprise-connector-dctm/i18n" />
 	<property name="jarfile.dir" value="third_party/lib"/>
 	<property name="dctm_jarfile.dir" value="dctm_third_party/lib"/>
 	<property name="core.dir" value="google-enterprise-connector-dctm"/>
@@ -79,7 +78,6 @@
 	<target name="jar" description="connector-dctm">
 		<jar jarfile="${jarfile}">
 			<fileset dir="${config}"/>
-			<fileset dir="${i18n}"/>
 			<fileset dir="${classes-client}"/>
 			<fileset dir="${classes-mock}"/>
 		</jar>

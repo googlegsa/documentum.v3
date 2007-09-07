@@ -28,6 +28,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.spi.ConfigureResponse;
+import com.google.enterprise.connector.spi.ConnectorFactory;
 import com.google.enterprise.connector.spi.ConnectorType;
 import com.google.enterprise.connector.spi.RepositoryException;
 
@@ -140,7 +141,7 @@ public class DctmConnectorType implements ConnectorType {
 		return new ConfigureResponse("", initialConfigForm);
 	}
 
-	public ConfigureResponse validateConfig(Map configData, Locale language) {
+	public ConfigureResponse validateConfig(Map configData, Locale language, ConnectorFactory connectorFactory) {
 		resource = ResourceBundle.getBundle("DctmConnectorResources", language);
 		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
 			logger.log(Level.INFO, "DCTM ValidateConfig");
@@ -461,9 +462,11 @@ public class DctmConnectorType implements ConnectorType {
 		buf.append(" ");
 		buf.append(attrName);
 		buf.append("=\"");
-		// TODO xml-encode the special characters (< > " etc.)
 		buf.append(attrValue);
 		buf.append("\"");
+		if (attrName == TYPE && attrValue == TEXT) {
+			buf.append(" size=\"50\"");
+		}
 	}
 
 	public ConfigureResponse getPopulatedConfigForm(Map configMap,
@@ -473,5 +476,6 @@ public class DctmConnectorType implements ConnectorType {
 				makeValidatedForm(configMap));
 		return result;
 	}
+
 
 }
