@@ -86,7 +86,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 		List docids = new LinkedList(expectedResults.keySet());
 
 		assertNotNull(docids);
-		List list = authorizationManager.authorizeDocids(docids,
+		List list = (List) authorizationManager.authorizeDocids(docids,
 				new DctmAuthenticationIdentity(username, null));
 		assertNotNull(list);
 		for (Iterator i = list.iterator(); i.hasNext();) {

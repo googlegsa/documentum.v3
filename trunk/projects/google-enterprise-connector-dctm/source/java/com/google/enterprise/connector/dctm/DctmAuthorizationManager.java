@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,12 +44,13 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	}
 
-	public List authorizeDocids(List docidList,
+	public Collection authorizeDocids(Collection docids,
 			AuthenticationIdentity authenticationIdentity)
 			throws RepositoryException {
 		String username = authenticationIdentity.getUsername();
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
+		List docidList = new ArrayList(docids); 
 		ISession session = sessionManager.getSession(sessionManager
 				.getDocbaseName());
 		DctmDocumentList dctmDocumentList = new DctmDocumentList();
@@ -157,5 +160,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			String queryStringAuthoriseDefault) {
 		this.queryStringAuthoriseDefault = queryStringAuthoriseDefault;
 	}
+
 
 }
