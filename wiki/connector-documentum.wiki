@@ -1,4 +1,4 @@
-#summary Advanced configuration for the Filenet connector
+#summary Advanced configuration for the Documentum connector
 
 = Configure the connectorInstance.xml file =
 
