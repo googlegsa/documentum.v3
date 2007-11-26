@@ -36,10 +36,10 @@ public class DctmDateValue extends DateValue {
 
 		Date d = calendarValue.getTime();
 		String dctmFormat = DCTM_DATE_FORMAT.format(d);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.log(Level.INFO, "check additional where clause : "
-					+ dctmFormat);
-		}
+		
+		logger.log(Level.INFO, "to Dctm Format for the date : "
+				+ dctmFormat);
+		
 		return dctmFormat;
 	}
 }

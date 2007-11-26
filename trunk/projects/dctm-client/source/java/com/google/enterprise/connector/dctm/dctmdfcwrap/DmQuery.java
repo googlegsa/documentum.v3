@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.documentum.fc.client.DfQuery;
@@ -9,7 +8,6 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;
 import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
-import com.google.enterprise.connector.dctm.DctmConnector;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -23,7 +21,6 @@ public class DmQuery implements IQuery {
 
 	static {
 		logger = Logger.getLogger(DmQuery.class.getName());
-		logger.setLevel(Level.ALL);
 	}
 
 	public DmQuery(IDfQuery idfQuery) {
@@ -49,9 +46,8 @@ public class DmQuery implements IQuery {
 		IDfSessionManager idfSessionmanager = dmSessionManager
 				.getDfSessionManager();
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info("value of IdfQuery " + idfQuery.getDQL());
-		}
+		logger.info("value of IdfQuery " + idfQuery.getDQL());
+		
 		IDfSession idfSession = null;
 		IDfCollection dfCollection = null;
 		try {
