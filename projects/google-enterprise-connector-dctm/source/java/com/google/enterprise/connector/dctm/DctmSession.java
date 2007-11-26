@@ -1,8 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -36,13 +34,6 @@ public class DctmSession implements Session {
 
 	private HashSet excluded_meta;
 
-	private static Logger logger = null;
-
-	static {
-		logger = Logger.getLogger(DctmSession.class.getName());
-		logger.setLevel(Level.ALL);
-	}
-
 	/**
 	 * 
 	 * @param client
@@ -59,9 +50,7 @@ public class DctmSession implements Session {
 			boolean isPublic, HashSet included_meta, HashSet excluded_meta)
 			throws RepositoryException {
 		try {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-				logger.info("DctmSession constructor with arguments");
-			}
+			
 			ILoginInfo dctmLoginInfo = null;
 
 			setClientX(clientX);

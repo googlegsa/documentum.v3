@@ -2,7 +2,6 @@ package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.json.JSONException;
@@ -45,7 +44,6 @@ public class DctmTraversalManager implements TraversalManager {
 
 	static {
 		logger = Logger.getLogger(DctmTraversalManager.class.getName());
-		logger.setLevel(Level.ALL);
 	}
 
 	protected void setClientX(IClientX clientX) {
@@ -73,16 +71,9 @@ public class DctmTraversalManager implements TraversalManager {
 			HashSet included_meta, HashSet excluded_meta)
 			throws RepositoryException {
 		this.additionalWhereClause = additionalWhereClause;
-
 		setClientX(clientX);
-
 		setSessionManager(clientX.getSessionManager());
-
 		this.serverUrl = webtopServerUrl;
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info("webtop url " + serverUrl);
-		}
-
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
 		this.excluded_meta = excluded_meta;
@@ -102,9 +93,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 *             condition.
 	 */
 	public DocumentList startTraversal() throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info("Pull process started");
-		}
+		logger.info("Pull process started");
 		IQuery query = makeCheckpointQuery(buildQueryString(null));
 		return execQuery(query);
 	}
@@ -124,10 +113,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 */
 	public DocumentList resumeTraversal(String checkPoint)
 			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info("value of checkpoint  " + checkPoint);
-		}
-
+		logger.info("value of checkpoint  " + checkPoint);
 		DocumentList documentList = null;
 		IQuery query = makeCheckpointQuery(buildQueryString(checkPoint));
 		documentList = execQuery(query);
@@ -144,17 +130,14 @@ public class DctmTraversalManager implements TraversalManager {
 	 * @throws RepositoryException
 	 */
 	public void setBatchHint(int batchHint) throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 1) {
-			logger.info("batchHint of " + batchHint);
-		}
+		logger.info("batchHint of " + batchHint);
 		this.batchHint = batchHint;
 	}
 
 	protected DocumentList execQuery(IQuery query) throws RepositoryException {
 		sessionManager.setServerUrl(serverUrl);
 		ICollection collec = null;
-		DocumentList documentList;
-
+		DocumentList documentList = null;
 		collec = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
 		documentList = new DctmDocumentList(collec, sessionManager, clientX,
 				isPublic, included_meta, excluded_meta);
@@ -175,10 +158,8 @@ public class DctmTraversalManager implements TraversalManager {
 		try {
 			uuid = jo.getString("uuid");
 		} catch (JSONException e) {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-				logger.severe("could not get uuid from checkPoint string: "
-						+ checkPoint);
-			}
+			logger.severe("could not get uuid from checkPoint string: "
+					+ checkPoint);
 			throw new IllegalArgumentException(
 					"could not get uuid from checkPoint string: " + checkPoint);
 		}
@@ -191,25 +172,19 @@ public class DctmTraversalManager implements TraversalManager {
 		try {
 			dateString = jo.getString("lastModified");
 		} catch (JSONException e) {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-				logger
-						.severe("could not get lastmodify from checkPoint string: "
-								+ checkPoint);
-			}
+			logger.severe("could not get lastmodify from checkPoint string: "
+					+ checkPoint);
 			throw new IllegalArgumentException(
 					"could not get lastmodify from checkPoint string: "
 							+ checkPoint);
 		}
-
 		return dateString;
 	}
 
 	protected String makeCheckpointQueryString(String uuid, String c)
 			throws RepositoryException {
 		Object[] arguments = { c, uuid, c };
-
 		String statement = MessageFormat.format(whereBoundedClause, arguments);
-
 		return statement;
 	}
 
@@ -239,19 +214,14 @@ public class DctmTraversalManager implements TraversalManager {
 						+ Integer.toString(batchHint) + ")");
 			}
 		}
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info(query.toString());
-		}
+		logger.info(query.toString());
 		return query.toString();
 	}
 
 	protected String getCheckpointClause(String checkPoint)
 			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.info("value of checkpoint" + checkPoint);
-		}
+		logger.info("value of checkpoint" + checkPoint);
 		JSONObject jo = null;
-
 		try {
 			jo = new JSONObject(checkPoint);
 		} catch (JSONException e) {

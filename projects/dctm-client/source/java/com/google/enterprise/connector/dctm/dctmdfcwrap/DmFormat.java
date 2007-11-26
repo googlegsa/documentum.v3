@@ -40,6 +40,6 @@ public class DmFormat implements IFormat {
 		} catch (DfException de) {
 			rep = "application/octet-stream";
 		}
-		return (rep);
+		return rep;
 	}
 }

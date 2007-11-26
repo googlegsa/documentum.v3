@@ -86,12 +86,10 @@ public class DctmConnectorType implements ConnectorType {
 
 	private String initialConfigForm = null;
 
-	private static Logger logger = null;
+	private static Logger logger = Logger.getLogger(DctmConnectorType.class
+			.getName());
 
 	ResourceBundle resource;
-	static {
-		logger = Logger.getLogger(DctmConnectorType.class.getName());
-	}
 
 	/**
 	 * Set the keys that are required for configuration. One of the overloadings
@@ -124,7 +122,8 @@ public class DctmConnectorType implements ConnectorType {
 
 	public ConfigureResponse getConfigForm(Locale language) {
 		try {
-			resource = ResourceBundle.getBundle("DctmConnectorResources", language);
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					language);
 		} catch (MissingResourceException e) {
 			resource = null;
 			return new ConfigureResponse("",
@@ -141,20 +140,16 @@ public class DctmConnectorType implements ConnectorType {
 		return new ConfigureResponse("", initialConfigForm);
 	}
 
-	public ConfigureResponse validateConfig(Map configData, Locale language, ConnectorFactory connectorFactory) {
+	public ConfigureResponse validateConfig(Map configData, Locale language,
+			ConnectorFactory connectorFactory) {
 		resource = ResourceBundle.getBundle("DctmConnectorResources", language);
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.log(Level.INFO, "DCTM ValidateConfig");
-		}
 		String form = null;
 		DctmSession session;
 		String validation = validateConfigMap(configData);
 		if (validation.equals("")) {
 			try {
+				logger.log(Level.INFO, "test connection to the docbase");
 
-				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-					logger.log(Level.INFO, "test connection to the docbase");
-				}
 				Properties p = new Properties();
 				p.putAll(configData);
 				String isPublic = (String) configData.get(ISPUBLIC);
@@ -218,9 +213,8 @@ public class DctmConnectorType implements ConnectorType {
 		}
 		returnMessage = "<p><font color=\"#FF0000\">" + bundleMessage
 				+ "</font></p>";
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.log(Level.WARNING, returnMessage);
-		}
+		logger.log(Level.WARNING, returnMessage);
+
 		form = makeValidatedForm(configData);
 		return new ConfigureResponse(returnMessage, returnMessage + "<br>"
 				+ form);
@@ -228,10 +222,10 @@ public class DctmConnectorType implements ConnectorType {
 
 	private void checkAdditionalWhereClause(String additionalWhereClause,
 			DctmTraversalManager qtm) throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.log(Level.INFO, "check additional where clause : "
-					+ additionalWhereClause);
-		}
+
+		logger.log(Level.INFO, "check additional where clause : "
+				+ additionalWhereClause);
+
 		if (!additionalWhereClause.toLowerCase().startsWith("and")) {
 			throw new RepositoryException("[additional] ");
 		}
@@ -254,18 +248,16 @@ public class DctmConnectorType implements ConnectorType {
 
 	private void testWebtopUrl(String webtopServerUrl)
 			throws RepositoryException {
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-			logger.log(Level.INFO, "test connection to the webtop server : "
-					+ webtopServerUrl);
-		}
+		logger.log(Level.INFO, "test connection to the webtop server : "
+				+ webtopServerUrl);
 		HttpClient client = new HttpClient();
 		GetMethod getMethod = new GetMethod(webtopServerUrl);
 		try {
 			int status = client.executeMethod(getMethod);
 			if (status != 200) {
-				if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-					logger.log(Level.INFO, "status " + status);
-				}
+
+				logger.log(Level.INFO, "status " + status);
+
 				throw new RepositoryException(
 						"[status] Http request returned a " + status
 								+ " status");
@@ -388,52 +380,69 @@ public class DctmConnectorType implements ConnectorType {
 					.newInstance();
 		} catch (InstantiationException e) {
 			logger
-					.info("minor error while building the configuration form. The docbase will be added manually. "
-							+ e.getLocalizedMessage());
-			return;
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
 		} catch (IllegalAccessException e) {
 			logger
-					.info("minor error while building the configuration form. The docbase will be added manually. "
-							+ e.getLocalizedMessage());
-			return;
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
 		} catch (ClassNotFoundException e) {
 			logger
-					.info("minor error while building the configuration form. The docbase will be added manually. "
-							+ e.getLocalizedMessage());
-			return;
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
 		} catch (NoClassDefFoundError e) {
 			logger
-					.info("minor error while building the configuration form. The docbase will be added manually. "
-							+ e.getLocalizedMessage());
-			return;
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
 		}
 		IClient client;
-		buf.append(SELECT_START);
-		buf.append(" " + NAME);
 
-		buf.append("=\"");
-		buf.append(DOCBASENAME);
-		buf.append("\">\n");
 		try {
 			client = cl.getLocalClient();
 
-			IDocbaseMap myMap = client.getDocbaseMap();
+			IDocbaseMap mapOfDocbasesName = client.getDocbaseMap();
+			if (!(mapOfDocbasesName.getDocbaseCount() > 0)) {
+				appendAttribute(buf, type2, value);
+			} else {
+				buf.append(SELECT_START);
+				buf.append(" " + NAME);
 
-			for (int i = 0; i < myMap.getDocbaseCount(); i++) {
-				buf.append("\t<option ");
-				if (value != null && myMap.getDocbaseName(i).equals(value)) {
-					buf.append("selected ");
+				buf.append("=\"");
+				buf.append(DOCBASENAME);
+				buf.append("\">\n");
+				for (int i = 0; i < mapOfDocbasesName.getDocbaseCount(); i++) {
+					buf.append("\t<option ");
+					if (value != null
+							&& mapOfDocbasesName.getDocbaseName(i)
+									.equals(value)) {
+						buf.append("selected ");
+					}
+					buf.append("value=\"" + mapOfDocbasesName.getDocbaseName(i)
+							+ "\"" + ">" + mapOfDocbasesName.getDocbaseName(i)
+							+ "</option>\n");
 				}
-				buf.append("value=\"" + myMap.getDocbaseName(i) + "\"" + ">"
-						+ myMap.getDocbaseName(i) + "</option>\n");
+				buf.append(SELECT_END);
 			}
 		} catch (RepositoryException e) {
-
 			logger
-					.info("minor error while building the configuration form. The docbase will be added manually. "
-							+ e.getLocalizedMessage());
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
 		}
-		buf.append(SELECT_END);
 
 	}
 
@@ -476,6 +485,5 @@ public class DctmConnectorType implements ConnectorType {
 				makeValidatedForm(configMap));
 		return result;
 	}
-
 
 }

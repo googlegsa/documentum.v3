@@ -91,9 +91,8 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			jo.put("lastModified", dateString);
 			result = jo.toString();
 		} catch (JSONException e) {
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL >= 1) {
-				logger.severe("Unexpected JSON problem");
-			}
+			logger.severe("Unexpected JSON problem");
+			
 			StackTraceElement[] test = e.getStackTrace();
 			for (int i = 0; i < test.length; i++) {
 				System.out.println(test[i].toString());

@@ -24,7 +24,6 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
 	static {
 		logger = Logger.getLogger(DctmAuthenticationManager.class.getName());
-		logger.setLevel(Level.ALL);
 	}
 
 	public DctmAuthenticationManager(IClientX clientX) {
@@ -38,9 +37,8 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		String username = authenticationIdentity.getUsername();
 		String password = authenticationIdentity.getPassword();
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 2) {
-			logger.warning("authentication process for user " + username);
-		}
+		logger.info("authentication process for user " + username);
+	
 		setLoginInfo(username, password);
 		sessionManager.clearIdentity(sessionManager.getDocbaseName());
 		try {
@@ -57,9 +55,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		authenticate = sessionManager.authenticate(sessionManager
 				.getDocbaseName());
 
-		if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 2) {
-			logger.log(Level.INFO, "authentication status: " + authenticate);
-		}
+		logger.log(Level.INFO, "authentication status: " + authenticate);
 
 		return new AuthenticationResponse(authenticate, "");
 	}

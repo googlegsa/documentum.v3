@@ -33,7 +33,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	static {
 		logger = Logger.getLogger(DctmAuthorizationManager.class.getName());
-		logger.setLevel(Level.ALL);
 	}
 
 	public DctmAuthorizationManager(IClientX clientX) {
@@ -61,17 +60,17 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			ILoginInfo logInfo = clientX.getLoginInfo();
 			logInfo.setUser(username);
 			logInfo.setPassword(ticket);
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
-				logger.log(Level.INFO, "authorisation for " + username);
-			}
+			
+			logger.log(Level.INFO, "authorisation for " + username);
+			
 			sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
 					logInfo);
 			sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
 			dqlQuery = buildQuery(docidList);
-			if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
-				logger.log(Level.INFO, "dql " + dqlQuery);
-			}
+			
+			logger.log(Level.INFO, "dql " + dqlQuery);
+			
 			query.setDQL(dqlQuery);
 
 			ICollection collec = query.execute(sessionManagerUser,
@@ -87,16 +86,14 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			while (iterDocIdList.hasNext()) {
 				id = (String) iterDocIdList.next();
 				if (object_id.indexOf(id) != -1) {
-					if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
-						logger.info("id " + id);
-						logger.info("hasRight?  " + true);
-					}
+					logger.info("id " + id);
+					logger.info("hasRight?  " + true);
+					
 					authorizationResponse = new AuthorizationResponse(true, id);
 				} else {
-					if (DctmConnector.DEBUG && DctmConnector.DEBUG_LEVEL == 3) {
-						logger.info("id " + id);
-						logger.info("hasRight?  " + false);
-					}
+					logger.info("id " + id);
+					logger.info("hasRight?  " + false);
+			
 					authorizationResponse = new AuthorizationResponse(false, id);
 				}
 				dctmDocumentList.add(authorizationResponse);

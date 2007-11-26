@@ -32,10 +32,6 @@ public class DctmConnector implements Connector {
 
 	private static Logger logger = null;
 
-	public static boolean DEBUG = true;
-
-	public static int DEBUG_LEVEL = 2;
-
 	static {
 		logger = Logger.getLogger(DctmConnector.class.getName());
 	}
@@ -69,19 +65,17 @@ public class DctmConnector implements Connector {
 	}
 
 	public Session login() throws RepositoryException {
-		if (DEBUG && DEBUG_LEVEL >= 1) {
-			logger.log(Level.INFO, "login in the docbase " + docbase
-					+ " and user " + login + " " + clientX + " " + login + " "
-					+ password + " " + docbase + " " + webtop_display_url + " "
-					+ where_clause + " " + is_public.equals("on"));
-		}
+		logger.log(Level.INFO, "login in the docbase " + docbase + " and user "
+				+ login + " " + clientX + " " + docbase + " "
+				+ webtop_display_url + " " + where_clause + " "
+				+ is_public.equals("on"));
 
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
 				webtop_display_url, where_clause, is_public.equals("on"),
 				included_meta, excluded_meta);
 
-		return (sess);
+		return sess;
 	}
 
 	public void setAuthentication_type(String authenticationType) {
@@ -119,14 +113,6 @@ public class DctmConnector implements Connector {
 
 	public void setExcluded_meta(HashSet excluded_meta) {
 		this.excluded_meta = excluded_meta;
-	}
-
-	public static boolean isDEBUG() {
-		return DEBUG;
-	}
-
-	public static void setDEBUG(boolean debug) {
-		DEBUG = debug;
 	}
 
 }
