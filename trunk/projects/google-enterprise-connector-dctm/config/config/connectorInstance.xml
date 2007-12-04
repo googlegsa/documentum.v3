@@ -5,7 +5,7 @@
 		class="com.google.enterprise.connector.dctm.DctmConnector">
 		<property name="docbase" value="${docbase}" />
 		<property name="login" value="${login}" />
-		<property name="password" value="${password}" />
+		<property name="password" value="${Password}" />
 		<property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX" />
 		<property name="authentication_type" value="api" />
 		<property name="webtop_display_url" value="${webtop_display_url}" />

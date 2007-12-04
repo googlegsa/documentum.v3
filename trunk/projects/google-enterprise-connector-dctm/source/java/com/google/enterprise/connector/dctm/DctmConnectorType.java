@@ -121,6 +121,7 @@ public class DctmConnectorType implements ConnectorType {
 	}
 
 	public ConfigureResponse getConfigForm(Locale language) {
+		
 		try {
 			resource = ResourceBundle.getBundle("DctmConnectorResources",
 					language);
@@ -157,7 +158,8 @@ public class DctmConnectorType implements ConnectorType {
 					p.put(ISPUBLIC, "false");
 				}
 				Resource res = new ClassPathResource(
-						"config/connectorInstanceDocumentum.xml");
+						"config/connectorInstance.xml");
+				
 				XmlBeanFactory factory = new XmlBeanFactory(res);
 				PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
 				cfg.setProperties(p);

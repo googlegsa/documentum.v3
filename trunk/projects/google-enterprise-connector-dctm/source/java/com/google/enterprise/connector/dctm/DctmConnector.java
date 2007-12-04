@@ -44,10 +44,6 @@ public class DctmConnector implements Connector {
 		this.login = login;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public void setDocbase(String docbase) {
 		this.docbase = docbase;
 	}
@@ -65,6 +61,7 @@ public class DctmConnector implements Connector {
 	}
 
 	public Session login() throws RepositoryException {
+		logger.log(Level.INFO,"PASSWORD: "+password);
 		logger.log(Level.INFO, "login in the docbase " + docbase + " and user "
 				+ login + " " + clientX + " " + docbase + " "
 				+ webtop_display_url + " " + where_clause + " "
@@ -113,6 +110,10 @@ public class DctmConnector implements Connector {
 
 	public void setExcluded_meta(HashSet excluded_meta) {
 		this.excluded_meta = excluded_meta;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }

@@ -6,7 +6,7 @@
 		<property name="configKeys">
 			<list>
 				<value>login</value>
-				<value>password</value>
+				<value>Password</value>
 				<value>docbase</value>
 				<value>clientX</value>
 				<value>authentication_type</value>
