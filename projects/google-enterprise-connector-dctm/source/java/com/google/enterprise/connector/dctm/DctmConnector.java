@@ -61,7 +61,6 @@ public class DctmConnector implements Connector {
 	}
 
 	public Session login() throws RepositoryException {
-		logger.log(Level.INFO,"PASSWORD: "+password);
 		logger.log(Level.INFO, "login in the docbase " + docbase + " and user "
 				+ login + " " + clientX + " " + docbase + " "
 				+ webtop_display_url + " " + where_clause + " "
