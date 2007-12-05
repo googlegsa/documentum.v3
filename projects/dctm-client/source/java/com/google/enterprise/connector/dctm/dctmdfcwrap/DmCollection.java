@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import java.util.logging.Logger;
+
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -11,8 +13,14 @@ public class DmCollection implements ICollection {
 
 	IDfCollection idfCollection;
 
+	int numberOfRows = 0;
+
+	private static Logger logger = Logger.getLogger(DmCollection.class
+			.getName());
+
 	public DmCollection(IDfCollection idfCollection) {
 		this.idfCollection = idfCollection;
+		numberOfRows = 0;
 	}
 
 	public IValue getValue(String attrName) throws RepositoryException {
@@ -29,12 +37,15 @@ public class DmCollection implements ICollection {
 
 	public boolean next() throws RepositoryException {
 		boolean rep = false;
+
 		try {
 			rep = idfCollection.next();
 		} catch (DfException e) {
 			e.printStackTrace();
 			throw new RepositoryException(e);
 		}
+		if (rep)
+			numberOfRows++;
 		return rep;
 	}
 
@@ -52,6 +63,7 @@ public class DmCollection implements ICollection {
 	}
 
 	public void close() throws RepositoryException {
+		logger.info(numberOfRows + " documents have been processed");
 		try {
 			this.idfCollection.close();
 		} catch (DfException e) {

@@ -50,7 +50,7 @@ public class DctmConnectorType implements ConnectorType {
 
 	private static final String OPEN_ELEMENT = "<";
 
-	private static final String PASSWORD = "password";
+	private static final String PASSWORD = "Password";
 
 	private static final String TR_END = "</tr>\r\n";
 
@@ -121,14 +121,13 @@ public class DctmConnectorType implements ConnectorType {
 	}
 
 	public ConfigureResponse getConfigForm(Locale language) {
-		
+
 		try {
 			resource = ResourceBundle.getBundle("DctmConnectorResources",
 					language);
 		} catch (MissingResourceException e) {
-			resource = null;
-			return new ConfigureResponse("",
-					"The internationalization package is not installed. Please, install it.");
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					Locale.ENGLISH);
 		}
 		if (initialConfigForm != null) {
 			return new ConfigureResponse("", initialConfigForm);
@@ -143,13 +142,19 @@ public class DctmConnectorType implements ConnectorType {
 
 	public ConfigureResponse validateConfig(Map configData, Locale language,
 			ConnectorFactory connectorFactory) {
-		resource = ResourceBundle.getBundle("DctmConnectorResources", language);
+		try {
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					language);
+		} catch (MissingResourceException e) {
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					Locale.ENGLISH);
+		}
 		String form = null;
 		DctmSession session;
 		String validation = validateConfigMap(configData);
 		if (validation.equals("")) {
 			try {
-				logger.log(Level.INFO, "test connection to the docbase");
+				logger.log(Level.INFO, "test connection to the repository");
 
 				Properties p = new Properties();
 				p.putAll(configData);
@@ -159,7 +164,7 @@ public class DctmConnectorType implements ConnectorType {
 				}
 				Resource res = new ClassPathResource(
 						"config/connectorInstance.xml");
-				
+
 				XmlBeanFactory factory = new XmlBeanFactory(res);
 				PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
 				cfg.setProperties(p);
@@ -191,7 +196,20 @@ public class DctmConnectorType implements ConnectorType {
 				"<p><font color=\"#FF0000\">"
 						+ resource.getString(validation + "_error")
 						+ "</font></p><br>" + form);
+	}
 
+	public ConfigureResponse getPopulatedConfigForm(Map configMap,
+			Locale language) {
+		try {
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					language);
+		} catch (MissingResourceException e) {
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					Locale.ENGLISH);
+		}
+		ConfigureResponse result = new ConfigureResponse("",
+				makeValidatedForm(configMap));
+		return result;
 	}
 
 	private ConfigureResponse createErrorMessage(Map configData,
@@ -293,9 +311,11 @@ public class DctmConnectorType implements ConnectorType {
 		String value = "";
 		for (Iterator i = keys.iterator(); i.hasNext();) {
 			String key = (String) i.next();
+
 			if (configMap != null) {
 				value = (String) configMap.get(key);
 			}
+
 			if (key.equals(ISPUBLIC)) {
 				appendCheckBox(buf, key, resource.getString(key), value);
 				appendStartHiddenRow(buf);
@@ -318,8 +338,12 @@ public class DctmConnectorType implements ConnectorType {
 				} else {
 					buf.append(OPEN_ELEMENT);
 					buf.append(INPUT);
-					if (key.equalsIgnoreCase(PASSWORD)) {
+					if (key.equals(PASSWORD)) {
 						appendAttribute(buf, TYPE, PASSWORD);
+						if ((String) configMap.get("password") != null) {
+							value = (String) configMap.get("password");
+							configMap.remove("password");
+						}
 					} else if (key.equals(DCTMCLASS)
 							|| key.equals(AUTHENTICATIONTYPE)
 							|| key.equals(WHERECLAUSE)) {
@@ -327,7 +351,6 @@ public class DctmConnectorType implements ConnectorType {
 					} else {
 						appendAttribute(buf, TYPE, TEXT);
 					}
-
 					appendAttribute(buf, VALUE, value);
 					appendAttribute(buf, NAME, key);
 					appendEndRow(buf);
@@ -478,14 +501,6 @@ public class DctmConnectorType implements ConnectorType {
 		if (attrName == TYPE && attrValue == TEXT) {
 			buf.append(" size=\"50\"");
 		}
-	}
-
-	public ConfigureResponse getPopulatedConfigForm(Map configMap,
-			Locale language) {
-		resource = ResourceBundle.getBundle("DctmConnectorResources", language);
-		ConfigureResponse result = new ConfigureResponse("",
-				makeValidatedForm(configMap));
-		return result;
 	}
 
 }

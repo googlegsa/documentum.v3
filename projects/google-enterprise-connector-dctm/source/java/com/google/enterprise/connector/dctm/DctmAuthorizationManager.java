@@ -48,7 +48,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		String username = authenticationIdentity.getUsername();
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
-		List docidList = new ArrayList(docids); 
+		List docidList = new ArrayList(docids);
 		ISession session = sessionManager.getSession(sessionManager
 				.getDocbaseName());
 		DctmDocumentList dctmDocumentList = new DctmDocumentList();
@@ -60,17 +60,17 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			ILoginInfo logInfo = clientX.getLoginInfo();
 			logInfo.setUser(username);
 			logInfo.setPassword(ticket);
-			
+
 			logger.log(Level.INFO, "authorisation for " + username);
-			
+
 			sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
 					logInfo);
 			sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
 			dqlQuery = buildQuery(docidList);
-			
+
 			logger.log(Level.INFO, "dql " + dqlQuery);
-			
+
 			query.setDQL(dqlQuery);
 
 			ICollection collec = query.execute(sessionManagerUser,
@@ -88,12 +88,12 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 				if (object_id.indexOf(id) != -1) {
 					logger.info("id " + id);
 					logger.info("hasRight?  " + true);
-					
+
 					authorizationResponse = new AuthorizationResponse(true, id);
 				} else {
 					logger.info("id " + id);
 					logger.info("hasRight?  " + false);
-			
+
 					authorizationResponse = new AuthorizationResponse(false, id);
 				}
 				dctmDocumentList.add(authorizationResponse);
@@ -156,6 +156,5 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			String queryStringAuthoriseDefault) {
 		this.queryStringAuthoriseDefault = queryStringAuthoriseDefault;
 	}
-
 
 }

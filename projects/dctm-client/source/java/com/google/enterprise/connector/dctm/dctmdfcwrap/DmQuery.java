@@ -47,7 +47,7 @@ public class DmQuery implements IQuery {
 				.getDfSessionManager();
 
 		logger.info("value of IdfQuery " + idfQuery.getDQL());
-		
+
 		IDfSession idfSession = null;
 		IDfCollection dfCollection = null;
 		try {

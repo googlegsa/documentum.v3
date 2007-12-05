@@ -30,6 +30,10 @@ public class DctmConnector implements Connector {
 
 	private HashSet excluded_meta;
 
+	private HashSet included_object_type;
+
+	private String root_object_type;
+
 	private static Logger logger = null;
 
 	static {
@@ -69,7 +73,8 @@ public class DctmConnector implements Connector {
 		Session sess = null;
 		sess = new DctmSession(clientX, login, password, docbase,
 				webtop_display_url, where_clause, is_public.equals("on"),
-				included_meta, excluded_meta);
+				included_meta, excluded_meta, root_object_type,
+				included_object_type);
 
 		return sess;
 	}
@@ -113,6 +118,14 @@ public class DctmConnector implements Connector {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public void setIncluded_object_type(HashSet included_object_type) {
+		this.included_object_type = included_object_type;
+	}
+
+	public void setRoot_object_type(String root_object_type) {
+		this.root_object_type = root_object_type;
 	}
 
 }

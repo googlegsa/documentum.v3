@@ -15,13 +15,13 @@ public class DctmConnectorTypeTest extends TestCase {
 	 */
 	public void testGetConfigForm() {
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
 		String expectedForm = "<tr>\r\n"
 				+ "<td>Username</td>\r\n<td><input type=\"text\" size=\"50\" value=\"\" name=\"login\"/></td>\r\n</tr>"
-				+ "\r\n<tr>\r\n<td>Password</td>\r\n<td><input type=\"password\" value=\"\" name=\"password\"/></td>"
+				+ "\r\n<tr>\r\n<td>Password</td>\r\n<td><input type=\"Password\" value=\"\" name=\"Password\"/></td>"
 				+ "\r\n</tr>\r\n<tr>\r\n<td>Repository</td>\r\n<td><select name=\"docbase\">\n\t<option value=\"gdoc\">gdoc</option>\n</select>\r\n<tr>"
 				+ "\r\n<td><input type=\"hidden\" value=\"\" name=\"clientX\"/></td>\r\n</tr>\r\n<tr>\r\n<td><input type=\"hidden\" value=\"\" name=\"authentication_type\"/></td>"
 				+ "\r\n</tr>\r\n<tr>\r\n<td>Webtop URL</td>\r\n<td><input type=\"text\" size=\"50\" value=\"\" name=\"webtop_display_url\"/></td>"
@@ -40,14 +40,14 @@ public class DctmConnectorTypeTest extends TestCase {
 	public void testValidateConfig() {
 		HashMap map = new HashMap();
 		map.put("login", "queryUser");
-		map.put("password", "p@ssw0rd");
+		map.put("Password", "p@ssw0rd");
 		map.put("docbase", "gsadctm");
 		map.put("clientX", "");
 		map.put("authentication_type", "");
 		map.put("webtop_display_url", "http://swp-vm-wt:8080/webtop/");
 		map.put("where_clause", "");
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
@@ -64,7 +64,7 @@ public class DctmConnectorTypeTest extends TestCase {
 	public void testValidateConfigWithConnectionError() {
 		HashMap map = new HashMap();
 		map.put("login", "queryUser");
-		map.put("password", "p@ssw@r");
+		map.put("Password", "p@ssw@r");
 		map.put("docbase", "gsadctm");
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -73,7 +73,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("where_clause", "and owner_name != 'Administrator'");
 		map.put("is_public", "false");
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
@@ -87,7 +87,7 @@ public class DctmConnectorTypeTest extends TestCase {
 	public void testValidateConfigWithServerWebtopError() {
 		HashMap map = new HashMap();
 		map.put("login", "queryUser");
-		map.put("password", "p@ssw0rd");
+		map.put("Password", "p@ssw0rd");
 		map.put("docbase", "gsadctm");
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -96,7 +96,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("where_clause", "and owner_name != 'Administrator'");
 		map.put("is_public", "false");
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
@@ -111,7 +111,7 @@ public class DctmConnectorTypeTest extends TestCase {
 	public void testValidateConfigWithWebtopError() {
 		HashMap map = new HashMap();
 		map.put("login", "queryUser");
-		map.put("password", "p@ssw0rd");
+		map.put("Password", "p@ssw0rd");
 		map.put("docbase", "gsadctm");
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -120,7 +120,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("where_clause", "and owner_name != 'Administrator'");
 		map.put("is_public", "false");
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
@@ -135,7 +135,7 @@ public class DctmConnectorTypeTest extends TestCase {
 	public void testValidateConfigWithQueryError() {
 		HashMap map = new HashMap();
 		map.put("login", "queryUser");
-		map.put("password", "p@ssw0rd");
+		map.put("Password", "p@ssw0rd");
 		map.put("docbase", "gsadctm");
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -144,7 +144,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("where_clause", "an owner_name != 'Administrator'");
 		map.put("is_public", "false");
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
@@ -159,7 +159,7 @@ public class DctmConnectorTypeTest extends TestCase {
 	public void testValidateConfigWithAnotherQueryError() {
 		HashMap map = new HashMap();
 		map.put("login", "user1");
-		map.put("password", "p@ssw0rd");
+		map.put("Password", "p@ssw0rd");
 		map.put("docbase", "gsadctm");
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -169,7 +169,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("where_clause", "and owne_name != 'Administrator'");
 		map.put("is_public", "false");
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
@@ -184,7 +184,7 @@ public class DctmConnectorTypeTest extends TestCase {
 	public void testValidateConfigWithAnotherSecondQueryError() {
 		HashMap map = new HashMap();
 		map.put("login", "queryUser");
-		map.put("password", "p@ssw0rd");
+		map.put("Password", "p@ssw0rd");
 		map.put("docbase", "gsadctm");
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -193,7 +193,7 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("where_clause", "and folde('/test_docs',descend)");
 		map.put("is_public", "false");
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
@@ -213,7 +213,7 @@ public class DctmConnectorTypeTest extends TestCase {
 	public void testGetPopulatedConfigForm() {
 		HashMap map = new HashMap();
 		map.put("login", "queryUser");
-		map.put("password", "p@ssw0rd");
+		map.put("Password", "p@ssw0rd");
 		map.put("docbase", "gsadctm");
 		map.put("clientX",
 				"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX");
@@ -222,21 +222,22 @@ public class DctmConnectorTypeTest extends TestCase {
 		map.put("where_clause", "an owner_name != 'Administrator'");
 		map.put("is_public", "on");
 		DctmConnectorType test = new DctmConnectorType();
-		String[] fiels = { "login", "password", "docbase", "clientX",
+		String[] fiels = { "login", "Password", "docbase", "clientX",
 				"authentication_type", "webtop_display_url", "where_clause",
 				"is_public" };
 		test.setConfigKeys(fiels);
 
 		String expectedForm = "<tr>\r\n"
 				+ "<td>Username</td>\r\n<td><input type=\"text\" value=\"queryUser\" name=\"login\"/></td>\r\n</tr>"
-				+ "\r\n<tr>\r\n<td>Password</td>\r\n<td><input type=\"password\" value=\"p@ssw0rd\" name=\"password\"/></td>"
+				+ "\r\n<tr>\r\n<td>Password</td>\r\n<td><input type=\"Password\" value=\"p@ssw0rd\" name=\"Password\"/></td>"
 				+ "\r\n</tr>\r\n<tr>\r\n<td>Repository</td>\r\n<td><select name=\"docbase\">\n\t<option selected value=\"gsadctm\">gsadctm</option>\n\t<option value=\"gdoc\">gdoc</option>\n</select>\r\n<tr>"
 				+ "\r\n<td><input type=\"hidden\" value=\"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX\" name=\"clientX\"/></td>\r\n</tr>\r\n<tr>\r\n<td><input type=\"hidden\" value=\"api\" name=\"authentication_type\"/></td>"
 				+ "\r\n</tr>\r\n<tr>\r\n<td>Webtop URL</td>\r\n<td><input type=\"text\" value=\"http://swp-vm-wt:8080/webtop/\" name=\"webtop_display_url\"/></td>"
 				+ "\r\n</tr>\r\n<tr>\r\n<td><input type=\"hidden\" value=\"an owner_name != 'Administrator'\" name=\"where_clause\"/></td>\r\n</tr>\r\n"
 				+ "<tr>\r\n<td><input type=CHECKBOX name=\"is_public\" CHECKED/>Make public</td>\r\n</tr>\r\n"
 				+ "<tr>\r\n<td><input type=\"hidden\" value=\"false\" name=\"is_public\"/></td>\r\n</tr>\r\n";
-
+		System.out.println(test.getPopulatedConfigForm(map, Locale.US)
+				.getFormSnippet());
 		assertEquals(expectedForm, test.getPopulatedConfigForm(map, Locale.US)
 				.getFormSnippet());
 
