@@ -105,6 +105,12 @@
 				<value>a_application_type</value>
 			</set>
 		</property>
+		<property name="root_object_type" value="dm_sysobject"/>
+		<property name="included_object_type">
+			<set>
+				<value>dm_document</value>
+			</set>
+		</property>
 	</bean>
 	
 </beans>

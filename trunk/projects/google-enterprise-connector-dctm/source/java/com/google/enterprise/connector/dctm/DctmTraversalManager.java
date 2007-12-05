@@ -2,6 +2,7 @@ package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.json.JSONException;
@@ -21,9 +22,6 @@ public class DctmTraversalManager implements TraversalManager {
 
 	private String order_by = " order by r_modify_date,r_object_id";
 
-	// TODO: add possibility for an administrator to change it
-	private String tableName = "dm_document";
-
 	private String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{2}'',''yyyy-mm-dd hh:mi:ss'')))";
 
 	private String serverUrl;
@@ -40,10 +38,30 @@ public class DctmTraversalManager implements TraversalManager {
 
 	private HashSet excluded_meta;
 
+	private HashSet included_object_type;
+
+	private String root_object_type;
+
 	private static Logger logger = null;
 
 	static {
 		logger = Logger.getLogger(DctmTraversalManager.class.getName());
+	}
+
+	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
+			String additionalWhereClause, boolean isPublic,
+			HashSet included_meta, HashSet excluded_meta,
+			HashSet included_object_type, String root_object_type)
+			throws RepositoryException {
+		this.additionalWhereClause = additionalWhereClause;
+		setClientX(clientX);
+		setSessionManager(clientX.getSessionManager());
+		this.serverUrl = webtopServerUrl;
+		this.isPublic = isPublic;
+		this.included_meta = included_meta;
+		this.excluded_meta = excluded_meta;
+		this.included_object_type = included_object_type;
+		this.root_object_type = root_object_type;
 	}
 
 	protected void setClientX(IClientX clientX) {
@@ -64,19 +82,6 @@ public class DctmTraversalManager implements TraversalManager {
 
 	protected String getServerUrl() {
 		return serverUrl;
-	}
-
-	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-			String additionalWhereClause, boolean isPublic,
-			HashSet included_meta, HashSet excluded_meta)
-			throws RepositoryException {
-		this.additionalWhereClause = additionalWhereClause;
-		setClientX(clientX);
-		setSessionManager(clientX.getSessionManager());
-		this.serverUrl = webtopServerUrl;
-		this.isPublic = isPublic;
-		this.included_meta = included_meta;
-		this.excluded_meta = excluded_meta;
 	}
 
 	/**
@@ -139,6 +144,7 @@ public class DctmTraversalManager implements TraversalManager {
 		ICollection collec = null;
 		DocumentList documentList = null;
 		collec = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
+
 		documentList = new DctmDocumentList(collec, sessionManager, clientX,
 				isPublic, included_meta, excluded_meta);
 
@@ -192,16 +198,30 @@ public class DctmTraversalManager implements TraversalManager {
 			throws RepositoryException {
 
 		StringBuffer query = new StringBuffer(
-				"select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject");
-		query.append(" where r_object_type='");
-		query.append(tableName);
-		query.append("' ");
+				"select i_chronicle_id, r_object_id, r_modify_date from "
+						+ this.root_object_type);
+		if (!included_object_type.isEmpty()) {
+			query.append(" where (");
+			Iterator iter = this.included_object_type.iterator();
+			String name = (String) iter.next();
+			query.append(" r_object_type='" + name + "'");
+			while (iter.hasNext()) {
+				name = (String) iter.next();
+				query.append(" OR r_object_type='" + name + "'");
+			}
+			query.append(")");
+		} else {
+			query.append(" where r_object_type='");
+			query.append("dm_document");
+			query.append("' ");
+		}
 		if (this.additionalWhereClause != null) {
 			query.append(additionalWhereClause);
 		}
 		if (checkpoint != null) {
 			query.append(getCheckpointClause(checkpoint));
 		}
+
 		query.append(order_by);
 
 		if (batchHint > 0) {
@@ -214,7 +234,6 @@ public class DctmTraversalManager implements TraversalManager {
 						+ Integer.toString(batchHint) + ")");
 			}
 		}
-		logger.info(query.toString());
 		return query.toString();
 	}
 

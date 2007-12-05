@@ -174,4 +174,13 @@ public class DmInitialize {
 		included_meta.add("r_modify_date");
 	}
 
+	public static String root_object_type = "dm_sysobject";
+
+	public static HashSet included_object_type = null;
+	static {
+		included_object_type = new HashSet();
+		included_object_type.add("dm_document");
+		included_object_type.add("custom_type");
+	}
+
 }

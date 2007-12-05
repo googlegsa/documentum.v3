@@ -92,7 +92,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			result = jo.toString();
 		} catch (JSONException e) {
 			logger.severe("Unexpected JSON problem");
-			
+
 			StackTraceElement[] test = e.getStackTrace();
 			for (int i = 0; i < test.length; i++) {
 				System.out.println(test[i].toString());

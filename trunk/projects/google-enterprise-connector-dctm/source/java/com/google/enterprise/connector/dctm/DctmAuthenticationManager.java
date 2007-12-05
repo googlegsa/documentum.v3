@@ -38,7 +38,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		String password = authenticationIdentity.getPassword();
 
 		logger.info("authentication process for user " + username);
-	
+
 		setLoginInfo(username, password);
 		sessionManager.clearIdentity(sessionManager.getDocbaseName());
 		try {
