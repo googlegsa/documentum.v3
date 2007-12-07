@@ -126,8 +126,7 @@ public class DctmConnectorType implements ConnectorType {
 			resource = ResourceBundle.getBundle("DctmConnectorResources",
 					language);
 		} catch (MissingResourceException e) {
-			resource = ResourceBundle.getBundle("DctmConnectorResources",
-					Locale.ENGLISH);
+			resource = ResourceBundle.getBundle("DctmConnectorResources");
 		}
 		if (initialConfigForm != null) {
 			return new ConfigureResponse("", initialConfigForm);
@@ -146,8 +145,7 @@ public class DctmConnectorType implements ConnectorType {
 			resource = ResourceBundle.getBundle("DctmConnectorResources",
 					language);
 		} catch (MissingResourceException e) {
-			resource = ResourceBundle.getBundle("DctmConnectorResources",
-					Locale.ENGLISH);
+			resource = ResourceBundle.getBundle("DctmConnectorResources");
 		}
 		String form = null;
 		DctmSession session;
@@ -204,8 +202,7 @@ public class DctmConnectorType implements ConnectorType {
 			resource = ResourceBundle.getBundle("DctmConnectorResources",
 					language);
 		} catch (MissingResourceException e) {
-			resource = ResourceBundle.getBundle("DctmConnectorResources",
-					Locale.ENGLISH);
+			resource = ResourceBundle.getBundle("DctmConnectorResources");
 		}
 		ConfigureResponse result = new ConfigureResponse("",
 				makeValidatedForm(configMap));
