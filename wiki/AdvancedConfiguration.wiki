@@ -7,8 +7,8 @@ file connectorInstance.xml located in the folder
 /connector-manager/WEB-INF/connectors/EMC_Documentum_Content_Server_5.3/`instance_of_connector`/
 
 By changing this file, you can add an additional where clause to 
-specify for example a specific folder in the Documentum repository, and you can change the 
-included or excluded metadata of the document.
+specify for example a specific folder in the Documentum repository, you can change the 
+included or excluded metadata of the document and you can also define what object types are to be indexed.
 
 
 == Add an additional where clause ==
@@ -51,3 +51,22 @@ excluded during the indexing process.
 
 Once the modification of the file is done, you have to restart the 
 connector service.
+
+
+
+== Define what object types are to be indexed ==
+
+You can specify the root object type by changing the value of the property "root_object_type"
+(dm_sysobject by default).
+
+There is a list of included object types. If you want to add an object type, 
+you have to add a line between the tags <set> and </set> of the property "included_object_type":
+
+{{{
+
+<value>`dm_document`</value>
+
+}}}
+
+By default, only "dm_document" is set. Each included object types must be a subtype of the root object type.
+
