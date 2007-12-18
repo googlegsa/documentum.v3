@@ -337,7 +337,7 @@ public class DctmConnectorType implements ConnectorType {
 					buf.append(INPUT);
 					if (key.equals(PASSWORD)) {
 						appendAttribute(buf, TYPE, PASSWORD);
-						if ((String) configMap.get("password") != null) {
+						if (configMap != null && (String) configMap.get("password") != null) {
 							value = (String) configMap.get("password");
 							configMap.remove("password");
 						}
