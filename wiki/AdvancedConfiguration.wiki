@@ -3,7 +3,7 @@
 = Configure the connectorInstance.xml file =
 
 The advanced configuration is done through the modification of the 
-file connectorInstance.xml located in the folder 
+file connectorInstance.xml. This file is available inside connector-dctm.jar. You should extract this file and place it in the folder 
 /connector-manager/WEB-INF/connectors/EMC_Documentum_Content_Server_5.3/`instance_of_connector`/
 
 By changing this file, you can add an additional where clause to 
@@ -69,4 +69,3 @@ you have to add a line between the tags <set> and </set> of the property "includ
 }}}
 
 By default, only "dm_document" is set. Each included object types must be a subtype of the root object type.
-
