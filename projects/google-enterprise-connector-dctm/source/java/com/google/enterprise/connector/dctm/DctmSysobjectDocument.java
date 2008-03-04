@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -13,6 +14,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Property;
@@ -45,6 +47,12 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 	private HashSet excluded_meta;
 
 	private String object_id_name = "r_object_id";
+
+	private static Logger logger = null;
+
+	static {
+		logger = Logger.getLogger(DctmSysobjectDocument.class.getName());
+	}
 
 	public DctmSysobjectDocument(String docid, ISessionManager sessionManager,
 			IClientX clientX, String isPublic, HashSet included_meta,
@@ -121,19 +129,22 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		IValue val = null;
 		for (int j = 0; j < i; j++) {
 			val = object.getRepeatingValue(name, j);
-			if (attr.getDataType() == IAttr.DM_BOOLEAN) {
-				hashSet.add(BooleanValue.makeBooleanValue(val.asBoolean()));
-			} else if (attr.getDataType() == IAttr.DM_DOUBLE) {
-				hashSet.add(new DoubleValue(val.asDouble()));
-			} else if (attr.getDataType() == IAttr.DM_ID) {
-				hashSet.add(new StringValue(object.getId(name).getId()));
-			} else if (attr.getDataType() == IAttr.DM_INTEGER) {
-				hashSet.add(new LongValue(val.asInteger()));
-			} else if (attr.getDataType() == IAttr.DM_STRING) {
-				hashSet.add(new StringValue(val.asString()));
-			} else if (attr.getDataType() == IAttr.DM_TIME) {
-				hashSet.add(new DctmDateValue(getCalendarFromDate(val.asTime()
-						.getDate())));
+			try {				
+				if (attr.getDataType() == IAttr.DM_BOOLEAN) {
+					hashSet.add(BooleanValue.makeBooleanValue(val.asBoolean()));
+				} else if (attr.getDataType() == IAttr.DM_DOUBLE) {
+					hashSet.add(new DoubleValue(val.asDouble()));
+				} else if (attr.getDataType() == IAttr.DM_ID) {
+					hashSet.add(new StringValue(object.getId(name).getId()));
+				} else if (attr.getDataType() == IAttr.DM_INTEGER) {
+					hashSet.add(new LongValue(val.asInteger()));
+				} else if (attr.getDataType() == IAttr.DM_STRING) {
+					hashSet.add(new StringValue(val.asString()));
+				} else if (attr.getDataType() == IAttr.DM_TIME) {
+					hashSet.add(new DctmDateValue(getCalendarFromDate(val.asTime().getDate())));
+				}
+			} catch (Exception e) {
+				hashSet.add(null);
 			}
 		}
 		return new DctmSysobjectProperty(name, hashSet);

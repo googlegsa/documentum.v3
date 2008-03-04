@@ -17,9 +17,9 @@
 	<property name="src-client" value="dctm-client/source/java" />
 	<property name="classes-client" value="${build-client}/classes" />	
 	
-	<property name="build-mock" value="google-enterprise-connector-dctm/build" />	
+<!--	<property name="build-mock" value="google-enterprise-connector-dctm/build" />	
 	<property name="src-mock" value="google-enterprise-connector-dctm/source/java" />
-	<property name="classes-mock" value="${build-mock}/classes" />	
+	<property name="classes-mock" value="${build-mock}/classes" />	-->
 
 	<property name="jar.dir"  value="${dist}/jar" />
 	<property name="jarfile"  value="${jar.dir}/connector-dctm.jar" />
@@ -33,15 +33,16 @@
 	<property name="spring.jarfile" value="${jarfile.dir}/spring.jar" />
 
 	<!-- =========================== TASKS =============================== -->
-	<target name="GoogleDCTM" depends="init,compile-mock,compile-client,jar">
+<!--	<target name="GoogleDCTM" depends="init,compile-mock,compile-client,jar">-->
+		<target name="GoogleDCTM" depends="init,compile-client,jar">
 	</target>
 
 	<target name="init">
 		<mkdir dir="${dist}" />
 		<mkdir dir="${build-client}" />
 		<mkdir dir="${classes-client}" />
-		<mkdir dir="${build-mock}" />
-		<mkdir dir="${classes-mock}" />
+<!--		<mkdir dir="${build-mock}" />
+		<mkdir dir="${classes-mock}" />-->
 		<mkdir dir="${jar.dir}" />
 	</target>
 
@@ -62,9 +63,9 @@
 		</javac>
 	</target>
 		
-	<target name="compile-mock" depends="init">
+<!--	<target name="compile-mock" depends="init">-->
 		<!-- compile java source files -->
-		<javac srcdir="${src-mock}" destdir="${classes-mock}" debug="${COMPILE_DEBUG_FLAG}">
+<!--		<javac srcdir="${src-mock}" destdir="${classes-mock}" debug="${COMPILE_DEBUG_FLAG}">
 			<classpath>
 				<pathelement location="${spring.jarfile}" />
 				<pathelement location="${spi.jarfile}" />
@@ -73,19 +74,19 @@
 				<pathelement location="${commons-http.jarfile}" />
 			</classpath>
 		</javac>
-	</target>
+	</target>-->
 
 	<target name="jar" description="connector-dctm">
 		<jar jarfile="${jarfile}">
 			<fileset dir="${config}"/>
 			<fileset dir="${classes-client}"/>
-			<fileset dir="${classes-mock}"/>
+<!--			<fileset dir="${classes-mock}"/>-->
 		</jar>
 	</target>
 
 	<target name="clean" description="Deletes all build files.">
 		<delete dir="${build-client}" />
-		<delete dir="${build-mock}" />
+<!--		<delete dir="${build-mock}" /> -->
 		<delete dir="${dist}" />
 	</target>
 
