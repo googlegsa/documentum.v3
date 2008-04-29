@@ -13,7 +13,7 @@ included or excluded metadata of the document and you can also define what objec
 
 == Add an additional where clause ==
 
-By modifying the value of the property named “additional_where_clause”, 
+By modifying the value of the property named “where_clause”, 
 you can change the where clause of the connector. This clause is a part
 of a query begining by an `AND`. To know how to create a Documentum query, 
 please contact your Documentum administrator.
