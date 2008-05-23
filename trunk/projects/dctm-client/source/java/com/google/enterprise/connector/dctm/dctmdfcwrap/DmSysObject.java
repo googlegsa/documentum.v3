@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import java.io.ByteArrayInputStream;
+import java.util.logging.Logger;
 
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.client.IDfSysObject;
@@ -19,6 +20,9 @@ public class DmSysObject implements ISysObject {
 
 	IDfSysObject idfSysObject;
 
+	private static Logger logger = Logger.getLogger(DmSysObject.class
+			.getName());
+	
 	public DmSysObject(IDfSysObject idfSysObject) {
 		this.idfSysObject = idfSysObject;
 	}
@@ -42,6 +46,7 @@ public class DmSysObject implements ISysObject {
 		long contentSize = 0;
 		try {
 			contentSize = idfSysObject.getContentSize();
+		
 		} catch (DfException e) {
 			throw new RepositoryException(e);
 		}
@@ -91,6 +96,7 @@ public class DmSysObject implements ISysObject {
 		} catch (DfException e) {
 			// if the attribute name does not exist for the type
 			if (e.getMessage().indexOf("DM_API_E_BADATTRNAME") != -1) {
+				logger.finest("in the case of DM_API_E_BADATTRNAME");
 				return "";
 			}
 			throw new RepositoryException(e);
