@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import java.util.logging.Logger;
+
 import com.documentum.fc.client.DfAuthenticationException;
 import com.documentum.fc.client.DfIdentityException;
 import com.documentum.fc.client.DfPrincipalException;
@@ -22,6 +24,9 @@ public class DmSessionManager implements ISessionManager {
 
 	private String serverUrl;
 
+	private static Logger logger = Logger.getLogger(DmSessionManager.class
+			.getName());
+	
 	public DmSessionManager(IDfSessionManager DfSessionManager) {
 
 		this.dfSessionManager = DfSessionManager;
@@ -90,6 +95,7 @@ public class DmSessionManager implements ISessionManager {
 	}
 
 	public void release(ISession session) {
+		logger.finest("session released");
 		this.dfSessionManager.release(((DmSession) session).getDfSession());
 
 	}

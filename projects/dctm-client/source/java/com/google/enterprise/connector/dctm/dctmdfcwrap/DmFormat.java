@@ -42,4 +42,17 @@ public class DmFormat implements IFormat {
 		}
 		return rep;
 	}
+	
+	public String getDOSExtension() {
+		String rep = null;
+		try {
+			if (idfFormat != null) {
+				rep = idfFormat.getDOSExtension();
+			} 
+		} catch (DfException de) {
+			rep = "";
+		}
+		return rep;
+	}
+	
 }

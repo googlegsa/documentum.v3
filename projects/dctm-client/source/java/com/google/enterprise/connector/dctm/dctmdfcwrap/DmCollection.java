@@ -3,9 +3,11 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.documentum.fc.client.IDfCollection;
+import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfValue;
 
@@ -26,8 +28,8 @@ public class DmCollection implements ICollection {
 	public IValue getValue(String attrName) throws RepositoryException {
 		IDfValue dfValue = null;
 		try {
-
 			dfValue = idfCollection.getValue(attrName);
+			logger.finest("getting the value of attribute "+attrName);
 		} catch (DfException e) {
 			RepositoryException re = new RepositoryException(e);
 			throw re;
@@ -40,12 +42,14 @@ public class DmCollection implements ICollection {
 
 		try {
 			rep = idfCollection.next();
+			logger.finest("collection.next() returns "+rep);
 		} catch (DfException e) {
 			e.printStackTrace();
 			throw new RepositoryException(e);
 		}
 		if (rep)
 			numberOfRows++;
+		logger.finest("number Of Rows is "+numberOfRows);
 		return rep;
 	}
 
@@ -55,6 +59,7 @@ public class DmCollection implements ICollection {
 
 	public String getString(String colName) throws RepositoryException {
 		try {
+			logger.finest("column name is "+this.idfCollection.getString(colName));
 			return this.idfCollection.getString(colName);
 		} catch (DfException e) {
 
@@ -72,6 +77,16 @@ public class DmCollection implements ICollection {
 	}
 
 	public int getState() {
+		logger.fine("state of the collection : "+this.idfCollection.getState());
 		return this.idfCollection.getState();
 	}
+	
+	
+	public ISession getSession(){
+		IDfSession dfSession = null;
+		dfSession = idfCollection.getSession();
+		logger.finest("getting the session from the collection");
+		return new DmSession(dfSession);
+	}
+	
 }

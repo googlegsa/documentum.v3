@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import java.util.logging.Logger;
+
 import com.documentum.fc.client.IDfDocument;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSysObject;
@@ -13,6 +15,9 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class DmSession implements ISession {
 
 	IDfSession idfSession;
+	
+	private static Logger logger = Logger.getLogger(DmSession.class
+			.getName());
 
 	public DmSession(IDfSession dfSession) {
 		this.idfSession = dfSession;
@@ -25,12 +30,15 @@ public class DmSession implements ISession {
 			throw new IllegalArgumentException();
 		}
 		DmId dctmId = (DmId) objectId;
-
 		IDfId idfId = dctmId.getidfId();
 
 		IDfSysObject idfSysObject = null;
+		
 		try {
 			idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
+			///
+			///logger.info("creator name of the object is "+idfSysObject.getCreatorName());
+			///
 		} catch (DfException de) {
 			RepositoryException re = new RepositoryException(de);
 			throw re;
