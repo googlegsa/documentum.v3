@@ -46,14 +46,17 @@ public class DctmConnector implements Connector {
 	 */
 	public void setLogin(String login) {
 		this.login = login;
+		logger.log(Level.INFO, "login set to " +login); 
 	}
 
 	public void setDocbase(String docbase) {
 		this.docbase = docbase;
+		logger.log(Level.INFO, "docbase set to " +docbase);
 	}
 
 	public void setWebtop_display_url(String wsu) {
 		this.webtop_display_url = wsu;
+		logger.log(Level.INFO, "webtopdisplayurl set to " +wsu);
 	}
 
 	public void setClientX(String clientX) {
@@ -78,13 +81,16 @@ public class DctmConnector implements Connector {
 
 		return sess;
 	}
-
+	
+	
 	public void setAuthentication_type(String authenticationType) {
 		this.authentication_type = authenticationType;
+		logger.log(Level.INFO, "authenticationType set to " +authenticationType);
 	}
 
 	public void setWhere_clause(String additionalWhereClause) {
 		this.where_clause = additionalWhereClause;
+		logger.log(Level.INFO, "where_clause set to " +additionalWhereClause);
 	}
 
 	public String getIs_public() {
@@ -93,6 +99,7 @@ public class DctmConnector implements Connector {
 
 	public void setIs_public(String is_public) {
 		this.is_public = is_public;
+		logger.log(Level.INFO, "is_public set to " +is_public);
 	}
 
 	public String getAuthentication_type() {
@@ -127,5 +134,5 @@ public class DctmConnector implements Connector {
 	public void setRoot_object_type(String root_object_type) {
 		this.root_object_type = root_object_type;
 	}
-
+		
 }

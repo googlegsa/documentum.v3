@@ -5,6 +5,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmFormat implements IFormat {
 	private String mimeType;
+	private String dosExtension;
 
 	public MockDmFormat(String mimetype) {
 		this.mimeType = mimetype;
@@ -16,6 +17,10 @@ public class MockDmFormat implements IFormat {
 
 	public String getMIMEType() {
 		return mimeType;
+	}
+	
+	public String getDOSExtension() {
+		return dosExtension;
 	}
 
 }

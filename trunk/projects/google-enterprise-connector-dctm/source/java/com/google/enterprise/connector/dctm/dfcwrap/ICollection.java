@@ -19,5 +19,7 @@ public interface ICollection {
 	public void close() throws RepositoryException;
 
 	public int getState();
+	
+	public ISession getSession();
 
 }

@@ -6,4 +6,6 @@ public interface IFormat {
 	public boolean canIndex() throws RepositoryException;
 
 	public String getMIMEType();
+	
+	public String getDOSExtension();
 }
