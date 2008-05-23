@@ -52,9 +52,12 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		ISession session = sessionManager.getSession(sessionManager
 				.getDocbaseName());
 		DctmDocumentList dctmDocumentList = new DctmDocumentList();
-
+	
+		ICollection collec =null;
+		ISessionManager sessionManagerUser = null;
+		
 		try {
-			ISessionManager sessionManagerUser = clientX.getLocalClient()
+			sessionManagerUser = clientX.getLocalClient()
 					.newSessionManager();
 			String ticket = session.getLoginTicketForUser(username);
 			ILoginInfo logInfo = clientX.getLoginInfo();
@@ -73,7 +76,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 			query.setDQL(dqlQuery);
 
-			ICollection collec = query.execute(sessionManagerUser,
+			collec = query.execute(sessionManagerUser,
 					IQuery.READ_QUERY);
 
 			String id = "";
@@ -97,12 +100,20 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 					authorizationResponse = new AuthorizationResponse(false, id);
 				}
 				dctmDocumentList.add(authorizationResponse);
+				logger.info("after dctmDocumentList.add");
 			}
 			collec.close();
+			logger.info("after collec.close");
 		} finally {
+			if(collec.getSession() != null ){
+				sessionManagerUser.release(collec.getSession());
+				logger.info("session of sessionManagerUser released");
+			}
 			if (session != null) {
 				sessionManager.release(session);
+				logger.info("session of sessionManager released");
 			}
+			
 		}
 
 		return dctmDocumentList;

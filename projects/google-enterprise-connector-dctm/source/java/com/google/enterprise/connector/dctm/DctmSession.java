@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -37,6 +38,8 @@ public class DctmSession implements Session {
 	private HashSet included_object_type;
 
 	private String root_object_type;
+	
+	private static Logger logger = null;
 
 	/**
 	 * 
@@ -50,6 +53,11 @@ public class DctmSession implements Session {
 	 * @param root_object_type
 	 * @throws RepositoryException
 	 */
+	
+	static {
+		logger = Logger.getLogger(DctmSession.class.getName());
+	}
+
 
 	public DctmSession(String clientX, String login, String password,
 			String docbase, String wsu, String additionalWhereClause,
@@ -70,8 +78,13 @@ public class DctmSession implements Session {
 			dctmLoginInfo.setUser(login);
 			dctmLoginInfo.setPassword(password);
 			sessionManager.setIdentity(docbase, dctmLoginInfo);
+			
+			logger.info("Session Manager set the identity for "+login);
 
 			session = sessionManager.newSession(docbase);
+			
+			logger.info("Creation of a new session for the docbase "+docbase);
+			
 			this.clientX.setSessionManager(sessionManager);
 
 			webtopServerUrl = wsu;
@@ -87,6 +100,7 @@ public class DctmSession implements Session {
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
+				logger.fine("Session released");
 			}
 		}
 	}

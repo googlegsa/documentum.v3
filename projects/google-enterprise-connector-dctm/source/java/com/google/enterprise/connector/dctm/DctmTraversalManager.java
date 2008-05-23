@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -142,12 +143,13 @@ public class DctmTraversalManager implements TraversalManager {
 	protected DocumentList execQuery(IQuery query) throws RepositoryException {
 		sessionManager.setServerUrl(serverUrl);
 		ICollection collec = null;
+		
 		DocumentList documentList = null;
 		collec = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
-
+		logger.fine("execution of the query returns a collection");
+		
 		documentList = new DctmDocumentList(collec, sessionManager, clientX,
 				isPublic, included_meta, excluded_meta);
-
 		return documentList;
 	}
 
@@ -191,6 +193,7 @@ public class DctmTraversalManager implements TraversalManager {
 			throws RepositoryException {
 		Object[] arguments = { c, uuid, c };
 		String statement = MessageFormat.format(whereBoundedClause, arguments);
+		logger.fine("query after integration of the checkpoint " + statement);
 		return statement;
 	}
 
@@ -216,9 +219,11 @@ public class DctmTraversalManager implements TraversalManager {
 			query.append("' ");
 		}
 		if (this.additionalWhereClause != null) {
+			logger.fine("adding the additionalWhereClause to the query : "+additionalWhereClause);
 			query.append(additionalWhereClause);
 		}
 		if (checkpoint != null) {
+			logger.fine("adding the checkpoint to the query : "+checkpoint);
 			query.append(getCheckpointClause(checkpoint));
 		}
 
@@ -234,6 +239,7 @@ public class DctmTraversalManager implements TraversalManager {
 						+ Integer.toString(batchHint) + ")");
 			}
 		}
+		logger.fine("query completed : "+query.toString());
 		return query.toString();
 	}
 
@@ -250,8 +256,11 @@ public class DctmTraversalManager implements TraversalManager {
 					"checkPoint string does not parse as JSON: " + checkPoint);
 		}
 		String uuid = extractDocidFromCheckpoint(jo, checkPoint);
+		logger.fine("uuid is " + uuid);
 		String c = extractNativeDateFromCheckpoint(jo, checkPoint);
+		logger.fine("native date is " + c);
 		String queryString = makeCheckpointQueryString(uuid, c);
+		logger.fine("queryString is " + queryString);
 		return queryString;
 	}
 

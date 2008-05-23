@@ -8,6 +8,8 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.query.QueryResult;
 
+import com.documentum.fc.client.IDfSession;
+import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSession;
 import com.google.enterprise.connector.dctm.dfcwrap.*;
 import com.google.enterprise.connector.spi.RepositoryException;
 
@@ -87,4 +89,16 @@ public class MockDmCollection implements ICollection {
 		return ICollection.DF_READY_STATE;
 	}
 
+	
+	public ISession getSession(){
+			MockDmClient mockDm=new MockDmClient();
+			ISession session=null;
+			try {
+				session=(ISession)mockDm.getSession(mockDm.getDocbaseName());
+			} catch (RepositoryException e) {
+				e.printStackTrace();
+			}	
+			return session;
+	}
+	
 }
