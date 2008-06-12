@@ -149,13 +149,16 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 			return new DctmSysobjectProperty(name, hashSet);
 		} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
 			return null;
-		} else if (object_id_name.equals(name)) {
+		} 
+		else if (SpiConstants.PROPNAME_ACTION.equals(name)){
+			return null;
+		}
+		else if (object_id_name.equals(name)) {
 			logger.fine("getting the property "+object_id_name);
 			hashSet.add(new StringValue(docId));
 			logger.fine("property "+object_id_name+" has the value "+docId);
 			return new DctmSysobjectProperty(name, hashSet);
 		}
-
 		IAttr attr = object.getAttr(object.findAttrIndex(name));
 		logger.finer("the attribute "+ name + " is in the position "+ object.findAttrIndex(name)+ " in the list of attributes of the fetched object");
 		
