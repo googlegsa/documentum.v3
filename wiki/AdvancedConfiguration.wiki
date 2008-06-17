@@ -21,7 +21,7 @@ There is an example of a simple query to only explore a specific folder:
 
 {{{
 
-And Folder ('/`path_to_add`', descend) 
+And Folder ('/path_to_add', descend) 
 
 }}}
 
