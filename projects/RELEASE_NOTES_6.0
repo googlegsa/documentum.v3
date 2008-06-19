@@ -1,0 +1,26 @@
+
+Google Enterprise Connector for EMC Documentum Content Server 6.0 1.1.0
+			    Release Notes
+
+
+See on-line documentation for latest information:
+
+  * http://code.google.com/p/google-enterprise-connector-dctm/
+
+
+KNOWN ISSUES IN THIS RELEASE:
+=============================
+
+  * http://code.google.com/p/google-enterprise-connector-dctm/issues/list
+
+
+RELEASE 1.1.0, June 16, 2008
+=============================
+
+Summary of changes
+________________
+
+* PushDelete handled
+
+* Issue 21 "Documents without content" fixed 
+
