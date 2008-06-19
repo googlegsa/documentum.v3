@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm;
 
+import java.net.MalformedURLException;
 import java.util.Iterator;
 
 import com.google.enterprise.connector.pusher.DocPusher;
@@ -39,8 +40,14 @@ public class DctmTraversalUtil {
 			return;
 		}
 
-		DocPusher push = new DocPusher(
-				new GsaFeedConnection("8.6.49.36", 19900));
+		DocPusher push=null;
+		try {
+			push = new DocPusher(
+					new GsaFeedConnection("8.6.49.36", 19900));
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// DocPusher push = new DocPusher(new GsaFeedConnection("swp-gsa-demo",
 		// 19900));
 		int counter = 0;
