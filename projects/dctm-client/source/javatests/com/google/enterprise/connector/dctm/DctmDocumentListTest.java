@@ -9,6 +9,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.SpiConstants;
 
 import junit.framework.TestCase;
 
@@ -41,9 +42,9 @@ public class DctmDocumentListTest extends TestCase {
 				.setDQL("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where folder('/test_docs/GoogleDemo',descend)");
 		ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
 
-		documentList = new DctmDocumentList(collec, sessionManager,
+		documentList = new DctmDocumentList(collec, collec, sessionManager,
 				dctmClientX, false, DmInitialize.included_meta,
-				DmInitialize.excluded_meta);
+				DmInitialize.excluded_meta,"","");
 	}
 
 	/*

@@ -42,7 +42,7 @@ public class DctmSysobjectDocumentTest extends TestCase {
 
 		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
 				DmInitialize.DM_ID1, sessionManager, dctmClientX, "false",
-				DmInitialize.included_meta, DmInitialize.excluded_meta);
+				DmInitialize.included_meta, DmInitialize.excluded_meta,SpiConstants.ActionType.ADD);
 
 		Iterator iterator = dctmSpm.getPropertyNames().iterator();
 		int counter = 0;
@@ -56,7 +56,7 @@ public class DctmSysobjectDocumentTest extends TestCase {
 	public void testFindProperty() throws RepositoryException {
 		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
 				DmInitialize.DM_ID2, sessionManager, dctmClientX, "false",
-				DmInitialize.included_meta, DmInitialize.excluded_meta);
+				DmInitialize.included_meta, DmInitialize.excluded_meta,SpiConstants.ActionType.ADD);
 		Property property = dctmSpm.findProperty("keywords");
 		assertTrue(property instanceof DctmSysobjectProperty);
 		Value val = null;
