@@ -11,6 +11,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.SpiConstants;
 
 import junit.framework.TestCase;
 
@@ -52,7 +53,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 
 		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
 				DmInitialize.DM_ID1, sessionManager, dctmClientX, "false",
-				DmInitialize.included_meta, DmInitialize.excluded_meta);
+				DmInitialize.included_meta, DmInitialize.excluded_meta,SpiConstants.ActionType.ADD);
 
 		Iterator iterator = dctmSpm.getPropertyNames().iterator();
 		int counter = 0;
@@ -66,7 +67,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 	public void testFindProperty() throws RepositoryException {
 		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
 				DmInitialize.DM_ID1, sessionManager, dctmClientX, "false",
-				DmInitialize.included_meta, DmInitialize.excluded_meta);
+				DmInitialize.included_meta, DmInitialize.excluded_meta, SpiConstants.ActionType.ADD);
 		Property property = dctmSpm.findProperty("google:docid");
 		assertTrue(property instanceof DctmSysobjectProperty);
 
