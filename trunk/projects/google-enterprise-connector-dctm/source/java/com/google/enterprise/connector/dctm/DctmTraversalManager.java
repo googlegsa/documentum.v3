@@ -28,7 +28,7 @@ public class DctmTraversalManager implements TraversalManager {
 	private String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
 	 
 
-	private String whereBoundedClauseRemove = " and (r_object_id > ''{1}'') OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
+	private String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
 	private String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
 
 	private String serverUrl;

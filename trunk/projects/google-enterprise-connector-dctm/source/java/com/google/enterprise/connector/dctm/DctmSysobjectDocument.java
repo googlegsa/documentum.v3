@@ -128,7 +128,6 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 		logger.fine("In findProperty; name : " + name);
 		logger.fine("action : "+action);
-		logger.fine("SpiConstants.ActionType.ADD : "+SpiConstants.ActionType.ADD);
 
 		if (SpiConstants.ActionType.ADD.equals(action)) {
 			fetch();
