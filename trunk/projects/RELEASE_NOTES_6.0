@@ -21,6 +21,10 @@ Summary of changes
 ________________
 
 * PushDelete handled
-
-* Issue 21 "Documents without content" fixed 
+* Fix Issue 10 : exception thrown when custom metadata of date type has a null value
+* Fix Issue 15 : the connector sends same few docs to connector manager, and crawling stops
+* Fix Issue 16 : document extension, size and Mime type added to the logs
+* Fix Issue 17 : connector authorization issue linked to sessions not correctly closed 
+* Fix Issue 19 : session leaks visible in the logs
+* Fix Issue 21 : exception thrown on documents without content  
 
