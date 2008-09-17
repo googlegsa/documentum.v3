@@ -74,6 +74,8 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		logger.fine("The collection state :" + collectionToAdd.getState());
 		logger.fine("The collection delete state :"+ collectionToAdd.getState());
 		
+		
+		
 		try {
 			if (collectionToAdd.next()) {
 
@@ -89,6 +91,9 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					logger.severe("impossible to get the r_object_id of the document");
 					return null;
 				}
+				
+				
+				
 				
 				dctmSysobjectDocument = new DctmSysobjectDocument(crID, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
@@ -259,5 +264,13 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		}
 
 		return result;
+	}
+
+	protected ICollection getCollectionToAdd() {
+		return collectionToAdd;
+	}
+
+	protected ICollection getCollectionToDel() {
+		return collectionToDel;
 	}
 }

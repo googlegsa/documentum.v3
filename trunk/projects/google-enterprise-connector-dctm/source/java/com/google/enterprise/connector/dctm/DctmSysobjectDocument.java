@@ -148,7 +148,6 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				    logger.fine("this object has no content");
 				   }
 				   return new DctmSysobjectProperty(name, hashSet);
-
 			} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
 				logger.fine("getting the property "+SpiConstants.PROPNAME_DISPLAYURL);
 				hashSet.add(new StringValue(sessionManager.getServerUrl() + docId));
@@ -178,6 +177,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				mimetype = dctmForm.getMIMEType();
 				dosExtension = dctmForm.getDOSExtension();
 				contentSize= object.getContentSize();
+				///modification in order to index empty documents
+				if(contentSize==0){
+					   mimetype="text/plain";
+				}
+				///
 				hashSet.add(new StringValue(mimetype));
 				logger.fine("property "+SpiConstants.PROPNAME_MIMETYPE+" has the value "+mimetype);
 				logger.fine("mimetype of the document "+versionId+" : "+mimetype);
