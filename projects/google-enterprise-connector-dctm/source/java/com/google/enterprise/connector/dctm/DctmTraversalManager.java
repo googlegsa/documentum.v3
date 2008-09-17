@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -41,11 +42,15 @@ public class DctmTraversalManager implements TraversalManager {
 
 	private boolean isPublic;
 
-	private HashSet included_meta;
+	private String included_meta;
 
 	private HashSet excluded_meta;
 
-	private HashSet included_object_type;
+	private String included_object_type;
+	
+	private HashSet hash_included_object_type;
+	
+	private HashSet hash_included_meta;
 
 	private String root_object_type;
 
@@ -59,17 +64,20 @@ public class DctmTraversalManager implements TraversalManager {
 
 	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
 			String additionalWhereClause, boolean isPublic,
-			HashSet included_meta, HashSet excluded_meta,
-			HashSet included_object_type, String root_object_type)
+			String included_meta, HashSet excluded_meta,
+			String included_object_type, String root_object_type)
 	throws RepositoryException {
 		this.additionalWhereClause = additionalWhereClause;
 		setClientX(clientX);
 		setSessionManager(clientX.getSessionManager());
+		
 		this.serverUrl = webtopServerUrl;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
 		this.excluded_meta = excluded_meta;
 		this.included_object_type = included_object_type;
+		setHash_included_object_type(included_object_type);
+		setHash_included_meta(included_meta);
 		this.root_object_type = root_object_type;
 	}
 
@@ -174,7 +182,7 @@ public class DctmTraversalManager implements TraversalManager {
 		logger.fine("execution of the query returns a collection of document to delete");
 		
 		documentList = new DctmDocumentList(collecToAdd,collecToDel, sessionManager, clientX,
-				isPublic, included_meta, excluded_meta, dateFirstPush,checkPoint);
+				isPublic, hash_included_meta, excluded_meta, dateFirstPush,checkPoint);
 		return documentList;
 	}
 
@@ -194,7 +202,7 @@ public class DctmTraversalManager implements TraversalManager {
 		logger.fine("execution of the query returns a collection of document to add");
 
 		documentList = new DctmDocumentList(collecToAdd,collecToDel, sessionManager, clientX,
-				isPublic, included_meta, excluded_meta, dateFirstPush,null);
+				isPublic, hash_included_meta, excluded_meta, dateFirstPush,null);
 		return documentList;
 	}
 
@@ -320,9 +328,9 @@ public class DctmTraversalManager implements TraversalManager {
 		StringBuffer query = new StringBuffer(
 				"select i_chronicle_id, r_object_id, r_modify_date from "
 				+ this.root_object_type);
-		if (!included_object_type.isEmpty()) {
+		if (!hash_included_object_type.isEmpty()) {
 			query.append(" where (");
-			Iterator iter = this.included_object_type.iterator();
+			Iterator iter = hash_included_object_type.iterator();
 			String name = (String) iter.next();
 			query.append(" r_object_type='" + name + "'");
 			while (iter.hasNext()) {
@@ -335,8 +343,17 @@ public class DctmTraversalManager implements TraversalManager {
 			query.append("dm_document");
 			query.append("' ");
 		}
-		if (this.additionalWhereClause != null) {
+		if (this.additionalWhereClause != null && (!this.additionalWhereClause.equals(""))) {
 			logger.fine("adding the additionalWhereClause to the query : "+additionalWhereClause);
+			///adding the "and" operator if not present in the additional where clause (mandatory)
+			if (!this.additionalWhereClause.toLowerCase().startsWith("and ")) {
+				///throw new RepositoryException("[additional] ");
+				logger.log(Level.INFO, "clause does not start with AND : ");
+				this.additionalWhereClause="and ".concat(additionalWhereClause);
+				logger.log(Level.INFO, "after adding AND : "
+						+ additionalWhereClause);
+			}
+			
 			query.append(additionalWhereClause);
 		}
 		if (checkpoint != null) {
@@ -462,5 +479,26 @@ public class DctmTraversalManager implements TraversalManager {
 	public void setPublic(boolean isPublic) {
 		this.isPublic = isPublic;
 	}
+	
+	
+	protected void setHash_included_object_type(String included_object_type){
+		hash_included_object_type = new HashSet();
+		String[] hashTab= included_object_type.split(",");
+		int i = 0;
+		for(i=0;i<hashTab.length;i++){
+			hash_included_object_type.add(hashTab[i]);
+		}
+		this.hash_included_object_type=hash_included_object_type;
+	}
 
+	
+	protected void setHash_included_meta(String included_metadata){
+		hash_included_meta = new HashSet();
+		String[] hashTab= included_metadata.split(",");
+		int i = 0;
+		for(i=0;i<hashTab.length;i++){
+			hash_included_meta.add(hashTab[i]);
+		}
+		this.hash_included_meta=hash_included_meta;
+	}
 }

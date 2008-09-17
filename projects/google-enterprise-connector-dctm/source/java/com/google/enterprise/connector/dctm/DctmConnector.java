@@ -26,20 +26,24 @@ public class DctmConnector implements Connector {
 
 	private String is_public;
 
-	private HashSet included_meta;
+	private String included_meta;
 
 	private HashSet excluded_meta;
 
-	private HashSet included_object_type;
+	private String included_object_type;
 
 	private String root_object_type;
-
+	
+	private String advanced_configuration;
+	
+	private String action_update;
+	
 	private static Logger logger = null;
-
+	
 	static {
 		logger = Logger.getLogger(DctmConnector.class.getName());
 	}
-
+	
 	/**
 	 * Setters for the data retrieved from Spring
 	 * 
@@ -61,12 +65,17 @@ public class DctmConnector implements Connector {
 
 	public void setClientX(String clientX) {
 		this.clientX = clientX;
+		logger.log(Level.INFO, "clientX set to " +clientX);
 	}
 
 	public DctmConnector() {
 		;
 	}
 
+	public DctmConnector(String googleConnectorWorkDir) {
+		;
+	}
+	
 	public Session login() throws RepositoryException {
 		logger.log(Level.INFO, "login in the docbase " + docbase + " and user "
 				+ login + " " + clientX + " " + docbase + " "
@@ -83,6 +92,7 @@ public class DctmConnector implements Connector {
 	}
 	
 	
+
 	public void setAuthentication_type(String authenticationType) {
 		this.authentication_type = authenticationType;
 		logger.log(Level.INFO, "authenticationType set to " +authenticationType);
@@ -106,33 +116,70 @@ public class DctmConnector implements Connector {
 		return authentication_type;
 	}
 
-	public HashSet getIncluded_meta() {
+	public String getIncluded_meta() {
 
 		return included_meta;
 	}
 
-	public void setIncluded_meta(HashSet included_meta) {
-		this.included_meta = included_meta;
+	public String getRoot_object_type() {
+		return root_object_type;
 	}
 
+	public String getIncluded_object_type() {
+		return included_object_type;
+	}
+
+	public String getAdvanced_configuration() {
+		return advanced_configuration;
+	}
+	
+	public String getAction_update() {
+		return action_update;
+	}
+	
+	public void setIncluded_meta(String included_meta) {
+		this.included_meta = included_meta;
+		logger.log(Level.INFO, "included_meta set to " +included_meta);
+	}
+
+	
 	public HashSet getExcluded_meta() {
 		return excluded_meta;
 	}
 
+	public void setAdvanced_configuration(String advanced_configuration) {
+		this.advanced_configuration = advanced_configuration;
+		logger.log(Level.INFO, "advanced_configuration set to " +advanced_configuration);
+	}
+	
 	public void setExcluded_meta(HashSet excluded_meta) {
 		this.excluded_meta = excluded_meta;
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
+		logger.log(Level.INFO, "password set to " +password);
 	}
 
-	public void setIncluded_object_type(HashSet included_object_type) {
+	public void setIncluded_object_type(String included_object_type) {
 		this.included_object_type = included_object_type;
+		logger.log(Level.INFO, "included_object_type set to " +included_object_type);
 	}
 
 	public void setRoot_object_type(String root_object_type) {
 		this.root_object_type = root_object_type;
+		logger.log(Level.INFO, "root_object_type set to " +root_object_type);
 	}
-		
+
+	
+	public void setAction_update(String action_update) {
+		this.action_update = action_update;
+		logger.log(Level.INFO, "action_update set to " +action_update);
+	}
+	
+	
+
+	
+	
+	
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean id="EMC_Documentum_Content_Server_5.2.5_5.3_6.0"
+	<bean id="EMC_Documentum_Content_Server_5.2.5_5.3"
 		class="com.google.enterprise.connector.dctm.DctmConnectorType">
 		<property name="configKeys">
 			<list>
@@ -11,10 +11,36 @@
 				<value>clientX</value>
 				<value>authentication_type</value>
 				<value>webtop_display_url</value>
-				<value>where_clause</value>
 				<value>is_public</value>
+				<value>advanced_configuration</value>
+				<value>action_update</value>
+				<value>where_clause</value>
+				<value>root_object_type</value>
+				<value>included_object_type</value>
+				<value>included_meta</value>
 			</list>
 		</property>
-		
+		<property name="included_meta">
+		<set>
+				<value>object_name</value>
+				<value>r_object_type</value>
+				<value>title</value>
+				<value>subject</value>
+				<value>keywords</value>
+				<value>authors</value>
+				<value>r_creation_date</value>
+				<value>r_modify_date</value>
+				<value>r_content_size</value>
+				<value>a_content_type</value>
+		</set>
+		</property>
+		<property name="included_object_type">
+		<set>
+			<value>dm_document</value>
+		</set>
+		</property>
+		<property name="root_object_type" value="dm_sysobject"/>
+		<property name="authentication_type" value="api"/>
+        <property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX"/>
 	</bean>
 </beans>
