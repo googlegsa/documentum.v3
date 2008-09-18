@@ -416,16 +416,10 @@ public class DctmConnectorType implements ConnectorType {
 		
 		DctmDocumentList result = (DctmDocumentList) qtm.execQuery(query);
 		
-		int counter = 0;
-		while (result.nextDocument() != null) {
-			counter++;
-			break;
-		}
-		
-		result.getCollectionToAdd().close();
-		
-		if (counter == 0) {
+		if (result == null) {
 			throw new RepositoryException("[additionalTooRestrictive]");
+		} else {
+			result.finalize();
 		}
 		
 		return additionalWhereClause;
