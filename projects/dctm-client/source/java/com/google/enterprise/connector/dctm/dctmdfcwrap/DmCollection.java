@@ -1,5 +1,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import java.lang.IllegalStateException;
 import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -17,15 +18,23 @@ public class DmCollection implements ICollection {
 
 	int numberOfRows = 0;
 
+	private boolean didPeek = false;
+	private boolean peekResult;
+	private int peekState;
+
 	private static Logger logger = Logger.getLogger(DmCollection.class
 			.getName());
 
 	public DmCollection(IDfCollection idfCollection) {
 		this.idfCollection = idfCollection;
 		numberOfRows = 0;
+		didPeek = false;
 	}
 
 	public IValue getValue(String attrName) throws RepositoryException {
+		if (didPeek) {
+			throw new IllegalStateException("Cannot access current row after hasNext()");
+		}
 		IDfValue dfValue = null;
 		try {
 			dfValue = idfCollection.getValue(attrName);
@@ -37,7 +46,31 @@ public class DmCollection implements ICollection {
 		return new DmValue(dfValue);
 	}
 
+	/* IDfCollection.DF_NO_MORE_ROWS_STATE is fundamentally broken
+	 * as it is not testable from DF_INITIAL_STATE.	 Therefore, we
+	 * cannot tell if a IDfCollection as more than zero rows without
+	 * calling next() first.	This hasNext() peeks ahead, actually
+	 * calling next() under the covers, then caching the result.
+	 * This has a serious side effect, in that once hasNext() has
+	 * been called, you cannot access data from the "current" row
+	 * (as it is no longer "current"), until you actually call next().
+	 * At this time, hasNext() is only called at the time the collection
+	 * is in DF_INITIAL_STATE, so there is no "current" row.
+	 */
+	public boolean hasNext() throws RepositoryException {
+		if (!didPeek) {
+			peekState = getState();
+			peekResult = next();
+			didPeek = true;
+		}
+		return peekResult;
+	}
+
 	public boolean next() throws RepositoryException {
+		if (didPeek) {
+			didPeek = false;
+			return peekResult;
+		}
 		boolean rep = false;
 
 		try {
@@ -58,6 +91,9 @@ public class DmCollection implements ICollection {
 	}
 
 	public String getString(String colName) throws RepositoryException {
+		if (didPeek) {
+			throw new IllegalStateException("Cannot access current row after hasNext()");
+		}
 		try {
 			logger.finest("column name is "+this.idfCollection.getString(colName));
 			return this.idfCollection.getString(colName);
@@ -70,6 +106,7 @@ public class DmCollection implements ICollection {
 	public void close() throws RepositoryException {
 		logger.info(numberOfRows + " documents have been processed");
 		try {
+			didPeek = false;
 			this.idfCollection.close();
 		} catch (DfException e) {
 			throw new RepositoryException(e);
@@ -77,8 +114,9 @@ public class DmCollection implements ICollection {
 	}
 
 	public int getState() {
-		logger.fine("state of the collection : "+this.idfCollection.getState());
-		return this.idfCollection.getState();
+		int state = (didPeek) ? peekState : this.idfCollection.getState();
+		logger.fine("state of the collection : " + state);
+		return state;
 	}
 	
 	
@@ -89,4 +127,10 @@ public class DmCollection implements ICollection {
 		return new DmSession(dfSession);
 	}
 	
+	protected void finalize() throws RepositoryException {
+		if (getState() != ICollection.DF_CLOSED_STATE) {
+			logger.warning("Open DmCollection getting reaped by GC: " + this);
+			close();
+		}
+	}
 }

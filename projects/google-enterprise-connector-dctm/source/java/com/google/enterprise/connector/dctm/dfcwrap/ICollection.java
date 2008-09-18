@@ -12,6 +12,8 @@ public interface ICollection {
 
 	public IValue getValue(String attrName) throws RepositoryException;
 
+	public boolean hasNext() throws RepositoryException;
+
 	public boolean next() throws RepositoryException;
 
 	public String getString(String colName) throws RepositoryException;

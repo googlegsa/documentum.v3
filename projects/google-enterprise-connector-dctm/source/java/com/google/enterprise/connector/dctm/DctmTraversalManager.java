@@ -176,14 +176,47 @@ public class DctmTraversalManager implements TraversalManager {
 		ICollection collecToDel = null;
 
 		DocumentList documentList = null;
-		collecToAdd = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
-		logger.fine("execution of the query returns a collection of document to add");
-		collecToDel = queryDocToDel.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
-		logger.fine("execution of the query returns a collection of document to delete");
-		
-		documentList = new DctmDocumentList(collecToAdd,collecToDel, sessionManager, clientX,
-				isPublic, hash_included_meta, excluded_meta, dateFirstPush,checkPoint);
-		return documentList;
+		try {
+			if (query != null) {
+				collecToAdd = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
+				logger.fine("execution of the query returns a collection of document to add");
+			}
+			if (queryDocToDel != null) {
+				collecToDel = queryDocToDel.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
+				logger.fine("execution of the query returns a collection of document to delete");
+			}
+			if ((collecToAdd != null && collecToAdd.hasNext()) ||
+					(collecToDel != null && collecToDel.hasNext())) {
+				documentList = new DctmDocumentList(collecToAdd, collecToDel, sessionManager,
+						clientX, isPublic, hash_included_meta, excluded_meta, dateFirstPush, checkPoint);
+			}
+			return documentList;
+		} finally {
+			// No documents to add or delete.	 Return a null DocumentList,
+			// but close the collections first!
+			if (documentList == null) {
+				if (collecToAdd != null) {
+					try {
+						collecToAdd.close();
+						logger.fine("collection of documents to add closed");
+						sessionManager.release(collecToAdd.getSession());
+						logger.fine("collection session released");
+					} catch (RepositoryException e) {
+						logger.severe("Error while closing the collection of documents to add: " + e);
+					}
+				}
+				if (collecToDel != null) {
+					try {
+						collecToDel.close();
+						logger.fine("collection of documents to delete closed");
+						sessionManager.release(collecToDel.getSession());
+						logger.fine("collection session released");
+					} catch (RepositoryException e) {
+						logger.severe("Error while closing the collection of documents to delete: " + e);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -193,17 +226,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 * @throws RepositoryException
 	 */
 	protected DocumentList execQuery(IQuery query) throws RepositoryException {
-		sessionManager.setServerUrl(serverUrl);
-		ICollection collecToAdd = null;
-		ICollection collecToDel = null;
-
-		DocumentList documentList = null;
-		collecToAdd = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
-		logger.fine("execution of the query returns a collection of document to add");
-
-		documentList = new DctmDocumentList(collecToAdd,collecToDel, sessionManager, clientX,
-				isPublic, hash_included_meta, excluded_meta, dateFirstPush,null);
-		return documentList;
+		return this.execQuery(query, null, null);
 	}
 
 	protected IQuery makeCheckpointQuery(String queryString)

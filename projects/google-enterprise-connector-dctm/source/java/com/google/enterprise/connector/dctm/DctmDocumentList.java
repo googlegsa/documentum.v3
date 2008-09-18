@@ -76,6 +76,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		
 		
 		
+		Document retDoc = null;
 		try {
 			if (collectionToAdd.next()) {
 
@@ -100,8 +101,8 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 						excluded_meta,SpiConstants.ActionType.ADD);
 				
 				logger.fine("Creation of a new dctmSysobjectDocument");
-				return dctmSysobjectDocument;
-			} else if (collectionToDel.next()) {
+				retDoc = dctmSysobjectDocument;
+			} else if (collectionToDel != null && collectionToDel.next()) {
 				logger.fine("Looking throw the collection of document to remove");
 				
 				String crID = "";
@@ -125,7 +126,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 						excluded_meta,SpiConstants.ActionType.DELETE);
 				
 				logger.fine("Creation of a new dctmSysobjectDocumentToDel");
-				return dctmSysobjectDocumentToDel;
+				retDoc = dctmSysobjectDocumentToDel;
 				
 			} else {
 				logger.severe("End of document list");
@@ -133,26 +134,11 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		} catch (RepositoryException re) {
 			logger.severe("Error while trying to get next document : "+re);
 			checkpoint();		
-		}
-		
-		try{
-			if (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE) {
-				collectionToAdd.close();
-				logger.fine("collection closed");
-				sessMag.release(collectionToAdd.getSession());
-				logger.fine("collection session released");
-			}
-			if (collectionToDel.getState() != ICollection.DF_CLOSED_STATE) {
-				collectionToDel.close();
-				logger.fine("collection of document to delete closed");
-				sessMag.release(collectionToDel.getSession());
-				logger.fine("collection session released");
-			}
-		}catch (RepositoryException re1){
-			logger.severe("Error while closing in nextDocument()"+re1);
-		}
-		
-		return null;
+		} finally {
+      if (retDoc == null)
+        finalize();
+    }
+		return retDoc;
 	}
 
 	public String checkpoint() throws RepositoryException {
@@ -244,33 +230,41 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			for (int i = 0; i < test.length; i++) {
 				System.out.println(test[i].toString());
 			}
-			collectionToAdd.close();
-			logger.fine("Collection is closed after JSON problem");
 			throw new RepositoryException("Unexpected JSON problem", e);
 		} catch (Exception e) {
 			logger.severe("Collection is closed after problem...");
 		} finally {
-			if (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE) {
-				logger.finer("Verification of the Collection state : not closed");
-				try {
-					collectionToAdd.close();
-					collectionToDel.close();
-					
-				} catch (RepositoryException e) {
-					logger.severe("Error while closing the collection : " + e);
-				}
-				logger.fine("Collection closed");
-			}
+			finalize();
 		}
 
 		return result;
 	}
 
-	protected ICollection getCollectionToAdd() {
-		return collectionToAdd;
-	}
+  // Last chance to make sure the collections are closed and their sessions
+  // are released.
+  public void finalize() {
+    if ((collectionToAdd != null) &&
+        (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE)) {
+      try {
+        collectionToAdd.close();
+        logger.fine("collection of documents to add closed");
+        sessMag.release(collectionToAdd.getSession());
+        logger.fine("collection session released");
+      } catch (RepositoryException e) {
+        logger.severe("Error while closing the collection of documents to add: " + e);
+      }
+    }
 
-	protected ICollection getCollectionToDel() {
-		return collectionToDel;
-	}
+    if ((collectionToDel != null) &&
+        (collectionToDel.getState() != ICollection.DF_CLOSED_STATE)) {
+      try {
+        collectionToDel.close();
+        logger.fine("collection of documents to delete closed");
+        sessMag.release(collectionToDel.getSession());
+        logger.fine("collection session released");
+      } catch (RepositoryException e) {
+        logger.severe("Error while closing the collection of documents to delete: " + e);
+      }
+    }
+  }
 }
