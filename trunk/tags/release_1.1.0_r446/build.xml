@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="GoogleDCTM" default="GoogleDCTM" basedir=".">
+
+	<!-- ========================= PROPERTIES ============================= -->
+	<property name="version" value="1.0" />
+	<property name="Ant-Version" value="Apache Ant 1.6.5" />
+	<property name="Created-By" value="1.5.0_14-b03 (Sun Microsystems Inc.)" />
+	<property name="Implementation-Title" value="Documentum Connector" />
+	<property name="Implementation-Version" value="1.0.2" />
+	<property name="Implementation-Vendor" value="Google Inc." />
+	<property name="Specification-Title" value="Connector Manager SPI" />
+	<property name="Specification-Version" value="1.0 r713" />
+	<property name="Specification-Vendor" value="Google Inc." />
+	<!-- Define Directories. -->
+	<property name="dist" value="dist" />
+	<property name="config" value="google-enterprise-connector-dctm/config" />
+	<property name="jarfile.dir" value="third_party/lib"/>
+	<property name="dctm_jarfile.dir" value="dctm_third_party/lib"/>
+	<property name="core.dir" value="google-enterprise-connector-dctm"/>
+	<property name="core.classes" value="${core.dir}/build/classes" />
+		
+	<property name="build-client" value="dctm-client/build" />
+	<property name="src-client" value="dctm-client/source/java" />
+	<property name="classes-client" value="${build-client}/classes" />	
+	
+	<property name="build-mock" value="google-enterprise-connector-dctm/build" /> 
+	<property name="src-mock" value="google-enterprise-connector-dctm/source/java" />
+	<property name="classes-mock" value="${build-mock}/classes" />
+
+	<property name="jar.dir"  value="${dist}/jar" />
+	<property name="jarfile"  value="${jar.dir}/connector-dctm.jar" />
+	
+	<property name="spi.jarfile" value="${jarfile.dir}/connector-spi.jar" />
+	<property name="cm.jarfile" value="${jarfile.dir}/connector.jar" />
+	<property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
+	<property name="json.jarfile" location="${jarfile.dir}/json.jar" />
+	<property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
+	<property name="commons-http.jarfile" location="${dctm_jarfile.dir}/commons-httpclient-3.0.1.jar" />
+	<property name="spring.jarfile" value="${jarfile.dir}/spring.jar" />
+
+	<!-- =========================== TASKS =============================== -->
+	<target name="GoogleDCTM" depends="init,compile-mock,compile-client,jar">
+		<!-- <target name="GoogleDCTM" depends="init,compile-client,jar"> -->
+	</target>
+
+	<target name="init">
+		<mkdir dir="${dist}" />
+		<mkdir dir="${build-client}" />
+		<mkdir dir="${classes-client}" />
+		<mkdir dir="${build-mock}" />
+		<mkdir dir="${classes-mock}" />
+		<mkdir dir="${jar.dir}" />
+	</target>
+
+	<target name="compile-client" depends="init">
+		<!-- compile java source files -->
+		<javac srcdir="${src-client}" destdir="${classes-client}" debug="${COMPILE_DEBUG_FLAG}">
+			<classpath>
+				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${cm.jarfile}" />
+				<pathelement location="${dfc.jarfile}" />
+				<pathelement location="${json.jarfile}" />
+				<pathelement location="${jcr.jarfile}" />
+				<pathelement location="${spring.jarfile}" />
+				<pathelement location="${core.classes}" />
+
+
+			</classpath>
+		</javac>
+	</target>
+	
+		
+<target name="compile-mock" depends="init">
+		<!-- compile java source files -->
+	<javac srcdir="${src-mock}" destdir="${classes-mock}" debug="${COMPILE_DEBUG_FLAG}">
+			<classpath>
+				<pathelement location="${spring.jarfile}" />
+				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${cm.jarfile}" />
+				<pathelement location="${json.jarfile}" />
+				<pathelement location="${commons-http.jarfile}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" description="connector-dctm">
+		<jar jarfile="${jarfile}">
+			<fileset dir="${config}"/>
+			<fileset dir="${classes-client}"/>
+			<fileset dir="${classes-mock}"/>
+		</jar>
+	</target>
+
+	<target name="clean" description="Deletes all build files.">
+		<delete dir="${build-client}" />
+		<delete dir="${build-mock}" />
+		<delete dir="${dist}" />
+	</target>
+
+</project>
