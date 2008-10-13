@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -34,9 +35,6 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 
 	private HashSet included_meta;
 
-	private HashSet excluded_meta;
-	
-	
 	private String lastCheckPoint;
 	private String dateFirstPush;
 	
@@ -52,15 +50,13 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	}
 
 	public DctmDocumentList(ICollection collToAdd,ICollection collToDel, ISessionManager sessMag,
-			IClientX clientX, boolean isPublic, HashSet included_meta,
-			HashSet excluded_meta, String dateFirstPush,String lastCheckPoint) {
+			IClientX clientX, boolean isPublic, HashSet included_meta, String dateFirstPush,String lastCheckPoint) {
 		this.collectionToAdd = collToAdd;
 		this.collectionToDel = collToDel;
 		this.clientX = clientX;
 		this.sessMag = sessMag;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
-		this.excluded_meta = excluded_meta;
 		this.dateFirstPush = dateFirstPush;
 		this.lastCheckPoint=lastCheckPoint;
 	}
@@ -98,7 +94,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				
 				dctmSysobjectDocument = new DctmSysobjectDocument(crID, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
-						excluded_meta,SpiConstants.ActionType.ADD);
+						SpiConstants.ActionType.ADD);
 				
 				logger.fine("Creation of a new dctmSysobjectDocument");
 				retDoc = dctmSysobjectDocument;
@@ -107,12 +103,12 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				
 				String crID = "";
 				String commonVersionID = "";
-				String lastDeleteDate = null;
+				ITime lastDeleteDate = null;
 				try {
 					crID = collectionToDel.getString("r_object_id");
 					
 					commonVersionID = collectionToDel.getString("chronicle_id");
-					lastDeleteDate = collectionToDel.getString("time_stamp");
+					lastDeleteDate = collectionToDel.getTime("time_stamp");
 					
 					logger.fine("r_object_id is "+crID);
 					
@@ -123,7 +119,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				
 				dctmSysobjectDocumentToDel = new DctmSysobjectDocument(crID, commonVersionID, lastDeleteDate, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
-						excluded_meta,SpiConstants.ActionType.DELETE);
+						SpiConstants.ActionType.DELETE);
 				
 				logger.fine("Creation of a new dctmSysobjectDocumentToDel");
 				retDoc = dctmSysobjectDocumentToDel;

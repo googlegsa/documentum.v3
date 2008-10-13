@@ -16,6 +16,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Property;
@@ -33,7 +34,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 	private String docId;
 	private String commonVersionID;
-	private String timeStamp;
+	private ITime timeStamp;
 
 	private ISysObject object = null;
 
@@ -49,8 +50,6 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 	private HashSet included_meta;
 
-	private HashSet excluded_meta;
-
 	private String object_id_name = "r_object_id";
 
 	private static Logger logger = null;
@@ -62,19 +61,19 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 	public DctmSysobjectDocument(String docid, ISessionManager sessionManager,
 			IClientX clientX, String isPublic, HashSet included_meta,
-			HashSet excluded_meta,SpiConstants.ActionType action) {
+			SpiConstants.ActionType action) {
 		this.docId = docid;
 		this.sessionManager = sessionManager;
 		this.clientX = clientX;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
-		this.excluded_meta = excluded_meta;
 		this.action = action;
 	}
-
-	public DctmSysobjectDocument(String docid, String commonVersionID, String timeStamp, ISessionManager sessionManager,
+	
+	
+	public DctmSysobjectDocument(String docid, String commonVersionID, ITime timeStamp, ISessionManager sessionManager,
 			IClientX clientX, String isPublic, HashSet included_meta,
-			HashSet excluded_meta,SpiConstants.ActionType action) {
+			SpiConstants.ActionType action) {
 		this.docId = docid;
 		this.versionId = commonVersionID;
 		this.timeStamp = timeStamp;
@@ -82,7 +81,6 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		this.clientX = clientX;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
-		this.excluded_meta = excluded_meta;
 		this.action = action;
 	}
 
@@ -125,6 +123,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		long contentSize=0;
 		HashSet hashSet;
 		hashSet = new HashSet();
+		String timeSt = null;
 
 		logger.fine("In findProperty; name : " + name);
 		logger.fine("action : "+action);
@@ -231,7 +230,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 						}
 
 					} catch (Exception e) {
-						logger.warning("exception is thrown when getting the value of index "+ j +" of the attribute "+ name);
+						///logger.warning("exception is thrown when getting the value of index "+ j +" of the attribute "+ name);
 						logger.warning("exception "+e.getMessage());
 						hashSet.add(null);
 						logger.fine("null value added to the hashset");
@@ -254,9 +253,14 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				Calendar tmpCal = Calendar.getInstance();
 				try {
 					logger.fine("time stamp" + timeStamp);
-					Date tmpDt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(timeStamp);
+					logger.fine("pattern44 : "+timeStamp.getTime_pattern44());
+					timeSt = timeStamp.asString(timeStamp.getTime_pattern44());
+					logger.fine("timeSt ="+timeSt);
+
+					Date tmpDt = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(timeSt);
 					tmpCal.setTime(tmpDt);
-					logger.fine("time stamp recupere comme caractere");
+					logger.fine("tmpDt is "+tmpDt);
+					
 				} catch (ParseException e) {
 					logger.fine("Error: wrong last modified date");
 					tmpCal.setTime(new Date());
@@ -295,7 +299,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				IAttr curAttr = object.getAttr(i);
 				String name = curAttr.getName();
 				logger.finest("pass the attribute "+name);
-				if (!excluded_meta.contains(name) || included_meta.contains(name)) {
+				if (included_meta.contains(name)) {
 					properties.add(name);
 					logger.finest("attribute "+name+" added to the properties");
 				}

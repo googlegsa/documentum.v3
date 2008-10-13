@@ -8,10 +8,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 public class DmTime implements ITime {
 
 	private IDfTime idfTime;
-
-	public static String DF_TIME_PATTERN45 = IDfTime.DF_TIME_PATTERN45;
-
-	public static String DF_TIME_PATTERN26 = IDfTime.DF_TIME_PATTERN26;
+	
+	private String time_pattern44 = IDfTime.DF_TIME_PATTERN44;
 
 	public DmTime(IDfTime idfTime) {
 		this.idfTime = idfTime;
@@ -21,6 +19,16 @@ public class DmTime implements ITime {
 		Date date = null;
 		date = idfTime.getDate();
 		return date;
+	}
+	
+	public String asString(String pattern) {
+		String st=null;
+		st = idfTime.asString(pattern);
+		return st;
+	}
+
+	public String getTime_pattern44() {
+		return time_pattern44;
 	}
 
 }

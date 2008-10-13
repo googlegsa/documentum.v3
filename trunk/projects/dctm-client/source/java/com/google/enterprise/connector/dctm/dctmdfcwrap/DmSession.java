@@ -4,12 +4,16 @@ import java.util.logging.Logger;
 
 import com.documentum.fc.client.IDfDocument;
 import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.client.IDfSysObject;
+import com.documentum.fc.client.IDfType;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSession implements ISession {
@@ -75,6 +79,25 @@ public class DmSession implements ISession {
 			throw re;
 		}
 		return new DmDocument(document);
+	}
+	
+	public IType getType(String typeName) throws RepositoryException {
+		IDfType idfType = null;
+		try {
+			idfType = (IDfType) idfSession.getType(typeName);
+		} catch (DfException de) {
+			RepositoryException re = new RepositoryException(de);
+			throw re;
+		}
+		return new DmType(idfType);
+	}
+	
+	public ISessionManager getSessionManager(){
+		IDfSessionManager idfSessmag = null;
+		
+		idfSessmag = (IDfSessionManager) this.idfSession.getSessionManager();
+	
+		return new DmSessionManager(idfSessmag);
 	}
 
 }

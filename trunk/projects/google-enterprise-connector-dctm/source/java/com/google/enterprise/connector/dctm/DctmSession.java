@@ -33,8 +33,6 @@ public class DctmSession implements Session {
 
 	private String included_meta;
 
-	private HashSet excluded_meta;
-
 	private String included_object_type;
 
 	private String root_object_type;
@@ -61,8 +59,7 @@ public class DctmSession implements Session {
 
 	public DctmSession(String clientX, String login, String password,
 			String docbase, String wsu, String additionalWhereClause,
-			boolean isPublic, String included_meta, HashSet excluded_meta,
-			String root_object_type, String included_object_type)
+			boolean isPublic, String included_meta, String root_object_type, String included_object_type)
 			throws RepositoryException {
 		try {
 
@@ -95,7 +92,6 @@ public class DctmSession implements Session {
 			this.isPublic = isPublic;
 			
 			this.included_meta = included_meta;
-			this.excluded_meta = excluded_meta;
 			this.included_object_type = included_object_type;
 			this.root_object_type = root_object_type;
 		} finally {
@@ -110,8 +106,7 @@ public class DctmSession implements Session {
 
 		DctmTraversalManager dctmTm = null;
 		dctmTm = new DctmTraversalManager(clientX, webtopServerUrl,
-				additionalWhereClause, isPublic, included_meta, excluded_meta,
-				included_object_type, root_object_type);
+				additionalWhereClause, isPublic, included_meta, included_object_type, root_object_type);
 		return dctmTm;
 	}
 
