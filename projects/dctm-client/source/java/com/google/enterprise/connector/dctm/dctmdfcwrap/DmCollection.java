@@ -5,11 +5,13 @@ import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.IDfTime;
 import com.documentum.fc.common.IDfValue;
 
 public class DmCollection implements ICollection {
@@ -101,6 +103,17 @@ public class DmCollection implements ICollection {
 
 			throw new RepositoryException(e);
 		}
+	}
+	
+	public ITime getTime(String colName) throws RepositoryException {
+		IDfTime dfTime = null;
+		try {
+			logger.finest("column name is "+this.idfCollection.getTime(colName));
+			dfTime = this.idfCollection.getTime(colName);
+		} catch (DfException e) {
+			throw new RepositoryException(e);
+		}
+		return new DmTime(dfTime);
 	}
 
 	public void close() throws RepositoryException {

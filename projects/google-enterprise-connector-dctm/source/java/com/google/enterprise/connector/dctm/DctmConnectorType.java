@@ -115,7 +115,11 @@ public class DctmConnectorType implements ConnectorType {
 
 	private static final String CHECKED = "CHECKED";
 	
+	private static final String ID = "ID";
 	
+	private IClient client;
+	
+	private IClientX cl = null;
 
 	private ISession sess = null;
 	
@@ -134,6 +138,8 @@ public class DctmConnectorType implements ConnectorType {
 	private String root_object_type = null;
 	
 	private String authentication_type = null;
+	
+	private String advanced_configuration = null;
 	
 	private String clientX = null;
 	
@@ -225,6 +231,13 @@ public class DctmConnectorType implements ConnectorType {
 
 	public ConfigureResponse validateConfig(Map configData, Locale language,
 			ConnectorFactory connectorFactory) {
+		
+		sess= null; 
+		
+		sessMag= null;
+		
+		
+		
 		try {
 			resource = ResourceBundle.getBundle("DctmConnectorResources",
 					language);
@@ -247,9 +260,31 @@ public class DctmConnectorType implements ConnectorType {
 	
 		
 		String validation = validateConfigMap(configData);
-		
+		String additionalWhereClause = null;
+		boolean where_clause_config=false;
+		int status = 0;
 		if (validation.equals("")) {
 			try {
+				
+				logger.info("LOGIN is "+configData.get(LOGIN));
+				logger.info("PASSWORD is "+configData.get(PASSWORD));
+				logger.info("ADVANCEDCONF is "+configData.get(ADVANCEDCONF));
+				logger.info("WHERECLAUSE is "+configData.get(WHERECLAUSE));
+				logger.info("INCLUDED_OBJECT_TYPE is "+configData.get(INCLUDED_OBJECT_TYPE));
+				logger.info("INCLUDED_META is "+configData.get(INCLUDED_META));
+				logger.info("ROOT_OBJECT_TYPE is "+configData.get(ROOT_OBJECT_TYPE));
+				logger.info("ACTIONUPDATE is "+configData.get(ACTIONUPDATE));
+				
+				setSessionManager(configData);
+				
+				
+				ILoginInfo myinfo=sessMag.getIdentity((String)configData.get(DOCBASENAME));
+				String pass=myinfo.getPassword();
+				String user=myinfo.getUser();
+				logger.info("login user : "+user);
+				logger.info("login pass : "+pass);
+				
+				
 				setSession(configData);
 				
 				
@@ -264,19 +299,16 @@ public class DctmConnectorType implements ConnectorType {
 				
 				
 				
-				logger.info("ADVANCEDCONF vaut"+configData.get(ADVANCEDCONF));
-				logger.info("WHERECLAUSE vaut"+configData.get(WHERECLAUSE));
-				logger.info("INCLUDED_OBJECT_TYPE vaut"+configData.get(INCLUDED_OBJECT_TYPE));
-				logger.info("INCLUDED_META vaut"+configData.get(INCLUDED_META));
-				logger.info("ROOT_OBJECT_TYPE vaut"+configData.get(ROOT_OBJECT_TYPE));
-				logger.info("ACTIONUPDATE vaut"+configData.get(ACTIONUPDATE));
-				
+				logger.info("sess before testwebtop:"+sess);
+				status=testWebtopUrl((String) configData.get(DISPLAYURL));
+				logger.info("sess after testwebtop:"+sess);
 
 				
-				///if(((String)configData.get(ADVANCEDCONF)).equals("on") && ((((String)configData.get(ACTIONUPDATE)).equals("checkadvconf"))||(((String)configData.get(ACTIONUPDATE)).equals("addmeta"))||(((String)configData.get(ACTIONUPDATE)).equals("uncheckadvconf")))){ 
-				if(((String)configData.get(ADVANCEDCONF)).equals("on") && ((((String)configData.get(ACTIONUPDATE)).equals("checkadvconf"))||(((String)configData.get(ACTIONUPDATE)).equals("addmeta")))||(((String)configData.get(ACTIONUPDATE)).equals("uncheckadvconf"))){ 
-						
-					logger.info("ADVANCEDCONF on : advanced configuration fields to fill");
+//				display the form again when the advanced conf checkbox is checked and before that the user had saved the configuration
+				if((((String)configData.get(ADVANCEDCONF)).equals("on") && (((String)configData.get(ACTIONUPDATE)).equals("checkadvconf")||
+						((String)configData.get(ACTIONUPDATE)).equals("addmeta")))||((String)configData.get(ACTIONUPDATE)).equals("uncheckadvconf")){ 
+					
+					logger.info("CASE ADVANCEDCONF SET TO on or ACTIONUPDATE set to uncheckadvconf");
 					
 					
 					form = makeValidatedForm(configData);
@@ -287,71 +319,97 @@ public class DctmConnectorType implements ConnectorType {
 				}
 				
 				
-				
-				/*
-				if (((String)configData.get(ACTIONUPDATE)).equals("uncheckadvconf")){
-					logger.info("ACTIONUPDATE uncheckadvconf : reload");
-					
-								
-					form = makeValidatedForm(configData);
-					
-					return new ConfigureResponse("", form);
-				}
-				*/
-
 				if ((String) configData.get(WHERECLAUSE) != null
 						&& !((String) configData.get(WHERECLAUSE)).equals("") ) {
-					DctmTraversalManager qtm = (DctmTraversalManager)((DctmSession)sess).getTraversalManager();
 
-					String additionalWhereClause= checkAdditionalWhereClause((String) configData.get("where_clause"), qtm);
-					configData.put("where_clause",additionalWhereClause);
-					configData.put((ACTIONUPDATE),"checkadvconf");
-					logger.info("where_clause is now "+additionalWhereClause);
+						///qtm = (DctmTraversalManager)((DctmSession)sess).getTraversalManager();
+						
+	
+						///String additionalWhereClause= checkAdditionalWhereClause((String) configData.get("where_clause"), qtm);
+					 	where_clause_config = true;
+						additionalWhereClause= checkAdditionalWhereClause((String) configData.get("where_clause"));
 					
 					
-					p.putAll(configData);
-					cfg.setProperties(p);
-					logger.info("after set properties : where_clause of configData is now "+configData.get("where_clause"));
-				}
+						configData.put("where_clause",additionalWhereClause);
+						configData.put((ACTIONUPDATE),"checkadvconf");
+						logger.info("where_clause is now "+additionalWhereClause);
+						
+						
+						p.putAll(configData);
+						cfg.setProperties(p);
+						logger.info("after set properties : where_clause of configData is now "+configData.get("where_clause"));
+					
+						
+					///} catch (RepositoryException e) {
+						//return the config form with an error message (written in red)
+						///return createErrorMessage(configData, e);
+					///}
+					
+					}
 				
 				
-				testWebtopUrl((String) configData.get(DISPLAYURL));
+			
 				
 			} catch (RepositoryException e) {
-				return createErrorMessage(configData, e);
-
-			} finally {
-				if(sess!=null){
-					sessMag.release(sess);
+				
+				if (where_clause_config == false||(where_clause_config == true && additionalWhereClause != null)&&(status==200)){
+					//uncheck the advanced configuration checkbox except if the 
+					configData.put(ADVANCEDCONF,"off");
+					logger.info("ADVANCEDCONF set to "+configData.get(ADVANCEDCONF));
 				}
+				
+				
+				logger.info("RepositoryException thrown in validateconfig "+e.getMessage());
+//				return the config form with an error message (written in red)
+				return createErrorMessage(configData, e);
 			}
-			return null;
+			
+			
+			
+		logger.info("sess before return null"+sess);	
+		return null;
+		
+		
 		}
 
-		/*
-		try {
-			setSession(configData);
-			form = makeValidatedForm(configData);
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if(sess!=null){
-				sessMag.release(sess);
-			}
-		}
-		*/
+//		return the config form with an error message (written in red) indicating the name of the missing parameter
+		logger.info("if validation returns smthg");
+		logger.info("sess :"+sess);
+		configData.put(ADVANCEDCONF,"off");
 		
+		form = makeValidatedForm(configData);
 		
 		return new ConfigureResponse(resource.getString(validation + "_error"),
-				"<p><font color=\"#FF0000\">"
-				+ resource.getString(validation + "_error")
-				+ "</font></p><br>" + form);
-
+				form);
+		
 	}
 
 	public ConfigureResponse getPopulatedConfigForm(Map configMap,
 			Locale language) {
+		logger.info("getConfigForm");
+			
+		
+		for (Iterator i = keys.iterator(); i.hasNext();) {
+			String key = (String) i.next();
+			String val = (String) configMap.get(key);
+			if(key.equals("advanced_configuration")&&val==null){
+				val=getAdvanced_configuration();
+				configMap.put(key,val);
+			}else if(key.equals("clientX")&&(val==null||val.equals(""))){
+				val=getClientX();
+				configMap.put(key,val);
+			}else if(key.equals("authentication_type")&&(val==null||val.equals(""))){
+				val=getAuthentication_type();
+				configMap.put(key,val);
+			}else if(key.equals("root_object_type")&&val==null){
+				val=getRoot_object_type();
+				configMap.put(key,val);
+			}
+			
+			logger.info("in getConfigForm before spring process key "+key+" is "+val);
+		}
+		
+		
 		try {
 			resource = ResourceBundle.getBundle("DctmConnectorResources",
 					language);
@@ -360,12 +418,8 @@ public class DctmConnectorType implements ConnectorType {
 		}
 		
 		
-		
 		ConfigureResponse result = new ConfigureResponse("",
 				makeValidatedForm(configMap));
-		
-	
-
 		return result;
 	}
 
@@ -397,43 +451,71 @@ public class DctmConnectorType implements ConnectorType {
 				+ form);
 	}
 
-	private String checkAdditionalWhereClause(String additionalWhereClause,
-			DctmTraversalManager qtm) throws RepositoryException {
+	private String checkAdditionalWhereClause(String additionalWhereClause) throws RepositoryException {
 
-		logger.log(Level.INFO, "check additional where clause : "
-				+ additionalWhereClause);
-
-		IQuery query = qtm.getClientX().getQuery();
-		String dql="select r_object_id from dm_sysobject where r_object_type='dm_document' ";
-		if (!additionalWhereClause.toLowerCase().startsWith("and ")) {
-			query
-			.setDQL(dql+"and "
-					+ additionalWhereClause);
-		}else{
-			query
-			.setDQL(dql+ additionalWhereClause);
+		ICollection collec = null;
+		int counter = 0;
+		
+		try{
+			logger.info("check additional where clause : " + additionalWhereClause);
+	
+			IQuery query = cl.getQuery();
+			String dql="select r_object_id from dm_sysobject where r_object_type='dm_document' ";
+			if (!additionalWhereClause.toLowerCase().startsWith("and ")) {
+				query
+				.setDQL(dql+"and "
+						+ additionalWhereClause);
+			}else{
+				query
+				.setDQL(dql+ additionalWhereClause);
+			}
+			
+			collec = query.execute(sessMag, IQuery.EXECUTE_READ_QUERY);
+				
+			
+			while (collec.next()) {
+				counter++;
+				break;
+			}
+			
+		}catch (RepositoryException re){
+			logger.info("throw "+re);
+			throw new RepositoryException (re);
+		}finally{
+			try{
+				if(collec!=null){
+					if (collec.getState() != ICollection.DF_CLOSED_STATE){
+						collec.close();
+						logger.info("after closing the collection");
+						sessMag.release(collec.getSession());
+						logger.info("after releasing the session");
+					}	
+				}	
+			}catch (RepositoryException re){
+				throw new RepositoryException (re);
+			}
+			
 		}
 		
-		DctmDocumentList result = (DctmDocumentList) qtm.execQuery(query);
-		
-		if (result == null) {
+		if (counter == 0) {
 			throw new RepositoryException("[additionalTooRestrictive]");
-		} else {
-			result.finalize();
 		}
 		
 		return additionalWhereClause;
 
 	}
 
-	private void testWebtopUrl(String webtopServerUrl)
+	private int testWebtopUrl(String webtopServerUrl)
 	throws RepositoryException {
 		logger.log(Level.INFO, "test connection to the webtop server : "
 				+ webtopServerUrl);
 		HttpClient client = new HttpClient();
 		GetMethod getMethod = new GetMethod(webtopServerUrl);
+		int status = 0;
 		try {
-			int status = client.executeMethod(getMethod);
+			status = client.executeMethod(getMethod);
+			
+			
 			if (status != 200) {
 
 				logger.log(Level.INFO, "status " + status);
@@ -450,6 +532,8 @@ public class DctmConnectorType implements ConnectorType {
 			RepositoryException re = new RepositoryException("[IOException]", e);
 			throw new RepositoryException(re);
 		}
+		
+		return status;
 
 	}
 
@@ -467,7 +551,7 @@ public class DctmConnectorType implements ConnectorType {
 		return "";
 	}
 
-	private String makeValidatedForm(Map configMap) {
+	private String makeValidatedForm(Map configMap){
 		StringBuffer buf = new StringBuffer();
 		
 		String value = "";
@@ -475,22 +559,22 @@ public class DctmConnectorType implements ConnectorType {
 		HashSet hashIncludedType;
 		String rootType = "";
 		String actionUpdate = "";
-		Resource res;
+		Resource res = null;
+		String returnMessage = "";
 
 		int cpt=0;
-		
+		ICollection collecTypes = null;
+		String advConf="";
 	
 		
 
 		logger.info("in makeValidatedForm");
 		
-		
+		//javascript functions used to 
 		buf.append("<script type=\"text/javascript\"><!--    \n");
 		
 	
 		buf.append("function insertIncludeMetas() { \n");
-		///buf.append("alert('includeMetas');");
-		///buf.append("alert(document.getElementById('CM_included_meta'));\n");
 		buf.append("var txtIncludeMetas = document.getElementById('CM_included_meta');\n");
 		buf.append("var selectedArray = new Array();\n");
 		buf.append("var selObj = document.getElementById('CM_included_meta_bis');\n");
@@ -498,14 +582,10 @@ public class DctmConnectorType implements ConnectorType {
 		buf.append("var i;\n");
 		buf.append("var count = 0;\n");
 		buf.append("for (i=0; i<selObj.options.length; i++) {\n");
-		///buf.append("if (selObj.options[i].selected) {\n");
 		buf.append("selectedArray[count] = selObj.options[i].value;\n");
 		buf.append("count++;\n");
-		///buf.append("}\n");
 		buf.append("}\n");
 		buf.append("txtIncludeMetas.value = selectedArray;\n");
-		///buf.append("alert(txtIncludeMetas.value);\n");
-		///buf.append("alert(txtIncludeMetas.value);\n");
 		buf.append("}\n"); 
 		
 
@@ -525,30 +605,25 @@ public class DctmConnectorType implements ConnectorType {
 	
 		buf.append("}\n");
 		buf.append("txtIncludeTypes.value = selectedArray;\n");
-		///buf.append("alert(txtIncludeTypes.value);\n");
-		///buf.append("alert(txtIncludeTypes.value);\n");
 		buf.append("}\n"); 
 		buf.append("  //--> </script>  ");
 		
 
 		try {
-			ICollection collecTypes = null;
-			String advConf="";
-			res = new ClassPathResource("config/connectorInstance.xml");
-			logger.info("after config/connectorInstance.xml");
 			
-		
 			
-		
-			if((sess!=null)){ 
+			
+			//if configmap is not null : it is not the first time the form is displayed
+			//parameters are loaded from the .properties file	
+			if((configMap!=null)){
 				rootType=(String)configMap.get(ROOT_OBJECT_TYPE);
 				logger.info("rootType from configmap : "+rootType);
 				advConf=(String)configMap.get(ADVANCEDCONF);
 				logger.info("advConf from configmap : "+advConf);
 				actionUpdate=(String)configMap.get(ACTIONUPDATE);
-				logger.info("actionUpdate from configmap : "+actionUpdate);
-				                                      
-
+				logger.info("actionUpdate from configmap : "+actionUpdate);			
+			//if configmap is null : it is the first time the form is displayed.
+			//parameters are loaded from the connectorType.xml file	
 			}else{
 				logger.info("value de rootObjectType null : get from connectorInstance");
 				rootType=getRoot_object_type();
@@ -557,8 +632,9 @@ public class DctmConnectorType implements ConnectorType {
 			}
 			
 			
-			
+			//loop of the config parameters 
 			for (Iterator i = keys.iterator(); i.hasNext();) {
+					
 				String key = (String) i.next();
 				///logger.log(Level.INFO,"key vaut "+key);
 				if (configMap != null) {
@@ -577,10 +653,10 @@ public class DctmConnectorType implements ConnectorType {
 					
 					value = "";
 				} else {
-
-					///if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE) && !key.equals(WHERECLAUSE)) {
 					if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE) && !key.equals(ADVANCEDCONF)) {
 						appendStartRow(buf, resource.getString(key));
+						
+					//creation of a hidden fields for the checkboxes 	
 					}else {
 						appendStartHiddenRow(buf);
 					}
@@ -588,10 +664,12 @@ public class DctmConnectorType implements ConnectorType {
 						appendDropDownListAttribute(buf, TYPE, value);
 
 					}else if(key.equals(INCLUDED_META)){
-						
-						if((sess != null)&&(!actionUpdate.equals("uncheckadvconf"))){
+						//if the form is not displayed for the first time (modification) and the advanced conf checkbox is checked
+						if((sess != null)&&(!actionUpdate.equals("uncheckadvconf")&&(advConf.equals("on")))){
+						///if((sess != null)&&(!actionUpdate.equals("uncheckadvconf"))){
 							logger.info("cas actionUpdate not uncheckadvconf");
-
+							
+							//properties are displayed according to the values stored in the .properties file
 							appendSelectMultipleIncludeMetadatas(buf,INCLUDED_META,configMap);
 							
 							logger.info("after closing the collection");
@@ -603,9 +681,10 @@ public class DctmConnectorType implements ConnectorType {
 							
 							logger.info("cas actionUpdate uncheckadvconf or no sess");
 							
-							hashIncludedMeta=getSetfromXML(INCLUDED_META,res);
+							//properties from connectorType.xml file are loaded in a hashset
+							hashIncludedMeta=getSetfromXML(INCLUDED_META);
 	
-							
+							//properties are displayed according to the default values stored in the connectorType.xml file
 							appendSelectMultipleIncludeMetadatas(buf,INCLUDED_META,hashIncludedMeta);
 							
 							buf.append("</table>");
@@ -615,7 +694,7 @@ public class DctmConnectorType implements ConnectorType {
 
 						
 						
-					}else if(key.equals(ACTIONUPDATE)){
+					///}else if(key.equals(ACTIONUPDATE)){
 						
 						
 					}else if(key.equals(ADVANCEDCONF)){
@@ -628,23 +707,25 @@ public class DctmConnectorType implements ConnectorType {
 				
 					}else if(key.equals(INCLUDED_OBJECT_TYPE)){
 						
-						if((sess != null)&&(!actionUpdate.equals("uncheckadvconf"))){
-														   
-						///if(configMap !=null){
-						///if(advConf == "on"){
-							logger.info("cas actionUpdate not uncheckadvconf");
+						if((sess != null)&&(!actionUpdate.equals("uncheckadvconf")&&(advConf.equals("on")))){
+						///if((sess != null)&&(!actionUpdate.equals("uncheckadvconf"))){			   
+							logger.info("cas actionUpdate = "+actionUpdate);
 							
+							//creation of a collection of all Dctm types whose super_name attribute is not empty
 							collecTypes=getListOfTypes(rootType);
 							
+							//properties are displayed according to the values stored in the .properties file
 							appendSelectMultipleIncludeTypes(buf,INCLUDED_OBJECT_TYPE,collecTypes,configMap);
 							
-							collecTypes.close();
-							logger.info("after closing the collection");
 						}else{	
 							logger.info("cas actionUpdate uncheckadvconf or no sess");
 							hashIncludedType=null;
-							hashIncludedType=getSetfromXML(INCLUDED_OBJECT_TYPE,res);
+							
+							//properties from connectorType.xml file are loaded in a hashset
+							hashIncludedType=getSetfromXML(INCLUDED_OBJECT_TYPE);
 							logger.info("after getSetfromXML de "+INCLUDED_OBJECT_TYPE);
+							
+							//properties are displayed according to the default values stored in the connectorType.xml file
 							appendSelectMultipleIncludeTypes(buf,INCLUDED_OBJECT_TYPE,hashIncludedType,rootType);
 							
 							logger.info("after appendSelectMultiple");
@@ -678,14 +759,18 @@ public class DctmConnectorType implements ConnectorType {
 						} else if (key.equals(DCTMCLASS)) {
 							appendAttribute(buf, TYPE, HIDDEN);
 							value=getClientX();
-						} else if (key.equals(AUTHENTICATIONTYPE)) {
+						} else if (key.equals(AUTHENTICATIONTYPE)) { 
 							appendAttribute(buf, TYPE, HIDDEN);
 							value=getAuthentication_type();
+						} else if (key.equals(ACTIONUPDATE)) {
+							appendAttribute(buf, TYPE, HIDDEN);
+							value="save";
 						} else {
 							appendAttribute(buf, TYPE, TEXT);
 						}
 						appendAttribute(buf, VALUE, value);
 						appendAttribute(buf, NAME, key);
+						appendAttribute(buf, ID, key);
 						appendEndRow(buf);
 						value = "";
 					}
@@ -716,26 +801,34 @@ public class DctmConnectorType implements ConnectorType {
 
 
 			
-		} catch (RepositoryException e1) {
+		 } catch (RepositoryException e1) {
+			
+			 e1.printStackTrace();
+			 ///returnMessage =   createErrorMessage(e1);
+			 ///return(returnMessage + "<br>"+ buf);
+					
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}/*finally{
+			
+		}finally{
 			
 				if(sess!=null){
+				///if((advConf.equals("true"))&&(sess!=null)){
+					
 					sessMag.release(sess);
+					logger.info("session released ");
+					
 				}
 			
-		}*/
+		}
+		
+		
 		
 		
 		return buf.toString();
 	}
 
-
-	
-	private void setSession(Map LogMap) throws RepositoryException{
-		IClientX cl = null;
-		logger.info("SET SESSION");
+	private void setSessionManager(Map LogMap) throws RepositoryException {
+		ILoginInfo loginInfo;
 		try {
 			cl = (IClientX) Class
 			.forName(
@@ -770,72 +863,71 @@ public class DctmConnectorType implements ConnectorType {
 					e);
 
 		}
-		IClient client;
 		
-		ILoginInfo loginInfo;
+		;
+		
+		client = cl.getLocalClient();
+		sessMag=client.newSessionManager();
+		sessMag.clearIdentity((String)LogMap.get(DOCBASENAME));
+		logger.info("after clearIdentity for docbase : "+(String)LogMap.get(DOCBASENAME));
+		loginInfo = cl.getLoginInfo();
+		loginInfo.setUser((String)LogMap.get(LOGIN));
+		logger.info("after setIdentity for login : "+(String)LogMap.get(LOGIN));
+		loginInfo.setPassword((String)LogMap.get(PASSWORD));
+		sessMag.setIdentity((String)LogMap.get(DOCBASENAME),loginInfo);
+		sessMag.setDocbaseName((String)LogMap.get(DOCBASENAME));
+		logger.info("after setIdentity for docbase : "+(String)LogMap.get(DOCBASENAME));
+		logger.info("new sessionManager");
+	}
+	
+	
+	private void setSession(Map LogMap) throws RepositoryException{
 
-		
 		if (LogMap != null) {
 			Iterator i = new TreeSet(LogMap.keySet()).iterator();
 			while (i.hasNext()) {
 				String key = (String) i.next();
 				String val = (String) LogMap.get(key);
-				logger.info("key "+key+" vaut "+val);
+				///logger.info("key "+key+" vaut "+val);
 			}
 		}
 		
-		client = cl.getLocalClient();
-		sessMag=client.newSessionManager();
-		logger.info("in getTypes : après getSMger");
 		logger.info("login vaut "+(String)LogMap.get(LOGIN));
 		logger.info("password vaut "+(String)LogMap.get(PASSWORD));
 		logger.info("docbase vaut "+(String)LogMap.get(DOCBASENAME));
 		
-		loginInfo = cl.getLoginInfo();
-		loginInfo.setUser((String)LogMap.get(LOGIN));
-		loginInfo.setPassword((String)LogMap.get(PASSWORD));
-		logger.info("before setIdentity for docbase : "+(String)LogMap.get(DOCBASENAME));
-		sessMag.setIdentity((String)LogMap.get(DOCBASENAME),loginInfo);
-		sessMag.setDocbaseName((String)LogMap.get(DOCBASENAME));
+		
+		
 		sess=sessMag.getSession((String)LogMap.get(DOCBASENAME));
-		logger.info("in getTypes : après getSession");
-
+		
 	}
 	
 	
-	private HashSet getSetfromXML(String setName,Resource res){
+	private HashSet getSetfromXML(String setName){
 		HashSet hash=new HashSet();
 		logger.info("in getSetfromXML");
-		///Resource res = new ClassPathResource("config/connectorInstance.xml");
-		///XmlBeanFactory factory = new XmlBeanFactory(res);
-		///DctmConnector conn=(DctmConnector)factory.getBean("DctmConnectorInstance");
-
-
+		
 		if(setName.equals(INCLUDED_META)){
 			logger.info("dans included_meta");
-			///hashMeta=conn.getIncluded_meta();
 			hash=getIncluded_meta();
 		}else if(setName.equals(INCLUDED_OBJECT_TYPE)){
 			logger.info("dans Included_object_type");
-			///hashMeta=conn.getIncluded_object_type();
 			hash=getIncluded_object_type();
 			
 		}
 		return(hash);
 	}
 
-	private ICollection getListOfTypes(String root_object_type){
+private ICollection getListOfTypes(String root_object_type){
 		
-		IClientX clX = null;
+		
 		IQuery que = null;
 		String queryString="";
 		ICollection collec = null;
 		try {
 			
 			logger.info("docbase of sessMag vaut "+sessMag.getDocbaseName());
-			clX = (IClientX) Class.forName("com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX").newInstance();
-			que=clX.getQuery();
-			///queryString="select * from dm_type where super_name = '"+root_object_type+"'";
+			que=cl.getQuery();
 			queryString="select * from dm_type where super_name != '' order by r_object_id";
 			logger.info("queryString : "+queryString);
 			que.setDQL(queryString);
@@ -850,27 +942,6 @@ public class DctmConnectorType implements ConnectorType {
 		} catch (RepositoryException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InstantiationException e) {
-			logger
-			.log(
-					Level.SEVERE,
-					"error while building the configuration form. The docbase will be added manually. ",
-					e);
-
-		} catch (IllegalAccessException e) {
-			logger
-			.log(
-					Level.SEVERE,
-					"error while building the configuration form. The docbase will be added manually. ",
-					e);
-
-		} catch (ClassNotFoundException e) {
-			logger
-			.log(
-					Level.SEVERE,
-					"error while building the configuration form. The docbase will be added manually. ",
-					e);
-
 		} catch (NoClassDefFoundError e) {
 			logger
 			.log(
@@ -885,438 +956,439 @@ public class DctmConnectorType implements ConnectorType {
 	
 	
 	
+private void appendSelectMultipleIncludeTypes(StringBuffer buf,String name,ICollection collecTypes,Map configMap) throws RepositoryException{
 	
-	private void appendSelectMultipleIncludeTypes(StringBuffer buf,String name,ICollection collecTypes,Map configMap){
-		
-		logger.info("in SelectMultipleIncludeTypesDyn");
-		String type;
-		String super_type;
-		String typeList[];
-		String stTypes = null;
-		
-		stTypes=((String)configMap.get(INCLUDED_OBJECT_TYPE));
-		///stTypes="dm_document,dm_folder";
-		typeList=stTypes.split(",");
-		
-		HashSet hashTypes=new HashSet();
-		HashSet hashDctmTypes=new HashSet();
-		for (int x=0; x<typeList.length; x++){
-			hashTypes.add(typeList[x]);
-		}
-		
-		
-		buf.append("<script type=\"text/javascript\"> " +
-				"var selOptions = new Array(); " +
-				"function swap(listFrom, listTo){" +
-					"fromList=document.getElementsByName(listFrom)[0];" +
-					"toList = document.getElementsByName(listTo)[0];" +
-					"var i;" +
-					"var count = 0;" +
-					
-					///"alert(fromList.options.length);" +
-					"for(i=0;i<fromList.options.length;i++){" +
-						"if (fromList.options[i].selected) {" +
-							"count++;" +
-							///"alert('option '+i+' selected');" +
-							///"alert('count = '+count);" +
-						"}" +
-						"if ((count == fromList.options.length)&&(listFrom=='CM_included_object_type_bis')){" +
-							"alert('You need to select at least one object type');" +
-							"return false;" +  
-						"}" +
-						"if ((count == fromList.options.length)&&(listFrom=='CM_included_meta_bis')){" +
-							"alert('You need to select at least one property');" +
-							"return false;" +  
-						"}" +
-						
-					"}" +
-					///"alert('selectedIndex = '+fromList.selectedIndex);" +
-					"while (fromList.selectedIndex != -1)" +
-					"{ " +
-						"addOption(toList,fromList.options[fromList.selectedIndex]); " +
-						"fromList.options[fromList.selectedIndex] = null;" +
-					" }" +
-				" } " +
-				"function addOption(list, option){" +
-					" list.options[list.options.length]=new Option(option.value,option.value);" +
-				" } " +
-				"function selectAll(select){"+
-					"for (var i = 0; i < document.getElementById(select).length; i++)"+
-					"{"+
-						"document.getElementById(select).options[i].selected = true;"+
-					"}"+
-				"}"+
-		"</script>");
-		buf.append(SELECT_START);
-		buf.append(" " + NAME);
-		buf.append("=\"");
-		buf.append("included_object_type_toinclude");
-		buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" >\n");
-		
-		
-		try {
-			if(((String)configMap.get(ADVANCEDCONF)).equals("on")){
-				while(collecTypes.next()) {
-					///type = collecTypes.getString("r_object_type");
-					type = collecTypes.getString("name");
-					logger.info("type : "+type);
-					super_type = collecTypes.getString("super_name");
-					logger.info("super type : "+super_type);
-					if(!hashTypes.contains(type)&&(hashDctmTypes.contains(super_type)||super_type.equals("dm_sysobject")||hashTypes.contains(super_type))){
-						hashDctmTypes.add(type);
-						logger.info("added type : "+type);
-						buf.append("<option value=\""+type+"\">");
-						buf.append(type+"\n");
-					}	
-				}
-			}	
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		buf.append(SELECT_END);
-		buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
-		buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
-		
-		
-		buf.append(SELECT_START);
-		buf.append(" " + NAME);
-		buf.append("=\"");
-		buf.append("included_object_type_bis");
-		buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" ID=\"CM_included_object_type_bis\" >\n");
-		
-		if (!hashTypes.isEmpty()) {
-			Iterator iter = hashTypes.iterator();
-			
-			while (iter.hasNext()) {
-				///logger.info("appendSelectMultiple "+name+" type vaut "+type);
-				type = (String) iter.next();
-				buf.append("<option value=\""+type+"\">");
-				buf.append(type+"\n");
-			}
-		}
-		
-		buf.append(SELECT_END);
-		buf.append(TD_END);
-		buf.append(TR_END);
-		buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\""+stTypes+"\"></td></tr>");	
-		
-		
-		/*
-		try {
-			collecTypes.close();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		
+	logger.info("in SelectMultipleIncludeTypes with collectoin parameter");
+	String type;
+	String super_type;
+	String typeList[];
+	String stTypes = null;
+	
+	stTypes=((String)configMap.get(INCLUDED_OBJECT_TYPE));
+	///stTypes="dm_document,dm_folder";
+	typeList=stTypes.split(",");
+	
+	HashSet hashTypes=new HashSet();
+	HashSet hashDctmTypes=new HashSet();
+	for (int x=0; x<typeList.length; x++){
+		hashTypes.add(typeList[x]);
 	}
-	private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name,
-			HashSet hash, String superData) throws RepositoryException {
-
-		logger.info("in appendSelectMultipleIncludeTypes");
-
-		String stTypes="";
-		String type;
-		buf.append("<script type=\"text/javascript\"> " +
-				"var selOptions = new Array(); " +
-				"function swap(listFrom, listTo){" +
-					"fromList=document.getElementsByName(listFrom)[0]; " +
-					"toList = document.getElementsByName(listTo)[0]; " +
-					"while (fromList.selectedIndex != -1)" +
-					"{ " +
-						"addOption(toList,fromList.options[fromList.selectedIndex]); " +
-						"fromList.options[fromList.selectedIndex] = null;" +
-					" }" +
-				" } " +
-				"function addOption(list, option){" +
-					///" list.options[list.options.length]=new Option(option.innerHTML,option.value);" +
-				" list.options[list.options.length]=new Option(option.value,option.value);" +
-				" } " +
-				"function selectAll(select){"+
-					"for (var i = 0; i < document.getElementById(select).length; i++)"+
-					"{"+
-						"document.getElementById(select).options[i].selected = true;"+
-					"}"+
-				"}"+
-		"</script>");
-		buf.append(SELECT_START);
-		buf.append(" " + NAME);
-		buf.append("=\"");
-		buf.append("included_object_type_toinclude");
-		buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" >\n");
-
-		
-		buf.append(SELECT_END);
-		///buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');selectAll('CM_included_object_type_bis');\"></input>");
-		///buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');selectAll('CM_included_object_type_bis');\"></input>");
-		
-		buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');\"></input>");
-		buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');\"></input>");
-		
-		buf.append(SELECT_START);
-		buf.append(" " + NAME);
-		buf.append("=\"");
-		buf.append("included_object_type_bis");
-		buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" ID=\"CM_included_object_type_bis\" >\n");
-		
-
-		
-		///
-		if (!hash.isEmpty()) {
-			Iterator iter = hash.iterator();
-			
-			while (iter.hasNext()) {
-				///logger.info("appendSelectMultiple "+name+" type vaut "+type);
+	
+	//javascript functions used to pass an item from a select list to another one 
+	buf.append("<script type=\"text/javascript\"> " +
+			"var selOptions = new Array(); " +
+			"function swap(listFrom, listTo){" +
+				"fromList=document.getElementsByName(listFrom)[0];" +
+				"toList = document.getElementsByName(listTo)[0];" +
+				"var i;" +
+				"var count = 0;" +
 				
-				type = (String) iter.next();
-				///last modif
-				stTypes=stTypes.concat(type+",");
-				buf.append("<option value=\""+type+"\">");
-				buf.append(type+"\n");
+				///"alert(fromList.options.length);" +
+				"for(i=0;i<fromList.options.length;i++){" +
+					"if (fromList.options[i].selected) {" +
+						"count++;" +
+						///"alert('option '+i+' selected');" +
+						///"alert('count = '+count);" +
+					"}" +
+					"if ((count == fromList.options.length)&&(listFrom=='CM_included_object_type_bis')){" +
+						"alert('You need to select at least one object type');" +
+						"return false;" +  
+					"}" +
+					"if ((count == fromList.options.length)&&(listFrom=='CM_included_meta_bis')){" +
+						"alert('You need to select at least one property');" +
+						"return false;" +  
+					"}" +
+					
+				"}" +
+				///"alert('selectedIndex = '+fromList.selectedIndex);" +
+				"while (fromList.selectedIndex != -1)" +
+				"{ " +
+					"addOption(toList,fromList.options[fromList.selectedIndex]); " +
+					"fromList.options[fromList.selectedIndex] = null;" +
+				" }" +
+			" } " +
+			"function addOption(list, option){" +
+				" list.options[list.options.length]=new Option(option.value,option.value);" +
+			" } " +
+			"function selectAll(select){"+
+				"for (var i = 0; i < document.getElementById(select).length; i++)"+
+				"{"+
+					"document.getElementById(select).options[i].selected = true;"+
+				"}"+
+			"}"+
+	"</script>");
+	buf.append(SELECT_START);
+	buf.append(" " + NAME);
+	buf.append("=\"");
+	buf.append("included_object_type_toinclude");
+	buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" >\n");
+	
+	int nbtypes=0;
+	///try {
+		if(((String)configMap.get(ADVANCEDCONF)).equals("on")){
+			//loop of the Dctm types whose super_name field is not empty
+			while(collecTypes.next()) {
+				type = collecTypes.getString("name");
+				logger.info("type : "+type);
+				super_type = collecTypes.getString("super_name");
+				logger.info("super type : "+super_type);
+				///if(!hashTypes.contains(type)&&(hashDctmTypes.contains(super_type)||super_type.equals("dm_sysobject")||hashTypes.contains(super_type))){
+				//exclusion of the selected types (=in the second select list and stored in the .properties file) and of the types whose super_name attribute is emty (the where clause in the query is not enough since a type can have a super_type whose super_name is empty)
+				if(!hashTypes.contains(type)&&!super_type.equals("")){
+					hashDctmTypes.add(type);
+					nbtypes++;
+					logger.info("added type : "+type);
+					//Creation of the select list of the types available for selection
+					buf.append("<option value=\""+type+"\">");
+					buf.append(type+"\n");
+				}	
 			}
+		}	
+	///} catch (RepositoryException e) {
+		// TODO Auto-generated catch block
+		///e.printStackTrace();
+	///}
+	
+	logger.info("nbtypes is : "+nbtypes);
+	buf.append(SELECT_END);
+	buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
+	buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
+	
+	
+	buf.append(SELECT_START);
+	buf.append(" " + NAME);
+	buf.append("=\"");
+	buf.append("included_object_type_bis");
+	buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" ID=\"CM_included_object_type_bis\" >\n");
+	
+	
+	//C
+	if (!hashTypes.isEmpty()) {
+		Iterator iter = hashTypes.iterator();
+		
+		while (iter.hasNext()) {
+			///logger.info("appendSelectMultiple "+name+" type vaut "+type);
+			type = (String) iter.next();
+			//Creation of the select list of the types previously selected
+			buf.append("<option value=\""+type+"\">");
+			buf.append(type+"\n");
 		}
-		
-		
-		///
-		
-		stTypes=stTypes.substring(stTypes.length()-1);
-		
-		
-		buf.append(SELECT_END);
-		buf.append(TD_END);
-		buf.append(TR_END);
-		buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\""+stTypes+"\"></td></tr>");	
-		
+	}
+	
+	buf.append(SELECT_END);
+	buf.append(TD_END);
+	buf.append(TR_END);
+	buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\""+stTypes+"\"></td></tr>");	
+	
+	//session released (necessary to avoid session leaks)
+	try{
+		if (collecTypes.getState() != ICollection.DF_CLOSED_STATE) {
+			collecTypes.close();
+			logger.fine("collection closed");
+			sessMag.release(collecTypes.getSession());
+			logger.fine("collection session released");
+		}	
+	}catch(RepositoryException re1){
+		logger.severe("Error while closing "+re1);
 	}
 
 	
-	
-	
-	
-	private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name, Map configMap) throws RepositoryException {
-		logger.info("in appendSelectMultipleIncludeMetadatas collection");
-		
-		String meta;
-		String stType;
-		IType mytype;
-		IType currentType;
-		IType dmsysType;
-		IAttr attr;
-		IAttr dmsysattr;
-		String data;
-		int type_cnt = 0;
-		int i = 0;
-		StringBuffer buf2=new StringBuffer();
-		String stMeta=null;
-		String typeList[];
-		Iterator iterTypes=null;
-		String stCurrentType = null;
-		String dmsysattrname = null;
-		
-		
-		logger.info("string type : "+(String)configMap.get(INCLUDED_OBJECT_TYPE));
-		typeList=((String)configMap.get(INCLUDED_OBJECT_TYPE)).split(",");
-		
-		
-		
-		HashMap metasByTypes=new HashMap();
-		HashSet hashTypes=new HashSet();
-		HashSet tempTypes=new HashSet();
-		HashSet hashDmSysMeta=new HashSet();
-		HashSet hashMetasOfSelectedTypes=new HashSet();
-		
-		HashMap typesByMetas=new HashMap();
-		HashSet tempMetas=new HashSet();
-	
-		
-		for (int x=0; x<typeList.length; x++){
-			hashTypes.add(typeList[x]);
-		}
-		
+}
 
-		String metaList[];
-		logger.info("string meta : "+(String)configMap.get(INCLUDED_META));
-		stMeta = ((String)configMap.get(INCLUDED_META));
-		metaList=stMeta.split(",");
+private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name,
+		HashSet hash, String superData){
+
+	logger.info("in appendSelectMultipleIncludeTypes");
+
+	//javascript functions used to pass an item from a select list to another one 
+
+	String stTypes="";
+	String type;
+	buf.append("<script type=\"text/javascript\"> " +
+			"var selOptions = new Array(); " +
+			"function swap(listFrom, listTo){" +
+				"fromList=document.getElementsByName(listFrom)[0]; " +
+				"toList = document.getElementsByName(listTo)[0]; " +
+				"while (fromList.selectedIndex != -1)" +
+				"{ " +
+					"addOption(toList,fromList.options[fromList.selectedIndex]); " +
+					"fromList.options[fromList.selectedIndex] = null;" +
+				" }" +
+			" } " +
+			"function addOption(list, option){" +
+				///" list.options[list.options.length]=new Option(option.innerHTML,option.value);" +
+			" list.options[list.options.length]=new Option(option.value,option.value);" +
+			" } " +
+			"function selectAll(select){"+
+				"for (var i = 0; i < document.getElementById(select).length; i++)"+
+				"{"+
+					"document.getElementById(select).options[i].selected = true;"+
+				"}"+
+			"}"+
+	"</script>");
+	buf.append(SELECT_START);
+	buf.append(" " + NAME);
+	buf.append("=\"");
+	buf.append("included_object_type_toinclude");
+	buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" >\n");
+
+	
+	buf.append(SELECT_END);
+	
+	buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');\"></input>");
+	buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');\"></input>");
+	
+	//Creation of the list of the types available for selection (empty)
+	buf.append(SELECT_START);
+	buf.append(" " + NAME);
+	buf.append("=\"");
+	buf.append("included_object_type_bis");
+	buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" ID=\"CM_included_object_type_bis\" >\n");
+	
+
+	
+	///Creation of the select list of the default types (listed in the connectorType.xml file)
+	if (!hash.isEmpty()) {
+		Iterator iter = hash.iterator();
 		
-		HashSet hashMetas=new HashSet();
-		for (int x=0; x<metaList.length; x++){
-			hashMetas.add(metaList[x]);
-		}
-		
-		buf2.append(SELECT_START);
-		buf2.append(" " + NAME);
-		buf2.append("=\"");
-		buf2.append("included_meta_bis");
-		buf2.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" id=\"CM_included_meta_bis\">\n");
-		
-		
-		buf.append(SELECT_START);
-		buf.append(" " + NAME);
-		buf.append("=\"");
-		buf.append("included_meta_toinclude");
-		buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\">\n");
-		
-		dmsysType=sess.getType("dm_sysobject");
-		hashDmSysMeta=new HashSet();
-		for(int j=0;j<dmsysType.getTypeAttrCount();j++){
-			dmsysattr=dmsysType.getTypeAttr(j);
-			dmsysattrname=dmsysattr.getName();
-			logger.info("dmsysattrname "+dmsysattrname+" is metadata of dm_sysobject");
-			hashDmSysMeta.add(dmsysattrname);
-		}
-		
-		
-		if(((String)configMap.get(ADVANCEDCONF)).equals("on")){
+		while (iter.hasNext()) {
+			///logger.info("appendSelectMultiple "+name+" type vaut "+type);
 			
-			///parcours de la liste des types d'objets sélectionnés
-			for (int x=0; x<typeList.length; x++){
-				stType=typeList[x];
-				mytype=sess.getType(stType);
-				logger.info("stType is "+stType);
-				///parcours des propriétés de chaque type sélectionné
-				for(i=0;i<mytype.getTypeAttrCount();i++){
-					logger.info("compteur: "+mytype.getTypeAttrCount());
-					attr=mytype.getTypeAttr(i);
-					///logger.info("attr vaut "+attr.toString());
-					data=attr.getName();
-					logger.info("attr is "+data+" - attr of the type "+stType);		
-					if(!hashMetasOfSelectedTypes.contains(data)){
-						hashMetasOfSelectedTypes.add(data);
-					}
-					///si la meta depend de dm_sysobject : on ajoute le type dm_sysobject au hashset de types temporaire
-					if(hashDmSysMeta.contains(data)){
-						///hashTypes=new HashSet();
-						///hashTypes.add("dm_sysobject");
-						
-						tempTypes.add("dm_sysobject");
-						logger.info("attr "+data+" is a dm_sysobject attribute");	
-					///si la meta n'est pas deja répertoriée dans la liste des metas disponibles : on ajoute le type au hashset de types temporaire 	
-					}else if(!metasByTypes.containsKey(data)){
-						///hashTypes=new HashSet();
-						///hashTypes.add(stType);
-						tempTypes.add(stType);
-						logger.info("attr "+data+" is a new attribute for the metas list");		
-						
-					///SINON = si la meta est deja répertoriée dans la liste des metas disponibles 	
-					}else{
-						logger.info("attr "+data+" is not a new attribute for the metas list");		
-						hashTypes=(HashSet)metasByTypes.get(data);
-						iterTypes = hashTypes.iterator();
-						///parcours du hashset de types auxquelles la meta peut appartenir (parmi les types sélectionnés)
-						while (iterTypes.hasNext()) {
-							stCurrentType=(String)iterTypes.next();
-							logger.info("the type "+stCurrentType+" is already known to have the meta "+data);
-							currentType=sess.getType(stCurrentType);
-							///si le type est dm_sysobject : on ajoute le type dm_sysobject au hashset de types temporaire
-							if(stCurrentType.equals("dm_sysobject")){
-								logger.info(stCurrentType+" is "+stCurrentType);
-								tempTypes.add(stCurrentType);
-							///si le type sélectionné est le supertype d'un des types auquel la meta peut appartenir : on ajoute le type sélectionné au hashset de types temporaire	
-							}else if(((currentType.getSuperType()).getName()).equals(stType)){
-								logger.info(stType+" is supertype of "+stCurrentType);
-								tempTypes.add(stType);
-								logger.info("so supertype "+stType+" is added");
-							///si le type sélectionné est le soustype d'un des types auquel la meta peut appartenir : on ajoute le type auquel la meta peut appartenir  au hashset de types temporaire	
-							}else if(mytype.isSubTypeOf(stCurrentType)){
-								logger.info(stType+" is  subtype of "+stCurrentType);
-								tempTypes.add(stCurrentType);
-								logger.info(" so supertype "+stCurrentType+" is added");
-                            ///si le type sélectionné et l'un des types auquel la meta peut appartenir ont la meme valeur : on ajoute le type auquel la meta peut appartenir au hashset de types temporaire	
-							}else if(stType.equals(stCurrentType)){
-								logger.info(stType+" is "+stCurrentType);
-								tempTypes.add(stCurrentType);
-								logger.info(" so type "+stCurrentType+" is added");
-							///si le type sélectionné et l'un des types auquel la meta peut appartenir sont différents et sans lien hiérarchique : on ajoute le type sélectionné et le type auquel la meta peut appartenir au hashset de types temporaire		
-							}else{
-								logger.info("type "+stCurrentType+" is just another type with the attribute "+data);
-								tempTypes.add(stType);
-								tempTypes.add(stCurrentType);
-								logger.info(" so type "+stType+" is added and type "+stCurrentType+" is also added");
-							}
-							
-						}
-						///hashTypes=tempTypes;
-						///metasByTypes.put(data,tempTypes);
-						
-					}
-					
-					logger.info("adding tempTypes to metasByTypes hashMap");		
-					metasByTypes.put(data,tempTypes);
-					///reinitialisation du hashset de types temporaire
-					tempTypes = new HashSet(); 
+			type = (String) iter.next();
+			stTypes=stTypes.concat(type+",");
+			buf.append("<option value=\""+type+"\">");
+			buf.append(type+"\n");
+		}
+	}
+	
+	
+	///
+	logger.info("stTypes before substring "+stTypes);
+	stTypes=stTypes.substring(0,stTypes.length()-1);
+	logger.info("stTypes after substring "+stTypes);
+	
+	buf.append(SELECT_END);
+	buf.append(TD_END);
+	buf.append(TR_END);
+	buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\""+stTypes+"\"></td></tr>");	
+	
+}
+	
+private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name, Map configMap) throws RepositoryException {
+	logger.info("in appendSelectMultipleIncludeMetadatas collection");
+	
+	String meta;
+	String stType;
+	IType mytype;
+	IType currentType;
+	IType dmsysType;
+	IAttr attr;
+	IAttr dmsysattr;
+	String data;
+	int type_cnt = 0;
+	int i = 0;
+	StringBuffer buf2=new StringBuffer();
+	String stMeta=null;
+	String typeList[];
+	Iterator iterTypes=null;
+	String stCurrentType = null;
+	String dmsysattrname = null;
+	
+	
+	logger.info("string type : "+(String)configMap.get(INCLUDED_OBJECT_TYPE));
+	typeList=((String)configMap.get(INCLUDED_OBJECT_TYPE)).split(",");
+	
+	
+	
+	HashMap metasByTypes=new HashMap();
+	HashSet hashTypes=new HashSet();
+	HashSet tempTypes=new HashSet();
+	HashSet hashDmSysMeta=new HashSet();
+	HashSet hashMetasOfSelectedTypes=new HashSet();
+	
+	HashMap typesByMetas=new HashMap();
+	HashSet tempMetas=new HashSet();
+
+	
+	for (int x=0; x<typeList.length; x++){
+		hashTypes.add(typeList[x]);
+	}
+	
+
+	String metaList[];
+	logger.info("string meta : "+(String)configMap.get(INCLUDED_META));
+	stMeta = ((String)configMap.get(INCLUDED_META));
+	metaList=stMeta.split(",");
+	
+	HashSet hashMetas=new HashSet();
+	for (int x=0; x<metaList.length; x++){
+		hashMetas.add(metaList[x]);
+	}
+	
+	buf2.append(SELECT_START);
+	buf2.append(" " + NAME);
+	buf2.append("=\"");
+	buf2.append("included_meta_bis");
+	buf2.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" id=\"CM_included_meta_bis\">\n");
+	
+	
+	buf.append(SELECT_START);
+	buf.append(" " + NAME);
+	buf.append("=\"");
+	buf.append("included_meta_toinclude");
+	buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\">\n");
+	
+	dmsysType=sess.getType("dm_sysobject");
+	hashDmSysMeta=new HashSet();
+	for(int j=0;j<dmsysType.getTypeAttrCount();j++){
+		dmsysattr=dmsysType.getTypeAttr(j);
+		dmsysattrname=dmsysattr.getName();
+		logger.info("dmsysattrname "+dmsysattrname+" is metadata of dm_sysobject");
+		hashDmSysMeta.add(dmsysattrname);
+	}
+	
+	
+	if(((String)configMap.get(ADVANCEDCONF)).equals("on")){
+		
+		///loop of the selected types list
+		for (int x=0; x<typeList.length; x++){
+			stType=typeList[x];
+			mytype=sess.getType(stType);
+			///mytype=sess.getType(stType);
+			///mytype=(getSession(configMap)).getType(stType);
+			logger.info("stType is "+stType);
+			///loop of the properties of each selected type
+			for(i=0;i<mytype.getTypeAttrCount();i++){
+				logger.info("compteur: "+mytype.getTypeAttrCount());
+				attr=mytype.getTypeAttr(i);
+				///logger.info("attr vaut "+attr.toString());
+				data=attr.getName();
+				logger.info("attr is "+data+" - attr of the type "+stType);		
+				if(!hashMetasOfSelectedTypes.contains(data)){
+					hashMetasOfSelectedTypes.add(data);
 				}
-			}
-			
-			
-			
-			
-			if (!metasByTypes.isEmpty()) {	
-				logger.info("writing the select"); 
-				Set dataSet = metasByTypes.keySet();
-				Iterator iter = dataSet.iterator();
-				while (iter.hasNext()) {
-					///logger.info("appendSelectMultiple "+name+" type vaut "+type);
-					data = (String) iter.next();
+				///if the property is a dm_sysobject one, dm_sysobject is added to the temporary types hashset
+				if(hashDmSysMeta.contains(data)){
+					tempTypes.add("dm_sysobject");
+					logger.info("attr "+data+" is a dm_sysobject attribute");
+				///if the property is not already present in the list of available properties : the type is added to the temporary types hashset
+				}else if(!metasByTypes.containsKey(data)){
+					tempTypes.add(stType);
+					logger.info("attr "+data+" is a new attribute for the metas list");			
+				///if the property is not already present in the list of available properties
+				}else{
+					logger.info("attr "+data+" is not a new attribute for the metas list");		
 					hashTypes=(HashSet)metasByTypes.get(data);
 					iterTypes = hashTypes.iterator();
-					if(!hashMetas.contains(data)){
-						buf.append("<option value=\""+data+"\">");
-						buf.append(data+" (");
-						while (iterTypes.hasNext()) {
-							stType=(String)iterTypes.next();
-							buf.append(" "+stType+" ");
+					///loop of the hashset of types whom the property can belong to (among the selected types)
+					while (iterTypes.hasNext()) {
+						stCurrentType=(String)iterTypes.next();
+						logger.info("the type "+stCurrentType+" is already known to have the meta "+data);
+						currentType=sess.getType(stCurrentType);
+						///is the selected type is dm_sysobject : dm_sysobject is added to the temporary types hashset
+						if(stCurrentType.equals("dm_sysobject")){
+							logger.info(stCurrentType+" is "+stCurrentType);
+							tempTypes.add(stCurrentType);
+						///if the selected type is the supertype of one type whom the property can belong to : the selected type is added to the temporary types hashset
+						}else if(((currentType.getSuperType()).getName()).equals(stType)){
+							logger.info(stType+" is supertype of "+stCurrentType);
+							tempTypes.add(stType);
+							logger.info("so supertype "+stType+" is added");
+						///if the selected type is the subtype of one type whom the property can belong to : the type whom the property can belong to is added to the temporary types hashset
+						}else if(mytype.isSubTypeOf(stCurrentType)){
+							logger.info(stType+" is  subtype of "+stCurrentType);
+							tempTypes.add(stCurrentType);
+							logger.info(" so supertype "+stCurrentType+" is added");
+                        ///if the selected type is one of the types whom the property can belong to  : the type whom the property can belong to is added to the temporary types hashset
+						}else if(stType.equals(stCurrentType)){
+							logger.info(stType+" is "+stCurrentType);
+							tempTypes.add(stCurrentType);
+							logger.info(" so type "+stCurrentType+" is added");
+						///if the selected type and one of the types whom the property can belong to don't have any hierarchical link : the type whom the property can belong to and the selected type are added to the temporary types hashset
+						}else{
+							logger.info("type "+stCurrentType+" is just another type with the attribute "+data);
+							tempTypes.add(stType);
+							tempTypes.add(stCurrentType);
+							logger.info(" so type "+stType+" is added and type "+stCurrentType+" is also added");
 						}
-						buf.append(") </option>\n");
+						
 					}
 				}
-			}
-			
-			
-		}	
-		
-		if (!hashMetas.isEmpty()) {
-			Iterator iterMeta = hashMetas.iterator();
-			
-			while (iterMeta.hasNext()) {
-				data=(String) iterMeta.next();
 				
-				if(hashMetasOfSelectedTypes.contains(data)){
-					buf2.append("<option value=\""+data+"\">");
-					buf2.append(data+"</option>\n");
-					
+				logger.info("adding tempTypes to metasByTypes hashMap");		
+				metasByTypes.put(data,tempTypes);
+				///temporary hashset of types reinitiated
+				tempTypes = new HashSet(); 
+			}
+		}
+		
+		
+		
+		//Creation of the select list of the available properties (properties of the selected types) with the names of the types it belongs to 
+		if (!metasByTypes.isEmpty()) {	
+			logger.info("writing the select"); 
+			Set dataSet = metasByTypes.keySet();
+			Iterator iter = dataSet.iterator();
+			while (iter.hasNext()) {
+				///logger.info("appendSelectMultiple "+name+" type vaut "+type);
+				data = (String) iter.next();
+				hashTypes=(HashSet)metasByTypes.get(data);
+				iterTypes = hashTypes.iterator();
+				if(!hashMetas.contains(data)){
+					buf.append("<option value=\""+data+"\">");
+					buf.append(data+" (");
+					while (iterTypes.hasNext()) {
+						stType=(String)iterTypes.next();
+						buf.append(" "+stType+" ");
+					}
+					buf.append(") </option>\n");
 				}
 			}
-		}	
+		}
+		
+		
+	}	
+	
+	//Creation of the select list of the selected properties
+	if (!hashMetas.isEmpty()) {
+		Iterator iterMeta = hashMetas.iterator();
+		
+		while (iterMeta.hasNext()) {
+			data=(String) iterMeta.next();
+			
+			if(hashMetasOfSelectedTypes.contains(data)){
+				buf2.append("<option value=\""+data+"\">");
+				buf2.append(data+"</option>\n");
+				
+			}
+		}
+	}	
 
-		///logger.info("appendSelectMultipleIncludeMetadatas"+name);
+	///logger.info("appendSelectMultipleIncludeMetadatas"+name);
 
-		
-		logger.info("before select");
-		buf.append(SELECT_END);
-		logger.info("after select");
-//		buf.append(TD_END);
-//		buf.append(TR_END);
-		
-		buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
-		buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
-		
-		
-		
-		buf2.append(SELECT_END);
-		buf.append(buf2);
-		
-		buf.append(TD_END);
-		buf.append(TR_END);
-		buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\""+stMeta+"\"></td></tr>");		
-		
-		
+	
+	logger.info("before select");
+	buf.append(SELECT_END);
+	logger.info("after select");
+
+	
+	buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
+	buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
+	
+	
+	
+	buf2.append(SELECT_END);
+	buf.append(buf2);
+	
+	buf.append(TD_END);
+	buf.append(TR_END);
+	buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\""+stMeta+"\"></td></tr>");		
+	
+	
 	}
 	
 	private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
-			HashSet hashMeta) throws RepositoryException {
+			HashSet hashMeta){
 		logger.info("in appendSelectMultipleIncludeMetadatas hashMeta");
 		
 		String meta;
@@ -1333,17 +1405,17 @@ public class DctmConnectorType implements ConnectorType {
 		buf2.append("included_meta_bis");
 		buf2.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" id=\"CM_included_meta_bis\">\n");
 		
-		
+		//Creation of the select list of the available properties (empty)
 		buf.append(SELECT_START);
 		buf.append(" " + NAME);
 		buf.append("=\"");
 		buf.append("included_meta_toinclude");
 		buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\">\n");
 			
+		
+		//Creation of the select list of the selected properties
 		if (name.equals(INCLUDED_META)){
-
-			
-			
+	
 			if (!hashMeta.isEmpty()) {
 				Iterator iter = hashMeta.iterator();
 					
@@ -1358,12 +1430,12 @@ public class DctmConnectorType implements ConnectorType {
 			}
 		}	
 		
-		stMeta=stMeta.substring(stMeta.length()-1);
+		stMeta=stMeta.substring(0,stMeta.length()-1);
 		
 		logger.info("before select");
 		buf.append(SELECT_END);
 		logger.info("after select");
-
+	
 		buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');\"></input>");
 		buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');\"></input>");
 		
@@ -1384,56 +1456,60 @@ public class DctmConnectorType implements ConnectorType {
 		buf.append(" " + TYPE + "=" + CHECKBOX);
 		buf.append(" " + NAME + "=\"" + key + "\" ");
 		
-		
-		///
-		/*
-		if(key.equals(ADVANCEDCONF)){
-			buf.append("onClick=\"document.getElementById('more').style.display='block'\"");
-			buf.append("<DIV ID=\"more\" style=\"DISPLAY: none\">");
-			buf.append("<table>");
-		}
-		*/
-		///
-		
-		
 		if(key.equals(ADVANCEDCONF)){
 			buf.append("ID=\"ADVC\"");
 			if (value != null && value.equals("on")) {
-				
-				buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\" checked>");
-				
-				
-				buf.append(label + TD_END);
-
-				buf.append(TR_END);
-				
-				buf.append(TR_START);
-				buf.append("<td colspan=\"2\"><input name=\"advanced_configuration\" type=\"hidden\" value=\"true\"></td>");
-				buf.append(TR_END);
-				
-				buf.append(TR_START);
-				buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\"></td>");
-				buf.append(TR_END);
-				
-				buf.append("<tr><td colspan=\"2\"><DIV ID=\"more\" style=\"DISPLAY: block\">");
-				buf.append("<table>");
+			///if (value != null) {
+				logger.info("advanced conf not null");	
+					logger.info("advanced conf set to on");
+					///buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\" checked>");
+					///insertIncludeMetas();insertIncludeTypes();
+					buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&&(document.getElementById('Password').value != '')&&(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
+							"document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('"+resource.getString("advanced_config_error")+"');this.checked=false;}}else{if(confirm('"+resource.getString("confirm_uncheck_advanced")+"')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
+									"document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\" checked>");
+					
+					
+					buf.append(label + TD_END);
+	
+					buf.append(TR_END);
+					
+					buf.append(TR_START);
+					buf.append("<td colspan=\"2\"><input name=\"advanced_configuration\" type=\"hidden\" value=\"true\"></td>");
+					buf.append(TR_END);
+					
+					/*
+					buf.append(TR_START);
+					buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\"></td>");
+					buf.append(TR_END);
+					*/
+					buf.append("<tr><td colspan=\"2\"><DIV ID=\"more\" style=\"DISPLAY: block\">");
+					buf.append("<table>");
 			}else{
-				buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\">");
-				buf.append(label + TD_END);
-				
-				buf.append(TR_END);
-				
-				buf.append(TR_START);
-				buf.append("<td colspan=\"2\"><input name=\"advanced_configuration\" type=\"hidden\" value=\"true\"></td>");
-				buf.append(TR_END);
-				
-				buf.append(TR_START);
-				buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\"></td>");
-				buf.append(TR_END);
-				
-				buf.append("<tr><td colspan=\"2\"><DIV ID=\"more\" style=\"DISPLAY: none\">");
-				buf.append("<table>");
-			}
+					logger.info("advanced conf set to off");
+					///insertIncludeMetas();insertIncludeTypes();
+					///buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\">");
+					buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&&(document.getElementById('Password').value != '')&&(document.getElementById('webtop_display_url').value != '')){" +
+							"document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}" +
+							"else{alert('"+resource.getString("advanced_config_error")+"');this.checked=false;}}else{if(confirm('"+resource.getString("confirm_uncheck_advanced")+"')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
+									"document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\">");
+					
+					buf.append(label + TD_END);
+					
+					buf.append(TR_END);
+					
+					buf.append(TR_START);
+					buf.append("<td colspan=\"2\"><input name=\"advanced_configuration\" type=\"hidden\" value=\"false\"></td>");
+					buf.append(TR_END);
+					
+					/*
+					buf.append(TR_START);
+					buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\"></td>");
+					buf.append(TR_END);
+					*/
+					
+					buf.append("<tr><td colspan=\"2\"><DIV ID=\"more\" style=\"DISPLAY: none\">");
+					buf.append("<table>");
+			}	
 		}else{
 			if (value != null && value.equals("on")) {
 				buf.append(CHECKED);
@@ -1594,6 +1670,16 @@ public class DctmConnectorType implements ConnectorType {
 	public void setClientX(String clientX) {
 		this.clientX = clientX;
 		logger.log(Level.INFO, "clientX set to " +clientX);
+	}
+	
+	public String getAdvanced_configuration() {
+
+		return advanced_configuration;
+	}
+	
+	public void setAdvanced_configuration(String advanced_configuration) {
+		this.advanced_configuration = advanced_configuration;
+		logger.info("advanced_configuration set to " +advanced_configuration);
 	}
 	
 }

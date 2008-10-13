@@ -41,12 +41,6 @@ public class DctmTraversalManager implements TraversalManager {
 	protected String additionalWhereClause;
 
 	private boolean isPublic;
-
-	private String included_meta;
-
-	private HashSet excluded_meta;
-
-	private String included_object_type;
 	
 	private HashSet hash_included_object_type;
 	
@@ -64,8 +58,7 @@ public class DctmTraversalManager implements TraversalManager {
 
 	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
 			String additionalWhereClause, boolean isPublic,
-			String included_meta, HashSet excluded_meta,
-			String included_object_type, String root_object_type)
+			String included_meta, String included_object_type, String root_object_type)
 	throws RepositoryException {
 		this.additionalWhereClause = additionalWhereClause;
 		setClientX(clientX);
@@ -73,9 +66,6 @@ public class DctmTraversalManager implements TraversalManager {
 		
 		this.serverUrl = webtopServerUrl;
 		this.isPublic = isPublic;
-		this.included_meta = included_meta;
-		this.excluded_meta = excluded_meta;
-		this.included_object_type = included_object_type;
 		setHash_included_object_type(included_object_type);
 		setHash_included_meta(included_meta);
 		this.root_object_type = root_object_type;
@@ -188,7 +178,7 @@ public class DctmTraversalManager implements TraversalManager {
 			if ((collecToAdd != null && collecToAdd.hasNext()) ||
 					(collecToDel != null && collecToDel.hasNext())) {
 				documentList = new DctmDocumentList(collecToAdd, collecToDel, sessionManager,
-						clientX, isPublic, hash_included_meta, excluded_meta, dateFirstPush, checkPoint);
+						clientX, isPublic, hash_included_meta, dateFirstPush, checkPoint);
 			}
 			return documentList;
 		} finally {
