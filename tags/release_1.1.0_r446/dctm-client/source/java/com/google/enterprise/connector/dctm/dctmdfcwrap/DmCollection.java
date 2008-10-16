@@ -19,6 +19,10 @@ public class DmCollection implements ICollection {
 
 	int numberOfRows = 0;
 
+	private boolean didPeek = false;
+	private boolean peekResult;
+	private int peekState;
+	
 	private static Logger logger = Logger.getLogger(DmCollection.class
 			.getName());
 
@@ -39,7 +43,31 @@ public class DmCollection implements ICollection {
 		return new DmValue(dfValue);
 	}
 
+	/* IDfCollection.DF_NO_MORE_ROWS_STATE is fundamentally broken
+	 * as it is not testable from DF_INITIAL_STATE.	 Therefore, we
+	 * cannot tell if a IDfCollection as more than zero rows without
+	 * calling next() first.	This hasNext() peeks ahead, actually
+	 * calling next() under the covers, then caching the result.
+	 * This has a serious side effect, in that once hasNext() has
+	 * been called, you cannot access data from the "current" row
+	 * (as it is no longer "current"), until you actually call next().
+	 * At this time, hasNext() is only called at the time the collection
+	 * is in DF_INITIAL_STATE, so there is no "current" row.
+	 */
+	public boolean hasNext() throws RepositoryException {
+		if (!didPeek) {
+			peekState = getState();
+			peekResult = next();
+			didPeek = true;
+		}
+		return peekResult;
+	}
+	
 	public boolean next() throws RepositoryException {
+		if (didPeek) {
+			didPeek = false;
+			return peekResult;
+		}
 		boolean rep = false;
 
 		try {

@@ -11,6 +11,8 @@ public interface ICollection {
 	public static final int DF_CLOSED_STATE = 2;
 
 	public IValue getValue(String attrName) throws RepositoryException;
+	
+	public boolean hasNext() throws RepositoryException;
 
 	public boolean next() throws RepositoryException;
 
