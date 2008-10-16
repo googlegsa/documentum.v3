@@ -75,6 +75,8 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		logger.fine("The collection state :" + collectionToAdd.getState());
 		logger.fine("The collection delete state :"+ collectionToAdd.getState());
 		
+		Document retDoc = null;
+		
 		try {
 			if (collectionToAdd.next()) {
 
@@ -129,26 +131,11 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		} catch (RepositoryException re) {
 			logger.severe("Error while trying to get next document : "+re);
 			checkpoint();		
-		}
-		
-		try{
-			if (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE) {
-				collectionToAdd.close();
-				logger.fine("collection closed");
-				sessMag.release(collectionToAdd.getSession());
-				logger.fine("collection session released");
-			}
-			if (collectionToDel.getState() != ICollection.DF_CLOSED_STATE) {
-				collectionToDel.close();
-				logger.fine("collection of document to delete closed");
-				sessMag.release(collectionToDel.getSession());
-				logger.fine("collection session released");
-			}
-		}catch (RepositoryException re1){
-			logger.severe("Error while closing in nextDocument()"+re1);
-		}
-		
-		return null;
+		} finally {
+		      if (retDoc == null)
+		          finalize();
+		      }
+		  		return retDoc;
 	}
 
 	public String checkpoint() throws RepositoryException {
@@ -261,4 +248,33 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 
 		return result;
 	}
+	
+//	 Last chance to make sure the collections are closed and their sessions
+	  // are released.
+	  public void finalize() {
+	    if ((collectionToAdd != null) &&
+	        (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE)) {
+	      try {
+	        collectionToAdd.close();
+	        logger.fine("collection of documents to add closed");
+	        sessMag.release(collectionToAdd.getSession());
+	        logger.fine("collection session released");
+	      } catch (RepositoryException e) {
+	        logger.severe("Error while closing the collection of documents to add: " + e);
+	      }
+	    }
+
+	    if ((collectionToDel != null) &&
+	        (collectionToDel.getState() != ICollection.DF_CLOSED_STATE)) {
+	      try {
+	        collectionToDel.close();
+	        logger.fine("collection of documents to delete closed");
+	        sessMag.release(collectionToDel.getSession());
+	        logger.fine("collection session released");
+	      } catch (RepositoryException e) {
+	        logger.severe("Error while closing the collection of documents to delete: " + e);
+	      }
+	    }
+	  }
+	
 }
