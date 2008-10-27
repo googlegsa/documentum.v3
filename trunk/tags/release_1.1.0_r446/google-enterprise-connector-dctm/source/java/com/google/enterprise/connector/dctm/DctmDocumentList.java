@@ -227,28 +227,16 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			for (int i = 0; i < test.length; i++) {
 				System.out.println(test[i].toString());
 			}
-			collectionToAdd.close();
-			logger.fine("Collection is closed after JSON problem");
 			throw new RepositoryException("Unexpected JSON problem", e);
 		} catch (Exception e) {
 			logger.severe("Collection is closed after problem...");
 		} finally {
-			if (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE) {
-				logger.finer("Verification of the Collection state : not closed");
-				try {
-					collectionToAdd.close();
-					collectionToDel.close();
-					
-				} catch (RepositoryException e) {
-					logger.severe("Error while closing the collection : " + e);
-				}
-				logger.fine("Collection closed");
-			}
+			finalize();
 		}
 
 		return result;
 	}
-	
+
 //	 Last chance to make sure the collections are closed and their sessions
 	  // are released.
 	  public void finalize() {

@@ -106,7 +106,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 *             if the Repository is unreachable or similar exceptional
 	 *             condition.
 	 */
-	public DocumentList startTraversal() throws RepositoryException {
+	public DocumentList startTraversal() {
 		logger.info("Pull process started");
 		
 		IQuery query = makeCheckpointQuery(buildQueryString(null));
@@ -162,7 +162,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 * @return
 	 * @throws RepositoryException
 	 */
-	protected DocumentList execQuery(IQuery query,IQuery queryDocToDel,String checkPoint) throws RepositoryException {
+	protected DocumentList execQuery(IQuery query,IQuery queryDocToDel,String checkPoint){
 		sessionManager.setServerUrl(serverUrl);
 		ICollection collecToAdd = null;
 		ICollection collecToDel = null;
@@ -182,7 +182,10 @@ public class DctmTraversalManager implements TraversalManager {
 				documentList = new DctmDocumentList(collecToAdd, collecToDel, sessionManager,
 						clientX, isPublic, included_meta, excluded_meta, dateFirstPush, checkPoint);
 			}
-			return documentList;
+			///return documentList;
+		}catch(RepositoryException re){
+			logger.info("Repository exception : "+re.getMessage());
+			logger.info("Repository exception : "+re.getStackTrace());
 		} finally {
 			// No documents to add or delete.	 Return a null DocumentList,
 			// but close the collections first!
@@ -209,6 +212,8 @@ public class DctmTraversalManager implements TraversalManager {
 				}
 			}
 		}
+		
+		return documentList;
 	}
 
 	/**
@@ -217,12 +222,11 @@ public class DctmTraversalManager implements TraversalManager {
 	 * @return
 	 * @throws RepositoryException
 	 */
-	protected DocumentList execQuery(IQuery query) throws RepositoryException {
+	protected DocumentList execQuery(IQuery query){
 		return this.execQuery(query, null, null);
 	}
 
-	protected IQuery makeCheckpointQuery(String queryString)
-	throws RepositoryException {
+	protected IQuery makeCheckpointQuery(String queryString){
 		IQuery query = null;
 		query = clientX.getQuery();
 		query.setDQL(queryString);
@@ -321,8 +325,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return statement;
 	}
 
-	protected String makeCheckpointQueryString(String uuid, String c)
-	throws RepositoryException {
+	protected String makeCheckpointQueryString(String uuid, String c){
 		//to format the date (0-24h instead of 0-12h)
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -337,8 +340,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return statement;
 	}
 
-	protected String buildQueryString(String checkpoint)
-	throws RepositoryException {
+	protected String buildQueryString(String checkpoint){
 
 		StringBuffer query = new StringBuffer(
 				"select i_chronicle_id, r_object_id, r_modify_date from "
@@ -384,6 +386,7 @@ public class DctmTraversalManager implements TraversalManager {
 	}
 
 	protected String buildQueryStringToDel(String checkpoint){
+		
 		StringBuffer query = new StringBuffer(
 		"select r_object_id,  chronicle_id, time_stamp from dm_audittrail " );
 
@@ -391,6 +394,7 @@ public class DctmTraversalManager implements TraversalManager {
 
 		query.append(" event_name='dm_destroy' ");
 
+		
 		if (checkpoint != null) {
 			logger.fine("adding the checkpoint to the query : "+checkpoint);
 			try {
@@ -423,13 +427,13 @@ public class DctmTraversalManager implements TraversalManager {
 			} catch (Exception e) {
 				logger.severe("Error while getting checkpoint clause"+e.getMessage());
 			}
-			
 		}
+		
 		logger.info("query.toString()" + query.toString());
 		return  query.toString();		
 	}
 
-	protected String getCheckpointRemoveClause(String checkPoint) throws RepositoryException{
+	protected String getCheckpointRemoveClause(String checkPoint){
 		logger.info("value of checkpoint" + checkPoint);
 		JSONObject jo = null;
 		try {
@@ -457,8 +461,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return queryString;	
 	}
 
-	protected String getCheckpointClause(String checkPoint)
-	throws RepositoryException {
+	protected String getCheckpointClause(String checkPoint){
 		logger.info("value of checkpoint" + checkPoint);
 		JSONObject jo = null;
 		try {

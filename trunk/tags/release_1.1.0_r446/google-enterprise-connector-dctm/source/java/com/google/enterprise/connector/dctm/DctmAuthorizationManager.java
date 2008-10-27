@@ -18,6 +18,7 @@ import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
 
@@ -43,30 +44,53 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	}
 
 	public Collection authorizeDocids(Collection docids,
-			AuthenticationIdentity authenticationIdentity)
-			throws RepositoryException{
+			AuthenticationIdentity authenticationIdentity){
 		String username = authenticationIdentity.getUsername();
 		logger.info("username :" + username);
+		ICollection collec =null;
+		
+		ISessionManager sessionManagerUser = null;
+		ISession session = null;
+		DctmDocumentList dctmDocumentList = new DctmDocumentList();
 		
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
 		List docidList = new ArrayList(docids);
 		
-		
-		ISession session = sessionManager.getSession(sessionManager
+		try{
+			session = sessionManager.getSession(sessionManager
 				.getDocbaseName());
 		
-		logger.info("docbase :" + sessionManager
+			logger.info("docbase :" + sessionManager
 				.getDocbaseName());
 		
-		DctmDocumentList dctmDocumentList = new DctmDocumentList();
+		
 	
-		ICollection collec =null;
-		ISessionManager sessionManagerUser = null;
 		
-		try {
+		
+		
 			sessionManagerUser = clientX.getLocalClient()
 					.newSessionManager();
+			
+			
+			///makes the connector handle the patterns username@domain, domain\\username and username
+			///username = "emilie@machin";
+			///username = "machin\\emilie";
+			
+			
+			logger.info("username :" + username);
+			
+			if (username.matches(".*@.*")){
+				logger.info("username contains @");
+				username=username.substring(0,username.indexOf('@'));
+				logger.info("username contains @ and is now :"+username);
+			}
+			/*else if(username.matches(".*\\.*")){
+				logger.info("username contains \\");
+				username=username.substring(username.indexOf('\\')+1,username.length()-1);
+				logger.info("username contains \\ and is now :"+username);
+			}*/
+			
 			String ticket = session.getLoginTicketForUser(username);
 			logger.info("ticket :" + ticket);
 			ILoginInfo logInfo = clientX.getLoginInfo();
@@ -113,10 +137,14 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			}
 			collec.close();
 			logger.info("after collec.close");
+		}catch(RepositoryLoginException re){
+			logger.warning("re login exception :"+re.getMessage());
+			logger.warning("re login exception :"+re.getStackTrace());
 		}catch(RepositoryException re){
 			logger.warning("re exception :"+re.getMessage());
 			logger.warning("re exception :"+re.getStackTrace());
-		}finally {
+		}
+		finally {
 			if(collec.getSession() != null ){
 				sessionManagerUser.release(collec.getSession());
 				logger.info("session of sessionManagerUser released");
