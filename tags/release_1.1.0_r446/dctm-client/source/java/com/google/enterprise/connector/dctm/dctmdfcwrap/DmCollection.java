@@ -29,9 +29,13 @@ public class DmCollection implements ICollection {
 	public DmCollection(IDfCollection idfCollection) {
 		this.idfCollection = idfCollection;
 		numberOfRows = 0;
+		didPeek = false;
 	}
 
 	public IValue getValue(String attrName) throws RepositoryException {
+		if (didPeek) {
+			throw new IllegalStateException("Cannot access current row after hasNext()");
+		}
 		IDfValue dfValue = null;
 		try {
 			dfValue = idfCollection.getValue(attrName);
@@ -42,6 +46,7 @@ public class DmCollection implements ICollection {
 		}
 		return new DmValue(dfValue);
 	}
+
 
 	/* IDfCollection.DF_NO_MORE_ROWS_STATE is fundamentally broken
 	 * as it is not testable from DF_INITIAL_STATE.	 Therefore, we
@@ -88,6 +93,9 @@ public class DmCollection implements ICollection {
 	}
 
 	public String getString(String colName) throws RepositoryException {
+		if (didPeek) {
+			throw new IllegalStateException("Cannot access current row after hasNext()");
+		}
 		try {
 			logger.finest("column name is "+this.idfCollection.getString(colName));
 			return this.idfCollection.getString(colName);
@@ -118,8 +126,9 @@ public class DmCollection implements ICollection {
 	}
 
 	public int getState() {
-		logger.fine("state of the collection : "+this.idfCollection.getState());
-		return this.idfCollection.getState();
+		int state = (didPeek) ? peekState : this.idfCollection.getState();
+		logger.fine("state of the collection : " + state);
+		return state;
 	}
 	
 	
@@ -128,6 +137,13 @@ public class DmCollection implements ICollection {
 		dfSession = idfCollection.getSession();
 		logger.finest("getting the session from the collection");
 		return new DmSession(dfSession);
+	}
+	
+	protected void finalize() throws RepositoryException {
+		if (getState() != ICollection.DF_CLOSED_STATE) {
+			logger.warning("Open DmCollection getting reaped by GC: " + this);
+			close();
+		}
 	}
 	
 }

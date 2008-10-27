@@ -32,8 +32,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 	}
 
 	public AuthenticationResponse authenticate(
-			AuthenticationIdentity authenticationIdentity)
-			throws RepositoryLoginException, RepositoryException {
+			AuthenticationIdentity authenticationIdentity){
 		String username = authenticationIdentity.getUsername();
 		String password = authenticationIdentity.getPassword();
 
