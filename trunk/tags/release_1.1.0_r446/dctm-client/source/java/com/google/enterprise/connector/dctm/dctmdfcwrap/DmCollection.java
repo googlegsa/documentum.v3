@@ -119,6 +119,7 @@ public class DmCollection implements ICollection {
 	public void close() throws RepositoryException {
 		logger.info(numberOfRows + " documents have been processed");
 		try {
+			didPeek = false;
 			this.idfCollection.close();
 		} catch (DfException e) {
 			throw new RepositoryException(e);
