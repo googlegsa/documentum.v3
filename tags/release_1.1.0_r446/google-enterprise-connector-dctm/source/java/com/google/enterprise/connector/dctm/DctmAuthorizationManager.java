@@ -139,10 +139,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			logger.info("after collec.close");
 		}catch(RepositoryLoginException re){
 			logger.warning("re login exception :"+re.getMessage());
-			logger.warning("re login exception :"+re.getStackTrace());
 		}catch(RepositoryException re){
 			logger.warning("re exception :"+re.getMessage());
-			logger.warning("re exception :"+re.getStackTrace());
 		}
 		finally {
 			if(collec.getSession() != null ){
