@@ -1,5 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
+import java.util.Set;
+
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 
 public class DctmAuthenticationIdentity implements AuthenticationIdentity {
@@ -22,5 +24,21 @@ public class DctmAuthenticationIdentity implements AuthenticationIdentity {
 
 		return password;
 	}
+
+	public String getCookie(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String setCookie(String arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Set getCookieNames() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 
 }

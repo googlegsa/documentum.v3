@@ -25,5 +25,7 @@ public interface ICollection {
 	public ISession getSession();
 	
 	public ITime getTime(String colName) throws RepositoryException; 
+	
+	
 
 }

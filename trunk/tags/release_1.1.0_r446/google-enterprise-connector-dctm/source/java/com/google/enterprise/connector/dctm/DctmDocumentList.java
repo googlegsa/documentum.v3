@@ -123,7 +123,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 						excluded_meta,SpiConstants.ActionType.DELETE);
 				
 				logger.fine("Creation of a new dctmSysobjectDocumentToDel");
-				return dctmSysobjectDocumentToDel;
+				retDoc = dctmSysobjectDocumentToDel;
 				
 			} else {
 				logger.severe("End of document list");
@@ -138,7 +138,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		  		return retDoc;
 	}
 
-	public String checkpoint() throws RepositoryException {
+	public String checkpoint()  throws RepositoryException{
 		logger.fine("Creation of the checkpoint");
 		//Last Document added to the GSA
 		String uuid ="";

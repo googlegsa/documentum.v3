@@ -185,7 +185,6 @@ public class DctmTraversalManager implements TraversalManager {
 			///return documentList;
 		}catch(RepositoryException re){
 			logger.info("Repository exception : "+re.getMessage());
-			logger.info("Repository exception : "+re.getStackTrace());
 		} finally {
 			// No documents to add or delete.	 Return a null DocumentList,
 			// but close the collections first!
@@ -478,6 +477,7 @@ public class DctmTraversalManager implements TraversalManager {
 		logger.fine("native date is " + c);
 		String queryString = makeCheckpointQueryString(uuid, c);
 		logger.fine("queryString is " + queryString);
+		logger.warning(uuid+" : "+c);
 		return queryString;
 	}
 
