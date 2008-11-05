@@ -55,8 +55,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 	private String object_id_name = "r_object_id";
 
 	private static Logger logger = null;
-
-
+	
 	static {
 		logger = Logger.getLogger(DctmSysobjectDocument.class.getName());
 	}
@@ -87,18 +86,19 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		this.action = action;
 	}
 
-	private void fetch(){
+	private void fetch() throws RepositoryException{
 		if (object != null) {
 			return;
 		}
 		ISession session = null;
+		
 		try {
 			String docbaseName = sessionManager.getDocbaseName();
 			session = sessionManager.getSession(docbaseName);
+			
 			if (SpiConstants.ActionType.ADD.equals(action)) {
 				logger.info("Get a session for the docbase "+docbaseName);
-				
-				
+					
 				IId id = clientX.getId(docId);
 
 				logger.info("r_object_id of the fetched object is "+docId);
@@ -111,8 +111,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 				object.setSessionManager(sessionManager);
 			}
-		}catch(RepositoryException re){
-			logger.severe("Exception thrown while trying to get the object "+docId+" : "+re.getMessage());
+			
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
@@ -121,7 +120,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		}
 	}
 
-	public Property findProperty(String name) {
+	public Property findProperty(String name) throws RepositoryException{
 		IFormat dctmForm = null;
 		String mimetype = "";
 		String dosExtension= "";
@@ -144,7 +143,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
 					   logger.fine("getting the property "+SpiConstants.PROPNAME_CONTENT);
-					   try {
+				
 						if(object.getContentSize()!=0){
 						    hashSet.add(new BinaryValue(object.getContent()));
 						    logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
@@ -152,11 +151,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 						    hashSet.add(null);
 						    logger.fine("this object has no content");
 						   }
-					   }catch (RepositoryException e) {
-						// TODO Auto-generated catch block
-						logger.warning("exception thrown while trying to get content "+e.getMessage());
-						hashSet.add(null);
-					   }
+					
 					   return new DctmSysobjectProperty(name, hashSet);
 	
 				} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
@@ -165,17 +160,13 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 					logger.fine("property "+SpiConstants.PROPNAME_DISPLAYURL+" has the value "+sessionManager.getServerUrl() + docId);
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
-					try {
+				
 						logger.fine("getting the property "+SpiConstants.PROPNAME_SECURITYTOKEN);
 						hashSet.add(new StringValue(object.getACLDomain() + " "
 								+ object.getACLName()));
 						logger.fine("property "+SpiConstants.PROPNAME_SECURITYTOKEN+" has the value "+object.getACLDomain() + " "
 								+ object.getACLName());
-					}catch (RepositoryException e) {
-						// TODO Auto-generated catch block
-						logger.warning("exception thrown while trying to get "+SpiConstants.PROPNAME_SECURITYTOKEN+" : "+e.getMessage());
-						hashSet.add(null);
-					}	
+				
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
 					logger.fine("getting the property "+SpiConstants.PROPNAME_ISPUBLIC);
@@ -184,18 +175,14 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 					logger.fine("property "+SpiConstants.PROPNAME_ISPUBLIC+" set to true");
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
-					try {
+				
 						logger.fine("getting the property "+SpiConstants.PROPNAME_LASTMODIFIED);
 						hashSet.add(new DctmDateValue(getDate("r_modify_date")));
 						logger.fine("property "+SpiConstants.PROPNAME_LASTMODIFIED+" has the value "+getDate("r_modify_date"));
-					}catch(RepositoryException e) {
-						// TODO Auto-generated catch block
-						logger.warning("exception thrown while trying to get "+SpiConstants.PROPNAME_LASTMODIFIED+" : "+e.getMessage());
-						hashSet.add(null);
-					}	
+				
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
-					try {
+					
 						logger.fine("getting the property "+SpiConstants.PROPNAME_MIMETYPE);
 						dctmForm = object.getFormat();
 						mimetype = dctmForm.getMIMEType();
@@ -206,11 +193,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 						logger.fine("mimetype of the document "+versionId+" : "+mimetype);
 						logger.fine("dosExtension of the document "+versionId+" : "+dosExtension);
 						logger.fine("contentSize of the document "+versionId+" : "+contentSize);
-					}catch(RepositoryException e) {
-						// TODO Auto-generated catch block
-						logger.warning("exception thrown while trying to get "+SpiConstants.PROPNAME_MIMETYPE+" : "+e.getMessage());
-						hashSet.add(null);
-					}		
+						
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
 					return null;
@@ -222,7 +205,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				}
 
 			
-			try{
+			
 				if (object.findAttrIndex(name)!=-1){
 					IAttr attr = object.getAttr(object.findAttrIndex(name));
 					logger.finer("the attribute "+ name + " is in the position "+ object.findAttrIndex(name)+ " in the list of attributes of the fetched object");
@@ -264,9 +247,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 	
 					}
 				}
-			}catch(RepositoryException re){
-				logger.warning("exception thrown while trying to get the multivalued fields"+re.getMessage());
-			}
+			
 
 		}else{
 			logger.fine("Else delete document; name : " + name);

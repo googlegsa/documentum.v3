@@ -44,7 +44,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	}
 
 	public Collection authorizeDocids(Collection docids,
-			AuthenticationIdentity authenticationIdentity){
+			AuthenticationIdentity authenticationIdentity) throws RepositoryException{
 		String username = authenticationIdentity.getUsername();
 		logger.info("username :" + username);
 		ICollection collec =null;
@@ -65,17 +65,12 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 				.getDocbaseName());
 		
 		
-	
-		
-		
-		
 			sessionManagerUser = clientX.getLocalClient()
 					.newSessionManager();
 			
 			
 			///makes the connector handle the patterns username@domain, domain\\username and username
-			///username = "emilie@machin";
-			///username = "machin\\emilie";
+
 			
 			
 			logger.info("username :" + username);
@@ -85,11 +80,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 				username=username.substring(0,username.indexOf('@'));
 				logger.info("username contains @ and is now :"+username);
 			}
-			/*else if(username.matches(".*\\.*")){
-				logger.info("username contains \\");
-				username=username.substring(username.indexOf('\\')+1,username.length()-1);
-				logger.info("username contains \\ and is now :"+username);
-			}*/
+			
 			
 			String ticket = session.getLoginTicketForUser(username);
 			logger.info("ticket :" + ticket);
@@ -137,12 +128,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			}
 			collec.close();
 			logger.info("after collec.close");
-		}catch(RepositoryLoginException re){
-			logger.warning("re login exception :"+re.getMessage());
-		}catch(RepositoryException re){
-			logger.warning("re exception :"+re.getMessage());
-		}
-		finally {
+		
+		}finally {
 			if(collec.getSession() != null ){
 				sessionManagerUser.release(collec.getSession());
 				logger.info("session of sessionManagerUser released");
