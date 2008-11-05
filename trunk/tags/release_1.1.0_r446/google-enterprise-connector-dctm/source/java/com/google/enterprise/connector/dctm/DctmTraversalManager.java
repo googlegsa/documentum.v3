@@ -17,6 +17,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.TraversalManager;
 
 public class DctmTraversalManager implements TraversalManager {
@@ -106,7 +107,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 *             if the Repository is unreachable or similar exceptional
 	 *             condition.
 	 */
-	public DocumentList startTraversal() {
+	public DocumentList startTraversal() throws RepositoryException{
 		logger.info("Pull process started");
 		
 		IQuery query = makeCheckpointQuery(buildQueryString(null));
@@ -162,7 +163,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 * @return
 	 * @throws RepositoryException
 	 */
-	protected DocumentList execQuery(IQuery query,IQuery queryDocToDel,String checkPoint){
+	protected DocumentList execQuery(IQuery query,IQuery queryDocToDel,String checkPoint) throws RepositoryException{
 		sessionManager.setServerUrl(serverUrl);
 		ICollection collecToAdd = null;
 		ICollection collecToDel = null;
@@ -183,9 +184,7 @@ public class DctmTraversalManager implements TraversalManager {
 						clientX, isPublic, included_meta, excluded_meta, dateFirstPush, checkPoint);
 			}
 			///return documentList;
-		}catch(RepositoryException re){
-			logger.info("Repository exception : "+re.getMessage());
-		} finally {
+		}finally {
 			// No documents to add or delete.	 Return a null DocumentList,
 			// but close the collections first!
 			if (documentList == null) {
@@ -221,7 +220,7 @@ public class DctmTraversalManager implements TraversalManager {
 	 * @return
 	 * @throws RepositoryException
 	 */
-	protected DocumentList execQuery(IQuery query){
+	protected DocumentList execQuery(IQuery query) throws RepositoryException{
 		return this.execQuery(query, null, null);
 	}
 
