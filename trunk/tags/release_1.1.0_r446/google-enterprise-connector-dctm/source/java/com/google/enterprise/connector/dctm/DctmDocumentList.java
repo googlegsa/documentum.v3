@@ -1,5 +1,9 @@
 package com.google.enterprise.connector.dctm;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.logging.Logger;
@@ -68,10 +72,10 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 
 	public Document nextDocument() throws RepositoryException {
 		if (collectionToAdd.getState() == ICollection.DF_CLOSED_STATE) {
+			logger.info("state of collectionToAdd : closed");
 			return null;
 		}
 		
-		logger.fine("The collection is not in a closed state");
 		logger.fine("The collection state :" + collectionToAdd.getState());
 		logger.fine("The collection delete state :"+ collectionToAdd.getState());
 		
@@ -83,9 +87,13 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				logger.fine("Looking throw the collection");
 				
 				String crID = "";
+				ITime lastModifDate = null;
 				try {
 					crID = collectionToAdd.getString("r_object_id");
-					
+					///
+					lastModifDate = collectionToAdd.getTime("r_modify_date");
+					logger.fine("lastModifDate is "+lastModifDate);
+					///
 					logger.fine("r_object_id is "+crID);
 					
 				} catch (RepositoryException e) {
@@ -93,12 +101,14 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					return null;
 				}
 				
-				dctmSysobjectDocument = new DctmSysobjectDocument(crID, sessMag,
+				
+				
+				dctmSysobjectDocument = new DctmSysobjectDocument(crID, lastModifDate, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
 						excluded_meta,SpiConstants.ActionType.ADD);
 				
 				logger.fine("Creation of a new dctmSysobjectDocument");
-				return dctmSysobjectDocument;
+				retDoc = dctmSysobjectDocument;
 			} else if (collectionToDel.next()) {
 				logger.fine("Looking throw the collection of document to remove");
 				
@@ -114,7 +124,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					logger.fine("r_object_id is "+crID);
 					
 				} catch (RepositoryException e) {
-					logger.severe("impossible to get the r_object_id of the document");
+					logger.warning("impossible to get the r_object_id of the document");
 					return null;
 				}
 				
@@ -126,38 +136,56 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				retDoc = dctmSysobjectDocumentToDel;
 				
 			} else {
-				logger.severe("End of document list");
+				logger.warning("End of document list");
 			}
 		} catch (RepositoryException re) {
-			logger.severe("Error while trying to get next document : "+re);
+			logger.warning("Error while trying to get next document : "+re);
 			checkpoint();		
 		} finally {
-		      if (retDoc == null)
+			logger.fine("in finally");
+		      if (retDoc == null){
+		    	  logger.warning("retDoc is null before finalize");
 		          finalize();
 		      }
-		  		return retDoc;
+		 }
+		 return retDoc;
 	}
 
 	public String checkpoint()  throws RepositoryException{
 		logger.fine("Creation of the checkpoint");
+		logger.fine("The collection state :" + collectionToAdd.getState());
 		//Last Document added to the GSA
 		String uuid ="";
 		String dateString="";
-		if(dctmSysobjectDocument !=null)
-		{
-		logger.fine("in dctmSysobjectDocument not null");
-		DctmSysobjectProperty prop = ((DctmSysobjectProperty) (dctmSysobjectDocument
-				.findProperty("r_object_id")));
-		uuid = ((StringValue) prop.nextValue()).toString();
-		logger.fine("uuid of the checkpoint is "+uuid);
-		prop = (DctmSysobjectProperty) dctmSysobjectDocument
-				.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
-		dateString = ((DctmDateValue) prop.nextValue()).toDctmFormat();
-		logger.fine("dateString of the checkpoint is "+dateString);
-		
-		
+		if(dctmSysobjectDocument !=null){
+			
+			logger.fine("in dctmSysobjectDocument not null");
+			DctmSysobjectProperty prop = ((DctmSysobjectProperty) (dctmSysobjectDocument
+					.findProperty("r_object_id")));
+			
+			uuid = ((StringValue) prop.nextValue()).toString();
+			
+			logger.fine("uuid of the checkpoint is "+uuid);
+			
+			prop = (DctmSysobjectProperty) dctmSysobjectDocument.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
+			
+			DctmDateValue nextValAdd =  ((DctmDateValue) prop.nextValue());
+			
+			if(nextValAdd!=null){
+				logger.fine("in nextValAdd not null");
+				dateString = nextValAdd.toDctmFormat();
+			}else{
+				logger.fine("in nextValAdd null");
+				ITime crDate = dctmSysobjectDocument.getLastModifDate();
+				logger.finest("crDate is "+crDate);
+				Date tmpDt  = crDate.getDate();
+				logger.finest("tmpDt is "+tmpDt);
+				dateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tmpDt);	
+			}
+			logger.fine("dateString of the checkpoint is "+dateString);
 		}else{
 			logger.fine("in dctmSysobjectDocument null");
+			
 			JSONObject jo;
 			try {
 				jo = new JSONObject(lastCheckPoint);
@@ -176,8 +204,9 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			DctmSysobjectProperty propDocToDel = ((DctmSysobjectProperty) (dctmSysobjectDocumentToDel.findProperty("r_object_id")));
 			
 			StringValue nextVal = ((StringValue) propDocToDel.nextValue());
+			
 			if(nextVal!=null){
-			uuidDocToDel = nextVal.toString();
+				uuidDocToDel = nextVal.toString();
 			}
 			
 			logger.fine("uuid of the checkpoint of deleted document is "+uuidDocToDel);
@@ -186,6 +215,14 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			DctmDateValue nextVal2 = ((DctmDateValue) propDocToDel.nextValue());
 			if(nextVal2!=null){
 				dateStringDocToDel = nextVal2.toDctmFormat();
+			}else{
+				logger.fine("in nextVal null");
+				ITime crDateDocToDel = collectionToDel.getTime("time_stamp");
+				logger.fine("ITime crDateDocToDel is "+crDateDocToDel);
+				Date tmpDtDocToDel  = crDateDocToDel.getDate();
+				logger.fine("Date tmpDtDocToDel is "+tmpDtDocToDel);
+				dateStringDocToDel = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tmpDtDocToDel);	
+				logger.fine("String dateStringDocToDel is "+dateStringDocToDel);
 			}
 			
 			logger.fine("dateString of the checkpoint of deleted document is "+dateStringDocToDel);
