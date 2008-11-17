@@ -183,7 +183,6 @@ public class DctmTraversalManager implements TraversalManager {
 				documentList = new DctmDocumentList(collecToAdd, collecToDel, sessionManager,
 						clientX, isPublic, included_meta, excluded_meta, dateFirstPush, checkPoint);
 			}
-			///return documentList;
 		}finally {
 			// No documents to add or delete.	 Return a null DocumentList,
 			// but close the collections first!
