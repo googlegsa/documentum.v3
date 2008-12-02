@@ -81,6 +81,11 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 				logger.info("username contains @ and is now :"+username);
 			}
 			
+			if (username.matches(".*\\.*")){
+				logger.info("username contains \\");
+				username=username.substring(username.indexOf("\\")+1,username.length());
+				logger.info("username contains \\ and is now :"+username);
+			}
 			
 			String ticket = session.getLoginTicketForUser(username);
 			logger.info("ticket :" + ticket);
