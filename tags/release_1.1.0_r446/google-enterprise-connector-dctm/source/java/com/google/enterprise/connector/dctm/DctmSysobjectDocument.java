@@ -20,7 +20,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Property;
-import com.google.enterprise.connector.spi.RepositoryDocumentException;
+///import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spiimpl.BinaryValue;
@@ -35,6 +35,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 	private String docId;
 	private String commonVersionID;
+	
 	private ITime timeStamp;
 
 	private ISysObject object = null;
@@ -123,6 +124,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				logger.fine("session released");
 			}
 		}
+		
 	}
 
 	public Property findProperty(String name){
@@ -200,10 +202,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 						} catch (IllegalArgumentException e) {
 							// TODO Auto-generated catch block
 							logger.warning("IllegalArgumentException thrown : "+ e+" on getting property : "+name);
-						}catch (RepositoryDocumentException e) {
+						/*}catch (RepositoryDocumentException e) {
 							// TODO Auto-generated catch block
 							logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
 							hashSet.add(null);	
+						*/	
 						}catch (RepositoryException e) {
 							// TODO Auto-generated catch block
 							logger.warning("RepositoryException thrown : "+ e+" on getting property : "+name);
@@ -379,7 +382,8 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 			calendar.setTime(date);
 			return calendar;
 		}else{
-			throw new RepositoryDocumentException();
+			///throw new RepositoryDocumentException();
+			throw new RepositoryException();
 		}
 		
 	}
