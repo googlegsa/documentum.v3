@@ -101,8 +101,6 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					return null;
 				}
 				
-				
-				
 				dctmSysobjectDocument = new DctmSysobjectDocument(crID, lastModifDate, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
 						excluded_meta,SpiConstants.ActionType.ADD);
@@ -279,27 +277,30 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	  public void finalize() {
 	    if ((collectionToAdd != null) &&
 	        (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE)) {
-	      try {
-	        collectionToAdd.close();
-	        logger.fine("collection of documents to add closed");
-	        sessMag.release(collectionToAdd.getSession());
-	        logger.fine("collection session released");
-	      } catch (RepositoryException e) {
-	        logger.severe("Error while closing the collection of documents to add: " + e);
-	      }
+		      try {
+		        collectionToAdd.close();
+		        logger.fine("collection of documents to add closed");
+		        ///sessMag.release(collectionToAdd.getSession());
+		        sessMag.releaseSessionAdd(); 
+		        logger.fine("collection session released");
+		      } catch (RepositoryException e) {
+		        logger.severe("Error while closing the collection of documents to add: " + e);
+		      }
 	    }
-
+	    
 	    if ((collectionToDel != null) &&
 	        (collectionToDel.getState() != ICollection.DF_CLOSED_STATE)) {
 	      try {
 	        collectionToDel.close();
 	        logger.fine("collection of documents to delete closed");
-	        sessMag.release(collectionToDel.getSession());
+	        ///sessMag.release(collectionToDel.getSession());
+	        sessMag.releaseSessionDel(); 
 	        logger.fine("collection session released");
 	      } catch (RepositoryException e) {
 	        logger.severe("Error while closing the collection of documents to delete: " + e);
 	      }
 	    }
+	    
 	  }
 	
 }

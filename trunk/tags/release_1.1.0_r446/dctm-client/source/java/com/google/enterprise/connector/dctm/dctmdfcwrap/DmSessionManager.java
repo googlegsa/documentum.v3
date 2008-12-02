@@ -19,13 +19,26 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class DmSessionManager implements ISessionManager {
 
 	IDfSessionManager dfSessionManager;
+	
+	
+	///
+	IDfSession DfSessionDel;
+	IDfSession DfSessionAdd;
+	IDfSession DfSessionAuto;
+	
+	///
 
 	private String docbaseName;
 
 	private String serverUrl;
 
-	private static Logger logger = Logger.getLogger(DmSessionManager.class
-			.getName());
+	private static Logger logger = null;
+
+	static {
+		logger = Logger.getLogger(DmSessionManager.class.getName());
+	}
+	
+	
 	
 	public DmSessionManager(IDfSessionManager DfSessionManager) {
 
@@ -37,6 +50,7 @@ public class DmSessionManager implements ISessionManager {
 		IDfSession DfSession = null;
 		try {
 			DfSession = dfSessionManager.getSession(docbase);
+			logger.finest("after getSession");
 		} catch (DfIdentityException iE) {
 			RepositoryLoginException le = new RepositoryLoginException(iE);
 			throw le;
@@ -52,7 +66,24 @@ public class DmSessionManager implements ISessionManager {
 		}
 		return new DmSession(DfSession);
 	}
-
+	
+	public void setSessionDel(ISession sess){
+		this.DfSessionDel=((DmSession) sess).getDfSession();
+		logger.finest("setSessionDel");
+		
+	}
+	
+	public void setSessionAdd(ISession sess){
+		this.DfSessionAdd=((DmSession) sess).getDfSession();
+		logger.finest("setSessionAdd");
+	}
+	
+	public void setSessionAuto(ISession sess){
+		this.DfSessionAuto=((DmSession) sess).getDfSession();
+		logger.finest("setSessionAuto");
+		
+	}
+	
 	public void setIdentity(String docbase, ILoginInfo identity)
 			throws RepositoryLoginException {
 		if (!(identity instanceof DmLoginInfo)) {
@@ -95,11 +126,31 @@ public class DmSessionManager implements ISessionManager {
 	}
 
 	public void release(ISession session) {
-		logger.finest("session released");
+		logger.finest("before session released");
 		this.dfSessionManager.release(((DmSession) session).getDfSession());
+		logger.finest("after session released");
 
 	}
+	
+	
+	public void releaseSessionAdd() {
+		logger.finest("before session released");
+		this.dfSessionManager.release(this.DfSessionAdd);
+		logger.finest("after session released");
+	}
 
+	public void releaseSessionDel() {
+		logger.finest("before session released");
+		this.dfSessionManager.release(this.DfSessionDel);
+		logger.finest("after session released");
+	}
+	
+	public void releaseSessionAuto() {
+		logger.finest("before session released");
+		this.dfSessionManager.release(this.DfSessionAuto);
+		logger.finest("after session released");
+	}
+	
 	public IDfSessionManager getDfSessionManager() {
 		return dfSessionManager;
 	}

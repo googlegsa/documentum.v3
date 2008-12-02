@@ -14,6 +14,18 @@ public interface ISessionManager {
 			throws RepositoryLoginException;
 
 	public void release(ISession session);
+	
+	public void releaseSessionAdd();
+	
+	public void releaseSessionDel(); 
+	
+	public void releaseSessionAuto(); 
+	
+	public void setSessionAdd(ISession sess);
+	
+	public void setSessionDel(ISession sess);
+	
+	public void setSessionAuto(ISession sess);
 
 	public void setServerUrl(String serverUrl);
 

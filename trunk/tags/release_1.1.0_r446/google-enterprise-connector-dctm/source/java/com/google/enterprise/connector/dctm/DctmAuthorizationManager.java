@@ -51,6 +51,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 		
 		ISessionManager sessionManagerUser = null;
 		ISession session = null;
+		ISession sessionUser = null;
 		DctmDocumentList dctmDocumentList = new DctmDocumentList();
 		
 		IQuery query = clientX.getQuery();
@@ -71,7 +72,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			
 			///makes the connector handle the patterns username@domain, domain\\username and username
 
-			
 			
 			logger.info("username :" + username);
 			
@@ -100,8 +100,16 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 			query.setDQL(dqlQuery);
 
-			collec = query.execute(sessionManagerUser,
-					IQuery.READ_QUERY);
+			
+			
+			///collec = query.execute(sessionManagerUser,IQuery.READ_QUERY);
+			
+			sessionUser = sessionManagerUser.getSession(sessionManager.getDocbaseName());
+			logger.info("set the SessionAuto for the sessionManagerUser");
+			sessionManagerUser.setSessionAuto(sessionUser);
+			
+			collec = query.execute(sessionUser,IQuery.READ_QUERY);
+			
 
 			String id = "";
 			AuthorizationResponse authorizationResponse;
@@ -128,13 +136,16 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			}
 			collec.close();
 			logger.info("after collec.close");
-		
 		}finally {
+			logger.info("in finally");
 			if(collec.getSession() != null ){
-				sessionManagerUser.release(collec.getSession());
+				logger.info("collec getSession not null");
+				///sessionManagerUser.release(collec.getSession());
+				sessionManagerUser.releaseSessionAuto();
 				logger.info("session of sessionManagerUser released");
 			}
 			if (session != null) {
+				logger.info("session not null");
 				sessionManager.release(session);
 				logger.info("session of sessionManager released");
 			}
