@@ -10,6 +10,7 @@ import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
+import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSession implements ISession {
@@ -24,7 +25,7 @@ public class DmSession implements ISession {
 
 	}
 
-	public ISysObject getObject(IId objectId) throws RepositoryException {
+	public ISysObject getObject(IId objectId) throws RepositoryDocumentException {
 
 		if (!(objectId instanceof DmId)) {
 			throw new IllegalArgumentException();
@@ -40,7 +41,7 @@ public class DmSession implements ISession {
 			///logger.info("creator name of the object is "+idfSysObject.getCreatorName());
 			///
 		} catch (DfException de) {
-			RepositoryException re = new RepositoryException(de);
+			RepositoryDocumentException re = new RepositoryDocumentException(de);
 			throw re;
 		}
 		return new DmSysObject(idfSysObject);
