@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="source/java"/>
+	<classpathentry kind="src" path="source/javatests"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
+	<classpathentry kind="lib" path="/connector-manager/dist/jarfile/connector_spi.jar" sourcepath="/connector-manager/source/java"/>
+	<classpathentry kind="lib" path="/third_party/lib/jcr-1.0.jar"/>
+	<classpathentry kind="lib" path="/third_party/lib/json.jar"/>
+	<classpathentry kind="lib" path="/dctm_third_party/lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="/dctm_third_party/lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="/connector-manager/dist/jarfile/connector_tests.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
