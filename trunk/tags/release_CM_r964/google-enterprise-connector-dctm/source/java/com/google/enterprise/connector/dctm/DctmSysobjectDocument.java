@@ -20,6 +20,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Property;
+import com.google.enterprise.connector.spi.RepositoryDocumentException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 ///import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
@@ -91,7 +93,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		this.action = action;
 	}
 
-	private void fetch(){
+	private void fetch() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException{
 		if (object != null) {
 			return;
 		}
@@ -116,8 +118,6 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 				object.setSessionManager(sessionManager);
 			}
-		}catch(RepositoryException re){
-			logger.warning("RepositoryException thrown : "+re); 
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
@@ -127,7 +127,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		
 	}
 
-	public Property findProperty(String name){
+	public Property findProperty(String name) throws RepositoryDocumentException, RepositoryLoginException, RepositoryException{
 		IFormat dctmForm = null;
 		String mimetype = "";
 		String dosExtension= "";
@@ -155,13 +155,13 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 							if(object.getContentSize()!=0){
 							    hashSet.add(new BinaryValue(object.getContent()));
 							    logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
-							   }else{
+							 }else{
 							    hashSet.add(null);
 							    logger.fine("this object has no content");
-							   }
-						} catch (RepositoryException e) {
+							 }
+						} catch (RepositoryDocumentException e) {
 							// TODO Auto-generated catch block
-							logger.warning("RepositoryException thrown : "+ e+" on getting property : "+name);
+							logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
 							hashSet.add(null);
 						}
 					
@@ -176,13 +176,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				
 						logger.fine("getting the property "+SpiConstants.PROPNAME_SECURITYTOKEN);
 						try {
-							hashSet.add(new StringValue(object.getACLDomain() + " "
-									+ object.getACLName()));
-							logger.fine("property "+SpiConstants.PROPNAME_SECURITYTOKEN+" has the value "+object.getACLDomain() + " "
-									+ object.getACLName());
-                        } catch (RepositoryException e) {
+							hashSet.add(new StringValue(object.getACLDomain() + " " + object.getACLName()));
+							logger.fine("property "+SpiConstants.PROPNAME_SECURITYTOKEN+" has the value "+object.getACLDomain() + " "+ object.getACLName());
+                        }catch (RepositoryDocumentException e) {
 							// TODO Auto-generated catch block
-                        	logger.warning("RepositoryException thrown : "+ e+" on getting property : "+name);
+                        	logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
                         	hashSet.add(null);
 						}
 					return new DctmSysobjectProperty(name, hashSet);
@@ -195,23 +193,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				} else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
 				
 						logger.fine("getting the property "+SpiConstants.PROPNAME_LASTMODIFIED);
-						try {
-							hashSet.add(new DctmDateValue(getDate("r_modify_date")));
-							logger.fine("property "+SpiConstants.PROPNAME_LASTMODIFIED+" has the value "+getDate("r_modify_date"));
-							
-						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							logger.warning("IllegalArgumentException thrown : "+ e+" on getting property : "+name);
-						/*}catch (RepositoryDocumentException e) {
-							// TODO Auto-generated catch block
-							logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
-							hashSet.add(null);	
-						*/	
-						}catch (RepositoryException e) {
-							// TODO Auto-generated catch block
-							logger.warning("RepositoryException thrown : "+ e+" on getting property : "+name);
-							hashSet.add(null);
-						}
+						
+						hashSet.add(new DctmDateValue(getDate("r_modify_date")));
+						logger.fine("property "+SpiConstants.PROPNAME_LASTMODIFIED+" has the value "+getDate("r_modify_date"));
 						
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
@@ -227,13 +211,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 							logger.fine("mimetype of the document "+versionId+" : "+mimetype);
 							logger.fine("dosExtension of the document "+versionId+" : "+dosExtension);
 							logger.fine("contentSize of the document "+versionId+" : "+contentSize);
-						} catch (RepositoryException e) {
+						} catch (RepositoryDocumentException e) {
 							// TODO Auto-generated catch block
-							logger.warning("RepositoryException thrown : "+ e+" on getting property : "+name);
+							logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
 							hashSet.add(null);
 						}
-						
-						
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
 					return null;
@@ -245,7 +227,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				}
 
 			
-				try {	
+					
 				if (object.findAttrIndex(name)!=-1){
 					IAttr attr = object.getAttr(object.findAttrIndex(name));
 					logger.finer("the attribute "+ name + " is in the position "+ object.findAttrIndex(name)+ " in the list of attributes of the fetched object");
@@ -282,15 +264,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 							logger.warning("exception is thrown when getting the value of index "+ j +" of the attribute "+ name);
 							logger.warning("exception "+e.getMessage());
 							hashSet.add(null);
-							logger.fine("null value added to the hashset");
+							///logger.fine("null value added to the hashset");
 						}
 	
 					}
 				
-				}
-				} catch (RepositoryException re) {
-					logger.warning("RepositoryException thrown : "+ re);
-					
 				}
 			
 
@@ -341,7 +319,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		return calendar;
 	}
 
-	public Set getPropertyNames(){
+	public Set getPropertyNames() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException{
 		HashSet properties=null;
 		if (SpiConstants.ActionType.ADD.equals(action)) {
 			logger.fine("fetching the object");
@@ -358,9 +336,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 						logger.finest("attribute "+name+" added to the properties");
 					}
 				}
-			} catch (RepositoryException e) {
+			} catch (RepositoryDocumentException e) {
 				// TODO Auto-generated catch block
-				logger.warning("RepositoryException thrown : "+ e);
+				logger.warning("RepositoryDocumentException thrown : "+ e);
 			}
 
 		} else {
@@ -372,8 +350,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		return properties;
 	}
 
-	public Calendar getDate(String name) throws IllegalArgumentException,
-	RepositoryException {
+	public Calendar getDate(String name) throws RepositoryDocumentException {
 		logger.finest("in getDate");
 		if (object != null){
 			Date date = object.getTime(name).getDate();
@@ -382,8 +359,8 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 			calendar.setTime(date);
 			return calendar;
 		}else{
-			///throw new RepositoryDocumentException();
-			throw new RepositoryException();
+			throw new RepositoryDocumentException();
+			
 		}
 		
 	}
