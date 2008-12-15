@@ -20,7 +20,9 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Property;
+import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spiimpl.BinaryValue;
 import com.google.enterprise.connector.spiimpl.BooleanValue;
@@ -53,13 +55,15 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 	private String object_id_name = "r_object_id";
 
 	private static Logger logger = null;
+	
+	private ITime lastModifDate;
 
 
 	static {
 		logger = Logger.getLogger(DctmSysobjectDocument.class.getName());
 	}
 
-	public DctmSysobjectDocument(String docid, ISessionManager sessionManager,
+	public DctmSysobjectDocument(String docid, ITime lastModifDate, ISessionManager sessionManager,
 			IClientX clientX, String isPublic, HashSet included_meta,
 			SpiConstants.ActionType action) {
 		this.docId = docid;
@@ -67,6 +71,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		this.clientX = clientX;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
+		this.lastModifDate = lastModifDate;
 		this.action = action;
 	}
 	
@@ -84,7 +89,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		this.action = action;
 	}
 
-	private void fetch() throws RepositoryException {
+	private void fetch() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
 		if (object != null) {
 			return;
 		}
@@ -116,7 +121,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		}
 	}
 
-	public Property findProperty(String name) throws RepositoryException {
+	public Property findProperty(String name) throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
 		IFormat dctmForm = null;
 		String mimetype = "";
 		String dosExtension= "";
@@ -138,15 +143,22 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				logger.fine("property "+SpiConstants.PROPNAME_DOCID+" has the value "+versionId);
 				return new DctmSysobjectProperty(name, hashSet);
 			} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
-				   logger.fine("getting the property "+SpiConstants.PROPNAME_CONTENT);
-				   if(object.getContentSize()!=0){
-				    hashSet.add(new BinaryValue(object.getContent()));
-				    logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
-				   }else{
-				    hashSet.add(null);
-				    logger.fine("this object has no content");
-				   }
-				   return new DctmSysobjectProperty(name, hashSet);
+				logger.fine("getting the property "+SpiConstants.PROPNAME_CONTENT);
+				try {
+					if(object.getContentSize()!=0){
+					    hashSet.add(new BinaryValue(object.getContent()));
+					    logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
+					 }else{
+					    hashSet.add(null);
+					    logger.fine("this object has no content");
+					 }
+				} catch (RepositoryDocumentException e) {
+					// TODO Auto-generated catch block
+					logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
+					hashSet.add(null);
+				}
+			
+			   return new DctmSysobjectProperty(name, hashSet);
 			} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
 				logger.fine("getting the property "+SpiConstants.PROPNAME_DISPLAYURL);
 				hashSet.add(new StringValue(sessionManager.getServerUrl() + docId));
@@ -154,11 +166,15 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				return new DctmSysobjectProperty(name, hashSet);
 			} else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
 				logger.fine("getting the property "+SpiConstants.PROPNAME_SECURITYTOKEN);
-				hashSet.add(new StringValue(object.getACLDomain() + " "
-						+ object.getACLName()));
-				logger.fine("property "+SpiConstants.PROPNAME_SECURITYTOKEN+" has the value "+object.getACLDomain() + " "
-						+ object.getACLName());
-				return new DctmSysobjectProperty(name, hashSet);
+				try {
+					hashSet.add(new StringValue(object.getACLDomain() + " " + object.getACLName()));
+					logger.fine("property "+SpiConstants.PROPNAME_SECURITYTOKEN+" has the value "+object.getACLDomain() + " "+ object.getACLName());
+                }catch (RepositoryDocumentException e) {
+					// TODO Auto-generated catch block
+                	logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
+                	hashSet.add(null);
+				}
+			return new DctmSysobjectProperty(name, hashSet);
 			} else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
 				logger.fine("getting the property "+SpiConstants.PROPNAME_ISPUBLIC);
 				hashSet.add(BooleanValue.makeBooleanValue(this.isPublic
@@ -172,15 +188,25 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				return new DctmSysobjectProperty(name, hashSet);
 			} else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
 				logger.fine("getting the property "+SpiConstants.PROPNAME_MIMETYPE);
-				dctmForm = object.getFormat();
-				mimetype = dctmForm.getMIMEType();
-				dosExtension = dctmForm.getDOSExtension();
-				contentSize= object.getContentSize();
-				///modification in order to index empty documents
-				if(contentSize==0){
-					   mimetype="text/plain";
+				try {
+					dctmForm = object.getFormat();
+					mimetype = dctmForm.getMIMEType();
+					dosExtension = dctmForm.getDOSExtension();
+					contentSize= object.getContentSize();
+					///modification in order to index empty documents
+					if(contentSize==0){
+						   mimetype="text/plain";
+					}
+					hashSet.add(new StringValue(mimetype));
+					logger.fine("property "+SpiConstants.PROPNAME_MIMETYPE+" has the value "+mimetype);
+					logger.fine("mimetype of the document "+versionId+" : "+mimetype);
+					logger.fine("dosExtension of the document "+versionId+" : "+dosExtension);
+					logger.fine("contentSize of the document "+versionId+" : "+contentSize);
+				} catch (RepositoryDocumentException e) {
+					// TODO Auto-generated catch block
+					logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
+					hashSet.add(null);
 				}
-				///
 				hashSet.add(new StringValue(mimetype));
 				logger.fine("property "+SpiConstants.PROPNAME_MIMETYPE+" has the value "+mimetype);
 				logger.fine("mimetype of the document "+versionId+" : "+mimetype);
@@ -288,22 +314,26 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		return calendar;
 	}
 
-	public Set getPropertyNames() throws RepositoryException {
+	public Set getPropertyNames() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
 		HashSet properties=null;
 		if (SpiConstants.ActionType.ADD.equals(action)) {
 			logger.fine("fetching the object");
 			fetch();
 			properties = new HashSet();
-
-			for (int i = 0; i < object.getAttrCount(); i++) {
-				IAttr curAttr = object.getAttr(i);
-				String name = curAttr.getName();
-				logger.finest("pass the attribute "+name);
-				if (included_meta.contains(name)) {
-					properties.add(name);
-					logger.finest("attribute "+name+" added to the properties");
+			try {
+				for (int i = 0; i < object.getAttrCount(); i++) {
+					IAttr curAttr = object.getAttr(i);
+					String name = curAttr.getName();
+					logger.finest("pass the attribute "+name);
+					if (included_meta.contains(name)) {
+						properties.add(name);
+						logger.finest("attribute "+name+" added to the properties");
+					}
 				}
-			}
+			}catch (RepositoryDocumentException e) {
+				// TODO Auto-generated catch block
+				logger.warning("RepositoryDocumentException thrown : "+ e);
+			}	
 
 		} else {
 			properties = new HashSet();
@@ -314,12 +344,22 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		return properties;
 	}
 
-	public Calendar getDate(String name) throws IllegalArgumentException,
-	RepositoryException {
+	public Calendar getDate(String name) throws RepositoryDocumentException {
+		logger.finest("in getDate");
+		if (object != null){
+			Date date = object.getTime(name).getDate();
+			logger.finest("Date : "+date);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(date);
+			return calendar;
+		}else{
+			throw new RepositoryDocumentException();
+			
+		}
+		
+	}
 
-		Date date = object.getTime(name).getDate();
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		return calendar;
+	protected ITime getLastModifDate() {
+		return lastModifDate;
 	}
 }
