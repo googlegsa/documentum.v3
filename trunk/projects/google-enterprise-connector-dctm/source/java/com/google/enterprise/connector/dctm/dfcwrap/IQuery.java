@@ -10,6 +10,9 @@ public interface IQuery {
 
 	ICollection execute(ISessionManager sessionManager, int queryType)
 			throws RepositoryException;
+	
+	ICollection execute(ISession session, int queryType)
+	throws RepositoryException;
 
 	public void setDQL(String dqlStatement);
 
