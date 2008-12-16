@@ -224,7 +224,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			}
 			
 			logger.fine("dateString of the checkpoint of deleted document is "+dateStringDocToDel);
-		} else if(lastCheckPoint!=null) {
+		}else if(lastCheckPoint!=null) {
 			logger.fine("in dctmSysobjectDocumentToDel null");
 			//Get the last modify date in the previous checkpoint; if exists
 			JSONObject jo;

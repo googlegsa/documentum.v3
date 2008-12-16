@@ -101,4 +101,12 @@ public class MockDmCollection implements ICollection {
 			return session;
 	}
 	
+	public ITime getTime(String colName) throws RepositoryException {
+		return null;
+	}
+
+	public boolean hasNext() throws RepositoryException {
+		// TODO Auto-generated method stub
+		return collection.hasNext();
+	}
 }

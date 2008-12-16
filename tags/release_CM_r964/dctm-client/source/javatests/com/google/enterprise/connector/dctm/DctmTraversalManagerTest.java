@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.DocumentList;
+import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
@@ -55,12 +56,10 @@ public class DctmTraversalManagerTest extends TestCase {
 	public void testMakeCheckpointQueryString() {
 		String uuid = "090000018000e100";
 		String statement = "";
-		try {
-			statement = qtm.makeCheckpointQueryString(uuid,
+		
+		statement = qtm.makeCheckpointQueryString(uuid,
 					"2007-01-02 13:58:10");
-		} catch (RepositoryException re) {
-
-		}
+		
 
 		assertNotNull(statement);
 		assertEquals(DmInitialize.DM_CHECKPOINT_QUERY_STRING, statement);
