@@ -43,8 +43,8 @@ public class DctmDocumentListTest extends TestCase {
 		ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
 
 		documentList = new DctmDocumentList(collec, collec, sessionManager,
-				dctmClientX, false, DmInitialize.included_meta,
-				DmInitialize.excluded_meta,"","");
+				dctmClientX, false, DmInitialize.hashIncluded_meta,
+				"","");
 	}
 
 	/*
