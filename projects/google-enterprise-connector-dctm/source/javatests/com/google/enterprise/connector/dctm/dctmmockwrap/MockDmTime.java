@@ -25,4 +25,14 @@ public class MockDmTime implements ITime {
 		return simpleDateFormat.format(time);
 	}
 
+	public String asString(String pattern) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getTime_pattern44() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
