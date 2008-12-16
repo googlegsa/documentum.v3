@@ -149,9 +149,8 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 					logger.fine("property "+SpiConstants.PROPNAME_DOCID+" has the value "+versionId);
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
-					   logger.fine("getting the property "+SpiConstants.PROPNAME_CONTENT);
-					   
-						try {
+					logger.fine("getting the property "+SpiConstants.PROPNAME_CONTENT);
+					try {
 							if(object.getContentSize()!=0){
 							    hashSet.add(new BinaryValue(object.getContent()));
 							    logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
@@ -173,7 +172,6 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 					logger.fine("property "+SpiConstants.PROPNAME_DISPLAYURL+" has the value "+sessionManager.getServerUrl() + docId);
 					return new DctmSysobjectProperty(name, hashSet);
 				} else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
-				
 						logger.fine("getting the property "+SpiConstants.PROPNAME_SECURITYTOKEN);
 						try {
 							hashSet.add(new StringValue(object.getACLDomain() + " " + object.getACLName()));

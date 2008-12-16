@@ -58,13 +58,10 @@ public class DctmMockTraversalManagerTest extends TestCase {
 		String uuid = "doc2";
 		String statement = "";
 
-		try {
-			statement = qtm.makeCheckpointQueryString(uuid,
+		 
+		statement = qtm.makeCheckpointQueryString(uuid,
 					"1970-01-01 01:00:00");
-		} catch (RepositoryException re) {
-
-		}
-
+		
 		assertNotNull(statement);
 		System.out.println(statement);
 		assertEquals(DmInitialize.DM_CHECKPOINT_QUERY_STRING, statement);

@@ -417,7 +417,6 @@ public class DctmTraversalManager implements TraversalManager {
 	}
 
 	protected String buildQueryStringToDel(String checkpoint){
-		
 		StringBuffer query = new StringBuffer(
 		"select r_object_id,  chronicle_id, time_stamp from dm_audittrail " );
 
