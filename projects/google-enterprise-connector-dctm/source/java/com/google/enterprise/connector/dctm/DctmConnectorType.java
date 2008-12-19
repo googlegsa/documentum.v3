@@ -139,8 +139,6 @@ public class DctmConnectorType implements ConnectorType {
 	
 	private String authentication_type = null;
 	
-	private String advanced_configuration = null;
-	
 	private String clientX = null;
 	
 	private static Logger logger = Logger.getLogger(DctmConnectorType.class
@@ -228,6 +226,9 @@ public class DctmConnectorType implements ConnectorType {
 
 		return new ConfigureResponse("", initialConfigForm);
 	}
+	
+	
+	
 
 	public ConfigureResponse validateConfig(Map configData, Locale language,
 			ConnectorFactory connectorFactory) {
@@ -282,7 +283,6 @@ public class DctmConnectorType implements ConnectorType {
 				String pass=myinfo.getPassword();
 				String user=myinfo.getUser();
 				logger.info("login user : "+user);
-				logger.info("login pass : "+pass);
 				
 				
 				setSession(configData);
@@ -362,6 +362,11 @@ public class DctmConnectorType implements ConnectorType {
 				logger.info("RepositoryException thrown in validateconfig "+e.getMessage());
 //				return the config form with an error message (written in red)
 				return createErrorMessage(configData, e);
+			}finally{
+				if(sess!=null){
+					sessMag.releaseSessionConfig();
+					logger.info("Release sessionConfig");
+				}
 			}
 			
 			
@@ -385,41 +390,80 @@ public class DctmConnectorType implements ConnectorType {
 	}
 
 	public ConfigureResponse getPopulatedConfigForm(Map configMap,
-			Locale language) {
-		logger.info("getConfigForm");
+			Locale language)  {
+		logger.info("getPopulatedConfigForm");
+		ConfigureResponse result = null;
 			
+		try {
+			setSessionManager(configMap);
 		
-		for (Iterator i = keys.iterator(); i.hasNext();) {
-			String key = (String) i.next();
-			String val = (String) configMap.get(key);
-			if(key.equals("advanced_configuration")&&val==null){
-				val=getAdvanced_configuration();
-				configMap.put(key,val);
-			}else if(key.equals("clientX")&&(val==null||val.equals(""))){
-				val=getClientX();
-				configMap.put(key,val);
-			}else if(key.equals("authentication_type")&&(val==null||val.equals(""))){
-				val=getAuthentication_type();
-				configMap.put(key,val);
-			}else if(key.equals("root_object_type")&&val==null){
-				val=getRoot_object_type();
-				configMap.put(key,val);
+	
+			setSession(configMap);
+		
+		
+			for (Iterator i = keys.iterator(); i.hasNext();) {
+				String key = (String) i.next();
+				String val = (String) configMap.get(key);
+				if(key.equals("advanced_configuration")&&val==null){
+					logger.info("advanced_configuration null");
+					///val=getAdvanced_configuration();
+					val="off";
+					logger.info("val advanced_configuration is now "+val);
+					configMap.put(key,val);
+					logger.info("added in configMap");
+				}if(key.equals("action_update")&&val==null){
+					logger.info("action_update null");
+					///val=getAction_update();
+					val="save";
+					logger.info("val action_update is now "+val);
+					configMap.put(key,val);
+					logger.info("added in configMap");
+				}else if(key.equals("clientX")&&(val==null||val.equals(""))){
+					logger.info("clientX null or empty");
+					val=getClientX();
+					logger.info("val clientX is now "+val);
+					configMap.put(key,val);
+					logger.info("added in configMap");
+				}else if(key.equals("authentication_type")&&(val==null||val.equals(""))){
+					logger.info("authentication_type null or empty");
+					val=getAuthentication_type();
+					logger.info("val authentication_type is now "+val);
+					configMap.put(key,val);
+					logger.info("added in configMap");
+				}else if(key.equals("root_object_type")&&val==null){
+					logger.info("root_object_type null or empty");
+					val=getRoot_object_type();
+					logger.info("val root_object_type is now "+val);
+					configMap.put(key,val);
+					logger.info("added in configMap");
+				}
+				
+				logger.info("in getConfigForm before spring process key "+key+" is "+val);
+			}
+		
+		
+			try {
+				resource = ResourceBundle.getBundle("DctmConnectorResources",
+						language);
+			} catch (MissingResourceException e) {
+				resource = ResourceBundle.getBundle("DctmConnectorResources");
 			}
 			
-			logger.info("in getConfigForm before spring process key "+key+" is "+val);
+			
+			result = new ConfigureResponse("",
+					makeValidatedForm(configMap));
+		
+		} catch (RepositoryException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}finally{
+			if(sess!=null){
+				sessMag.releaseSessionConfig();
+				logger.info("Release sessionConfig");
+			}
 		}
 		
 		
-		try {
-			resource = ResourceBundle.getBundle("DctmConnectorResources",
-					language);
-		} catch (MissingResourceException e) {
-			resource = ResourceBundle.getBundle("DctmConnectorResources");
-		}
-		
-		
-		ConfigureResponse result = new ConfigureResponse("",
-				makeValidatedForm(configMap));
 		return result;
 	}
 
@@ -487,7 +531,8 @@ public class DctmConnectorType implements ConnectorType {
 					if (collec.getState() != ICollection.DF_CLOSED_STATE){
 						collec.close();
 						logger.info("after closing the collection");
-						sessMag.release(collec.getSession());
+						///sessMag.release(collec.getSession());
+						sessMag.releaseSessionConfig();
 						logger.info("after releasing the session");
 					}	
 				}	
@@ -528,7 +573,11 @@ public class DctmConnectorType implements ConnectorType {
 			RepositoryException re = new RepositoryException("[HttpException]",
 					e);
 			throw new RepositoryException(re);
-		} catch (IOException e) {
+		}catch (IllegalArgumentException e) {
+			RepositoryException re = new RepositoryException("[IllegalArgumentException]", e);
+			throw new RepositoryException(re);
+		}
+		catch (IOException e) {
 			RepositoryException re = new RepositoryException("[IOException]", e);
 			throw new RepositoryException(re);
 		}
@@ -719,6 +768,8 @@ public class DctmConnectorType implements ConnectorType {
 							
 						}else{	
 							logger.info("cas actionUpdate uncheckadvconf or no sess");
+							logger.info("cas actionUpdate "+actionUpdate);
+							logger.info("cas advConfe "+advConf);
 							hashIncludedType=null;
 							
 							//properties from connectorType.xml file are loaded in a hashset
@@ -809,17 +860,17 @@ public class DctmConnectorType implements ConnectorType {
 					
 			// TODO Auto-generated catch block
 			
-		}finally{
+		}/*finally{
 			
 				if(sess!=null){
 				///if((advConf.equals("true"))&&(sess!=null)){
 					
-					sessMag.release(sess);
+					///sessMag.release(sess);
+					sessMag.releaseSessionConfig();
 					logger.info("session released ");
 					
 				}
-			
-		}
+		}*/
 		
 		
 		
@@ -878,6 +929,7 @@ public class DctmConnectorType implements ConnectorType {
 		sessMag.setDocbaseName((String)LogMap.get(DOCBASENAME));
 		logger.info("after setIdentity for docbase : "+(String)LogMap.get(DOCBASENAME));
 		logger.info("new sessionManager");
+		
 	}
 	
 	
@@ -899,6 +951,7 @@ public class DctmConnectorType implements ConnectorType {
 		
 		
 		sess=sessMag.getSession((String)LogMap.get(DOCBASENAME));
+		sessMag.setSessionConfig(sess);
 		
 	}
 	
@@ -1085,7 +1138,8 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf,String name,IColl
 		if (collecTypes.getState() != ICollection.DF_CLOSED_STATE) {
 			collecTypes.close();
 			logger.fine("collection closed");
-			sessMag.release(collecTypes.getSession());
+			///sessMag.release(collecTypes.getSession());
+			sessMag.releaseSessionConfig();
 			logger.fine("collection session released");
 		}	
 	}catch(RepositoryException re1){
@@ -1462,8 +1516,6 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
 			///if (value != null) {
 				logger.info("advanced conf not null");	
 					logger.info("advanced conf set to on");
-					///buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\" checked>");
-					///insertIncludeMetas();insertIncludeTypes();
 					buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&&(document.getElementById('Password').value != '')&&(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
 							"document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('"+resource.getString("advanced_config_error")+"');this.checked=false;}}else{if(confirm('"+resource.getString("confirm_uncheck_advanced")+"')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
 									"document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\" checked>");
@@ -1667,19 +1719,36 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
 		return clientX;
 	}
 	
+	
 	public void setClientX(String clientX) {
 		this.clientX = clientX;
 		logger.log(Level.INFO, "clientX set to " +clientX);
 	}
 	
+	/*
 	public String getAdvanced_configuration() {
-
+		logger.info("get advanced_configuration : " +advanced_configuration);
+		
 		return advanced_configuration;
 	}
+	
 	
 	public void setAdvanced_configuration(String advanced_configuration) {
 		this.advanced_configuration = advanced_configuration;
 		logger.info("advanced_configuration set to " +advanced_configuration);
 	}
+	
+	public String getAction_update() {
+		logger.info("get action_update : " +action_update);
+		return action_update;
+	}
+	
+	
+	public void setAction_update(String action_update) {
+		this.action_update = action_update;
+		logger.info("action_update set to " +action_update);
+	}
+	*/
+	
 	
 }

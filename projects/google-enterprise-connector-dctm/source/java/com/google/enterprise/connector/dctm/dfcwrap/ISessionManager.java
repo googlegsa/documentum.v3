@@ -35,9 +35,13 @@ public interface ISessionManager {
 	
 	public void releaseSessionAuto(); 
 	
+	public void releaseSessionConfig(); 
+	
 	public void setSessionAdd(ISession sess);
 	
 	public void setSessionDel(ISession sess);
 	
 	public void setSessionAuto(ISession sess);
+	
+	public void setSessionConfig(ISession sess);
 }
