@@ -32,6 +32,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	private MockDmSession sessionDel;
 	private MockDmSession sessionAdd;
 	private MockDmSession sessionAuto;
+	private MockDmSession sessionConfig;
 
 	private HashMap sessMgerCreds = new HashMap(1, 1);
 
@@ -287,6 +288,16 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 
 	public void setSessionAuto(ISession sess) {
 		sessionAuto = (MockDmSession)sess;
+		
+	}
+
+	public void releaseSessionConfig() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setSessionConfig(ISession sess) {
+		sessionConfig = (MockDmSession)sess;
 		
 	}
 
