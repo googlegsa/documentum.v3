@@ -1,7 +1,5 @@
 package com.google.enterprise.connector.dctm;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.logging.Logger;
@@ -37,6 +35,9 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 
 	private HashSet included_meta;
 
+	private HashSet excluded_meta;
+	
+	
 	private String lastCheckPoint;
 	private String dateFirstPush;
 	
@@ -52,13 +53,15 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	}
 
 	public DctmDocumentList(ICollection collToAdd,ICollection collToDel, ISessionManager sessMag,
-			IClientX clientX, boolean isPublic, HashSet included_meta, String dateFirstPush,String lastCheckPoint) {
+			IClientX clientX, boolean isPublic, HashSet included_meta,
+			HashSet excluded_meta, String dateFirstPush,String lastCheckPoint) {
 		this.collectionToAdd = collToAdd;
 		this.collectionToDel = collToDel;
 		this.clientX = clientX;
 		this.sessMag = sessMag;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
+		this.excluded_meta = excluded_meta;
 		this.dateFirstPush = dateFirstPush;
 		this.lastCheckPoint=lastCheckPoint;
 	}
@@ -72,23 +75,14 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		logger.fine("The collection state :" + collectionToAdd.getState());
 		logger.fine("The collection delete state :"+ collectionToAdd.getState());
 		
-		
-		
-		Document retDoc = null;
 		try {
 			if (collectionToAdd.next()) {
 
 				logger.fine("Looking throw the collection");
 				
 				String crID = "";
-				ITime lastModifDate = null;
 				try {
 					crID = collectionToAdd.getString("r_object_id");
-					
-					///
-					lastModifDate = collectionToAdd.getTime("r_modify_date");
-					logger.fine("lastModifDate is "+lastModifDate);
-					///
 					
 					logger.fine("r_object_id is "+crID);
 					
@@ -97,16 +91,13 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					return null;
 				}
 				
-				
-				
-				
-				dctmSysobjectDocument = new DctmSysobjectDocument(crID, lastModifDate, sessMag,
+				dctmSysobjectDocument = new DctmSysobjectDocument(crID, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
-						SpiConstants.ActionType.ADD);
+						excluded_meta,SpiConstants.ActionType.ADD);
 				
 				logger.fine("Creation of a new dctmSysobjectDocument");
-				retDoc = dctmSysobjectDocument;
-			} else if (collectionToDel != null && collectionToDel.next()) {
+				return dctmSysobjectDocument;
+			} else if (collectionToDel.next()) {
 				logger.fine("Looking throw the collection of document to remove");
 				
 				String crID = "";
@@ -127,10 +118,10 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				
 				dctmSysobjectDocumentToDel = new DctmSysobjectDocument(crID, commonVersionID, lastDeleteDate, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
-						SpiConstants.ActionType.DELETE);
+						excluded_meta,SpiConstants.ActionType.DELETE);
 				
 				logger.fine("Creation of a new dctmSysobjectDocumentToDel");
-				retDoc = dctmSysobjectDocumentToDel;
+				return dctmSysobjectDocumentToDel;
 				
 			} else {
 				logger.severe("End of document list");
@@ -138,10 +129,26 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		} catch (RepositoryException re) {
 			logger.severe("Error while trying to get next document : "+re);
 			checkpoint();		
-		} finally {
-			if (retDoc == null) finalize();
 		}
-		return retDoc;
+		
+		try{
+			if (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE) {
+				collectionToAdd.close();
+				logger.fine("collection closed");
+				sessMag.release(collectionToAdd.getSession());
+				logger.fine("collection session released");
+			}
+			if (collectionToDel.getState() != ICollection.DF_CLOSED_STATE) {
+				collectionToDel.close();
+				logger.fine("collection of document to delete closed");
+				sessMag.release(collectionToDel.getSession());
+				logger.fine("collection session released");
+			}
+		}catch (RepositoryException re1){
+			logger.severe("Error while closing in nextDocument()"+re1);
+		}
+		
+		return null;
 	}
 
 	public String checkpoint() throws RepositoryException {
@@ -149,29 +156,19 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		//Last Document added to the GSA
 		String uuid ="";
 		String dateString="";
-		if(dctmSysobjectDocument !=null){
-			logger.fine("in dctmSysobjectDocument not null");
-			DctmSysobjectProperty prop = ((DctmSysobjectProperty) (dctmSysobjectDocument
-					.findProperty("r_object_id")));
-			uuid = ((StringValue) prop.nextValue()).toString();
-			logger.fine("uuid of the checkpoint is "+uuid);
-			
-			prop = (DctmSysobjectProperty) dctmSysobjectDocument.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
-			
-			DctmDateValue nextValAdd =  ((DctmDateValue) prop.nextValue());
-			
-			if(nextValAdd!=null){
-				logger.fine("in nextValAdd not null");
-				dateString = nextValAdd.toDctmFormat();
-			}else{
-				logger.fine("in nextValAdd null");
-				ITime crDate = dctmSysobjectDocument.getLastModifDate();
-				logger.finest("crDate is "+crDate);
-				Date tmpDt  = crDate.getDate();
-				logger.finest("tmpDt is "+tmpDt);
-				dateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tmpDt);	
-			}
-			
+		if(dctmSysobjectDocument !=null)
+		{
+		logger.fine("in dctmSysobjectDocument not null");
+		DctmSysobjectProperty prop = ((DctmSysobjectProperty) (dctmSysobjectDocument
+				.findProperty("r_object_id")));
+		uuid = ((StringValue) prop.nextValue()).toString();
+		logger.fine("uuid of the checkpoint is "+uuid);
+		prop = (DctmSysobjectProperty) dctmSysobjectDocument
+				.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
+		dateString = ((DctmDateValue) prop.nextValue()).toDctmFormat();
+		logger.fine("dateString of the checkpoint is "+dateString);
+		
+		
 		}else{
 			logger.fine("in dctmSysobjectDocument null");
 			JSONObject jo;
@@ -202,14 +199,6 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			DctmDateValue nextVal2 = ((DctmDateValue) propDocToDel.nextValue());
 			if(nextVal2!=null){
 				dateStringDocToDel = nextVal2.toDctmFormat();
-			}else{
-				logger.fine("in nextVal null");
-				ITime crDateDocToDel = collectionToDel.getTime("time_stamp");
-				logger.fine("ITime crDateDocToDel is "+crDateDocToDel);
-				Date tmpDtDocToDel  = crDateDocToDel.getDate();
-				logger.fine("Date tmpDtDocToDel is "+tmpDtDocToDel);
-				dateStringDocToDel = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tmpDtDocToDel);	
-				logger.fine("String dateStringDocToDel is "+dateStringDocToDel);
 			}
 			
 			logger.fine("dateString of the checkpoint of deleted document is "+dateStringDocToDel);
@@ -251,41 +240,25 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			for (int i = 0; i < test.length; i++) {
 				System.out.println(test[i].toString());
 			}
+			collectionToAdd.close();
+			logger.fine("Collection is closed after JSON problem");
 			throw new RepositoryException("Unexpected JSON problem", e);
 		} catch (Exception e) {
 			logger.severe("Collection is closed after problem...");
 		} finally {
-			finalize();
+			if (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE) {
+				logger.finer("Verification of the Collection state : not closed");
+				try {
+					collectionToAdd.close();
+					collectionToDel.close();
+					
+				} catch (RepositoryException e) {
+					logger.severe("Error while closing the collection : " + e);
+				}
+				logger.fine("Collection closed");
+			}
 		}
 
 		return result;
 	}
-
-  // Last chance to make sure the collections are closed and their sessions
-  // are released.
-  public void finalize() {
-    if ((collectionToAdd != null) &&
-        (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE)) {
-    	try {
-	        collectionToAdd.close();
-	        logger.fine("collection of documents to add closed");
-	        sessMag.releaseSessionAdd(); 
-	        logger.fine("collection session released");
-	      } catch (RepositoryException e) {
-	        logger.severe("Error while closing the collection of documents to add: " + e);
-	      }
-    }
-
-    if ((collectionToDel != null) &&
-        (collectionToDel.getState() != ICollection.DF_CLOSED_STATE)) {
-    	try {
-	        collectionToDel.close();
-	        logger.fine("collection of documents to delete closed");
-	        sessMag.releaseSessionDel(); 
-	        logger.fine("collection session released");
-	     }catch (RepositoryException e) {
-	        logger.severe("Error while closing the collection of documents to delete: " + e);
-	     }
-    }
-  }
 }

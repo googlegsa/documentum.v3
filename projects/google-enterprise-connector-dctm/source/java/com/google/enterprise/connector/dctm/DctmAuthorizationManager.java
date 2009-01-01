@@ -18,7 +18,6 @@ import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
 
@@ -44,69 +43,41 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 	}
 
 	public Collection authorizeDocids(Collection docids,
-			AuthenticationIdentity authenticationIdentity) throws RepositoryException{
+			AuthenticationIdentity authenticationIdentity)
+			throws RepositoryException {
 		String username = authenticationIdentity.getUsername();
-		logger.info("username :" + username);
-		ICollection collec =null;
-		
-		ISessionManager sessionManagerUser = null;
-		ISession session = null;
-		ISession sessionUser = null;
-		DctmDocumentList dctmDocumentList = new DctmDocumentList();
-		
 		IQuery query = clientX.getQuery();
 		String dqlQuery = "";
 		List docidList = new ArrayList(docids);
-		
+		ISession session = sessionManager.getSession(sessionManager
+				.getDocbaseName());
+		DctmDocumentList dctmDocumentList = new DctmDocumentList();
 	
-		session = sessionManager.getSession(sessionManager.getDocbaseName());
+		ICollection collec =null;
+		ISessionManager sessionManagerUser = null;
 		
-		logger.info("docbase :" + sessionManager.getDocbaseName());
+		try {
+			sessionManagerUser = clientX.getLocalClient()
+					.newSessionManager();
+			String ticket = session.getLoginTicketForUser(username);
+			ILoginInfo logInfo = clientX.getLoginInfo();
+			logInfo.setUser(username);
+			logInfo.setPassword(ticket);
 
-		sessionManagerUser = clientX.getLocalClient().newSessionManager();
-			
-			
-		///makes the connector handle the patterns username@domain, domain\\username and username
+			logger.log(Level.INFO, "authorisation for " + username);
 
-			
-			
-		logger.info("username :" + username);
-			
-		if (username.matches(".*@.*")){
-			logger.info("username contains @");
-			username=username.substring(0,username.indexOf('@'));
-			logger.info("username contains @ and is now :"+username);
-		}
-			
-		if (username.matches(".*\\.*")){
-			logger.info("username contains \\");
-			username=username.substring(username.indexOf("\\")+1,username.length());
-			logger.info("username contains \\ and is now :"+username);
-		}
-			
-		String ticket = session.getLoginTicketForUser(username);
-		logger.info("ticket :" + ticket);
-		ILoginInfo logInfo = clientX.getLoginInfo();
-		logInfo.setUser(username);
-		logInfo.setPassword(ticket);
-
-		logger.log(Level.INFO, "authorisation for " + username);
-
-		sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
+			sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
 					logInfo);
-		sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
+			sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
-		dqlQuery = buildQuery(docidList);
+			dqlQuery = buildQuery(docidList);
 
-		logger.log(Level.INFO, "dql " + dqlQuery);
+			logger.log(Level.INFO, "dql " + dqlQuery);
 
-		query.setDQL(dqlQuery);
-		try{
-			sessionUser = sessionManagerUser.getSession(sessionManager.getDocbaseName());
-			logger.info("set the SessionAuto for the sessionManagerUser");
-			sessionManagerUser.setSessionAuto(sessionUser);
-			
-			collec = query.execute(sessionUser,IQuery.READ_QUERY);
+			query.setDQL(dqlQuery);
+
+			collec = query.execute(sessionManagerUser,
+					IQuery.READ_QUERY);
 
 			String id = "";
 			AuthorizationResponse authorizationResponse;
@@ -133,24 +104,21 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			}
 			collec.close();
 			logger.info("after collec.close");
-		}finally {
-			logger.info("in finally");
+		} finally {
 			if(collec.getSession() != null ){
-				logger.info("collec getSession not null");
-				sessionManagerUser.releaseSessionAuto();
+				sessionManagerUser.release(collec.getSession());
 				logger.info("session of sessionManagerUser released");
 			}
 			if (session != null) {
-				logger.info("session not null");
 				sessionManager.release(session);
 				logger.info("session of sessionManager released");
 			}
 			
 		}
+
 		return dctmDocumentList;
 	}
-	
-	
+
 	private String buildQuery(List docidList) {
 		int i;
 		String queryString;

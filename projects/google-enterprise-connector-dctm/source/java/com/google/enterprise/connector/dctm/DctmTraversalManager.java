@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -15,7 +14,6 @@ import org.json.JSONObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -28,7 +26,7 @@ public class DctmTraversalManager implements TraversalManager {
 	private String order_by = " order by r_modify_date,r_object_id";
 
 	private String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
-	 
+	
 
 	private String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
 	private String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
@@ -42,10 +40,12 @@ public class DctmTraversalManager implements TraversalManager {
 	protected String additionalWhereClause;
 
 	private boolean isPublic;
-	
-	private HashSet hash_included_object_type;
-	
-	private HashSet hash_included_meta;
+
+	private HashSet included_meta;
+
+	private HashSet excluded_meta;
+
+	private HashSet included_object_type;
 
 	private String root_object_type;
 
@@ -59,16 +59,17 @@ public class DctmTraversalManager implements TraversalManager {
 
 	public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
 			String additionalWhereClause, boolean isPublic,
-			String included_meta, String included_object_type, String root_object_type)
+			HashSet included_meta, HashSet excluded_meta,
+			HashSet included_object_type, String root_object_type)
 	throws RepositoryException {
 		this.additionalWhereClause = additionalWhereClause;
 		setClientX(clientX);
 		setSessionManager(clientX.getSessionManager());
-		
 		this.serverUrl = webtopServerUrl;
 		this.isPublic = isPublic;
-		setHash_included_object_type(included_object_type);
-		setHash_included_meta(included_meta);
+		this.included_meta = included_meta;
+		this.excluded_meta = excluded_meta;
+		this.included_object_type = included_object_type;
 		this.root_object_type = root_object_type;
 	}
 
@@ -165,62 +166,16 @@ public class DctmTraversalManager implements TraversalManager {
 		sessionManager.setServerUrl(serverUrl);
 		ICollection collecToAdd = null;
 		ICollection collecToDel = null;
-		
-		ISession sessAdd = null;
-		ISession sessDel = null;
 
 		DocumentList documentList = null;
-		try {
-			if (query != null) {
-				sessAdd =sessionManager.getSession(sessionManager.getDocbaseName());
-				sessionManager.setSessionAdd(sessAdd);
-				collecToAdd = query.execute(sessAdd, IQuery.EXECUTE_READ_QUERY);
-				logger.fine("execution of the query returns a collection of document to add");
-			}
-			
-			if (queryDocToDel != null) {
-				sessDel =sessionManager.getSession(sessionManager.getDocbaseName());
-				sessionManager.setSessionDel(sessDel);
-				collecToDel = queryDocToDel.execute(sessDel, IQuery.EXECUTE_READ_QUERY);
-				logger.fine("execution of the query returns a collection of document to delete");
-			}
-			
-			
-			if ((collecToAdd != null && collecToAdd.hasNext()) ||
-					(collecToDel != null && collecToDel.hasNext())) {
-				documentList = new DctmDocumentList(collecToAdd, collecToDel, sessionManager,
-						clientX, isPublic, hash_included_meta, dateFirstPush, checkPoint);
-			}
-			
-			return documentList;
-			
-			
-		} finally {
-			// No documents to add or delete.	 Return a null DocumentList,
-			// but close the collections first!
-			if (documentList == null) {
-				if (collecToAdd != null) {
-					try {
-						collecToAdd.close();
-						logger.fine("collection of documents to add closed");
-						sessionManager.releaseSessionAdd(); 
-						logger.fine("collection session released");
-					} catch (RepositoryException e) {
-						logger.severe("Error while closing the collection of documents to add: " + e);
-					}
-				}
-				if (collecToDel != null) {
-					try {
-						collecToDel.close();
-						logger.fine("collection of documents to delete closed");
-						sessionManager.releaseSessionDel(); 
-						logger.fine("collection session released");
-					} catch (RepositoryException e) {
-						logger.severe("Error while closing the collection of documents to delete: " + e);
-					}
-				}
-			}
-		}
+		collecToAdd = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
+		logger.fine("execution of the query returns a collection of document to add");
+		collecToDel = queryDocToDel.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
+		logger.fine("execution of the query returns a collection of document to delete");
+		
+		documentList = new DctmDocumentList(collecToAdd,collecToDel, sessionManager, clientX,
+				isPublic, included_meta, excluded_meta, dateFirstPush,checkPoint);
+		return documentList;
 	}
 
 	/**
@@ -230,7 +185,17 @@ public class DctmTraversalManager implements TraversalManager {
 	 * @throws RepositoryException
 	 */
 	protected DocumentList execQuery(IQuery query) throws RepositoryException {
-		return this.execQuery(query, null, null);
+		sessionManager.setServerUrl(serverUrl);
+		ICollection collecToAdd = null;
+		ICollection collecToDel = null;
+
+		DocumentList documentList = null;
+		collecToAdd = query.execute(sessionManager, IQuery.EXECUTE_READ_QUERY);
+		logger.fine("execution of the query returns a collection of document to add");
+
+		documentList = new DctmDocumentList(collecToAdd,collecToDel, sessionManager, clientX,
+				isPublic, included_meta, excluded_meta, dateFirstPush,null);
+		return documentList;
 	}
 
 	protected IQuery makeCheckpointQuery(String queryString)
@@ -355,9 +320,9 @@ public class DctmTraversalManager implements TraversalManager {
 		StringBuffer query = new StringBuffer(
 				"select i_chronicle_id, r_object_id, r_modify_date from "
 				+ this.root_object_type);
-		if (!hash_included_object_type.isEmpty()) {
+		if (!included_object_type.isEmpty()) {
 			query.append(" where (");
-			Iterator iter = hash_included_object_type.iterator();
+			Iterator iter = this.included_object_type.iterator();
 			String name = (String) iter.next();
 			query.append(" r_object_type='" + name + "'");
 			while (iter.hasNext()) {
@@ -370,17 +335,8 @@ public class DctmTraversalManager implements TraversalManager {
 			query.append("dm_document");
 			query.append("' ");
 		}
-		if (this.additionalWhereClause != null && (!this.additionalWhereClause.equals(""))) {
+		if (this.additionalWhereClause != null) {
 			logger.fine("adding the additionalWhereClause to the query : "+additionalWhereClause);
-			///adding the "and" operator if not present in the additional where clause (mandatory)
-			if (!this.additionalWhereClause.toLowerCase().startsWith("and ")) {
-				///throw new RepositoryException("[additional] ");
-				logger.log(Level.INFO, "clause does not start with AND : ");
-				this.additionalWhereClause="and ".concat(additionalWhereClause);
-				logger.log(Level.INFO, "after adding AND : "
-						+ additionalWhereClause);
-			}
-			
 			query.append(additionalWhereClause);
 		}
 		if (checkpoint != null) {
@@ -506,26 +462,5 @@ public class DctmTraversalManager implements TraversalManager {
 	public void setPublic(boolean isPublic) {
 		this.isPublic = isPublic;
 	}
-	
-	
-	protected void setHash_included_object_type(String included_object_type){
-		hash_included_object_type = new HashSet();
-		String[] hashTab= included_object_type.split(",");
-		int i = 0;
-		for(i=0;i<hashTab.length;i++){
-			hash_included_object_type.add(hashTab[i]);
-		}
-		this.hash_included_object_type=hash_included_object_type;
-	}
 
-	
-	protected void setHash_included_meta(String included_metadata){
-		hash_included_meta = new HashSet();
-		String[] hashTab= included_metadata.split(",");
-		int i = 0;
-		for(i=0;i<hashTab.length;i++){
-			hash_included_meta.add(hashTab[i]);
-		}
-		this.hash_included_meta=hash_included_meta;
-	}
 }

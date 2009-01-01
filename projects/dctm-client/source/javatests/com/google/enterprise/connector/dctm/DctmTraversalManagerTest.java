@@ -32,7 +32,6 @@ public class DctmTraversalManagerTest extends TestCase {
 		((DctmConnector) connector).setIs_public("false");
 		((DctmConnector) connector)
 				.setIncluded_object_type(DmInitialize.included_object_type);
-		
 		((DctmConnector) connector)
 				.setRoot_object_type(DmInitialize.root_object_type);
 		Session sess = (DctmSession) connector.login();
