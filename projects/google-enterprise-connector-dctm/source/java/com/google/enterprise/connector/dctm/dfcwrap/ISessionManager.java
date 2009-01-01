@@ -28,20 +28,4 @@ public interface ISessionManager {
 	public boolean authenticate(String docbaseName);
 
 	public void clearIdentity(String docbase);
-	
-	public void releaseSessionAdd();
-	
-	public void releaseSessionDel(); 
-	
-	public void releaseSessionAuto(); 
-	
-	public void releaseSessionConfig(); 
-	
-	public void setSessionAdd(ISession sess);
-	
-	public void setSessionDel(ISession sess);
-	
-	public void setSessionAuto(ISession sess);
-	
-	public void setSessionConfig(ISession sess);
 }

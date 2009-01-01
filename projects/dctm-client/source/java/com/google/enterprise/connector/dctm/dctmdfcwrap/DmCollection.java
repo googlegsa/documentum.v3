@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.lang.IllegalStateException;
 import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -23,7 +22,7 @@ public class DmCollection implements ICollection {
 	private boolean didPeek = false;
 	private boolean peekResult;
 	private int peekState;
-
+	
 	private static Logger logger = Logger.getLogger(DmCollection.class
 			.getName());
 
@@ -48,6 +47,7 @@ public class DmCollection implements ICollection {
 		return new DmValue(dfValue);
 	}
 
+
 	/* IDfCollection.DF_NO_MORE_ROWS_STATE is fundamentally broken
 	 * as it is not testable from DF_INITIAL_STATE.	 Therefore, we
 	 * cannot tell if a IDfCollection as more than zero rows without
@@ -67,7 +67,7 @@ public class DmCollection implements ICollection {
 		}
 		return peekResult;
 	}
-
+	
 	public boolean next() throws RepositoryException {
 		if (didPeek) {
 			didPeek = false;
@@ -119,7 +119,6 @@ public class DmCollection implements ICollection {
 	public void close() throws RepositoryException {
 		logger.info(numberOfRows + " documents have been processed");
 		try {
-			didPeek = false;
 			this.idfCollection.close();
 		} catch (DfException e) {
 			throw new RepositoryException(e);
@@ -146,4 +145,5 @@ public class DmCollection implements ICollection {
 			close();
 		}
 	}
+	
 }
