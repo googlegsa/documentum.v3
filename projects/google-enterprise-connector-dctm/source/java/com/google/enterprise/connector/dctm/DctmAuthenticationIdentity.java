@@ -39,7 +39,6 @@ public class DctmAuthenticationIdentity implements AuthenticationIdentity {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 	
 
 }

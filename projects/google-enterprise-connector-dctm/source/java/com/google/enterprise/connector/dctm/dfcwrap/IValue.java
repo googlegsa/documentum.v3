@@ -13,5 +13,6 @@ public interface IValue {
 	public long asInteger() throws RepositoryException;
 
 	public ITime asTime() throws RepositoryException;
+	
 
 }
