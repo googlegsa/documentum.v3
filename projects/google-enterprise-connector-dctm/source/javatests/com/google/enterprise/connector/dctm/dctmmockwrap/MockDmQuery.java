@@ -11,7 +11,6 @@ import javax.jcr.query.QueryResult;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
@@ -110,44 +109,6 @@ public class MockDmQuery implements IQuery {
 				.lastIndexOf("'"));
 		return MessageFormat.format(XPATH_QUERY_STRING_BOUNDED_DEFAULT,
 				new Object[] { formattedDate, id });
-	}
-
-	public ICollection execute(ISession session, int queryType) throws RepositoryException {
-		if (query.equals("")) {
-			return null;
-		} else if (query.startsWith(XPATH_QUERY_STRING_UNBOUNDED_DEFAULT
-				.substring(0, 15))) {
-			try {
-				MockRepositoryDocumentStore a = null;
-				a = ((MockDmSession)session).getStore();
-				MockJcrQueryManager mrQueryMger = new MockJcrQueryManager(a);
-
-				Query q = mrQueryMger.createQuery(this.query, "xpath");
-
-				QueryResult qr = q.execute();
-				MockDmCollection co = new MockDmCollection(qr);
-				return co;
-			} catch (javax.jcr.RepositoryException e) {
-				throw new RepositoryException(e);
-			}
-		} else {// Authorize query...
-			String[] ids = this.query.split("', '");
-			ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
-					.length());
-			ids[ids.length - 1] = ids[ids.length - 1].substring(0,
-					ids[ids.length - 1].length() - 2);
-			
-			List filteredResults = new MockMockList(ids, session.getSessionManager());
-			if (filteredResults != null) {
-				QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
-				MockDmCollection finalCollection = new MockDmCollection(
-						filteredQR);
-				return finalCollection;
-			} else {
-				return null;// null value is tested in DctmAuthorizationManager
-				// and won't lead to any NullPointerException
-			}
-		}
 	}
 
 }

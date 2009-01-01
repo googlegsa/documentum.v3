@@ -11,6 +11,7 @@ public class DmTime implements ITime {
 	
 	private String time_pattern44 = IDfTime.DF_TIME_PATTERN44;
 
+
 	public DmTime(IDfTime idfTime) {
 		this.idfTime = idfTime;
 	}
