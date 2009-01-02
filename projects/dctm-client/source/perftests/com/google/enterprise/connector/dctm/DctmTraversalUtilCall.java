@@ -45,6 +45,8 @@ public class DctmTraversalUtilCall {
 		((DctmConnector) connector).setIs_public("false");
 		((DctmConnector) connector)
 				.setIncluded_meta(DmInitialize.included_meta);
+		((DctmConnector) connector)
+				.setExcluded_meta(DmInitialize.excluded_meta);
 		/**
 		 * End simulation
 		 */

@@ -27,8 +27,6 @@ public class DctmSysobjectDocumentTest extends TestCase {
 	IClient localClient = null;
 
 	ISessionManager sessionManager = null;
-	
-	
 
 	public void setUp() throws Exception {
 		super.setUp();
@@ -46,35 +44,28 @@ public class DctmSysobjectDocumentTest extends TestCase {
 	}
 
 	public void testGetPropertyNames() throws RepositoryException {
-		/*
-		(String docid, ITime lastModifDate, ISessionManager sessionManager,
-				IClientX clientX, String isPublic, HashSet included_meta,
-				SpiConstants.ActionType action)
-				
-		(String docid, String commonVersionID, ITime timeStamp, ISessionManager sessionManager,
-				IClientX clientX, String isPublic, HashSet included_meta,
-				SpiConstants.ActionType action)
-		*/
-				ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-				IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 
-				ISysObject object= session.getObject(id);
-				
-				ITime lastModifDate = object.getTime("r_modify_date");
+		ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+		IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 
-				object = session.getObject(id);
-				
+		ISysObject object= session.getObject(id);
+		
+		ITime lastModifDate = object.getTime("r_modify_date");
+
+		object = session.getObject(id);
+		
+		
 		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
 				DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
-				DmInitialize.hashIncluded_meta, SpiConstants.ActionType.ADD);
-
-				Iterator iterator = dctmSpm.getPropertyNames().iterator();
-				int counter = 0;
-				while (iterator.hasNext()) {
-					iterator.next();
-					counter++;
-				}
-				assertEquals(8, counter);
+				DmInitialize.included_meta, DmInitialize.excluded_meta,SpiConstants.ActionType.ADD);
+		
+		Iterator iterator = dctmSpm.getPropertyNames().iterator();
+		int counter = 0;
+		while (iterator.hasNext()) {
+			iterator.next();
+			counter++;
+		}
+		assertEquals(8, counter);
 	}
 
 	public void testFindProperty() throws RepositoryException {
@@ -90,9 +81,8 @@ public class DctmSysobjectDocumentTest extends TestCase {
 		object = session.getObject(id);
 		
 		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-		DmInitialize.DM_ID2, lastModifDate, sessionManager, dctmClientX, "false",
-		DmInitialize.hashIncluded_meta, SpiConstants.ActionType.ADD);
-		
+				DmInitialize.DM_ID2, lastModifDate, sessionManager, dctmClientX, "false",
+				DmInitialize.included_meta, DmInitialize.excluded_meta,SpiConstants.ActionType.ADD);
 		Property property = dctmSpm.findProperty("keywords");
 		assertTrue(property instanceof DctmSysobjectProperty);
 		Value val = null;

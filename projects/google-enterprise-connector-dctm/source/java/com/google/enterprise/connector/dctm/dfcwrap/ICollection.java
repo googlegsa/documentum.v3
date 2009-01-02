@@ -11,7 +11,7 @@ public interface ICollection {
 	public static final int DF_CLOSED_STATE = 2;
 
 	public IValue getValue(String attrName) throws RepositoryException;
-
+	
 	public boolean hasNext() throws RepositoryException;
 
 	public boolean next() throws RepositoryException;
@@ -25,5 +25,7 @@ public interface ICollection {
 	public ISession getSession();
 	
 	public ITime getTime(String colName) throws RepositoryException; 
+	
+	
 
 }

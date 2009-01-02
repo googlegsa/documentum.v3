@@ -21,8 +21,9 @@ import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
-import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
+///import com.google.enterprise.connector.spi.RepositoryDocumentException;
+import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spiimpl.BinaryValue;
 import com.google.enterprise.connector.spiimpl.BooleanValue;
@@ -36,6 +37,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 	private String docId;
 	private String commonVersionID;
+	
 	private ITime timeStamp;
 
 	private ISysObject object = null;
@@ -52,33 +54,34 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 	private HashSet included_meta;
 
+	private HashSet excluded_meta;
+
 	private String object_id_name = "r_object_id";
+
+	private ITime lastModifDate;
 
 	private static Logger logger = null;
 	
-	private ITime lastModifDate;
-
-
 	static {
 		logger = Logger.getLogger(DctmSysobjectDocument.class.getName());
 	}
 
 	public DctmSysobjectDocument(String docid, ITime lastModifDate, ISessionManager sessionManager,
 			IClientX clientX, String isPublic, HashSet included_meta,
-			SpiConstants.ActionType action) {
+			HashSet excluded_meta,SpiConstants.ActionType action) {
 		this.docId = docid;
 		this.sessionManager = sessionManager;
 		this.clientX = clientX;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
+		this.excluded_meta = excluded_meta;
 		this.lastModifDate = lastModifDate;
 		this.action = action;
 	}
-	
-	
+
 	public DctmSysobjectDocument(String docid, String commonVersionID, ITime timeStamp, ISessionManager sessionManager,
 			IClientX clientX, String isPublic, HashSet included_meta,
-			SpiConstants.ActionType action) {
+			HashSet excluded_meta,SpiConstants.ActionType action) {
 		this.docId = docid;
 		this.versionId = commonVersionID;
 		this.timeStamp = timeStamp;
@@ -86,42 +89,45 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		this.clientX = clientX;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
+		this.excluded_meta = excluded_meta;
 		this.action = action;
 	}
 
-	private void fetch() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
+	private void fetch() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException{
 		if (object != null) {
 			return;
 		}
 		ISession session = null;
+		
 		try {
 			String docbaseName = sessionManager.getDocbaseName();
 			session = sessionManager.getSession(docbaseName);
+			
 			if (SpiConstants.ActionType.ADD.equals(action)) {
 				logger.info("Get a session for the docbase "+docbaseName);
 
 				IId id = clientX.getId(docId);
 
-				logger.info("r_object_id of the fetched object is "+id);
+				logger.info("r_object_id of the fetched object is "+docId);
 
 				object = session.getObject(id);
 
 				versionId = object.getId("i_chronicle_id").getId();
 
-				logger.fine("i_chronicle_id of the fetched object is "+versionId);
+				logger.info("i_chronicle_id of the fetched object is "+versionId);
 
 				object.setSessionManager(sessionManager);
 			}
-
 		} finally {
 			if (session != null) {
 				sessionManager.release(session);
 				logger.fine("session released");
 			}
 		}
+		
 	}
 
-	public Property findProperty(String name) throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
+	public Property findProperty(String name) throws RepositoryDocumentException, RepositoryLoginException, RepositoryException{
 		IFormat dctmForm = null;
 		String mimetype = "";
 		String dosExtension= "";
@@ -134,136 +140,135 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		logger.fine("action : "+action);
 
 		if (SpiConstants.ActionType.ADD.equals(action)) {
-			fetch();
-			if (SpiConstants.PROPNAME_ACTION.equals(name)) {
-				hashSet.add(new StringValue(action.toString()));
-				return new DctmSysobjectProperty(name, hashSet);
-			}else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
-				hashSet.add(new StringValue(versionId));
-				logger.fine("property "+SpiConstants.PROPNAME_DOCID+" has the value "+versionId);
-				return new DctmSysobjectProperty(name, hashSet);
-			} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
-				logger.fine("getting the property "+SpiConstants.PROPNAME_CONTENT);
-				try {
-					if(object.getContentSize()!=0){
-					    hashSet.add(new BinaryValue(object.getContent()));
-					    logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
-					 }else{
-					    hashSet.add(null);
-					    logger.fine("this object has no content");
-					 }
-				} catch (RepositoryDocumentException e) {
-					// TODO Auto-generated catch block
-					logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
-					hashSet.add(null);
+				fetch();
+				if (SpiConstants.PROPNAME_ACTION.equals(name)) {
+					hashSet.add(new StringValue(action.toString()));
+					return new DctmSysobjectProperty(name, hashSet);
+				}else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
+					hashSet.add(new StringValue(versionId));
+					logger.fine("property "+SpiConstants.PROPNAME_DOCID+" has the value "+versionId);
+					return new DctmSysobjectProperty(name, hashSet);
+				} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
+					logger.fine("getting the property "+SpiConstants.PROPNAME_CONTENT);
+					try {
+							if(object.getContentSize()!=0){
+							    hashSet.add(new BinaryValue(object.getContent()));
+							    logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
+							 }else{
+							    hashSet.add(null);
+							    logger.fine("this object has no content");
+							 }
+						} catch (RepositoryDocumentException e) {
+							// TODO Auto-generated catch block
+							logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
+							hashSet.add(null);
+						}
+					
+					   return new DctmSysobjectProperty(name, hashSet);
+	
+				} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
+					logger.fine("getting the property "+SpiConstants.PROPNAME_DISPLAYURL);
+					hashSet.add(new StringValue(sessionManager.getServerUrl() + docId));
+					logger.fine("property "+SpiConstants.PROPNAME_DISPLAYURL+" has the value "+sessionManager.getServerUrl() + docId);
+					return new DctmSysobjectProperty(name, hashSet);
+				} else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
+						logger.fine("getting the property "+SpiConstants.PROPNAME_SECURITYTOKEN);
+						try {
+							hashSet.add(new StringValue(object.getACLDomain() + " " + object.getACLName()));
+							logger.fine("property "+SpiConstants.PROPNAME_SECURITYTOKEN+" has the value "+object.getACLDomain() + " "+ object.getACLName());
+                        }catch (RepositoryDocumentException e) {
+							// TODO Auto-generated catch block
+                        	logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
+                        	hashSet.add(null);
+						}
+					return new DctmSysobjectProperty(name, hashSet);
+				} else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
+					logger.fine("getting the property "+SpiConstants.PROPNAME_ISPUBLIC);
+					hashSet.add(BooleanValue.makeBooleanValue(this.isPublic
+							.equals("true")));
+					logger.fine("property "+SpiConstants.PROPNAME_ISPUBLIC+" set to true");
+					return new DctmSysobjectProperty(name, hashSet);
+				} else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
+				
+						logger.fine("getting the property "+SpiConstants.PROPNAME_LASTMODIFIED);
+						
+						hashSet.add(new DctmDateValue(getDate("r_modify_date")));
+						logger.fine("property "+SpiConstants.PROPNAME_LASTMODIFIED+" has the value "+getDate("r_modify_date"));
+						
+					return new DctmSysobjectProperty(name, hashSet);
+				} else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
+					
+						logger.fine("getting the property "+SpiConstants.PROPNAME_MIMETYPE);
+						try {
+							dctmForm = object.getFormat();
+							mimetype = dctmForm.getMIMEType();
+							dosExtension = dctmForm.getDOSExtension();
+							contentSize= object.getContentSize();
+							hashSet.add(new StringValue(mimetype));
+							logger.fine("property "+SpiConstants.PROPNAME_MIMETYPE+" has the value "+mimetype);
+							logger.fine("mimetype of the document "+versionId+" : "+mimetype);
+							logger.fine("dosExtension of the document "+versionId+" : "+dosExtension);
+							logger.fine("contentSize of the document "+versionId+" : "+contentSize);
+						} catch (RepositoryDocumentException e) {
+							// TODO Auto-generated catch block
+							logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
+							hashSet.add(null);
+						}
+					return new DctmSysobjectProperty(name, hashSet);
+				} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
+					return null;
+				} else if (object_id_name.equals(name)) {
+					logger.fine("getting the property "+object_id_name);
+					hashSet.add(new StringValue(docId));
+					logger.fine("property "+object_id_name+" has the value "+docId);
+					return new DctmSysobjectProperty(name, hashSet);
+				}
+
+			
+					
+				if (object.findAttrIndex(name)!=-1){
+					IAttr attr = object.getAttr(object.findAttrIndex(name));
+					logger.finer("the attribute "+ name + " is in the position "+ object.findAttrIndex(name)+ " in the list of attributes of the fetched object");
+	
+					int i = object.getValueCount(name);
+					logger.finer("the attribute "+ name + " stores "+ i + " values ");
+	
+					IValue val = null;
+					for (int j = 0; j < i; j++) {
+						val = object.getRepeatingValue(name, j);
+						logger.finer("getting the value of index "+ j +" of the attribute "+ name);
+						try {				
+							if (attr.getDataType() == IAttr.DM_BOOLEAN) {
+								logger.finer("the attribute of index "+ j +" is of boolean type");
+								hashSet.add(BooleanValue.makeBooleanValue(val.asBoolean()));
+							} else if (attr.getDataType() == IAttr.DM_DOUBLE) {
+								logger.finer("the attribute of index "+ j +" is of double type");
+								hashSet.add(new DoubleValue(val.asDouble()));
+							} else if (attr.getDataType() == IAttr.DM_ID) {
+								logger.finer("the attribute of index "+ j +" is of ID type");
+								hashSet.add(new StringValue(object.getId(name).getId()));
+							} else if (attr.getDataType() == IAttr.DM_INTEGER) {
+								logger.finer("the attribute of index "+ j +" is of integer type");
+								hashSet.add(new LongValue(val.asInteger()));
+							} else if (attr.getDataType() == IAttr.DM_STRING) {
+								logger.finer("the attribute of index "+ j +" is of String type");
+								hashSet.add(new StringValue(val.asString()));
+							} else if (attr.getDataType() == IAttr.DM_TIME) {
+								logger.finer("the attribute of index "+ j +" is of date type");
+								hashSet.add(new DctmDateValue(getCalendarFromDate(val.asTime().getDate())));
+							}
+	
+						} catch (Exception e) {
+							logger.warning("exception is thrown when getting the value of index "+ j +" of the attribute "+ name);
+							logger.warning("exception "+e.getMessage());
+							hashSet.add(null);
+							///logger.fine("null value added to the hashset");
+						}
+	
+					}
+				
 				}
 			
-			   return new DctmSysobjectProperty(name, hashSet);
-			} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
-				logger.fine("getting the property "+SpiConstants.PROPNAME_DISPLAYURL);
-				hashSet.add(new StringValue(sessionManager.getServerUrl() + docId));
-				logger.fine("property "+SpiConstants.PROPNAME_DISPLAYURL+" has the value "+sessionManager.getServerUrl() + docId);
-				return new DctmSysobjectProperty(name, hashSet);
-			} else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
-				logger.fine("getting the property "+SpiConstants.PROPNAME_SECURITYTOKEN);
-				try {
-					hashSet.add(new StringValue(object.getACLDomain() + " " + object.getACLName()));
-					logger.fine("property "+SpiConstants.PROPNAME_SECURITYTOKEN+" has the value "+object.getACLDomain() + " "+ object.getACLName());
-                }catch (RepositoryDocumentException e) {
-					// TODO Auto-generated catch block
-                	logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
-                	hashSet.add(null);
-				}
-			return new DctmSysobjectProperty(name, hashSet);
-			} else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
-				logger.fine("getting the property "+SpiConstants.PROPNAME_ISPUBLIC);
-				hashSet.add(BooleanValue.makeBooleanValue(this.isPublic
-						.equals("true")));
-				logger.fine("property "+SpiConstants.PROPNAME_ISPUBLIC+" set to true");
-				return new DctmSysobjectProperty(name, hashSet);
-			} else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
-				logger.fine("getting the property "+SpiConstants.PROPNAME_LASTMODIFIED);
-				hashSet.add(new DctmDateValue(getDate("r_modify_date")));
-				logger.fine("property "+SpiConstants.PROPNAME_LASTMODIFIED+" has the value "+getDate("r_modify_date"));
-				return new DctmSysobjectProperty(name, hashSet);
-			} else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
-				logger.fine("getting the property "+SpiConstants.PROPNAME_MIMETYPE);
-				try {
-					dctmForm = object.getFormat();
-					mimetype = dctmForm.getMIMEType();
-					dosExtension = dctmForm.getDOSExtension();
-					contentSize= object.getContentSize();
-					///modification in order to index empty documents
-					if(contentSize==0){
-						   mimetype="text/plain";
-					}
-					hashSet.add(new StringValue(mimetype));
-					logger.fine("property "+SpiConstants.PROPNAME_MIMETYPE+" has the value "+mimetype);
-					logger.fine("mimetype of the document "+versionId+" : "+mimetype);
-					logger.fine("dosExtension of the document "+versionId+" : "+dosExtension);
-					logger.fine("contentSize of the document "+versionId+" : "+contentSize);
-				} catch (RepositoryDocumentException e) {
-					// TODO Auto-generated catch block
-					logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
-					hashSet.add(null);
-				}
-				hashSet.add(new StringValue(mimetype));
-				logger.fine("property "+SpiConstants.PROPNAME_MIMETYPE+" has the value "+mimetype);
-				logger.fine("mimetype of the document "+versionId+" : "+mimetype);
-				logger.fine("dosExtension of the document "+versionId+" : "+dosExtension);
-				logger.fine("contentSize of the document "+versionId+" : "+contentSize);
-				return new DctmSysobjectProperty(name, hashSet);
-			} else if (SpiConstants.PROPNAME_SEARCHURL.equals(name)) {
-				return null;
-			} else if (object_id_name.equals(name)) {
-				logger.fine("getting the property "+object_id_name);
-				hashSet.add(new StringValue(docId));
-				logger.fine("property "+object_id_name+" has the value "+docId);
-				return new DctmSysobjectProperty(name, hashSet);
-			}
-
-
-			if (object.findAttrIndex(name)!=-1){
-				IAttr attr = object.getAttr(object.findAttrIndex(name));
-				logger.finer("the attribute "+ name + " is in the position "+ object.findAttrIndex(name)+ " in the list of attributes of the fetched object");
-
-				int i = object.getValueCount(name);
-				logger.finer("the attribute "+ name + " stores "+ i + " values ");
-
-				IValue val = null;
-				for (int j = 0; j < i; j++) {
-					val = object.getRepeatingValue(name, j);
-					logger.finer("getting the value of index "+ j +" of the attribute "+ name);
-					try {				
-						if (attr.getDataType() == IAttr.DM_BOOLEAN) {
-							logger.finer("the attribute of index "+ j +" is of boolean type");
-							hashSet.add(BooleanValue.makeBooleanValue(val.asBoolean()));
-						} else if (attr.getDataType() == IAttr.DM_DOUBLE) {
-							logger.finer("the attribute of index "+ j +" is of double type");
-							hashSet.add(new DoubleValue(val.asDouble()));
-						} else if (attr.getDataType() == IAttr.DM_ID) {
-							logger.finer("the attribute of index "+ j +" is of ID type");
-							hashSet.add(new StringValue(object.getId(name).getId()));
-						} else if (attr.getDataType() == IAttr.DM_INTEGER) {
-							logger.finer("the attribute of index "+ j +" is of integer type");
-							hashSet.add(new LongValue(val.asInteger()));
-						} else if (attr.getDataType() == IAttr.DM_STRING) {
-							logger.finer("the attribute of index "+ j +" is of String type");
-							hashSet.add(new StringValue(val.asString()));
-						} else if (attr.getDataType() == IAttr.DM_TIME) {
-							logger.finer("the attribute of index "+ j +" is of date type");
-							hashSet.add(new DctmDateValue(getCalendarFromDate(val.asTime().getDate())));
-						}
-
-					} catch (Exception e) {
-						///logger.warning("exception is thrown when getting the value of index "+ j +" of the attribute "+ name);
-						logger.warning("exception "+e.getMessage());
-						hashSet.add(null);
-						logger.fine("null value added to the hashset");
-					}
-
-				}
-			}
 
 		}else{
 			logger.fine("Else delete document; name : " + name);
@@ -282,11 +287,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 					logger.fine("pattern44 : "+timeStamp.getTime_pattern44());
 					timeSt = timeStamp.asString(timeStamp.getTime_pattern44());
 					logger.fine("timeSt ="+timeSt);
-
 					Date tmpDt = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(timeSt);
 					tmpCal.setTime(tmpDt);
 					logger.fine("tmpDt is "+tmpDt);
-					
 				} catch (ParseException e) {
 					logger.fine("Error: wrong last modified date");
 					tmpCal.setTime(new Date());
@@ -314,26 +317,27 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 		return calendar;
 	}
 
-	public Set getPropertyNames() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
+	public Set getPropertyNames() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException{
 		HashSet properties=null;
 		if (SpiConstants.ActionType.ADD.equals(action)) {
 			logger.fine("fetching the object");
 			fetch();
 			properties = new HashSet();
+
 			try {
 				for (int i = 0; i < object.getAttrCount(); i++) {
 					IAttr curAttr = object.getAttr(i);
 					String name = curAttr.getName();
 					logger.finest("pass the attribute "+name);
-					if (included_meta.contains(name)) {
+					if (!excluded_meta.contains(name) || included_meta.contains(name)) {
 						properties.add(name);
 						logger.finest("attribute "+name+" added to the properties");
 					}
 				}
-			}catch (RepositoryDocumentException e) {
+			} catch (RepositoryDocumentException e) {
 				// TODO Auto-generated catch block
 				logger.warning("RepositoryDocumentException thrown : "+ e);
-			}	
+			}
 
 		} else {
 			properties = new HashSet();

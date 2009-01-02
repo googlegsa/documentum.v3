@@ -53,31 +53,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 	}
 
 	public void testGetPropertyNames() throws RepositoryException {
-		
-		ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-		IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 
-		ISysObject object= session.getObject(id);
-		
-		ITime lastModifDate = object.getTime("r_modify_date");
-
-		object = session.getObject(id);
-		
-		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-		DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
-		DmInitialize.included_meta, SpiConstants.ActionType.ADD);
-
-
-		Iterator iterator = dctmSpm.getPropertyNames().iterator();
-		int counter = 0;
-		while (iterator.hasNext()) {
-			iterator.next();
-			counter++;
-		}
-		assertEquals(3, counter);
-	}
-
-	public void testFindProperty() throws RepositoryException {
 		
 		
 		ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
@@ -91,7 +67,32 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 		
 		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
 				DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
-				DmInitialize.included_meta, SpiConstants.ActionType.ADD);
+				DmInitialize.included_meta, DmInitialize.excluded_meta,SpiConstants.ActionType.ADD);
+
+		Iterator iterator = dctmSpm.getPropertyNames().iterator();
+		int counter = 0;
+		while (iterator.hasNext()) {
+			iterator.next();
+			counter++;
+		}
+		assertEquals(3, counter);
+	}
+
+	public void testFindProperty() throws RepositoryException {
+		
+
+		ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+		IId id = dctmClientX.getId(DmInitialize.DM_ID1);
+
+		ISysObject object= session.getObject(id);
+		
+		ITime lastModifDate = object.getTime("r_modify_date");
+
+		object = session.getObject(id);
+		
+		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
+				DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
+				DmInitialize.included_meta, DmInitialize.excluded_meta, SpiConstants.ActionType.ADD);
 		Property property = dctmSpm.findProperty("google:docid");
 		assertTrue(property instanceof DctmSysobjectProperty);
 
