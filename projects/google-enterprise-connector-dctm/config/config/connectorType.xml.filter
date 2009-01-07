@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean id="EMC_Documentum_Content_Server_6.0" class="com.google.enterprise.connector.dctm.DctmConnectorType">
+	<bean id="EMC_Documentum_Content_Server_@bean.id.version@"
+		class="com.google.enterprise.connector.dctm.DctmConnectorType">
 		<property name="configKeys">
 			<list>
 				<value>login</value>
