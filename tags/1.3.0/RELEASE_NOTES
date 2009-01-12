@@ -1,0 +1,142 @@
+
+    Google Enterprise Connector for EMC Documentum Content Server
+			    Release Notes
+
+This document contains the release notes for Google Enterprise
+Connector for EMC Documentum Content Server. The following sections
+describe the release in detail and provide information that
+supplements the main documentation. See the Issues Tab on the Code
+Site for the current list of known issues and workarounds.
+
+Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
+
+
+Release 1.3.0, Jan 11, 2009
+===========================
+
+Introduction
+------------
+This is a maintenance release that improves quality, reliability, and
+performance without adding any new functionality. Users of previous
+releases are encouraged to upgrade. See the product website for a
+complete description.
+
+Summary of changes
+------------------
+  * Updated to match and take advantage of changes in the connector
+    manager SPI. For details see Connector Manager issues 72 and 108.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.0 through 1.1.0 r468
+may be used with this version. This version works with Connector
+Manager version 1.3.0. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector. This product is
+designed to function with EMC Documentum Content Server versions
+5.2.5, 5.3, and 6.0.
+
+
+Release 1.1.0 r468, Dec 1, 2008
+===============================
+
+Summary of changes
+------------------
+  * Fix Issue 38: parameter dfc.compatibility.allow_weak_disconnect
+    required with DCTM6
+
+Version Compatibility
+---------------------
+This version works with Connector Manager version 1.1.0. This product
+is designed to function with EMC Documentum Content Server versions
+5.2.5, 5.3, and 6.0.
+
+
+Release 1.1.0 r463, Oct 27, 2008
+================================
+
+Summary of changes
+------------------
+  * Fix Issue 34: authentication Not Working when connector is used in
+    conjunction with the SAML bridge.
+
+Version Compatibility
+---------------------
+This version works with Connector Manager version 1.1.0. This product
+is designed to function with EMC Documentum Content Server versions
+5.2.5, 5.3, and 6.0.
+
+
+Release 1.1.0 r460, Oct 8, 2008
+===============================
+
+Summary of changes
+------------------
+  * PushDelete handled
+  * Fix Issue 10: exception thrown when custom metadata of date type
+    has a null value
+  * Fix Issue 15: the connector sends same few docs to connector
+    manager, and crawling stops
+  * Fix Issue 16: document extension, size and Mime type added to the logs
+  * Fix Issue 17: connector authorization issue linked to sessions not
+    correctly closed
+  * Fix Issue 19: session leaks visible in the logs
+  * Fix Issue 21: exception thrown on documents without content  
+  * Fix Issue 32: incorrect date format in push delete
+
+Version Compatibility
+---------------------
+This version works with Connector Manager version 1.1.0. This product
+is designed to function with EMC Documentum Content Server versions
+5.2.5, 5.3, and 6.0.
+
+
+Release 1.0.3, May 23, 2008
+===========================
+
+Summary of changes
+------------------
+  * additional logs of FINE, FINER and FINEST level
+  * Fix Issue 16 Add document extension, size and Mime type to log.
+  * Fix Issue 17 Search frequent term by a normal user yields no
+    results, possible documentum connector authorization issue.
+  * Fix Issue 19 Session leaks visible in the logs.
+
+Version Compatibility
+---------------------
+This version works with Connector Manager version 1.0.3. This product
+is designed to function with EMC Documentum Content Server versions
+5.2.5, 5.3, and 6.0.
+
+
+Release 1.0.2, Mar 05, 2008
+===========================
+
+Summary of changes
+------------------
+  * Fix Issue 7 check the value of the customs attributes.
+
+Version Compatibility
+---------------------
+This version works with Connector Manager version 1.0.3. This product
+is designed to function with EMC Documentum Content Server versions
+5.2.5, 5.3, and 6.0.
+
+
+Release 1.0.1, Dec 2007
+=======================
+
+Version Compatibility
+---------------------
+This version works with Connector Manager version 1.0.3. This product
+is designed to function with EMC Documentum Content Server version
+5.3.
+
+
+Release 1.0.0, Oct 2007
+=======================
+
+Version Compatibility
+---------------------
+This version works with Connector Manager version 1.0.2. This product
+is designed to function with EMC Documentum Content Server version
+5.3.

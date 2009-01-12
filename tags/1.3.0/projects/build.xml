@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="GoogleDCTM" default="GoogleDCTM" basedir=".">
+
+	<!-- ========================= PROPERTIES ========================= -->
+	<property file="version.properties" />
+
+	<!-- Choose 5.2.5_5.3 or 6.0 for the value. -->
+	<property name="bean.id.version" value="5.2.5_5.3" />
+	<property name="COMPILE_DEBUG_FLAG" value="false" />
+
+	<!-- Define Directories. -->
+	<property name="dist" value="dist" />
+	<property name="config" value="google-enterprise-connector-dctm/config" />
+	<property name="jarfile.dir" value="third_party/lib"/>
+	<property name="dctm_jarfile.dir" value="dctm_third_party/lib"/>
+	<property name="core.dir" value="google-enterprise-connector-dctm"/>
+	<property name="core.classes" value="${core.dir}/build/classes" />
+		
+	<property name="build-client" value="dctm-client/build" />
+	<property name="src-client" value="dctm-client/source/java" />
+	<property name="classes-client" value="${build-client}/classes" />	
+	
+	<property name="build-mock" value="google-enterprise-connector-dctm/build" /> 
+	<property name="src-mock" value="google-enterprise-connector-dctm/source/java" />
+	<property name="classes-mock" value="${build-mock}/classes" />
+
+	<property name="jar.dir" value="${dist}/jar" />
+	<property name="jarfile" value="${jar.dir}/connector-dctm.jar" />
+	
+	<property name="spi.jarfile" value="${jarfile.dir}/connector-spi.jar" />
+	<property name="cm.jarfile" value="${jarfile.dir}/connector.jar" />
+	<property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
+	<property name="json.jarfile" location="${jarfile.dir}/json.jar" />
+	<property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
+	<property name="commons-codec.jarfile" location="${dctm_jarfile.dir}/commons-codec-1.3.jar" />
+	<property name="commons-http.jarfile" location="${dctm_jarfile.dir}/commons-httpclient-3.0.jar" />
+	<property name="spring.jarfile" value="${jarfile.dir}/spring.jar" />
+
+	<!-- ============================ TASKS ============================ -->
+	<target name="GoogleDCTM" 
+		depends="init,compile-mock,compile-client,jar">
+	</target>
+
+	<target name="init">
+		<mkdir dir="${dist}" />
+		<mkdir dir="${build-client}" />
+		<mkdir dir="${classes-client}" />
+		<mkdir dir="${build-mock}" />
+		<mkdir dir="${classes-mock}" />
+		<mkdir dir="${jar.dir}" />
+	</target>
+
+	<target name="compile-client" depends="compile-mock">
+		<!-- compile java source files -->
+		<javac srcdir="${src-client}" destdir="${classes-client}" 
+			debug="${COMPILE_DEBUG_FLAG}">
+			<classpath>
+				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${cm.jarfile}" />
+				<pathelement location="${dfc.jarfile}" />
+				<pathelement location="${json.jarfile}" />
+				<pathelement location="${jcr.jarfile}" />
+				<pathelement location="${spring.jarfile}" />
+				<pathelement location="${core.classes}" />
+			</classpath>
+		</javac>
+	</target>
+		
+	<target name="compile-mock" depends="init">
+		<!-- compile java source files -->
+		<javac srcdir="${src-mock}" destdir="${classes-mock}" 
+			debug="${COMPILE_DEBUG_FLAG}">
+			<classpath>
+				<pathelement location="${spring.jarfile}" />
+				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${cm.jarfile}" />
+				<pathelement location="${json.jarfile}" />
+				<pathelement location="${commons-http.jarfile}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" description="connector-dctm" 
+		depends="compile-mock,compile-client">
+		<exec executable="svnversion" spawn="false"
+			failifexecutionfails="false"
+			dir="${basedir}"
+			outputproperty="svnversion">
+			<arg line="."/>
+		</exec>
+		<tstamp />
+		<copy tofile="${config}/config/connectorType.xml">
+			<fileset dir="${config}/config">
+				<include name="connectorType.xml.filter" />
+			</fileset>
+			<filterset>
+				<filter token="bean.id.version" 
+					value="${bean.id.version}" />
+			</filterset>
+		</copy>
+		<jar jarfile="${jarfile}">
+			<fileset dir="${config}">
+				<include name="*.properties"/>
+				<include name="config/*.xml"/>
+			</fileset>
+			<fileset dir="${classes-client}"/>
+			<fileset dir="${classes-mock}"/>
+			<manifest>
+			<!-- Manifest files are limited to 72 byte
+			     line lengths, but our "official" Title
+			     exceeds that by 2 bytes. The ant Manifest
+			     generator then graciously chops "nk" off
+			     the end, wrapping it to the next line.
+			     Embedding a newline in the string doesn't
+			     fix it, since ant doesn't consider
+			     newlines special in its line-break
+			     calculation, and the result ends up
+			     spread across 3 lines. So, I pad with
+			     spaces. This forces the line wrap to
+			     occur inter-word, and also left aligns
+			     the two-line Title.
+			-->
+			<attribute name="Implementation-Title"
+				value="Google Enterprise Connector for                                      EMC Documentum Content Server" />
+			<attribute name="Implementation-Version"
+				value="${version} (build ${svnversion}  ${TODAY})"/>
+			<attribute name="Implementation-Vendor" 
+				value="Google Inc."/>
+			<attribute name="Specification-Title" 
+				value="Connector Manager SPI"/>
+			<attribute name="Specification-Version" 
+				value="${version.spi}"/>
+			<attribute name="Specification-Vendor" 
+				value="Google Inc."/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="bin-archive" depends="jar">
+		<property name="bin.archive" value="connector-dctm-${version}_${bean.id.version}" />
+		<zip destfile="${dist}/${bin.archive}.zip">
+			<zipfileset dir="${jar.dir}" prefix="${bin.archive}" />
+			<zipfileset dir=".." prefix="${bin.archive}">
+				<include name="README" />
+				<include name="RELEASE_NOTES" />
+			</zipfileset>
+			<zipfileset file="${config}/logging.properties"
+				prefix="${bin.archive}/Config" />
+			<zipfileset file="${commons-codec.jarfile}" 
+				prefix="${bin.archive}/Lib" />
+			<zipfileset file="${commons-http.jarfile}" 
+				prefix="${bin.archive}/Lib" />
+			<zipfileset file="${json.jarfile}" 
+				prefix="${bin.archive}/Lib" />
+			<zipfileset dir=".." prefix="${bin.archive}/License">
+				<include name="COPYING" />
+				<include name="JSON_License" />
+			</zipfileset>
+		</zip>
+		<tar destfile="${dist}/${bin.archive}.tar.gz" 
+			compression="gzip">
+			<zipfileset src="${dist}/${bin.archive}.zip"/>
+		</tar>
+	</target>
+
+	<target name="src-archive" depends="init">
+		<property name="src.archive" value="connector-dctm-${version}-src" />
+
+		<!-- Use 'svn export' to create a clean version of the
+			source tree in the build dir. You can
+			adjust the behaviour of this by
+			setting some properties when invoking
+			ant:
+
+			svn.export.revision - the revision of the tree 
+				to pull from svn.
+			svn.export.source - the source of the tree, 
+				either a svn repository URL, or a
+				pathname of a working directory tree.
+
+			Note: you cannot specify both
+			svn.export.revision and point
+			svn.export.source at a local working tree.
+		-->
+		<condition property="svn.export.revision.arg"
+			value="-r ${svn.export.revision}" else="" >
+			<isset property="svn.export.revision"/>
+		</condition>
+		<property name="svn.export.source" value=".." />
+		<property name="svn.export.dir" 
+			value="${dist}/${src.archive}" />
+
+		<delete dir="${svn.export.dir}" quiet="true" /> 
+		<exec executable="svn">
+			<arg line="export ${svn.export.revision.arg} ${svn.export.source} ${svn.export.dir}" />
+		</exec>
+
+		<!-- Create .zip and .tar.gz archives of the exported source tree. -->
+		<zip destfile="${dist}/${src.archive}.zip">
+			<zipfileset dir="${svn.export.dir}" 
+				prefix="${src.archive}" />
+		</zip>
+		<tar destfile="${dist}/${src.archive}.tar.gz"
+			longfile="gnu" compression="gzip">
+			<zipfileset src="${dist}/${src.archive}.zip"/>
+		</tar>
+		<delete dir="${svn.export.dir}" quiet="true" />
+	</target>
+
+	<target name="clean" description="Deletes all build files.">
+		<delete dir="${build-client}" />
+		<delete dir="${build-mock}" />
+		<delete dir="${dist}" />
+		<delete file="${config}/config/connectorType.xml" />
+	</target>
+
+	<target name="everything" depends="clean,bin-archive,src-archive" />
+
+</project>
