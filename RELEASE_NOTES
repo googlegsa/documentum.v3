@@ -11,8 +11,33 @@ Site for the current list of known issues and workarounds.
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
 
 
+Release 1.3.0, Jan 11, 2009
+===========================
+
+Introduction
+------------
+This is a maintenance release that improves quality, reliability, and
+performance without adding any new functionality. Users of previous
+releases are encouraged to upgrade. See the product website for a
+complete description.
+
+Summary of changes
+------------------
+  * Updated to match and take advantage of changes in the connector
+    manager SPI. For details see Connector Manager issues 72 and 108.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.0 through 1.1.0 r468
+may be used with this version. This version works with Connector
+Manager version 1.3.0. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector. This product is
+designed to function with EMC Documentum Content Server versions
+5.2.5, 5.3, and 6.0.
+
+
 Release 1.1.0 r468, Dec 1, 2008
-=============================
+===============================
 
 Summary of changes
 ------------------
