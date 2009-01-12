@@ -1,6 +1,8 @@
 package com.google.enterprise.connector.dctm;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,6 +39,9 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 
 	private HashSet included_meta;
 
+	private HashSet excluded_meta;
+	
+	
 	private String lastCheckPoint;
 	private String dateFirstPush;
 	
@@ -52,29 +57,30 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	}
 
 	public DctmDocumentList(ICollection collToAdd,ICollection collToDel, ISessionManager sessMag,
-			IClientX clientX, boolean isPublic, HashSet included_meta, String dateFirstPush,String lastCheckPoint) {
+			IClientX clientX, boolean isPublic, HashSet included_meta,
+			HashSet excluded_meta, String dateFirstPush,String lastCheckPoint) {
 		this.collectionToAdd = collToAdd;
 		this.collectionToDel = collToDel;
 		this.clientX = clientX;
 		this.sessMag = sessMag;
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
+		this.excluded_meta = excluded_meta;
 		this.dateFirstPush = dateFirstPush;
 		this.lastCheckPoint=lastCheckPoint;
 	}
 
 	public Document nextDocument() throws RepositoryException {
 		if (collectionToAdd.getState() == ICollection.DF_CLOSED_STATE) {
+			logger.info("state of collectionToAdd : closed");
 			return null;
 		}
 		
-		logger.fine("The collection is not in a closed state");
 		logger.fine("The collection state :" + collectionToAdd.getState());
 		logger.fine("The collection delete state :"+ collectionToAdd.getState());
 		
-		
-		
 		Document retDoc = null;
+		
 		try {
 			if (collectionToAdd.next()) {
 
@@ -84,12 +90,10 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				ITime lastModifDate = null;
 				try {
 					crID = collectionToAdd.getString("r_object_id");
-					
 					///
 					lastModifDate = collectionToAdd.getTime("r_modify_date");
 					logger.fine("lastModifDate is "+lastModifDate);
 					///
-					
 					logger.fine("r_object_id is "+crID);
 					
 				} catch (RepositoryException e) {
@@ -97,16 +101,13 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					return null;
 				}
 				
-				
-				
-				
 				dctmSysobjectDocument = new DctmSysobjectDocument(crID, lastModifDate, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
-						SpiConstants.ActionType.ADD);
+						excluded_meta,SpiConstants.ActionType.ADD);
 				
 				logger.fine("Creation of a new dctmSysobjectDocument");
 				retDoc = dctmSysobjectDocument;
-			} else if (collectionToDel != null && collectionToDel.next()) {
+			} else if (collectionToDel.next()) {
 				logger.fine("Looking throw the collection of document to remove");
 				
 				String crID = "";
@@ -121,39 +122,47 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					logger.fine("r_object_id is "+crID);
 					
 				} catch (RepositoryException e) {
-					logger.severe("impossible to get the r_object_id of the document");
+					logger.warning("impossible to get the r_object_id of the document");
 					return null;
 				}
 				
 				dctmSysobjectDocumentToDel = new DctmSysobjectDocument(crID, commonVersionID, lastDeleteDate, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
-						SpiConstants.ActionType.DELETE);
+						excluded_meta,SpiConstants.ActionType.DELETE);
 				
 				logger.fine("Creation of a new dctmSysobjectDocumentToDel");
 				retDoc = dctmSysobjectDocumentToDel;
 				
 			} else {
-				logger.severe("End of document list");
+				logger.warning("End of document list");
 			}
 		} catch (RepositoryException re) {
-			logger.severe("Error while trying to get next document : "+re);
+			logger.warning("Error while trying to get next document : "+re);
 			checkpoint();		
 		} finally {
-			if (retDoc == null) finalize();
-		}
-		return retDoc;
+			logger.fine("in finally");
+		      if (retDoc == null){
+		    	  logger.warning("retDoc is null before finalize");
+		          finalize();
+		      }
+		 }
+		 return retDoc;
 	}
 
-	public String checkpoint() throws RepositoryException {
+	public String checkpoint()  throws RepositoryException{
 		logger.fine("Creation of the checkpoint");
+		logger.fine("The collection state :" + collectionToAdd.getState());
 		//Last Document added to the GSA
 		String uuid ="";
 		String dateString="";
 		if(dctmSysobjectDocument !=null){
+			
 			logger.fine("in dctmSysobjectDocument not null");
 			DctmSysobjectProperty prop = ((DctmSysobjectProperty) (dctmSysobjectDocument
 					.findProperty("r_object_id")));
+			
 			uuid = ((StringValue) prop.nextValue()).toString();
+			
 			logger.fine("uuid of the checkpoint is "+uuid);
 			
 			prop = (DctmSysobjectProperty) dctmSysobjectDocument.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
@@ -171,9 +180,10 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				logger.finest("tmpDt is "+tmpDt);
 				dateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tmpDt);	
 			}
-			
+			logger.fine("dateString of the checkpoint is "+dateString);
 		}else{
 			logger.fine("in dctmSysobjectDocument null");
+			
 			JSONObject jo;
 			try {
 				jo = new JSONObject(lastCheckPoint);
@@ -192,8 +202,9 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			DctmSysobjectProperty propDocToDel = ((DctmSysobjectProperty) (dctmSysobjectDocumentToDel.findProperty("r_object_id")));
 			
 			StringValue nextVal = ((StringValue) propDocToDel.nextValue());
+			
 			if(nextVal!=null){
-			uuidDocToDel = nextVal.toString();
+				uuidDocToDel = nextVal.toString();
 			}
 			
 			logger.fine("uuid of the checkpoint of deleted document is "+uuidDocToDel);
@@ -213,7 +224,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			}
 			
 			logger.fine("dateString of the checkpoint of deleted document is "+dateStringDocToDel);
-		} else if(lastCheckPoint!=null) {
+		}else if(lastCheckPoint!=null) {
 			logger.fine("in dctmSysobjectDocumentToDel null");
 			//Get the last modify date in the previous checkpoint; if exists
 			JSONObject jo;
@@ -261,31 +272,35 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		return result;
 	}
 
-  // Last chance to make sure the collections are closed and their sessions
-  // are released.
-  public void finalize() {
-    if ((collectionToAdd != null) &&
-        (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE)) {
-    	try {
-	        collectionToAdd.close();
-	        logger.fine("collection of documents to add closed");
-	        sessMag.releaseSessionAdd(); 
-	        logger.fine("collection session released");
-	      } catch (RepositoryException e) {
-	        logger.severe("Error while closing the collection of documents to add: " + e);
-	      }
-    }
-
-    if ((collectionToDel != null) &&
-        (collectionToDel.getState() != ICollection.DF_CLOSED_STATE)) {
-    	try {
+//	 Last chance to make sure the collections are closed and their sessions
+	  // are released.
+	  public void finalize() {
+	    if ((collectionToAdd != null) &&
+	        (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE)) {
+		      try {
+		        collectionToAdd.close();
+		        logger.fine("collection of documents to add closed");
+		        ///sessMag.release(collectionToAdd.getSession());
+		        sessMag.releaseSessionAdd(); 
+		        logger.fine("collection session released");
+		      } catch (RepositoryException e) {
+		        logger.severe("Error while closing the collection of documents to add: " + e);
+		      }
+	    }
+	    
+	    if ((collectionToDel != null) &&
+	        (collectionToDel.getState() != ICollection.DF_CLOSED_STATE)) {
+	      try {
 	        collectionToDel.close();
 	        logger.fine("collection of documents to delete closed");
+	        ///sessMag.release(collectionToDel.getSession());
 	        sessMag.releaseSessionDel(); 
 	        logger.fine("collection session released");
-	     }catch (RepositoryException e) {
+	      } catch (RepositoryException e) {
 	        logger.severe("Error while closing the collection of documents to delete: " + e);
-	     }
-    }
-  }
+	      }
+	    }
+	    
+	  }
+	
 }

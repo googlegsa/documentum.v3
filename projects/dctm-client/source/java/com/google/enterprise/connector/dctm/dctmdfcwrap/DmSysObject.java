@@ -60,10 +60,11 @@ public class DmSysObject implements ISysObject {
 
 		try {
 			content = idfSysObject.getContent();
+			return content;
 		} catch (DfException e) {
 			throw new RepositoryDocumentException(e);
 		}
-		return content;
+		
 	}
 
 	public String getACLDomain() throws RepositoryDocumentException {

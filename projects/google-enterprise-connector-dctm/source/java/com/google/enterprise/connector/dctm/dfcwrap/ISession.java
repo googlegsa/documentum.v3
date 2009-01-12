@@ -9,9 +9,7 @@ public interface ISession {
 
 	public String getLoginTicketForUser(String username)
 			throws RepositoryException;
-
-	public IType getType(String typeName) throws RepositoryException; 
 	
 	public ISessionManager getSessionManager() throws RepositoryException; 
-	
+
 }

@@ -6,7 +6,6 @@ import java.util.Iterator;
 import javax.jcr.Credentials;
 import javax.jcr.SimpleCredentials;
 
-import com.documentum.fc.client.IDfSession;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
@@ -32,7 +31,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 	private MockDmSession sessionDel;
 	private MockDmSession sessionAdd;
 	private MockDmSession sessionAuto;
-	private MockDmSession sessionConfig;
 
 	private HashMap sessMgerCreds = new HashMap(1, 1);
 
@@ -291,14 +289,5 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 		
 	}
 
-	public void releaseSessionConfig() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void setSessionConfig(ISession sess) {
-		sessionConfig = (MockDmSession)sess;
-		
-	}
 
 }

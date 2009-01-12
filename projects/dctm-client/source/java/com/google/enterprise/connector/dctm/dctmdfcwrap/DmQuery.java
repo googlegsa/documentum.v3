@@ -14,12 +14,14 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-
 public class DmQuery implements IQuery {
 
 	IDfQuery idfQuery;
 	
+	///
 	DmSession dmSession;
+	
+	///
 
 	private static Logger logger = null;
 
@@ -34,6 +36,7 @@ public class DmQuery implements IQuery {
 	public DmQuery() {
 		this.idfQuery = new DfQuery();
 	}
+
 
 	public void setDQL(String dqlStatement) {
 
@@ -65,7 +68,7 @@ public class DmQuery implements IQuery {
 		return new DmCollection(dfCollection);
 
 	}
-	
+
 	public ICollection execute(ISession session, int queryType)
 	throws RepositoryException {
 		if (!(session instanceof DmSession)) {
@@ -87,5 +90,11 @@ public class DmQuery implements IQuery {
 
 	}
 	
+	
+	public ISession getDmSession ()
+	throws RepositoryException {
+		return dmSession;
 
+	}
+	
 }

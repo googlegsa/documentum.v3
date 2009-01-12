@@ -17,8 +17,8 @@
 	<property name="tests.src" value="source/javatests" />
 	<property name="perfstests.src" value="source/perftests" />
 	<property name="accepttests.src" value="source/accepttests" />
-	<property name="tests.build" value="build/tests" />
-	<property name="tests.classes" value="${tests.build}/classes" />	
+	<!-- <property name="tests.build" value="build/tests" />
+	<property name="tests.classes" value="${tests.build}/classes" />	-->
 	<property name="core.classes" value="${core.dir}/build/classes" />	
 
 	<property name="jar.dir"  value="${dist}/jar" />
@@ -36,15 +36,15 @@
 	<property name="tests.jarfile" value="${jarfile.dir}/connector_tests.jar" />
 
 	<!-- =========================== TASKS =============================== -->
-	<target name="connector-dctm" depends="init,compile,compile_tests,compile_accepttests,compile_perftests,jar">
+	<target name="connector-dctm" depends="init,compile">
 	</target>
 
 	<target name="init">
 		<mkdir dir="${build}" />
 		<mkdir dir="${dist}" />
 		<mkdir dir="${classes}" />
-		<mkdir dir="${tests.build}" />
-		<mkdir dir="${tests.classes}" />
+		<!-- <mkdir dir="${tests.build}" />
+		<mkdir dir="${tests.classes}" /> -->
 		<mkdir dir="${jar.dir}" />
 	</target>
 
@@ -62,74 +62,13 @@
 		</javac>
 	</target>
 
-	<target name="compile_tests" depends="init">
-		<!-- compile java source files for tests -->
-		<javac srcdir="${tests.src}" destdir="${tests.classes}" debug="${COMPILE_DEBUG_FLAG} ">
-			<classpath>
-				<pathelement location="${core.classes}" />
-				<pathelement location="${connector.jarfile}" />
-				<pathelement location="${tests.jarfile}" />
-				<pathelement location="${spi.jarfile}" />
-				<pathelement location="${junit.jarfile}" />
-				<pathelement location="${json.jarfile}" />
-				<pathelement location="${jcr.jarfile}" />
-				<pathelement location="${classes}" />
-				<pathelement location="${log4j.jarfile}" />
-				<pathelement location="${dfc.jarfile}" />
-				
-			</classpath>
-		</javac>
-	</target>
-	<target name="compile_perftests" depends="init">
-			<!-- compile java source files for tests -->
-			<javac srcdir="${perfstests.src}" destdir="${tests.classes}" debug="${COMPILE_DEBUG_FLAG} ">
-				<classpath>
-					<pathelement location="${classes}" />
-					<pathelement location="${tests.classes}" />
-					<pathelement location="${core.classes}" />
-					<pathelement location="${connector.jarfile}" />
-					<pathelement location="${tests.jarfile}" />
-					<pathelement location="${spi.jarfile}" />
-					<pathelement location="${junit.jarfile}" />
-					<pathelement location="${json.jarfile}" />
-					<pathelement location="${jcr.jarfile}" />
-					<pathelement location="${classes}" />
-					<pathelement location="${log4j.jarfile}" />
-					<pathelement location="${dfc.jarfile}" />
-					
-				</classpath>
-			</javac>
-		</target>
-
-	<target name="compile_accepttests" depends="init,compile_perftests,compile_tests">
-				<!-- compile java source files for tests -->
-				<javac srcdir="${accepttests.src}" destdir="${tests.classes}" debug="${COMPILE_DEBUG_FLAG} ">
-					<classpath>
-						<pathelement location="${connector.jarfile}" />
-						<pathelement location="${tests.jarfile}" />
-						<pathelement location="${spi.jarfile}" />
-						<pathelement location="${junit.jarfile}" />
-						<pathelement location="${json.jarfile}" />
-						<pathelement location="${jcr.jarfile}" />
-						<pathelement location="${classes}" />
-						<pathelement location="${log4j.jarfile}" />
-						<pathelement location="${dfc.jarfile}" />
-						<pathelement location="${core.classes}" />						
-					</classpath>
-				</javac>
-			</target>
+	
+	
 
 	<target name="jar" description="connector-dctm">
 		<jar jarfile="${jarfile}">
 			<fileset dir="${config}"/>
 			<fileset dir="${classes}"/>
-		</jar>
-		<manifest file="dist/MANIFEST.MF">
-			<attribute name="Main-Class" value="com.google.enterprise.connector.dctm.AllTests"/>
-
-		</manifest>
-		<jar jarfile="${jarfile.test}" manifest="dist/MANIFEST.MF">
-			<fileset dir="${tests.classes}" />
 		</jar>
 	</target>
 

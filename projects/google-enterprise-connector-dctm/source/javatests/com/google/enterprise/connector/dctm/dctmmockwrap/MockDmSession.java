@@ -52,7 +52,7 @@ public class MockDmSession implements ISession {
 				mockRepositoryDocument);
 		return dctmMockRepositoryDocument;
 	}
-
+	
 	public IType getType(String typeName) throws RepositoryException {
 		// TODO Auto-generated method stub
 		return null;
