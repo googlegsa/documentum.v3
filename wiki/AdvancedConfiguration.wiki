@@ -4,7 +4,10 @@
 
 The advanced configuration is done through the modification of the 
 file connectorInstance.xml. This file is available inside connector-dctm.jar. You should extract this file and place it in the folder 
-/connector-manager/WEB-INF/connectors/EMC_Documentum_Content_Server_5.3/`instance_of_connector`/
+
+    Tomcat/webapps/connector-manager/WEB-INF/connectors/EMC_Documentum_Content_Server_<em>version</em>/_connector-instance_/
+
+where _version_ is the Documentum version, either "5.2.5_5.3" or "6.0", and _connector-instance_ is the name of your connector instance.
 
 By changing this file, you can add an additional where clause to 
 specify for example a specific folder in the Documentum repository, you can change the 
