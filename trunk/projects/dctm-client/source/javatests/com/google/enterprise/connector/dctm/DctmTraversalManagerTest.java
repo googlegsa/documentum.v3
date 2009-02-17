@@ -47,7 +47,6 @@ public class DctmTraversalManagerTest extends TestCase {
 		list = qtm.startTraversal();
 
 		while (list.nextDocument() != null) {
-
 			counter++;
 		}
 		assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
@@ -56,16 +55,12 @@ public class DctmTraversalManagerTest extends TestCase {
 	public void testMakeCheckpointQueryString() {
 		String uuid = "090000018000e100";
 		String statement = "";
-		try {
-			statement = qtm.makeCheckpointQueryString(uuid,
+		
+		statement = qtm.makeCheckpointQueryString(uuid,
 					"2007-01-02 13:58:10");
-		} catch (RepositoryException re) {
-
-		}
 
 		assertNotNull(statement);
 		assertEquals(DmInitialize.DM_CHECKPOINT_QUERY_STRING, statement);
-
 	}
 
 	public void testExtractDocidFromCheckpoint() {
@@ -86,7 +81,6 @@ public class DctmTraversalManagerTest extends TestCase {
 	}
 
 	public void testExtractNativeDateFromCheckpoint() {
-
 		String checkPoint = "{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
 		JSONObject jo = null;
 		String modifDate = null;
@@ -101,7 +95,6 @@ public class DctmTraversalManagerTest extends TestCase {
 		modifDate = qtm.extractNativeDateFromCheckpoint(jo, checkPoint);
 		assertNotNull(modifDate);
 		assertEquals(modifDate, "2007-01-02 13:58:10");
-
 	}
 
 	public void testResumeTraversal() throws RepositoryException {
@@ -115,7 +108,6 @@ public class DctmTraversalManagerTest extends TestCase {
 		int counter = 0;
 
 		while (propertyMapList.nextDocument() != null) {
-
 			counter++;
 		}
 
@@ -132,7 +124,6 @@ public class DctmTraversalManagerTest extends TestCase {
 
 		DctmSysobjectDocument map = null;
 		while ((map = (DctmSysobjectDocument) documentList.nextDocument()) != null) {
-
 			String docId = map.findProperty(SpiConstants.PROPNAME_DOCID)
 					.nextValue().toString();
 			String expectedid = "090000018000015e";
@@ -144,5 +135,4 @@ public class DctmTraversalManagerTest extends TestCase {
 			assertEquals(expecterModifyDate, modifyDate);
 		}
 	}
-
 }

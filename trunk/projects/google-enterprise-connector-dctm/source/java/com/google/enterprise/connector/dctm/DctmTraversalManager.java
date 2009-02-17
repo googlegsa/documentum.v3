@@ -172,14 +172,14 @@ public class DctmTraversalManager implements TraversalManager {
 		DocumentList documentList = null;
 		try {
 			if (query != null) {
-				sessAdd =sessionManager.getSession(sessionManager.getDocbaseName());
+				sessAdd = sessionManager.getSession(sessionManager.getDocbaseName());
 				sessionManager.setSessionAdd(sessAdd);
 				collecToAdd = query.execute(sessAdd, IQuery.EXECUTE_READ_QUERY);
 				logger.fine("execution of the query returns a collection of document to add");
 			}
 			
 			if (queryDocToDel != null) {
-				sessDel =sessionManager.getSession(sessionManager.getDocbaseName());
+				sessDel = sessionManager.getSession(sessionManager.getDocbaseName());
 				sessionManager.setSessionDel(sessDel);
 				collecToDel = queryDocToDel.execute(sessDel, IQuery.EXECUTE_READ_QUERY);
 				logger.fine("execution of the query returns a collection of document to delete");
@@ -192,7 +192,6 @@ public class DctmTraversalManager implements TraversalManager {
 						clientX, isPublic, hash_included_meta, dateFirstPush, checkPoint);
 			}
 			
-			return documentList;
 			
 			
 		} finally {
@@ -221,6 +220,8 @@ public class DctmTraversalManager implements TraversalManager {
 				}
 			}
 		}
+
+                return documentList;
 	}
 
 	/**
@@ -233,8 +234,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return this.execQuery(query, null, null);
 	}
 
-	protected IQuery makeCheckpointQuery(String queryString)
-	throws RepositoryException {
+	protected IQuery makeCheckpointQuery(String queryString) {
 		IQuery query = null;
 		query = clientX.getQuery();
 		query.setDQL(queryString);
@@ -316,7 +316,7 @@ public class DctmTraversalManager implements TraversalManager {
 		//to format the date (0-24h instead of 0-12h)
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			java.util.Date newDt= sdf.parse(c);
+			java.util.Date newDt = sdf.parse(c);
 			c = sdf.format(newDt);
 		} catch (ParseException e) {
 			logger.fine("Error while converting string to date.");
@@ -333,12 +333,11 @@ public class DctmTraversalManager implements TraversalManager {
 		return statement;
 	}
 
-	protected String makeCheckpointQueryString(String uuid, String c)
-	throws RepositoryException {
+	protected String makeCheckpointQueryString(String uuid, String c) {
 		//to format the date (0-24h instead of 0-12h)
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			java.util.Date newDt= sdf.parse(c);
+			java.util.Date newDt = sdf.parse(c);
 			c = sdf.format(newDt);
 		} catch (ParseException e) {
 			logger.fine("Error while converting string to date.");
@@ -349,8 +348,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return statement;
 	}
 
-	protected String buildQueryString(String checkpoint)
-	throws RepositoryException {
+	protected String buildQueryString(String checkpoint) {
 
 		StringBuffer query = new StringBuffer(
 				"select i_chronicle_id, r_object_id, r_modify_date from "
@@ -376,7 +374,7 @@ public class DctmTraversalManager implements TraversalManager {
 			if (!this.additionalWhereClause.toLowerCase().startsWith("and ")) {
 				///throw new RepositoryException("[additional] ");
 				logger.log(Level.INFO, "clause does not start with AND : ");
-				this.additionalWhereClause="and ".concat(additionalWhereClause);
+				this.additionalWhereClause = "and ".concat(additionalWhereClause);
 				logger.log(Level.INFO, "after adding AND : "
 						+ additionalWhereClause);
 			}
@@ -404,7 +402,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return query.toString();
 	}
 
-	protected String buildQueryStringToDel(String checkpoint){
+	protected String buildQueryStringToDel(String checkpoint) {
 		StringBuffer query = new StringBuffer(
 		"select r_object_id,  chronicle_id, time_stamp from dm_audittrail " );
 
@@ -450,7 +448,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return  query.toString();		
 	}
 
-	protected String getCheckpointRemoveClause(String checkPoint) throws RepositoryException{
+	protected String getCheckpointRemoveClause(String checkPoint) {
 		logger.info("value of checkpoint" + checkPoint);
 		JSONObject jo = null;
 		try {
@@ -461,7 +459,7 @@ public class DctmTraversalManager implements TraversalManager {
 			throw new IllegalArgumentException(
 					"checkPoint string does not parse as JSON: " + checkPoint);
 		}
-		String queryString="";
+		String queryString = "";
 		try {
 			String uuid = extractDocidFromCheckpointRemove(jo, checkPoint);
 			logger.fine("uuid is " + uuid);
@@ -478,8 +476,7 @@ public class DctmTraversalManager implements TraversalManager {
 		return queryString;	
 	}
 
-	protected String getCheckpointClause(String checkPoint)
-	throws RepositoryException {
+	protected String getCheckpointClause(String checkPoint) {
 		logger.info("value of checkpoint" + checkPoint);
 		JSONObject jo = null;
 		try {
@@ -508,24 +505,22 @@ public class DctmTraversalManager implements TraversalManager {
 	}
 	
 	
-	protected void setHash_included_object_type(String included_object_type){
+	protected void setHash_included_object_type(String included_object_type) {
 		hash_included_object_type = new HashSet();
-		String[] hashTab= included_object_type.split(",");
-		int i = 0;
-		for(i=0;i<hashTab.length;i++){
+		String[] hashTab = included_object_type.split(",");
+		for (int i = 0; i < hashTab.length; i++) {
 			hash_included_object_type.add(hashTab[i]);
 		}
-		this.hash_included_object_type=hash_included_object_type;
+		this.hash_included_object_type = hash_included_object_type;
 	}
 
 	
-	protected void setHash_included_meta(String included_metadata){
+	protected void setHash_included_meta(String included_metadata) {
 		hash_included_meta = new HashSet();
-		String[] hashTab= included_metadata.split(",");
-		int i = 0;
-		for(i=0;i<hashTab.length;i++){
+		String[] hashTab = included_metadata.split(",");
+		for (int i = 0; i < hashTab.length; i++) {
 			hash_included_meta.add(hashTab[i]);
 		}
-		this.hash_included_meta=hash_included_meta;
+		this.hash_included_meta = hash_included_meta;
 	}
 }
