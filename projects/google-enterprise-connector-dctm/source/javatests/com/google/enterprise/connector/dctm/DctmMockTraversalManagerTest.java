@@ -34,11 +34,9 @@ public class DctmMockTraversalManagerTest extends TestCase {
 		((DctmConnector) connector).setIs_public("true");
 		session = (DctmSession) connector.login();
 		qtm = (DctmTraversalManager) session.getTraversalManager();
-
 	}
 
 	public void testStartTraversal() throws RepositoryException {
-
 		DocumentList documentList = null;
 		int counter = 0;
 
@@ -46,29 +44,22 @@ public class DctmMockTraversalManagerTest extends TestCase {
 		documentList = qtm.startTraversal();
 
 		while (documentList.nextDocument() != null) {
-
 			counter++;
 		}
 
 		assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
-
 	}
 
 	public void testMakeCheckpointQueryString() {
 		String uuid = "doc2";
 		String statement = "";
 
-		try {
-			statement = qtm.makeCheckpointQueryString(uuid,
-					"1970-01-01 01:00:00");
-		} catch (RepositoryException re) {
-
-		}
+		statement = qtm.makeCheckpointQueryString(uuid,
+				"1970-01-01 01:00:00");
 
 		assertNotNull(statement);
 		System.out.println(statement);
 		assertEquals(DmInitialize.DM_CHECKPOINT_QUERY_STRING, statement);
-
 	}
 
 	public void testExtractDocidFromCheckpoint() {
@@ -89,7 +80,6 @@ public class DctmMockTraversalManagerTest extends TestCase {
 	}
 
 	public void testExtractNativeDateFromCheckpoint() {
-
 		String checkPoint = "{\"uuid\":\"doc2\",\"lastModified\":\"1970-01-01 01:00:00.020\"}";
 		JSONObject jo = null;
 		String modifDate = null;
@@ -104,11 +94,9 @@ public class DctmMockTraversalManagerTest extends TestCase {
 		modifDate = qtm.extractNativeDateFromCheckpoint(jo, checkPoint);
 		assertNotNull(modifDate);
 		assertEquals(modifDate, "1970-01-01 01:00:00.020");
-
 	}
 
 	public void testResumeTraversal() throws RepositoryException {
-
 		session = (DctmSession) connector.login();
 		qtm = (DctmTraversalManager) session.getTraversalManager();
 		DocumentList documentList = null;
@@ -125,5 +113,4 @@ public class DctmMockTraversalManagerTest extends TestCase {
 
 		assertEquals(DmInitialize.DM_RETURN_TOP_BOUNDED, counter);
 	}
-
 }

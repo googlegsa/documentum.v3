@@ -1,6 +1,5 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.lang.IllegalStateException;
 import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -133,7 +132,7 @@ public class DmCollection implements ICollection {
 	}
 	
 	
-	public ISession getSession(){
+	public ISession getSession() {
 		IDfSession dfSession = null;
 		dfSession = idfCollection.getSession();
 		logger.finest("getting the session from the collection");

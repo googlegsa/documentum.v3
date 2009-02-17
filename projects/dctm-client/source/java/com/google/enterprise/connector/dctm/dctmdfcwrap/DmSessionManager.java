@@ -33,7 +33,6 @@ public class DmSessionManager implements ISessionManager {
 			.getName());
 	
 	public DmSessionManager(IDfSessionManager DfSessionManager) {
-
 		this.dfSessionManager = DfSessionManager;
 	}
 	
@@ -41,7 +40,6 @@ public class DmSessionManager implements ISessionManager {
 	public void setSessionDel(ISession sess){
 		this.DfSessionDel=((DmSession) sess).getDfSession();
 		logger.finest("setSessionDel");
-		
 	}
 	
 	public void setSessionAdd(ISession sess){
@@ -52,13 +50,11 @@ public class DmSessionManager implements ISessionManager {
 	public void setSessionAuto(ISession sess){
 		this.DfSessionAuto=((DmSession) sess).getDfSession();
 		logger.finest("setSessionAuto");
-		
 	}
 	
 	public void setSessionConfig(ISession sess){
 		this.DfSessionConfig=((DmSession) sess).getDfSession();
 		logger.finest("setSessionSessionConfig");
-		
 	}
 	
 	public void releaseSessionAdd() {
@@ -90,6 +86,7 @@ public class DmSessionManager implements ISessionManager {
 		IDfSession DfSession = null;
 		try {
 			DfSession = dfSessionManager.getSession(docbase);
+			logger.finest("after getSession");
 		} catch (DfIdentityException iE) {
 			RepositoryLoginException le = new RepositoryLoginException(iE);
 			throw le;
@@ -148,9 +145,9 @@ public class DmSessionManager implements ISessionManager {
 	}
 
 	public void release(ISession session) {
-		logger.finest("session released");
+		logger.finest("before session released");
 		this.dfSessionManager.release(((DmSession) session).getDfSession());
-
+		logger.finest("after session released");
 	}
 
 	public IDfSessionManager getDfSessionManager() {
@@ -159,11 +156,9 @@ public class DmSessionManager implements ISessionManager {
 
 	public void setServerUrl(String serverUrl) {
 		this.serverUrl = serverUrl;
-
 	}
 
 	public String getDocbaseName() {
-
 		return docbaseName;
 	}
 
@@ -193,5 +188,4 @@ public class DmSessionManager implements ISessionManager {
 	public IDfSessionManager getSessionManager() {
 		return this.dfSessionManager;
 	}
-
 }

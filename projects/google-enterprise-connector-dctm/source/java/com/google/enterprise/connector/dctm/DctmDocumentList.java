@@ -60,11 +60,12 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		this.isPublic = isPublic;
 		this.included_meta = included_meta;
 		this.dateFirstPush = dateFirstPush;
-		this.lastCheckPoint=lastCheckPoint;
+		this.lastCheckPoint = lastCheckPoint;
 	}
 
 	public Document nextDocument() throws RepositoryException {
 		if (collectionToAdd.getState() == ICollection.DF_CLOSED_STATE) {
+			logger.fine("state of collectionToAdd : closed");
 			return null;
 		}
 		
@@ -72,13 +73,10 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		logger.fine("The collection state :" + collectionToAdd.getState());
 		logger.fine("The collection delete state :"+ collectionToAdd.getState());
 		
-		
-		
 		Document retDoc = null;
 		try {
 			if (collectionToAdd.next()) {
-
-				logger.fine("Looking throw the collection");
+				logger.fine("Looking through the collection");
 				
 				String crID = "";
 				ITime lastModifDate = null;
@@ -89,16 +87,11 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					lastModifDate = collectionToAdd.getTime("r_modify_date");
 					logger.fine("lastModifDate is "+lastModifDate);
 					///
-					
 					logger.fine("r_object_id is "+crID);
-					
 				} catch (RepositoryException e) {
 					logger.severe("impossible to get the r_object_id of the document");
 					return null;
 				}
-				
-				
-				
 				
 				dctmSysobjectDocument = new DctmSysobjectDocument(crID, lastModifDate, sessMag,
 						clientX, isPublic ? "true" : "false", included_meta,
@@ -107,7 +100,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				logger.fine("Creation of a new dctmSysobjectDocument");
 				retDoc = dctmSysobjectDocument;
 			} else if (collectionToDel != null && collectionToDel.next()) {
-				logger.fine("Looking throw the collection of document to remove");
+				logger.fine("Looking through the collection of document to remove");
 				
 				String crID = "";
 				String commonVersionID = "";
@@ -119,9 +112,8 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 					lastDeleteDate = collectionToDel.getTime("time_stamp");
 					
 					logger.fine("r_object_id is "+crID);
-					
 				} catch (RepositoryException e) {
-					logger.severe("impossible to get the r_object_id of the document");
+					logger.warning("impossible to get the r_object_id of the document");
 					return null;
 				}
 				
@@ -131,25 +123,28 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				
 				logger.fine("Creation of a new dctmSysobjectDocumentToDel");
 				retDoc = dctmSysobjectDocumentToDel;
-				
 			} else {
-				logger.severe("End of document list");
+				logger.warning("End of document list");
 			}
 		} catch (RepositoryException re) {
-			logger.severe("Error while trying to get next document : "+re);
+			logger.warning("Error while trying to get next document : "+re);
 			checkpoint();		
 		} finally {
-			if (retDoc == null) finalize();
+			if (retDoc == null) {
+				logger.fine("retDoc is null before finalize");
+				finalize();
+			}
 		}
 		return retDoc;
 	}
 
 	public String checkpoint() throws RepositoryException {
 		logger.fine("Creation of the checkpoint");
+		logger.fine("The collection state :" + collectionToAdd.getState());
 		//Last Document added to the GSA
-		String uuid ="";
-		String dateString="";
-		if(dctmSysobjectDocument !=null){
+		String uuid = "";
+		String dateString = "";
+		if (dctmSysobjectDocument != null) {
 			logger.fine("in dctmSysobjectDocument not null");
 			DctmSysobjectProperty prop = ((DctmSysobjectProperty) (dctmSysobjectDocument
 					.findProperty("r_object_id")));
@@ -160,10 +155,10 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			
 			DctmDateValue nextValAdd =  ((DctmDateValue) prop.nextValue());
 			
-			if(nextValAdd!=null){
+			if (nextValAdd != null) {
 				logger.fine("in nextValAdd not null");
 				dateString = nextValAdd.toDctmFormat();
-			}else{
+			} else {
 				logger.fine("in nextValAdd null");
 				ITime crDate = dctmSysobjectDocument.getLastModifDate();
 				logger.finest("crDate is "+crDate);
@@ -171,8 +166,8 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 				logger.finest("tmpDt is "+tmpDt);
 				dateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(tmpDt);	
 			}
-			
-		}else{
+			logger.fine("dateString of the checkpoint is "+dateString);
+		} else {
 			logger.fine("in dctmSysobjectDocument null");
 			JSONObject jo;
 			try {
@@ -184,25 +179,25 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			}	
 		}
 		
-		String dateStringDocToDel="";
-		String uuidDocToDel="";
-		if(dctmSysobjectDocumentToDel !=null)
+		String dateStringDocToDel = "";
+		String uuidDocToDel = "";
+		if (dctmSysobjectDocumentToDel != null)
 		{
 			logger.fine("in dctmSysobjectDocumentToDel not null");
 			DctmSysobjectProperty propDocToDel = ((DctmSysobjectProperty) (dctmSysobjectDocumentToDel.findProperty("r_object_id")));
 			
 			StringValue nextVal = ((StringValue) propDocToDel.nextValue());
-			if(nextVal!=null){
-			uuidDocToDel = nextVal.toString();
+			if (nextVal != null) {
+				uuidDocToDel = nextVal.toString();
 			}
 			
 			logger.fine("uuid of the checkpoint of deleted document is "+uuidDocToDel);
 			propDocToDel = (DctmSysobjectProperty) dctmSysobjectDocumentToDel.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
 			
 			DctmDateValue nextVal2 = ((DctmDateValue) propDocToDel.nextValue());
-			if(nextVal2!=null){
+			if (nextVal2 != null) {
 				dateStringDocToDel = nextVal2.toDctmFormat();
-			}else{
+			} else {
 				logger.fine("in nextVal null");
 				ITime crDateDocToDel = collectionToDel.getTime("time_stamp");
 				logger.fine("ITime crDateDocToDel is "+crDateDocToDel);
@@ -213,7 +208,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 			}
 			
 			logger.fine("dateString of the checkpoint of deleted document is "+dateStringDocToDel);
-		} else if(lastCheckPoint!=null) {
+		} else if (lastCheckPoint != null) {
 			logger.fine("in dctmSysobjectDocumentToDel null");
 			//Get the last modify date in the previous checkpoint; if exists
 			JSONObject jo;
@@ -227,9 +222,8 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 		} else {//last modified object = null, set the del modified date to first push
 			//first push date	
 			logger.fine("in firstpush");
-			dateStringDocToDel= dateFirstPush;
+			dateStringDocToDel = dateFirstPush;
 		}
-		
 		
 		String result = null;
 		try {
@@ -271,9 +265,9 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	        logger.fine("collection of documents to add closed");
 	        sessMag.releaseSessionAdd(); 
 	        logger.fine("collection session released");
-	      } catch (RepositoryException e) {
+	} catch (RepositoryException e) {
 	        logger.severe("Error while closing the collection of documents to add: " + e);
-	      }
+	}
     }
 
     if ((collectionToDel != null) &&
@@ -283,9 +277,9 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 	        logger.fine("collection of documents to delete closed");
 	        sessMag.releaseSessionDel(); 
 	        logger.fine("collection session released");
-	     }catch (RepositoryException e) {
+	} catch (RepositoryException e) {
 	        logger.severe("Error while closing the collection of documents to delete: " + e);
-	     }
+	}
     }
   }
 }

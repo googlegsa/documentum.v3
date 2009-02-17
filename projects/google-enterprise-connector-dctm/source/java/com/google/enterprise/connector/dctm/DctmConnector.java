@@ -115,7 +115,6 @@ public class DctmConnector implements Connector {
 	}
 
 	public String getIncluded_meta() {
-
 		return included_meta;
 	}
 
@@ -147,7 +146,7 @@ public class DctmConnector implements Connector {
 	
 	public void setPassword(String password) {
 		this.password = password;
-		logger.log(Level.INFO, "password set to " +password);
+		logger.log(Level.INFO, "password set to [...]");
 	}
 
 	public void setIncluded_object_type(String included_object_type) {
@@ -165,10 +164,4 @@ public class DctmConnector implements Connector {
 		this.action_update = action_update;
 		logger.log(Level.INFO, "action_update set to " +action_update);
 	}
-	
-	
-
-	
-	
-	
 }
