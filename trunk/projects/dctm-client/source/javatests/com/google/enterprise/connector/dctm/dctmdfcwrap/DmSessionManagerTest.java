@@ -1,3 +1,17 @@
+// Copyright (C) 2006-2009 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.google.enterprise.connector.dctm.DmInitialize;
@@ -13,99 +27,94 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DmSessionManagerTest extends TestCase {
+  ISessionManager sessionManager;
 
-	ISessionManager sessionManager;
+  ILoginInfo loginInfo;
 
-	ILoginInfo loginInfo;
+  String user = DmInitialize.DM_LOGIN_OK4;
 
-	String user = DmInitialize.DM_LOGIN_OK4;
+  String password = DmInitialize.DM_PWD_OK4;
 
-	String password = DmInitialize.DM_PWD_OK4;
+  String docbase = DmInitialize.DM_DOCBASE;
 
-	String docbase = DmInitialize.DM_DOCBASE;
+  private String userKO = DmInitialize.DM_LOGIN_KO;
 
-	private String userKO = DmInitialize.DM_LOGIN_KO;
+  private String pwdKO = DmInitialize.DM_PWD_KO;
 
-	private String pwdKO = DmInitialize.DM_PWD_KO;
+  public void setUp() throws Exception {
+    super.setUp();
 
-	public void setUp() throws Exception {
+    IClientX dctmClientX;
 
-		super.setUp();
+    IClient localClient = null;
 
-		IClientX dctmClientX;
+    dctmClientX = new DmClientX();
 
-		IClient localClient = null;
+    localClient = dctmClientX.getLocalClient();
 
-		dctmClientX = new DmClientX();
+    sessionManager = localClient.newSessionManager();
+    loginInfo = dctmClientX.getLoginInfo();
+    loginInfo.setUser(user);
 
-		localClient = dctmClientX.getLocalClient();
+    loginInfo.setPassword(password);
 
-		sessionManager = localClient.newSessionManager();
-		loginInfo = dctmClientX.getLoginInfo();
-		loginInfo.setUser(user);
+    sessionManager.setIdentity(docbase, loginInfo);
+  }
 
-		loginInfo.setPassword(password);
+  public void testNewSession() throws RepositoryLoginException,
+      RepositoryException {
+    ISession session = null;
+    try {
+      session = sessionManager.newSession(docbase);
+      Assert.assertNotNull(session);
+      Assert.assertTrue(session instanceof DmSession);
+    } finally {
+      if (session != null) {
+        sessionManager.release(session);
+      }
+    }
+  }
 
-		sessionManager.setIdentity(docbase, loginInfo);
+  public void testAuthenticateOK() throws RepositoryLoginException {
+    boolean rep = false;
 
-	}
+    rep = sessionManager.authenticate(docbase);
 
-	public void testNewSession() throws RepositoryLoginException,
-			RepositoryException {
+    Assert.assertTrue(rep);
 
-		ISession session = null;
-		try {
-			session = sessionManager.newSession(docbase);
-			Assert.assertNotNull(session);
-			Assert.assertTrue(session instanceof DmSession);
-		} finally {
-			if (session != null) {
-				sessionManager.release(session);
-			}
-		}
-	}
+    sessionManager.clearIdentity(docbase);
+    loginInfo.setUser(DmInitialize.DM_LOGIN_OK2);
+    loginInfo.setPassword(DmInitialize.DM_PWD_OK2);
 
-	public void testAuthenticateOK() throws RepositoryLoginException {
-		boolean rep = false;
+    sessionManager.setIdentity(docbase, loginInfo);
+    rep = sessionManager.authenticate(docbase);
 
-		rep = sessionManager.authenticate(docbase);
+    Assert.assertTrue(rep);
+  }
 
-		Assert.assertTrue(rep);
+  public void testAuthenticateKO() throws RepositoryLoginException {
+    boolean rep = false;
 
-		sessionManager.clearIdentity(docbase);
-		loginInfo.setUser(DmInitialize.DM_LOGIN_OK2);
-		loginInfo.setPassword(DmInitialize.DM_PWD_OK2);
+    rep = sessionManager.authenticate(docbase);
 
-		sessionManager.setIdentity(docbase, loginInfo);
-		rep = sessionManager.authenticate(docbase);
+    Assert.assertTrue(rep);
 
-		Assert.assertTrue(rep);
-	}
+    sessionManager.clearIdentity(docbase);
 
-	public void testAuthenticateKO() throws RepositoryLoginException {
-		boolean rep = false;
+    loginInfo.setUser(userKO);
 
-		rep = sessionManager.authenticate(docbase);
+    loginInfo.setPassword(pwdKO);
 
-		Assert.assertTrue(rep);
+    sessionManager.setIdentity(docbase, loginInfo);
 
-		sessionManager.clearIdentity(docbase);
+    rep = sessionManager.authenticate(docbase);
 
-		loginInfo.setUser(userKO);
+    Assert.assertFalse(rep);
+  }
 
-		loginInfo.setPassword(pwdKO);
-
-		sessionManager.setIdentity(docbase, loginInfo);
-
-		rep = sessionManager.authenticate(docbase);
-
-		Assert.assertFalse(rep);
-	}
-
-	public void testClearIdentity() throws RepositoryLoginException {
-		sessionManager.clearIdentity(docbase);
-		ILoginInfo logInfo = sessionManager.getIdentity(docbase);
-		Assert.assertNull(((DmLoginInfo) logInfo).getIdfLoginInfo());
-	}
-
+  public void testClearIdentity() throws RepositoryLoginException {
+    sessionManager.clearIdentity(docbase);
+    ILoginInfo logInfo = sessionManager.getIdentity(docbase);
+    Assert.assertNull(((DmLoginInfo) logInfo).getIdfLoginInfo());
+  }
 }

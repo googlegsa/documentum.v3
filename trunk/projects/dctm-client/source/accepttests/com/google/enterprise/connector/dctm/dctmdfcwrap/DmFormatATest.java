@@ -1,3 +1,17 @@
+// Copyright (C) 2006-2009 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.client.IDfSession;
@@ -19,159 +33,147 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DmFormatATest extends TestCase {
+  IClientX dctmClientX;
 
-	IClientX dctmClientX;
+  IClient localClient;
 
-	IClient localClient;
+  ISessionManager sessionManager;
 
-	ISessionManager sessionManager;
+  ISession session;
 
-	ISession session;
+  ILoginInfo loginInfo;
 
-	ILoginInfo loginInfo;
+  String docbase;
 
-	String docbase;
+  public void setUp() throws Exception {
+    super.setUp();
+    dctmClientX = (IClientX) Class.forName(DmInitialize.DM_CLIENTX)
+        .newInstance();
+    localClient = dctmClientX.getLocalClient();
+    sessionManager = localClient.newSessionManager();
+    loginInfo = dctmClientX.getLoginInfo();
+    String user = DmInitialize.DM_LOGIN_OK2;
 
-	public void setUp() throws Exception {
-		super.setUp();
-		dctmClientX = (IClientX) Class.forName(DmInitialize.DM_CLIENTX)
-				.newInstance();
-		localClient = dctmClientX.getLocalClient();
-		sessionManager = localClient.newSessionManager();
-		loginInfo = dctmClientX.getLoginInfo();
-		String user = DmInitialize.DM_LOGIN_OK2;
+    String password = DmInitialize.DM_PWD_OK2;
 
-		String password = DmInitialize.DM_PWD_OK2;
+    docbase = DmInitialize.DM_DOCBASE;
+    loginInfo.setUser(user);
+    loginInfo.setPassword(password);
+    sessionManager.setIdentity(docbase, loginInfo);
+    session = sessionManager.getSession(docbase);
+  }
 
-		docbase = DmInitialize.DM_DOCBASE;
-		loginInfo.setUser(user);
-		loginInfo.setPassword(password);
-		sessionManager.setIdentity(docbase, loginInfo);
-		session = sessionManager.getSession(docbase);
-	}
+  public void testCanIndexExcel() throws DfException, RepositoryException {
+    String idString = getAnExistingExcelObjectId(session);
+    IId id = dctmClientX.getId(idString);
+    ISysObject object = session.getObject(id);
+    IFormat dctmForm = (DmFormat) object.getFormat();
 
-	public void testCanIndexExcel() throws DfException, RepositoryException {
+    Assert.assertNotNull(dctmForm);
+    Assert.assertTrue(dctmForm.canIndex());
 
-		String idString = getAnExistingExcelObjectId(session);
-		IId id = dctmClientX.getId(idString);
-		ISysObject object = session.getObject(id);
-		IFormat dctmForm = (DmFormat) object.getFormat();
+  }
 
-		Assert.assertNotNull(dctmForm);
-		Assert.assertTrue(dctmForm.canIndex());
+  public void testCanIndexAccess() throws DfException, RepositoryException {
+    String idString = getAnExistingAccessObjectId(session);
 
-	}
+    IId id = dctmClientX.getId(idString);
+    ISysObject object = session.getObject(id);
+    IFormat dctmForm = (DmFormat) object.getFormat();
 
-	public void testCanIndexAccess() throws DfException, RepositoryException {
+    Assert.assertNotNull(dctmForm);
+    Assert.assertFalse(dctmForm.canIndex());
+  }
 
-		String idString = getAnExistingAccessObjectId(session);
+  public void testCanIndexPDF() throws DfException, RepositoryException {
+    String idString = getAnExistingPDFObjectId(session);
+    IId id = dctmClientX.getId(idString);
+    ISysObject object = session.getObject(id);
+    IFormat dctmForm = (DmFormat) object.getFormat();
 
-		IId id = dctmClientX.getId(idString);
-		ISysObject object = session.getObject(id);
-		IFormat dctmForm = (DmFormat) object.getFormat();
+    Assert.assertNotNull(dctmForm);
+    Assert.assertTrue(dctmForm.canIndex());
+  }
 
-		Assert.assertNotNull(dctmForm);
-		Assert.assertFalse(dctmForm.canIndex());
+  public void testGetPDFMIMEType() throws DfException, RepositoryException {
+    String idString = getAnExistingPDFObjectId(session);
+    IId id = dctmClientX.getId(idString);
+    ISysObject object = session.getObject(id);
+    IFormat dctmForm = (DmFormat) object.getFormat();
 
-	}
+    Assert.assertEquals(dctmForm.getMIMEType(), "application/pdf");
+  }
 
-	public void testCanIndexPDF() throws DfException, RepositoryException {
+  public void testGetExcelMIMEType() throws DfException, RepositoryException {
+    String idString = getAnExistingExcelObjectId(session);
+    IId id = dctmClientX.getId(idString);
+    ISysObject object = session.getObject(id);
+    IFormat dctmForm = (DmFormat) object.getFormat();
 
-		String idString = getAnExistingPDFObjectId(session);
-		IId id = dctmClientX.getId(idString);
-		ISysObject object = session.getObject(id);
-		IFormat dctmForm = (DmFormat) object.getFormat();
+    Assert.assertEquals(dctmForm.getMIMEType(), "application/vnd.ms-excel");
+  }
 
-		Assert.assertNotNull(dctmForm);
-		Assert.assertTrue(dctmForm.canIndex());
+  public void testGetWordMIMEType() throws DfException, RepositoryException {
+    String idString = getAnExistingWordObjectId(session);
+    IId id = dctmClientX.getId(idString);
+    ISysObject object = session.getObject(id);
+    IFormat dctmForm = (DmFormat) object.getFormat();
 
-	}
+    Assert.assertEquals(dctmForm.getMIMEType(), "application/msword");
+  }
 
-	public void testGetPDFMIMEType() throws DfException, RepositoryException {
+  private String getAnExistingExcelObjectId(ISession session)
+      throws DfException {
+    String idString;
+    DmSession dctmSession = (DmSession) session;
+    IDfSession dfSession = dctmSession.getDfSession();
+    IDfId id = dfSession
+        .getIdByQualification("dm_sysobject where a_content_type = 'excel8book'");
+    idString = id.toString();
 
-		String idString = getAnExistingPDFObjectId(session);
-		IId id = dctmClientX.getId(idString);
-		ISysObject object = session.getObject(id);
-		IFormat dctmForm = (DmFormat) object.getFormat();
+    return idString;
+  }
 
-		Assert.assertEquals(dctmForm.getMIMEType(), "application/pdf");
-	}
+  private String getAnExistingPDFObjectId(ISession session)
+      throws DfException {
+    // move into real DFC to find a docid that's in this docbase
+    String idString;
+    DmSession dctmSession = (DmSession) session;
+    IDfSession dfSession = dctmSession.getDfSession();
+    IDfId id = dfSession
+        .getIdByQualification("dm_sysobject where a_content_type = 'pdf'");
+    idString = id.toString();
+    return idString;
+  }
 
-	public void testGetExcelMIMEType() throws DfException, RepositoryException {
+  private String getAnExistingAccessObjectId(ISession session)
+      throws DfException {
+    // move into real DFC to find a docid that's in this docbase
+    String idString;
+    DmSession dctmSession = (DmSession) session;
+    IDfSession dfSession = dctmSession.getDfSession();
+    IDfId id = dfSession
+        .getIdByQualification("dm_sysobject where a_content_type = 'ms_access7'");
+    idString = id.toString();
 
-		String idString = getAnExistingExcelObjectId(session);
-		IId id = dctmClientX.getId(idString);
-		ISysObject object = session.getObject(id);
-		IFormat dctmForm = (DmFormat) object.getFormat();
+    return idString;
+  }
 
-		Assert.assertEquals(dctmForm.getMIMEType(), "application/vnd.ms-excel");
+  private String getAnExistingWordObjectId(ISession session)
+      throws DfException {
+    // move into real DFC to find a docid that's in this docbase
+    String idString;
+    DmSession dctmSession = (DmSession) session;
+    IDfSession dfSession = dctmSession.getDfSession();
+    IDfId id = dfSession
+        .getIdByQualification("dm_sysobject where a_content_type = 'msw8'");
+    idString = id.toString();
 
-	}
+    return idString;
+  }
 
-	public void testGetWordMIMEType() throws DfException, RepositoryException {
-
-		String idString = getAnExistingWordObjectId(session);
-		IId id = dctmClientX.getId(idString);
-		ISysObject object = session.getObject(id);
-		IFormat dctmForm = (DmFormat) object.getFormat();
-
-		Assert.assertEquals(dctmForm.getMIMEType(), "application/msword");
-	}
-
-	private String getAnExistingExcelObjectId(ISession session)
-			throws DfException {
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession
-				.getIdByQualification("dm_sysobject where a_content_type = 'excel8book'");
-		idString = id.toString();
-
-		return idString;
-	}
-
-	private String getAnExistingPDFObjectId(ISession session)
-			throws DfException {
-		// move into real DFC to find a docid that's in this docbase
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession
-				.getIdByQualification("dm_sysobject where a_content_type = 'pdf'");
-		idString = id.toString();
-		return idString;
-
-	}
-
-	private String getAnExistingAccessObjectId(ISession session)
-			throws DfException {
-		// move into real DFC to find a docid that's in this docbase
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession
-				.getIdByQualification("dm_sysobject where a_content_type = 'ms_access7'");
-		idString = id.toString();
-
-		return idString;
-	}
-
-	private String getAnExistingWordObjectId(ISession session)
-			throws DfException {
-		// move into real DFC to find a docid that's in this docbase
-		String idString;
-		DmSession dctmSession = (DmSession) session;
-		IDfSession dfSession = dctmSession.getDfSession();
-		IDfId id = dfSession
-				.getIdByQualification("dm_sysobject where a_content_type = 'msw8'");
-		idString = id.toString();
-
-		return idString;
-	}
-
-	protected void tearDown() throws Exception {
-		if (session != null)
-			sessionManager.release(session);
-	}
-
+  protected void tearDown() throws Exception {
+    if (session != null)
+      sessionManager.release(session);
+  }
 }

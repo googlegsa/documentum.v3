@@ -1,3 +1,17 @@
+// Copyright (C) 2006-2009 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
@@ -15,63 +29,60 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.TestCase;
 
 public class MockDmFormatTest extends TestCase {
+  IClientX dctmClientX;
 
-	IClientX dctmClientX;
+  IClient localClient;
 
-	IClient localClient;
+  ISessionManager sessionManager;
 
-	ISessionManager sessionManager;
+  ISession sess7;
 
-	ISession sess7;
+  IId id;
 
-	IId id;
+  ISysObject object;
 
-	ISysObject object;
+  IQuery query;
 
-	IQuery query;
+  String crID;
 
-	String crID;
+  IFormat format;
 
-	IFormat format;
+  public void setUp() throws Exception {
+    super.setUp();
+    dctmClientX = new MockDmClient();
+    localClient = null;
+    localClient = dctmClientX.getLocalClient();
+    sessionManager = localClient.newSessionManager();
+    ILoginInfo ili = new MockDmLoginInfo();
+    ili.setUser("mark");
+    ili.setPassword("mark");
+    sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
+    sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+    query = localClient.getQuery();
+    query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 
-	public void setUp() throws Exception {
+    id = dctmClientX.getId(DmInitialize.DM_ID2);
+    object = sess7.getObject(id);
+    try {
+      format = object.getFormat();
+    } catch (RepositoryException e) {
+      // TODO: Why is this exception ignored?
+    }
+  }
 
-		super.setUp();
-		dctmClientX = new MockDmClient();
-		localClient = null;
-		localClient = dctmClientX.getLocalClient();
-		sessionManager = localClient.newSessionManager();
-		ILoginInfo ili = new MockDmLoginInfo();
-		ili.setUser("mark");
-		ili.setPassword("mark");
-		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
-		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-		query = localClient.getQuery();
-		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
+  public void testCanIndex() {
+    boolean indexable = false;
+    try {
+      indexable = ((MockDmFormat) format).canIndex();
+    } catch (RepositoryException e) {
+      // TODO: Why is this exception ignored?
+    }
+    assertTrue(indexable);
+  }
 
-		id = dctmClientX.getId(DmInitialize.DM_ID2);
-		object = sess7.getObject(id);
-		try {
-			format = object.getFormat();
-		} catch (RepositoryException e) {
-		}
-
-	}
-
-	public void testCanIndex() {
-		boolean indexable = false;
-		try {
-			indexable = ((MockDmFormat) format).canIndex();
-		} catch (RepositoryException e) {
-
-		}
-		assertTrue(indexable);
-	}
-
-	public void testGetMIMEType() {
-		String mime = "";
-		mime = ((MockDmFormat) format).getMIMEType();
-		assertEquals(mime, DmInitialize.DM_DEFAULT_MIMETYPE);
-	}
-
+  public void testGetMIMEType() {
+    String mime = "";
+    mime = ((MockDmFormat) format).getMIMEType();
+    assertEquals(mime, DmInitialize.DM_DEFAULT_MIMETYPE);
+  }
 }

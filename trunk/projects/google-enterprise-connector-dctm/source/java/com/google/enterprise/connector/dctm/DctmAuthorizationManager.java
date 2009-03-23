@@ -1,3 +1,17 @@
+// Copyright (C) 2006-2009 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.enterprise.connector.dctm;
 
 import java.util.ArrayList;
@@ -21,183 +35,171 @@ import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
+  IClientX clientX;
 
-	IClientX clientX;
+  ISessionManager sessionManager;
 
-	ISessionManager sessionManager;
+  private String attributeName = "i_chronicle_id";
 
-	private String attributeName = "i_chronicle_id";
+  private String queryStringAuthoriseDefault = "select i_chronicle_id from dm_sysobject where i_chronicle_id in (";
 
-	private String queryStringAuthoriseDefault = "select i_chronicle_id from dm_sysobject where i_chronicle_id in (";
+  private static Logger logger = null;
 
-	private static Logger logger = null;
+  static {
+    logger = Logger.getLogger(DctmAuthorizationManager.class.getName());
+  }
 
-	static {
-		logger = Logger.getLogger(DctmAuthorizationManager.class.getName());
-	}
+  public DctmAuthorizationManager(IClientX clientX) {
+    setClientX(clientX);
+    setSessionManager(this.clientX.getSessionManager());
 
-	public DctmAuthorizationManager(IClientX clientX) {
+  }
 
-		setClientX(clientX);
-		setSessionManager(this.clientX.getSessionManager());
+  public Collection authorizeDocids(Collection docids,
+      AuthenticationIdentity authenticationIdentity) throws RepositoryException {
+    String username = authenticationIdentity.getUsername();
+    logger.info("username :" + username);
+    ICollection collec = null;
 
-	}
+    ISessionManager sessionManagerUser = null;
+    ISession session = null;
+    ISession sessionUser = null;
+    DctmDocumentList dctmDocumentList = new DctmDocumentList();
 
-	public Collection authorizeDocids(Collection docids,
-			AuthenticationIdentity authenticationIdentity) throws RepositoryException{
-		String username = authenticationIdentity.getUsername();
-		logger.info("username :" + username);
-		ICollection collec =null;
-		
-		ISessionManager sessionManagerUser = null;
-		ISession session = null;
-		ISession sessionUser = null;
-		DctmDocumentList dctmDocumentList = new DctmDocumentList();
-		
-		IQuery query = clientX.getQuery();
-		String dqlQuery = "";
-		List docidList = new ArrayList(docids);
-		
-	
-		session = sessionManager.getSession(sessionManager.getDocbaseName());
-		
-		logger.info("docbase :" + sessionManager.getDocbaseName());
+    IQuery query = clientX.getQuery();
+    String dqlQuery = "";
+    List docidList = new ArrayList(docids);
 
-		sessionManagerUser = clientX.getLocalClient().newSessionManager();
-			
-			
-		///makes the connector handle the patterns username@domain, domain\\username and username
+    session = sessionManager.getSession(sessionManager.getDocbaseName());
 
-			
-			
-		logger.info("username :" + username);
-			
-		if (username.matches(".*@.*")){
-			logger.info("username contains @");
-			username=username.substring(0,username.indexOf('@'));
-			logger.info("username contains @ and is now :"+username);
-		}
-			
-		if (username.matches(".*\\.*")){
-			logger.info("username contains \\");
-			username=username.substring(username.indexOf("\\")+1,username.length());
-			logger.info("username contains \\ and is now :"+username);
-		}
-			
-		String ticket = session.getLoginTicketForUser(username);
-		logger.info("ticket :" + ticket);
-		ILoginInfo logInfo = clientX.getLoginInfo();
-		logInfo.setUser(username);
-		logInfo.setPassword(ticket);
+    logger.info("docbase :" + sessionManager.getDocbaseName());
 
-		logger.log(Level.INFO, "authorisation for " + username);
+    sessionManagerUser = clientX.getLocalClient().newSessionManager();
 
-		sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
-					logInfo);
-		sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
+    ///makes the connector handle the patterns username@domain, domain\\username and username
+    logger.info("username :" + username);
 
-		dqlQuery = buildQuery(docidList);
+    if (username.matches(".*@.*")) {
+      logger.info("username contains @");
+      username = username.substring(0, username.indexOf('@'));
+      logger.info("username contains @ and is now :" + username);
+    }
 
-		logger.log(Level.INFO, "dql " + dqlQuery);
+    if (username.matches(".*\\.*")) {
+      logger.info("username contains \\");
+      username = username.substring(username.indexOf("\\") + 1, username.length());
+      logger.info("username contains \\ and is now :" + username);
+    }
 
-		query.setDQL(dqlQuery);
-		try{
-			sessionUser = sessionManagerUser.getSession(sessionManager.getDocbaseName());
-			logger.info("set the SessionAuto for the sessionManagerUser");
-			sessionManagerUser.setSessionAuto(sessionUser);
-			
-			collec = query.execute(sessionUser,IQuery.READ_QUERY);
+    String ticket = session.getLoginTicketForUser(username);
+    logger.info("ticket :" + ticket);
+    ILoginInfo logInfo = clientX.getLoginInfo();
+    logInfo.setUser(username);
+    logInfo.setPassword(ticket);
 
-			String id = "";
-			AuthorizationResponse authorizationResponse;
-			Iterator iterDocIdList = docidList.iterator();
-			String object_id = "";
-			while (collec.next()) {
-				object_id += collec.getString("i_chronicle_id") + " ";
-			}
-			while (iterDocIdList.hasNext()) {
-				id = (String) iterDocIdList.next();
-				if (object_id.indexOf(id) != -1) {
-					logger.info("id " + id);
-					logger.info("hasRight?  " + true);
+    logger.log(Level.INFO, "authorisation for " + username);
 
-					authorizationResponse = new AuthorizationResponse(true, id);
-				} else {
-					logger.info("id " + id);
-					logger.info("hasRight?  " + false);
+    sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
+          logInfo);
+    sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
-					authorizationResponse = new AuthorizationResponse(false, id);
-				}
-				dctmDocumentList.add(authorizationResponse);
-				logger.info("after dctmDocumentList.add");
-			}
-			collec.close();
-			logger.info("after collec.close");
-		}finally {
-			logger.info("in finally");
-			if(collec.getSession() != null ){
-				logger.info("collec getSession not null");
-				sessionManagerUser.releaseSessionAuto();
-				logger.info("session of sessionManagerUser released");
-			}
-			if (session != null) {
-				logger.info("session not null");
-				sessionManager.release(session);
-				logger.info("session of sessionManager released");
-			}
-			
-		}
-		return dctmDocumentList;
-	}
-	
-	
-	private String buildQuery(List docidList) {
-		int i;
-		String queryString;
+    dqlQuery = buildQuery(docidList);
+    logger.log(Level.INFO, "dql " + dqlQuery);
 
-		queryString = queryStringAuthoriseDefault;
-		for (i = 0; i < docidList.size() - 1; i++) {
-			queryString += "'" + docidList.get(i).toString() + "', ";
+    query.setDQL(dqlQuery);
+    try {
+      sessionUser = sessionManagerUser.getSession(sessionManager.getDocbaseName());
+      logger.info("set the SessionAuto for the sessionManagerUser");
+      sessionManagerUser.setSessionAuto(sessionUser);
 
-		}
-		queryString += "'" + docidList.get(i).toString() + "')";
+      collec = query.execute(sessionUser, IQuery.READ_QUERY);
 
-		return queryString;
-	}
+      String id = "";
+      AuthorizationResponse authorizationResponse;
+      Iterator iterDocIdList = docidList.iterator();
+      String object_id = "";
+      while (collec.next()) {
+        object_id += collec.getString("i_chronicle_id") + " ";
+      }
+      while (iterDocIdList.hasNext()) {
+        id = (String) iterDocIdList.next();
+        if (object_id.indexOf(id) != -1) {
+          logger.info("id " + id);
+          logger.info("hasRight?  " + true);
 
-	public List authorizeTokens(List tokenList, String username)
-			throws RepositoryException {
-		List responses = null;
-		return responses;
-	}
+          authorizationResponse = new AuthorizationResponse(true, id);
+        } else {
+          logger.info("id " + id);
+          logger.info("hasRight?  " + false);
 
-	public IClientX getClientX() {
-		return clientX;
-	}
+          authorizationResponse = new AuthorizationResponse(false, id);
+        }
+        dctmDocumentList.add(authorizationResponse);
+        logger.info("after dctmDocumentList.add");
+      }
+      collec.close();
+      logger.info("after collec.close");
+    } finally {
+      logger.info("in finally");
+      if (collec.getSession() != null ) {
+        logger.info("collec getSession not null");
+        sessionManagerUser.releaseSessionAuto();
+        logger.info("session of sessionManagerUser released");
+      }
+      if (session != null) {
+        logger.info("session not null");
+        sessionManager.release(session);
+        logger.info("session of sessionManager released");
+      }
+    }
+    return dctmDocumentList;
+  }
 
-	public void setClientX(IClientX clientX) {
-		this.clientX = clientX;
-	}
+  private String buildQuery(List docidList) {
+    int i;
+    String queryString;
 
-	public ISessionManager getSessionManager() {
-		return sessionManager;
-	}
+    queryString = queryStringAuthoriseDefault;
+    for (i = 0; i < docidList.size() - 1; i++) {
+      queryString += "'" + docidList.get(i).toString() + "', ";
+    }
+    queryString += "'" + docidList.get(i).toString() + "')";
 
-	private void setSessionManager(ISessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
+    return queryString;
+  }
 
-	protected String getAttributeName() {
-		return attributeName;
-	}
+  public List authorizeTokens(List tokenList, String username)
+      throws RepositoryException {
+    List responses = null;
+    return responses;
+  }
 
-	protected String getQueryStringAuthoriseDefault() {
-		return queryStringAuthoriseDefault;
-	}
+  public IClientX getClientX() {
+    return clientX;
+  }
 
-	protected void setQueryStringAuthoriseDefault(
-			String queryStringAuthoriseDefault) {
-		this.queryStringAuthoriseDefault = queryStringAuthoriseDefault;
-	}
+  public void setClientX(IClientX clientX) {
+    this.clientX = clientX;
+  }
 
+  public ISessionManager getSessionManager() {
+    return sessionManager;
+  }
+
+  private void setSessionManager(ISessionManager sessionManager) {
+    this.sessionManager = sessionManager;
+  }
+
+  protected String getAttributeName() {
+    return attributeName;
+  }
+
+  protected String getQueryStringAuthoriseDefault() {
+    return queryStringAuthoriseDefault;
+  }
+
+  protected void setQueryStringAuthoriseDefault(
+      String queryStringAuthoriseDefault) {
+    this.queryStringAuthoriseDefault = queryStringAuthoriseDefault;
+  }
 }
