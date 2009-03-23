@@ -332,7 +332,7 @@ public class DctmConnectorType implements ConnectorType {
           logger.info("ADVANCEDCONF set to " + configData.get(ADVANCEDCONF));
         }
 
-        logger.info("RepositoryException thrown in validateconfig "+e.getMessage());
+        logger.log(Level.INFO, "RepositoryException thrown in validateConfig:", e);
         // return the config form with an error message (written in red)
         return createErrorMessage(configData, e);
       } finally {
@@ -478,8 +478,9 @@ public class DctmConnectorType implements ConnectorType {
         break;
       }
     } catch (RepositoryException re) {
+      // TODO(jl1615): Log and throw anti-pattern.
       logger.info("throw " + re);
-      throw new RepositoryException(re);
+      throw re;
     } finally {
       try {
         if (collec != null) {
@@ -492,7 +493,8 @@ public class DctmConnectorType implements ConnectorType {
           }
         }
       } catch (RepositoryException re) {
-        throw new RepositoryException(re);
+        // TODO(jl1615): Why bother with this? Should we log and not throw?
+        throw re;
       }
     }
 
@@ -519,16 +521,13 @@ public class DctmConnectorType implements ConnectorType {
             + " status");
       }
     } catch (HttpException e) {
-      RepositoryException re = new RepositoryException("[HttpException]",
-          e);
-      throw new RepositoryException(re);
+      throw new RepositoryException("[HttpException]", e);
     } catch (IllegalArgumentException e) {
-      RepositoryException re = new RepositoryException("[IllegalArgumentException]", e);
-      throw new RepositoryException(re);
-    }
-    catch (IOException e) {
-      RepositoryException re = new RepositoryException("[IOException]", e);
-      throw new RepositoryException(re);
+      // TODO(jl1615): There's no resource bundle entry for this one,
+      // unlike HttpException and IOException.
+      throw new RepositoryException("[IllegalArgumentException]", e);
+    } catch (IOException e) {
+      throw new RepositoryException("[IOException]", e);
     }
 
     return status;
