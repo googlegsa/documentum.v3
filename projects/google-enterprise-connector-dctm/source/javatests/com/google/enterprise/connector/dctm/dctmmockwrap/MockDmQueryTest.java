@@ -1,3 +1,17 @@
+// Copyright (C) 2006-2009 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import java.text.MessageFormat;
@@ -14,59 +28,57 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.TestCase;
 
 public class MockDmQueryTest extends TestCase {
-	private static final String XPATH_QUERY_STRING_BOUNDED_DEFAULT = "//*[@jcr:primaryType = 'nt:resource' and @jcr:lastModified >= ''{0}'' and @jcr:uuid >= ''{1}''] order by @jcr:lastModified, @jcr:uuid";
+  private static final String XPATH_QUERY_STRING_BOUNDED_DEFAULT = "//*[@jcr:primaryType = 'nt:resource' and @jcr:lastModified >= ''{0}'' and @jcr:uuid >= ''{1}''] order by @jcr:lastModified, @jcr:uuid";
 
-	IClientX dctmClientX;
+  IClientX dctmClientX;
 
-	IClient localClient;
+  IClient localClient;
 
-	ISessionManager sessionManager;
+  ISessionManager sessionManager;
 
-	ISession sess7;
+  ISession sess7;
 
-	IQuery query;
+  IQuery query;
 
-	public void setUp() throws Exception {
+  public void setUp() throws Exception {
+    super.setUp();
 
-		super.setUp();
+    dctmClientX = new MockDmClient();
+    localClient = null;
+    localClient = dctmClientX.getLocalClient();
+    sessionManager = localClient.newSessionManager();
+    ILoginInfo ili = new MockDmLoginInfo();
+    ili.setUser("mark");
+    ili.setPassword("mark");
+    sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
+    sess7 = sessionManager.getSession("MockRepositoryEventLog7.txt");
+    query = localClient.getQuery();
+  }
 
-		dctmClientX = new MockDmClient();
-		localClient = null;
-		localClient = dctmClientX.getLocalClient();
-		sessionManager = localClient.newSessionManager();
-		ILoginInfo ili = new MockDmLoginInfo();
-		ili.setUser("mark");
-		ili.setPassword("mark");
-		sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
-		sess7 = sessionManager.getSession("MockRepositoryEventLog7.txt");
-		query = localClient.getQuery();
-	}
+  public void testMakeBoundedQuery() {
+    String dqlStatement = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_modify_date >= 'ThisIsATestDate' and i_chronicle_id >= 'ThisIsATestId'";
+    int bound1 = dqlStatement.indexOf(" and r_modify_date >= '")
+        + " and r_modify_date >= '".length();
+    int bound2 = dqlStatement.indexOf("' and i_chronicle_id >= '");
+    int bound3 = bound2 + "' and i_chronicle_id >= '".length();
+    String date = dqlStatement.substring(bound1, bound2);
+    String id = dqlStatement.substring(bound3, dqlStatement
+        .lastIndexOf("'"));
+    String test = MessageFormat.format(XPATH_QUERY_STRING_BOUNDED_DEFAULT,
+        new Object[] { date, id });
+    assertEquals(
+        test,
+        "//*[@jcr:primaryType = nt:resource and @jcr:lastModified >= 'ThisIsATestDate' and @jcr:uuid >= 'ThisIsATestId'] order by @jcr:lastModified, @jcr:uuid");
+  }
 
-	public void testMakeBoundedQuery() {
-		String dqlStatement = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document' and r_modify_date >= 'ThisIsATestDate' and i_chronicle_id >= 'ThisIsATestId'";
-		int bound1 = dqlStatement.indexOf(" and r_modify_date >= '")
-				+ " and r_modify_date >= '".length();
-		int bound2 = dqlStatement.indexOf("' and i_chronicle_id >= '");
-		int bound3 = bound2 + "' and i_chronicle_id >= '".length();
-		String date = dqlStatement.substring(bound1, bound2);
-		String id = dqlStatement.substring(bound3, dqlStatement
-				.lastIndexOf("'"));
-		String test = MessageFormat.format(XPATH_QUERY_STRING_BOUNDED_DEFAULT,
-				new Object[] { date, id });
-		assertEquals(
-				test,
-				"//*[@jcr:primaryType = nt:resource and @jcr:lastModified >= 'ThisIsATestDate' and @jcr:uuid >= 'ThisIsATestId'] order by @jcr:lastModified, @jcr:uuid");
-	}
-
-	public void testSetDQLExecute() {
-		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-		ICollection collec = null;
-		try {
-			collec = query.execute(sessionManager, IQuery.READ_QUERY);
-		} catch (RepositoryException e) {
-
-		}
-		assertNotNull(collec);
-	}
-
+  public void testSetDQLExecute() {
+    query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
+    ICollection collec = null;
+    try {
+      collec = query.execute(sessionManager, IQuery.READ_QUERY);
+    } catch (RepositoryException e) {
+      // TODO: Why is this exception ignored?
+    }
+    assertNotNull(collec);
+  }
 }

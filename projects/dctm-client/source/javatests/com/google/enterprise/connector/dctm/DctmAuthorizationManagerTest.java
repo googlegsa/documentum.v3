@@ -1,3 +1,17 @@
+// Copyright (C) 2006-2009 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.enterprise.connector.dctm;
 
 import java.util.HashMap;
@@ -16,87 +30,82 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DctmAuthorizationManagerTest extends TestCase {
+  public DctmAuthorizationManagerTest(String arg0) {
+    super(arg0);
+  }
 
-	public DctmAuthorizationManagerTest(String arg0) {
-		super(arg0);
-	}
+  public final void testAuthorizeDocids() throws RepositoryException {
+    AuthorizationManager authorizationManager;
+    authorizationManager = null;
+    Connector connector = new DctmConnector();
 
-	public final void testAuthorizeDocids() throws RepositoryException {
+    ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
+    ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
+    ((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
+    ((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
+    ((DctmConnector) connector)
+        .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+    ((DctmConnector) connector).setIs_public("false");
+    Session sess = (DctmSession) connector.login();
+    authorizationManager = (DctmAuthorizationManager) sess
+        .getAuthorizationManager();
 
-		AuthorizationManager authorizationManager;
-		authorizationManager = null;
-		Connector connector = new DctmConnector();
+    {
+      String username = DmInitialize.DM_LOGIN_OK2;
 
-		((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
-		((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
-		((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
-		((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
-		((DctmConnector) connector)
-				.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-		((DctmConnector) connector).setIs_public("false");
-		Session sess = (DctmSession) connector.login();
-		authorizationManager = (DctmAuthorizationManager) sess
-				.getAuthorizationManager();
+      Map expectedResults = new HashMap();
+      expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_VSID2, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_VSID3, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
+      testAuthorization((DctmAuthorizationManager) authorizationManager,
+          expectedResults, username);
+    }
 
-		{
-			String username = DmInitialize.DM_LOGIN_OK2;
+    {
+      String username = DmInitialize.DM_LOGIN_OK3;
 
-			Map expectedResults = new HashMap();
-			expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_VSID2, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_VSID3, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
-			testAuthorization((DctmAuthorizationManager) authorizationManager,
-					expectedResults, username);
-		}
+      Map expectedResults = new HashMap();
+      expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_VSID2, Boolean.FALSE);
+      expectedResults.put(DmInitialize.DM_VSID3, Boolean.FALSE);
+      expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
+      testAuthorization((DctmAuthorizationManager) authorizationManager,
+          expectedResults, username);
+    }
 
-		{
-			String username = DmInitialize.DM_LOGIN_OK3;
+    {
+      String username = DmInitialize.DM_LOGIN_OK5;
 
-			Map expectedResults = new HashMap();
-			expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_VSID2, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_VSID3, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
-			testAuthorization((DctmAuthorizationManager) authorizationManager,
-					expectedResults, username);
-		}
+      Map expectedResults = new HashMap();
+      expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_VSID2, Boolean.FALSE);
+      expectedResults.put(DmInitialize.DM_VSID3, Boolean.FALSE);
+      expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
+      testAuthorization((DctmAuthorizationManager) authorizationManager,
+          expectedResults, username);
+    }
+  }
 
-		{
-			String username = DmInitialize.DM_LOGIN_OK5;
+  private void testAuthorization(
+      DctmAuthorizationManager authorizationManager, Map expectedResults,
+      String username) throws RepositoryException {
+    List docids = new LinkedList(expectedResults.keySet());
 
-			Map expectedResults = new HashMap();
-			expectedResults.put(DmInitialize.DM_VSID1, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_VSID2, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_VSID3, Boolean.FALSE);
-			expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
-			expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
-			testAuthorization((DctmAuthorizationManager) authorizationManager,
-					expectedResults, username);
-		}
-
-	}
-
-	private void testAuthorization(
-			DctmAuthorizationManager authorizationManager, Map expectedResults,
-			String username) throws RepositoryException {
-
-		List docids = new LinkedList(expectedResults.keySet());
-
-		assertNotNull(docids);
-		List list = (List) authorizationManager.authorizeDocids(docids,
-				new DctmAuthenticationIdentity(username, null));
-		assertNotNull(list);
-		for (Iterator i = list.iterator(); i.hasNext();) {
-			AuthorizationResponse pm = (AuthorizationResponse) i.next();
-			String uuid = pm.getDocid();
-			boolean ok = pm.isValid();
-			Boolean expected = (Boolean) expectedResults.get(uuid);
-			Assert.assertEquals(username + " access to " + uuid, expected
-					.booleanValue(), ok);
-		}
-	}
-
+    assertNotNull(docids);
+    List list = (List) authorizationManager.authorizeDocids(docids,
+        new DctmAuthenticationIdentity(username, null));
+    assertNotNull(list);
+    for (Iterator i = list.iterator(); i.hasNext();) {
+      AuthorizationResponse pm = (AuthorizationResponse) i.next();
+      String uuid = pm.getDocid();
+      boolean ok = pm.isValid();
+      Boolean expected = (Boolean) expectedResults.get(uuid);
+      Assert.assertEquals(username + " access to " + uuid, expected
+          .booleanValue(), ok);
+    }
+  }
 }

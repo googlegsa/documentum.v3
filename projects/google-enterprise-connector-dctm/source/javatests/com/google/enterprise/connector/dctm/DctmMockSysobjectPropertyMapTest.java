@@ -1,3 +1,17 @@
+// Copyright (C) 2006-2009 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.enterprise.connector.dctm;
 
 import java.util.Iterator;
@@ -19,85 +33,78 @@ import com.google.enterprise.connector.spi.SpiConstants;
 import junit.framework.TestCase;
 
 public class DctmMockSysobjectPropertyMapTest extends TestCase {
+  IClientX dctmClientX = null;
 
-	IClientX dctmClientX = null;
+  IClient localClient = null;
 
-	IClient localClient = null;
+  ISessionManager sessionManager = null;
 
-	ISessionManager sessionManager = null;
+  public void setUp() throws Exception {
+    super.setUp();
 
-	public void setUp() throws Exception {
-		super.setUp();
+    dctmClientX = new MockDmClient();
 
-		dctmClientX = new MockDmClient();
+    localClient = dctmClientX.getLocalClient();
 
-		localClient = dctmClientX.getLocalClient();
+    sessionManager = localClient.newSessionManager();
 
-		sessionManager = localClient.newSessionManager();
+    ISession session = null;
 
-		ISession session = null;
+    ILoginInfo loginInfo = dctmClientX.getLoginInfo();
+    loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
+    loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
+    sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+    sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
+    try {
+      session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
+    } finally {
+      if (session != null) {
+        sessionManager.release(session);
+      }
+    }
+  }
 
-		ILoginInfo loginInfo = dctmClientX.getLoginInfo();
-		loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
-		loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
-		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-		sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
-		try {
-			session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
-		} finally {
-			if (session != null) {
-				sessionManager.release(session);
-			}
-		}
+  public void testGetPropertyNames() throws RepositoryException {
+    ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+    IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 
-	}
+    ISysObject object = session.getObject(id);
 
-	public void testGetPropertyNames() throws RepositoryException {
-		
-		ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-		IId id = dctmClientX.getId(DmInitialize.DM_ID1);
+    ITime lastModifDate = object.getTime("r_modify_date");
 
-		ISysObject object= session.getObject(id);
-		
-		ITime lastModifDate = object.getTime("r_modify_date");
+    object = session.getObject(id);
 
-		object = session.getObject(id);
-		
-		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-		DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
-		DmInitialize.included_meta, SpiConstants.ActionType.ADD);
+    DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
+    DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
+    DmInitialize.included_meta, SpiConstants.ActionType.ADD);
 
+    Iterator iterator = dctmSpm.getPropertyNames().iterator();
+    int counter = 0;
+    while (iterator.hasNext()) {
+      iterator.next();
+      counter++;
+    }
+    assertEquals(3, counter);
+  }
 
-		Iterator iterator = dctmSpm.getPropertyNames().iterator();
-		int counter = 0;
-		while (iterator.hasNext()) {
-			iterator.next();
-			counter++;
-		}
-		assertEquals(3, counter);
-	}
+  public void testFindProperty() throws RepositoryException {
+    ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+    IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 
-	public void testFindProperty() throws RepositoryException {
-		
-		
-		ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-		IId id = dctmClientX.getId(DmInitialize.DM_ID1);
+    ISysObject object = session.getObject(id);
 
-		ISysObject object= session.getObject(id);
-		
-		ITime lastModifDate = object.getTime("r_modify_date");
+    ITime lastModifDate = object.getTime("r_modify_date");
 
-		object = session.getObject(id);
-		
-		DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-				DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
-				DmInitialize.included_meta, SpiConstants.ActionType.ADD);
-		Property property = dctmSpm.findProperty("google:docid");
-		assertTrue(property instanceof DctmSysobjectProperty);
+    object = session.getObject(id);
 
-		assertEquals("google:docid", ((DctmSysobjectProperty) property)
-				.getName());
-		assertEquals(DmInitialize.DM_ID1, property.nextValue().toString());
-	}
+    DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
+        DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
+        DmInitialize.included_meta, SpiConstants.ActionType.ADD);
+    Property property = dctmSpm.findProperty("google:docid");
+    assertTrue(property instanceof DctmSysobjectProperty);
 
+    assertEquals("google:docid", ((DctmSysobjectProperty) property)
+        .getName());
+    assertEquals(DmInitialize.DM_ID1, property.nextValue().toString());
+  }
 }

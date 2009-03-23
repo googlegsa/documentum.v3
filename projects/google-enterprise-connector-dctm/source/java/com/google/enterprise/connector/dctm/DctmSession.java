@@ -1,3 +1,17 @@
+// Copyright (C) 2006-2009 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package com.google.enterprise.connector.dctm;
 
 import java.util.HashSet;
@@ -15,182 +29,178 @@ import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.TraversalManager;
 
 public class DctmSession implements Session {
-	IClientX clientX;
+  IClientX clientX;
 
-	IClient client;
+  IClient client;
 
-	ISessionManager sessionManager;
+  ISessionManager sessionManager;
 
-	ISession session;
+  ISession session;
 
-	protected String webtopServerUrl;
+  protected String webtopServerUrl;
 
-	protected String additionalWhereClause;
+  protected String additionalWhereClause;
 
-	String docbase;
+  String docbase;
 
-	boolean isPublic = false;
+  boolean isPublic = false;
 
-	private String included_meta;
+  private String included_meta;
 
-	private String included_object_type;
+  private String included_object_type;
 
-	private String root_object_type;
-	
-	private static Logger logger = null;
+  private String root_object_type;
 
-	/**
-	 * 
-	 * @param client
-	 * @param login
-	 * @param password
-	 * @param docbase
-	 * @param excluded_meta
-	 * @param included_meta
-	 * @param included_object_type
-	 * @param root_object_type
-	 * @throws RepositoryException
-	 */
-	
-	static {
-		logger = Logger.getLogger(DctmSession.class.getName());
-	}
+  private static Logger logger = null;
 
+  /**
+   *
+   * @param client
+   * @param login
+   * @param password
+   * @param docbase
+   * @param excluded_meta
+   * @param included_meta
+   * @param included_object_type
+   * @param root_object_type
+   * @throws RepositoryException
+   */
 
-	public DctmSession(String clientX, String login, String password,
-			String docbase, String wsu, String additionalWhereClause,
-			boolean isPublic, String included_meta, String root_object_type, String included_object_type)
-			throws RepositoryException {
-		try {
+  static {
+    logger = Logger.getLogger(DctmSession.class.getName());
+  }
 
-			ILoginInfo dctmLoginInfo = null;
+  public DctmSession(String clientX, String login, String password,
+      String docbase, String wsu, String additionalWhereClause,
+      boolean isPublic, String included_meta, String root_object_type, String included_object_type)
+      throws RepositoryException {
+    try {
+      ILoginInfo dctmLoginInfo = null;
 
-			setClientX(clientX);
+      setClientX(clientX);
 
-			client = this.clientX.getLocalClient();
+      client = this.clientX.getLocalClient();
 
-			sessionManager = this.client.newSessionManager();
+      sessionManager = this.client.newSessionManager();
 
-			dctmLoginInfo = this.clientX.getLoginInfo();
-			dctmLoginInfo.setUser(login);
-			dctmLoginInfo.setPassword(password);
-			sessionManager.setIdentity(docbase, dctmLoginInfo);
-			
-			logger.info("Session Manager set the identity for "+login);
+      dctmLoginInfo = this.clientX.getLoginInfo();
+      dctmLoginInfo.setUser(login);
+      dctmLoginInfo.setPassword(password);
+      sessionManager.setIdentity(docbase, dctmLoginInfo);
 
-			session = sessionManager.newSession(docbase);
-			
-			logger.info("Creation of a new session for the docbase "+docbase);
-			
-			this.clientX.setSessionManager(sessionManager);
+      logger.info("Session Manager set the identity for " + login);
 
-			webtopServerUrl = wsu;
-			this.additionalWhereClause = additionalWhereClause;
-			sessionManager.setDocbaseName(docbase);
-			sessionManager.setServerUrl(wsu);
+      session = sessionManager.newSession(docbase);
 
-			this.isPublic = isPublic;
-			
-			this.included_meta = included_meta;
-			this.included_object_type = included_object_type;
-			this.root_object_type = root_object_type;
-		} finally {
-			if (session != null) {
-				sessionManager.release(session);
-				logger.fine("Session released");
-			}
-		}
-	}
+      logger.info("Creation of a new session for the docbase " + docbase);
 
-	public TraversalManager getTraversalManager() throws RepositoryException {
+      this.clientX.setSessionManager(sessionManager);
 
-		DctmTraversalManager dctmTm = null;
-		dctmTm = new DctmTraversalManager(clientX, webtopServerUrl,
-				additionalWhereClause, isPublic, included_meta, included_object_type, root_object_type);
-		return dctmTm;
-	}
+      webtopServerUrl = wsu;
+      this.additionalWhereClause = additionalWhereClause;
+      sessionManager.setDocbaseName(docbase);
+      sessionManager.setServerUrl(wsu);
 
-	/**
-	 * Gets an AuthenticationManager. It is permissible to return null. A null
-	 * return means that this implementation does not support an Authentication
-	 * Manager. This may be for one of these reasons:
-	 * <ul>
-	 * <li> Authentication is not needed for this data source
-	 * <li> Authentication is handled through another GSA-supported mechanism,
-	 * such as LDAP
-	 * </ul>
-	 * 
-	 * @return a AuthenticationManager - may be null
-	 * @throws RepositoryException
-	 */
-	public AuthenticationManager getAuthenticationManager() {
-		AuthenticationManager DctmAm = new DctmAuthenticationManager(
-				getClientX());
-		return DctmAm;
-	}
+      this.isPublic = isPublic;
 
-	/**
-	 * Gets an AuthorizationManager. It is permissible to return null. A null
-	 * return means that this implementation does not support an Authorization
-	 * Manager. This may be for one of these reasons:
-	 * <ul>
-	 * <li> Authorization is not needed for this data source - all documents are
-	 * public
-	 * <li> Authorization is handled through another GSA-supported mechanism,
-	 * such as NTLM or Basic Auth
-	 * </ul>
-	 * 
-	 * @return a AuthorizationManager - may be null
-	 * @throws RepositoryException
-	 */
-	public AuthorizationManager getAuthorizationManager() {
-		AuthorizationManager DctmAzm = new DctmAuthorizationManager(
-				getClientX());
-		return DctmAzm;
-	}
+      this.included_meta = included_meta;
+      this.included_object_type = included_object_type;
+      this.root_object_type = root_object_type;
+    } finally {
+      if (session != null) {
+        sessionManager.release(session);
+        logger.fine("Session released");
+      }
+    }
+  }
 
-	public IClientX getClientX() {
-		return clientX;
-	}
+  public TraversalManager getTraversalManager() throws RepositoryException {
+    DctmTraversalManager dctmTm = null;
+    dctmTm = new DctmTraversalManager(clientX, webtopServerUrl,
+        additionalWhereClause, isPublic, included_meta, included_object_type, root_object_type);
+    return dctmTm;
+  }
 
-	public void setClientX(String clientX) throws RepositoryException {
-		IClientX cl = null;
-		try {
-			cl = (IClientX) Class.forName(clientX).newInstance();
-		} catch (InstantiationException e) {
-			throw new RepositoryException(e);
-		} catch (IllegalAccessException e) {
-			throw new RepositoryException(e);
-		} catch (ClassNotFoundException e) {
-			throw new RepositoryException(e);
-		} catch (NoClassDefFoundError e) {
-			throw new RepositoryException(e);
-		}
-		this.clientX = cl;
-	}
+  /**
+   * Gets an AuthenticationManager. It is permissible to return null. A null
+   * return means that this implementation does not support an Authentication
+   * Manager. This may be for one of these reasons:
+   * <ul>
+   * <li> Authentication is not needed for this data source
+   * <li> Authentication is handled through another GSA-supported mechanism,
+   * such as LDAP
+   * </ul>
+   *
+   * @return a AuthenticationManager - may be null
+   * @throws RepositoryException
+   */
+  public AuthenticationManager getAuthenticationManager() {
+    AuthenticationManager DctmAm = new DctmAuthenticationManager(
+        getClientX());
+    return DctmAm;
+  }
 
-	public String getDocbase() {
-		return docbase;
-	}
+  /**
+   * Gets an AuthorizationManager. It is permissible to return null. A null
+   * return means that this implementation does not support an Authorization
+   * Manager. This may be for one of these reasons:
+   * <ul>
+   * <li> Authorization is not needed for this data source - all documents are
+   * public
+   * <li> Authorization is handled through another GSA-supported mechanism,
+   * such as NTLM or Basic Auth
+   * </ul>
+   *
+   * @return a AuthorizationManager - may be null
+   * @throws RepositoryException
+   */
+  public AuthorizationManager getAuthorizationManager() {
+    AuthorizationManager DctmAzm = new DctmAuthorizationManager(
+        getClientX());
+    return DctmAzm;
+  }
 
-	public void setDocbase(String docbase) {
-		this.docbase = docbase;
-	}
+  public IClientX getClientX() {
+    return clientX;
+  }
 
-	public ISessionManager getSessionManager() {
-		return sessionManager;
-	}
+  public void setClientX(String clientX) throws RepositoryException {
+    IClientX cl = null;
+    try {
+      cl = (IClientX) Class.forName(clientX).newInstance();
+    } catch (InstantiationException e) {
+      throw new RepositoryException(e);
+    } catch (IllegalAccessException e) {
+      throw new RepositoryException(e);
+    } catch (ClassNotFoundException e) {
+      throw new RepositoryException(e);
+    } catch (NoClassDefFoundError e) {
+      throw new RepositoryException(e);
+    }
+    this.clientX = cl;
+  }
 
-	public void setSessionManager(ISessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
+  public String getDocbase() {
+    return docbase;
+  }
 
-	public void setClientX(IClientX clientX) {
-		this.clientX = clientX;
-	}
+  public void setDocbase(String docbase) {
+    this.docbase = docbase;
+  }
 
-	public ISession getSession() {
-		return session;
-	}
+  public ISessionManager getSessionManager() {
+    return sessionManager;
+  }
 
+  public void setSessionManager(ISessionManager sessionManager) {
+    this.sessionManager = sessionManager;
+  }
+
+  public void setClientX(IClientX clientX) {
+    this.clientX = clientX;
+  }
+
+  public ISession getSession() {
+    return session;
+  }
 }
