@@ -181,6 +181,7 @@ public class DctmConnectorType implements ConnectorType {
 				}
 
 			} catch (RepositoryException e) {
+				logger.log(Level.INFO, "RepositoryException thrown in validateConfig:", e);
 				return createErrorMessage(configData, e);
 
 			} finally {
@@ -276,14 +277,10 @@ public class DctmConnectorType implements ConnectorType {
 								+ " status");
 			}
 		} catch (HttpException e) {
-			RepositoryException re = new RepositoryException("[HttpException]",
-					e);
-			throw new RepositoryException(re);
+			throw new RepositoryException("[HttpException]", e);
 		} catch (IOException e) {
-			RepositoryException re = new RepositoryException("[IOException]", e);
-			throw new RepositoryException(re);
+			throw new RepositoryException("[IOException]", e);
 		}
-
 	}
 
 	private String validateConfigMap(Map configData) {
