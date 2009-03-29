@@ -50,7 +50,9 @@ public class DctmConnectorType implements ConnectorType {
 
 	private static final String OPEN_ELEMENT = "<";
 
-	private static final String PASSWORD = "Password";
+	private static final String PASSWORD = "password";
+
+	private static final String PASSWORD_KEY = "Password";
 
 	private static final String TR_END = "</tr>\r\n";
 
@@ -58,11 +60,19 @@ public class DctmConnectorType implements ConnectorType {
 
 	private static final String TD_START = "<td>";
 
+	private static final String TD_START_LABEL = "<td style='white-space: nowrap'>";
+
+	private static final String TD_START_COLSPAN = "<td colspan='2'>";
+
 	private static final String TR_START = "<tr>\r\n";
+
+	private static final String TR_START_HIDDEN = "<tr style='display: none'>\r\n";
 
 	private static final String SELECT_START = "<select";
 
 	private static final String SELECT_END = "</select>\r\n";
+
+	private static final String SELECTED = "selected='selected' ";
 
 	private static final String DCTMCLASS = "clientX";
 
@@ -76,9 +86,9 @@ public class DctmConnectorType implements ConnectorType {
 
 	private static final String DISPLAYURL = "webtop_display_url";
 
-	private static final String CHECKBOX = "CHECKBOX";
+	private static final String CHECKBOX = "checkbox";
 
-	private static final String CHECKED = "CHECKED";
+	private static final String CHECKED = "checked='checked'";
 
 	private List keys = null;
 
@@ -192,9 +202,7 @@ public class DctmConnectorType implements ConnectorType {
 
 		form = makeValidatedForm(configData);
 		return new ConfigureResponse(resource.getString(validation + "_error"),
-				"<p><font color=\"#FF0000\">"
-						+ resource.getString(validation + "_error")
-						+ "</font></p><br>" + form);
+				form);
 	}
 
 	public ConfigureResponse getPopulatedConfigForm(Map configMap,
@@ -214,7 +222,6 @@ public class DctmConnectorType implements ConnectorType {
 			RepositoryException e) {
 		String form;
 		String message = e.getMessage();
-		String returnMessage = null;
 		String extractErrorMessage = null;
 		String bundleMessage = null;
 		if (message.indexOf("[") != -1) {
@@ -229,13 +236,10 @@ public class DctmConnectorType implements ConnectorType {
 			bundleMessage = resource.getString("DEFAULT_ERROR_MESSAGE") + " "
 					+ e.getMessage();
 		}
-		returnMessage = "<p><font color=\"#FF0000\">" + bundleMessage
-				+ "</font></p>";
-		logger.log(Level.WARNING, returnMessage);
+		logger.log(Level.WARNING, bundleMessage);
 
 		form = makeValidatedForm(configData);
-		return new ConfigureResponse(returnMessage, returnMessage + "<br>"
-				+ form);
+		return new ConfigureResponse(bundleMessage, form);
 	}
 
 	private void checkAdditionalWhereClause(String additionalWhereClause,
@@ -314,6 +318,7 @@ public class DctmConnectorType implements ConnectorType {
 				appendAttribute(buf, TYPE, HIDDEN);
 				appendAttribute(buf, VALUE, "false");
 				appendAttribute(buf, NAME, key);
+				buf.append(CLOSE_ELEMENT);
 				appendEndRow(buf);
 				value = "";
 			} else {
@@ -325,10 +330,11 @@ public class DctmConnectorType implements ConnectorType {
 				}
 				if (key.equals(DOCBASENAME)) {
 					appendDropDownListAttribute(buf, TYPE, value);
+					appendEndRow(buf);
 				} else {
 					buf.append(OPEN_ELEMENT);
 					buf.append(INPUT);
-					if (key.equals(PASSWORD)) {
+					if (key.equals(PASSWORD_KEY)) {
 						appendAttribute(buf, TYPE, PASSWORD);
 						if (configMap != null && (String) configMap.get("password") != null) {
 							value = (String) configMap.get("password");
@@ -343,12 +349,14 @@ public class DctmConnectorType implements ConnectorType {
 					}
 					appendAttribute(buf, VALUE, value);
 					appendAttribute(buf, NAME, key);
+					buf.append(CLOSE_ELEMENT);
 					appendEndRow(buf);
 					value = "";
 				}
 			}
 		}
 		if (configMap != null) {
+			appendStartHiddenRow(buf);
 			Iterator i = new TreeSet(configMap.keySet()).iterator();
 			while (i.hasNext()) {
 				String key = (String) i.next();
@@ -362,6 +370,7 @@ public class DctmConnectorType implements ConnectorType {
 					buf.append("\"/>\r\n");
 				}
 			}
+			appendEndRow(buf);
 		}
 		return buf.toString();
 
@@ -370,10 +379,10 @@ public class DctmConnectorType implements ConnectorType {
 	private void appendCheckBox(StringBuffer buf, String key, String label,
 			String value) {
 		buf.append(TR_START);
-		buf.append(TD_START);
+		buf.append(TD_START_COLSPAN);
 		buf.append(OPEN_ELEMENT);
 		buf.append(INPUT);
-		buf.append(" " + TYPE + "=" + CHECKBOX);
+		buf.append(" " + TYPE + "=\"" + CHECKBOX + '"');
 		buf.append(" " + NAME + "=\"" + key + "\" ");
 		if (value != null && value.equals("on")) {
 			buf.append(CHECKED);
@@ -442,7 +451,7 @@ public class DctmConnectorType implements ConnectorType {
 					if (value != null
 							&& mapOfDocbasesName.getDocbaseName(i)
 									.equals(value)) {
-						buf.append("selected ");
+						buf.append(SELECTED);
 					}
 					buf.append("value=\"" + mapOfDocbasesName.getDocbaseName(i)
 							+ "\"" + ">" + mapOfDocbasesName.getDocbaseName(i)
@@ -463,20 +472,19 @@ public class DctmConnectorType implements ConnectorType {
 
 	private void appendStartRow(StringBuffer buf, String key) {
 		buf.append(TR_START);
-		buf.append(TD_START);
+		buf.append(TD_START_LABEL);
 		buf.append(key);
 		buf.append(TD_END);
 		buf.append(TD_START);
 	}
 
 	private void appendStartHiddenRow(StringBuffer buf) {
-		buf.append(TR_START);
+		buf.append(TR_START_HIDDEN);
 		buf.append(TD_START);
 
 	}
 
 	private void appendEndRow(StringBuffer buf) {
-		buf.append(CLOSE_ELEMENT);
 		buf.append(TD_END);
 		buf.append(TR_END);
 	}
