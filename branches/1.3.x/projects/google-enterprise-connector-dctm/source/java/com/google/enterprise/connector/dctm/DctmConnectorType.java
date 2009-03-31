@@ -431,33 +431,38 @@ public class DctmConnectorType implements ConnectorType {
 							e);
 
 		}
-		IClient client;
+
+		// Once we start writing the select element, we need
+		// to be careful that any thrown exceptions don't
+		// result in invalid XHTML. So we carefully make the
+		// Documentum calls and then write the corresponding
+		// tags.
+
+		buf.append(SELECT_START);
+		buf.append(" " + NAME);
+		buf.append("=\"");
+		buf.append(DOCBASENAME);
+		buf.append("\">\n");
 
 		try {
-			client = cl.getLocalClient();
-
+			// If getting the docbase list fails, we don't write
+			// any option elements.
+			IClient client = cl.getLocalClient();
 			IDocbaseMap mapOfDocbasesName = client.getDocbaseMap();
-			if (!(mapOfDocbasesName.getDocbaseCount() > 0)) {
-				appendAttribute(buf, type2, value);
-			} else {
-				buf.append(SELECT_START);
-				buf.append(" " + NAME);
 
-				buf.append("=\"");
-				buf.append(DOCBASENAME);
-				buf.append("\">\n");
-				for (int i = 0; i < mapOfDocbasesName.getDocbaseCount(); i++) {
-					buf.append("\t<option ");
-					if (value != null
-							&& mapOfDocbasesName.getDocbaseName(i)
-									.equals(value)) {
-						buf.append(SELECTED);
-					}
-					buf.append("value=\"" + mapOfDocbasesName.getDocbaseName(i)
-							+ "\"" + ">" + mapOfDocbasesName.getDocbaseName(i)
-							+ "</option>\n");
+			for (int i = 0; i < mapOfDocbasesName.getDocbaseCount(); i++) {
+				// If getting the docbase name fails,
+				// we don't write the option element.
+				String docbaseName = mapOfDocbasesName.getDocbaseName(i);
+
+				buf.append("\t<option ");
+				if (value != null
+						&& docbaseName.equals(value)) {
+					buf.append(SELECTED);
 				}
-				buf.append(SELECT_END);
+				buf.append("value=\"" + docbaseName
+						+ "\">" + docbaseName
+						+ "</option>\n");
 			}
 		} catch (RepositoryException e) {
 			logger
@@ -466,6 +471,8 @@ public class DctmConnectorType implements ConnectorType {
 							"error while building the configuration form. The docbase will be added manually. ",
 							e);
 
+		} finally {
+			buf.append(SELECT_END);
 		}
 
 	}
