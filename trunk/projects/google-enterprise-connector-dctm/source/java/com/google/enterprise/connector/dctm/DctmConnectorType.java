@@ -487,9 +487,6 @@ public class DctmConnectorType implements ConnectorType {
           if (collec.getState() != ICollection.DF_CLOSED_STATE) {
             collec.close();
             logger.info("after closing the collection");
-            ///sessMag.release(collec.getSession());
-            sessMag.releaseSessionConfig();
-            logger.info("after releasing the session");
           }
         }
       } catch (RepositoryException re) {
@@ -767,16 +764,7 @@ public class DctmConnectorType implements ConnectorType {
        e1.printStackTrace();
        ///returnMessage =   createErrorMessage(e1);
        ///return(returnMessage + "<br>"+ buf);
-
-      // TODO Auto-generated catch block
-    } /*finally {
-        if (sess != null) {
-        ///if ((advConf.equals("true")) && (sess != null)) {
-          ///sessMag.release(sess);
-          sessMag.releaseSessionConfig();
-          logger.info("session released ");
-        }
-    }*/
+    }
 
     return buf.toString();
   }
@@ -1003,14 +991,10 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICo
   buf.append(TR_END);
   buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\"></td></tr>");
 
-  //session released (necessary to avoid session leaks)
   try {
     if (collecTypes.getState() != ICollection.DF_CLOSED_STATE) {
       collecTypes.close();
       logger.fine("collection closed");
-      ///sessMag.release(collecTypes.getSession());
-      sessMag.releaseSessionConfig();
-      logger.fine("collection session released");
     }
   } catch (RepositoryException re1) {
     logger.severe("Error while closing " + re1);
