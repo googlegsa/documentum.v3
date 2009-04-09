@@ -27,21 +27,15 @@ import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DctmAuthenticationManager implements AuthenticationManager {
-  ISessionManager sessionManager;
+  private static final Logger LOGGER = Logger.getLogger(DctmAuthenticationManager.class.getName());
 
-  IClientX clientX;
+  private final ISessionManager sessionManager;
 
-  ILoginInfo loginInfo;
-
-  private static Logger logger = null;
-
-  static {
-    logger = Logger.getLogger(DctmAuthenticationManager.class.getName());
-  }
+  private final IClientX clientX;
 
   public DctmAuthenticationManager(IClientX clientX) {
-    setClientX(clientX);
-    sessionManager = clientX.getSessionManager();
+    this.clientX = clientX;
+    this.sessionManager = clientX.getSessionManager();
   }
 
   public AuthenticationResponse authenticate(
@@ -49,37 +43,25 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       throws RepositoryLoginException, RepositoryException {
     String username = authenticationIdentity.getUsername();
     String password = authenticationIdentity.getPassword();
+    LOGGER.info("authentication process for user " + username);
 
-    logger.info("authentication process for user " + username);
-
-    setLoginInfo(username, password);
-    sessionManager.clearIdentity(sessionManager.getDocbaseName());
-    try {
-      sessionManager.setIdentity(sessionManager.getDocbaseName(),
-          loginInfo);
-    } catch (RepositoryLoginException e) {
-      logger.warning("authentication failed for user  " + username
-          + "\ncause:" + e.getMessage());
-
-      return new AuthenticationResponse(false, "");
-    }
-    boolean authenticate = false;
-
-    authenticate = sessionManager.authenticate(sessionManager
-        .getDocbaseName());
-
-    logger.log(Level.INFO, "authentication status: " + authenticate);
-
-    return new AuthenticationResponse(authenticate, "");
-  }
-
-  public void setLoginInfo(String username, String password) {
-    loginInfo = clientX.getLoginInfo();
+    ILoginInfo loginInfo = clientX.getLoginInfo();
     loginInfo.setUser(username);
     loginInfo.setPassword(password);
-  }
+    ISessionManager sessionManagerUser = clientX.getLocalClient().newSessionManager();
 
-  public void setClientX(IClientX clientX) {
-    this.clientX = clientX;
+    try {
+      sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
+          loginInfo);
+    } catch (RepositoryLoginException e) {
+      LOGGER.warning("authentication failed for user  " + username
+          + "\ncause:" + e.getMessage());
+      return new AuthenticationResponse(false, "");
+    }
+
+    boolean authenticate = sessionManagerUser.authenticate(sessionManager
+        .getDocbaseName());
+    LOGGER.info("authentication status: " + authenticate);
+    return new AuthenticationResponse(authenticate, "");
   }
 }
