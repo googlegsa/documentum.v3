@@ -101,7 +101,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
 
     assertNotNull(docids);
     List list = (List) authorizationManager.authorizeDocids(docids,
-        new DctmAuthenticationIdentity(username, null));
+        new SimpleAuthenticationIdentity(username, null));
     assertNotNull(list);
     for (Iterator i = list.iterator(); i.hasNext();) {
       AuthorizationResponse pm = (AuthorizationResponse) i.next();

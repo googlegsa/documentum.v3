@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.util.Iterator;
 
 import com.google.enterprise.connector.pusher.DocPusher;
+import com.google.enterprise.connector.pusher.FeedException;
 import com.google.enterprise.connector.pusher.GsaFeedConnection;
 import com.google.enterprise.connector.pusher.PushException;
 
@@ -29,7 +30,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DctmTraversalUtil {
   public static void runTraversal(TraversalManager queryTraversalManager,
-      int batchHint) throws RepositoryException, PushException {
+      int batchHint) throws RepositoryException, PushException, FeedException {
     DctmTraversalManager dctmTM = (DctmTraversalManager) queryTraversalManager;
     dctmTM.setBatchHint(batchHint);
     System.out.println(batchHint);

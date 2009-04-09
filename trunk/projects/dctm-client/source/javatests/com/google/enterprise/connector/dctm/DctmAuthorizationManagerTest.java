@@ -25,6 +25,7 @@ import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
+import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -97,7 +98,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
 
     assertNotNull(docids);
     List list = (List) authorizationManager.authorizeDocids(docids,
-        new DctmAuthenticationIdentity(username, null));
+        new SimpleAuthenticationIdentity(username, null));
     assertNotNull(list);
     for (Iterator i = list.iterator(); i.hasNext();) {
       AuthorizationResponse pm = (AuthorizationResponse) i.next();

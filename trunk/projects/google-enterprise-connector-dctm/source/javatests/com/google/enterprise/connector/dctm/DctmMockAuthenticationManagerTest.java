@@ -37,35 +37,35 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
         .getAuthenticationManager();
 
     assertTrue(authentManager.authenticate(
-        new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK1,
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK1,
             DmInitialize.DM_PWD_OK1)).isValid());
     assertFalse(authentManager.authenticate(
-        new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
             DmInitialize.DM_PWD_KO)).isValid());
     assertTrue(authentManager.authenticate(
-        new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
             DmInitialize.DM_PWD_OK2)).isValid());
     assertFalse(authentManager.authenticate(
-        new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
             DmInitialize.DM_PWD_KO)).isValid());
     assertFalse(authentManager
         .authenticate(
-            new DctmAuthenticationIdentity(
+            new SimpleAuthenticationIdentity(
                 DmInitialize.DM_LOGIN_OK2, null)).isValid());
     assertFalse(authentManager.authenticate(
-        new DctmAuthenticationIdentity(null, DmInitialize.DM_PWD_OK1))
+        new SimpleAuthenticationIdentity(null, DmInitialize.DM_PWD_OK1))
         .isValid());
     assertFalse(authentManager.authenticate(
-        new DctmAuthenticationIdentity(null, null)).isValid());
+        new SimpleAuthenticationIdentity(null, null)).isValid());
 
     assertTrue(authentManager.authenticate(
-        new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK3,
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK3,
             DmInitialize.DM_PWD_OK3)).isValid());
     assertTrue(authentManager.authenticate(
-        new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK1,
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK1,
             DmInitialize.DM_PWD_OK1)).isValid());
     assertTrue(authentManager.authenticate(
-        new DctmAuthenticationIdentity(DmInitialize.DM_LOGIN_OK5,
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK5,
             DmInitialize.DM_PWD_OK5)).isValid());
   }
 }
