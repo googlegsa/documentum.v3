@@ -41,24 +41,20 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
   private String attributeName = "i_chronicle_id";
 
-  private String queryStringAuthoriseDefault = "select i_chronicle_id from dm_sysobject where i_chronicle_id in (";
+  private String queryStringAuthoriseDefault = "select for read i_chronicle_id from dm_sysobject where i_chronicle_id in (";
 
-  private static Logger logger = null;
-
-  static {
-    logger = Logger.getLogger(DctmAuthorizationManager.class.getName());
-  }
+  private static Logger logger =
+      Logger.getLogger(DctmAuthorizationManager.class.getName());
 
   public DctmAuthorizationManager(IClientX clientX) {
     setClientX(clientX);
     setSessionManager(this.clientX.getSessionManager());
-
   }
 
   public Collection authorizeDocids(Collection docids,
       AuthenticationIdentity authenticationIdentity) throws RepositoryException {
     String username = authenticationIdentity.getUsername();
-    logger.info("username :" + username);
+    logger.info("username: " + username);
     ICollection collec = null;
 
     ISessionManager sessionManagerUser = null;
@@ -72,100 +68,89 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
     session = sessionManager.getSession(sessionManager.getDocbaseName());
 
-    logger.info("docbase :" + sessionManager.getDocbaseName());
+    logger.info("docbase: " + sessionManager.getDocbaseName());
 
     sessionManagerUser = clientX.getLocalClient().newSessionManager();
 
     ///makes the connector handle the patterns username@domain, domain\\username and username
-    logger.info("username :" + username);
-
     if (username.matches(".*@.*")) {
-      logger.info("username contains @");
       username = username.substring(0, username.indexOf('@'));
-      logger.info("username contains @ and is now :" + username);
+      logger.info("username contains @ and is now: " + username);
     }
 
-    if (username.matches(".*\\.*")) {
-      logger.info("username contains \\");
+    if (username.matches(".*\\\\.*")) {
       username = username.substring(username.indexOf("\\") + 1, username.length());
-      logger.info("username contains \\ and is now :" + username);
+      logger.info("username contains \\ and is now: " + username);
     }
 
     String ticket = session.getLoginTicketForUser(username);
-    logger.info("ticket :" + ticket);
+    logger.info("ticket: " + ticket);
     ILoginInfo logInfo = clientX.getLoginInfo();
     logInfo.setUser(username);
     logInfo.setPassword(ticket);
 
-    logger.log(Level.INFO, "authorisation for " + username);
+    logger.log(Level.INFO, "authorisation for: " + username);
 
     sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
           logInfo);
     sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
     dqlQuery = buildQuery(docidList);
-    logger.log(Level.INFO, "dql " + dqlQuery);
+    logger.info("dql: " + dqlQuery);
 
     query.setDQL(dqlQuery);
     try {
       sessionUser = sessionManagerUser.getSession(sessionManager.getDocbaseName());
-      logger.info("set the SessionAuto for the sessionManagerUser");
+      logger.fine("set the SessionAuto for the sessionManagerUser");
       sessionManagerUser.setSessionAuto(sessionUser);
 
       collec = query.execute(sessionUser, IQuery.READ_QUERY);
 
-      String id = "";
-      AuthorizationResponse authorizationResponse;
       Iterator iterDocIdList = docidList.iterator();
-      String object_id = "";
+      ArrayList object_id = new ArrayList(docidList.size());
       while (collec.next()) {
-        object_id += collec.getString("i_chronicle_id") + " ";
+        object_id.add(collec.getString("i_chronicle_id"));
       }
       while (iterDocIdList.hasNext()) {
-        id = (String) iterDocIdList.next();
-        if (object_id.indexOf(id) != -1) {
-          logger.info("id " + id);
-          logger.info("hasRight?  " + true);
-
-          authorizationResponse = new AuthorizationResponse(true, id);
-        } else {
-          logger.info("id " + id);
-          logger.info("hasRight?  " + false);
-
-          authorizationResponse = new AuthorizationResponse(false, id);
-        }
-        dctmDocumentList.add(authorizationResponse);
-        logger.info("after dctmDocumentList.add");
+        String id = (String) iterDocIdList.next();
+        boolean authorized = object_id.contains(id);
+        logger.info("id " + id + " hasRight? " + authorized);
+        dctmDocumentList.add(new AuthorizationResponse(authorized, id));
       }
+
       collec.close();
-      logger.info("after collec.close");
+      logger.fine("after collec.close");
     } finally {
-      logger.info("in finally");
+      logger.fine("in finally");
       if (collec.getSession() != null ) {
-        logger.info("collec getSession not null");
+        logger.fine("collec getSession not null");
         sessionManagerUser.releaseSessionAuto();
-        logger.info("session of sessionManagerUser released");
+        logger.fine("session of sessionManagerUser released");
       }
       if (session != null) {
-        logger.info("session not null");
+        logger.fine("session not null");
         sessionManager.release(session);
-        logger.info("session of sessionManager released");
+        logger.fine("session of sessionManager released");
       }
     }
     return dctmDocumentList;
   }
 
   private String buildQuery(List docidList) {
+    StringBuffer queryString = new StringBuffer();
+
+    queryString.append(queryStringAuthoriseDefault);
     int i;
-    String queryString;
-
-    queryString = queryStringAuthoriseDefault;
     for (i = 0; i < docidList.size() - 1; i++) {
-      queryString += "'" + docidList.get(i).toString() + "', ";
+      queryString.append("'");
+      queryString.append(docidList.get(i).toString());
+      queryString.append("', ");
     }
-    queryString += "'" + docidList.get(i).toString() + "')";
+    queryString.append("'");
+    queryString.append(docidList.get(i).toString());
+    queryString.append("')");
 
-    return queryString;
+    return queryString.toString();
   }
 
   public List authorizeTokens(List tokenList, String username)
