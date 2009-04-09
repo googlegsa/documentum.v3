@@ -167,7 +167,7 @@ public class DctmConnectorType implements ConnectorType {
    *            A list of String keys
    */
   public void setConfigKeys(List keys) {
-    logger.log(Level.INFO, "setConfigKeys List");
+    logger.fine("setConfigKeys List");
     if (this.keys != null) {
       throw new IllegalStateException();
     }
@@ -184,18 +184,18 @@ public class DctmConnectorType implements ConnectorType {
    *            An array of String keys
    */
   public void setConfigKeys(String[] keys) {
-    logger.log(Level.INFO, "setConfigKeys keys");
+    logger.fine("setConfigKeys keys");
     setConfigKeys(Arrays.asList(keys));
   }
 
   public void setIncluded_meta(HashSet included_meta) {
     this.included_meta = included_meta;
-    logger.log(Level.INFO, "included_meta set to " +included_meta);
+    logger.config("included_meta set to " + included_meta);
   }
 
   public void setIncluded_object_type(HashSet included_object_type) {
     this.included_object_type = included_object_type;
-    logger.log(Level.INFO, "included_object_type set to " +included_object_type);
+    logger.config("included_object_type set to " + included_object_type);
   }
 
   public HashSet getIncluded_meta() {
@@ -208,7 +208,7 @@ public class DctmConnectorType implements ConnectorType {
 
   public void setRoot_object_type(String root_object_type) {
     this.root_object_type = root_object_type;
-    logger.log(Level.INFO, "root_object_type set to " +root_object_type);
+    logger.config("root_object_type set to " + root_object_type);
   }
 
   public String getRoot_object_type() {
@@ -264,39 +264,36 @@ public class DctmConnectorType implements ConnectorType {
     int status = 0;
     if (validation.equals("")) {
       try {
-        logger.info("LOGIN is " + configData.get(LOGIN));
-        logger.info("PASSWORD is " + configData.get(PASSWORD));
-        logger.info("ADVANCEDCONF is " + configData.get(ADVANCEDCONF));
-        logger.info("WHERECLAUSE is " + configData.get(WHERECLAUSE));
-        logger.info("INCLUDED_OBJECT_TYPE is " + configData.get(INCLUDED_OBJECT_TYPE));
-        logger.info("INCLUDED_META is " + configData.get(INCLUDED_META));
-        logger.info("ROOT_OBJECT_TYPE is " + configData.get(ROOT_OBJECT_TYPE));
-        logger.info("ACTIONUPDATE is " + configData.get(ACTIONUPDATE));
+        logger.config("CONFIG DATA is " + getMaskedMap(configData));
 
         setSessionManager(configData);
 
         ILoginInfo myinfo = sessMag.getIdentity((String) configData.get(DOCBASENAME));
         String pass = myinfo.getPassword();
         String user = myinfo.getUser();
-        logger.info("login user : " + user);
+        logger.config("login user : " + user);
 
         setSession(configData);
 
-        logger.log(Level.INFO, "test connection to the repository");
+        logger.fine("test connection to the repository");
 
         String isPublic = (String) configData.get(ISPUBLIC);
         if (isPublic == null) {
           configData.put(isPublic, "false");
         }
 
-        logger.info("sess before testwebtop:" + sess);
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine("sess before testwebtop: " + sess);
+        }
         status = testWebtopUrl((String) configData.get(DISPLAYURL));
-        logger.info("sess after testwebtop:" + sess);
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine("sess after testwebtop: " + sess);
+        }
 
         // display the form again when the advanced conf checkbox is checked and before that the user had saved the configuration
         if ((((String) configData.get(ADVANCEDCONF)).equals("on") && (((String) configData.get(ACTIONUPDATE)).equals("checkadvconf") ||
             ((String) configData.get(ACTIONUPDATE)).equals("addmeta"))) || ((String) configData.get(ACTIONUPDATE)).equals("uncheckadvconf")) {
-          logger.info("CASE ADVANCEDCONF SET TO on or ACTIONUPDATE set to uncheckadvconf");
+          logger.config("CASE ADVANCEDCONF SET TO on or ACTIONUPDATE set to uncheckadvconf");
 
           form = makeValidatedForm(configData);
           return new ConfigureResponse("", form);
@@ -313,11 +310,11 @@ public class DctmConnectorType implements ConnectorType {
 
           configData.put("where_clause", additionalWhereClause);
           configData.put(ACTIONUPDATE, "checkadvconf");
-          logger.info("where_clause is now " + additionalWhereClause);
+          logger.config("where_clause is now " + additionalWhereClause);
 
           p.putAll(configData);
           cfg.setProperties(p);
-          logger.info("after set properties : where_clause of configData is now " + configData.get("where_clause"));
+          logger.config("after set properties : where_clause of configData is now " + configData.get("where_clause"));
 
 
           ///} catch (RepositoryException e) {
@@ -329,26 +326,28 @@ public class DctmConnectorType implements ConnectorType {
         if (where_clause_config == false || (where_clause_config == true && additionalWhereClause != null) && (status == 200)) {
           //uncheck the advanced configuration checkbox except if the
           configData.put(ADVANCEDCONF, "off");
-          logger.info("ADVANCEDCONF set to " + configData.get(ADVANCEDCONF));
+          logger.config("ADVANCEDCONF set to " + configData.get(ADVANCEDCONF));
         }
 
-        logger.log(Level.INFO, "RepositoryException thrown in validateConfig:", e);
+        logger.log(Level.SEVERE, "RepositoryException thrown in validateConfig: ", e);
         // return the config form with an error message (written in red)
         return createErrorMessage(configData, e);
       } finally {
         if (sess != null) {
           sessMag.releaseSessionConfig();
-          logger.info("Release sessionConfig");
+          logger.fine("Release sessionConfig");
         }
       }
 
-      logger.info("sess before return null" + sess);
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine("sess before return null" + sess);
+      }
       return null;
     }
 
     // return the config form with an error message (written in red) indicating the name of the missing parameter
-    logger.info("if validation returns smthg");
-    logger.info("sess :" + sess);
+    logger.config("if validation returns smthg");
+    logger.config("sess: " + sess);
     configData.put(ADVANCEDCONF, "off");
 
     form = makeValidatedForm(configData);
@@ -359,7 +358,7 @@ public class DctmConnectorType implements ConnectorType {
 
   public ConfigureResponse getPopulatedConfigForm(Map configMap,
       Locale language)  {
-    logger.info("getPopulatedConfigForm");
+    logger.fine("getPopulatedConfigForm");
     ConfigureResponse result = null;
 
     try {
@@ -370,40 +369,42 @@ public class DctmConnectorType implements ConnectorType {
         String key = (String) i.next();
         String val = (String) configMap.get(key);
         if (key.equals("advanced_configuration") && val == null) {
-          logger.info("advanced_configuration null");
+          logger.config("advanced_configuration null");
           ///val = getAdvanced_configuration();
           val = "off";
-          logger.info("val advanced_configuration is now " + val);
+          logger.config("val advanced_configuration is now " + val);
           configMap.put(key, val);
-          logger.info("added in configMap");
+          logger.fine("added in configMap");
         } else if (key.equals("action_update") && val == null) {
-          logger.info("action_update null");
+          logger.config("action_update null");
           ///val = getAction_update();
           val = "save";
-          logger.info("val action_update is now " + val);
+          logger.config("val action_update is now " + val);
           configMap.put(key, val);
-          logger.info("added in configMap");
+          logger.fine("added in configMap");
         } else if (key.equals("clientX") && (val == null || val.equals(""))) {
-          logger.info("clientX null or empty");
+          logger.config("clientX null or empty");
           val = getClientX();
-          logger.info("val clientX is now " + val);
+          logger.config("val clientX is now " + val);
           configMap.put(key, val);
-          logger.info("added in configMap");
+          logger.fine("added in configMap");
         } else if (key.equals("authentication_type") && (val == null || val.equals(""))) {
-          logger.info("authentication_type null or empty");
+          logger.config("authentication_type null or empty");
           val = getAuthentication_type();
-          logger.info("val authentication_type is now " + val);
+          logger.config("val authentication_type is now " + val);
           configMap.put(key, val);
-          logger.info("added in configMap");
+          logger.fine("added in configMap");
         } else if (key.equals("root_object_type") && val == null) {
-          logger.info("root_object_type null or empty");
+          logger.config("root_object_type null or empty");
           val = getRoot_object_type();
-          logger.info("val root_object_type is now " + val);
+          logger.config("val root_object_type is now " + val);
           configMap.put(key, val);
-          logger.info("added in configMap");
+          logger.fine("added in configMap");
         }
+      }
 
-        logger.info("in getConfigForm before spring process key " + key + " is " + val);
+      if (logger.isLoggable(Level.CONFIG)) {
+        logger.config("Before spring process: " + getMaskedMap(configMap));
       }
 
       try {
@@ -421,11 +422,42 @@ public class DctmConnectorType implements ConnectorType {
     } finally {
       if (sess != null) {
         sessMag.releaseSessionConfig();
-        logger.info("Release sessionConfig");
+        logger.fine("Release sessionConfig");
       }
     }
 
     return result;
+  }
+
+  /**
+   * @param key key name to test.
+   * @return true if the given key name describes a sensitive field.
+   */
+  /* Copied from com.google.enterprise.connector.common.SecurityUtils. */
+  private boolean isKeySensitive(String key) {
+    return key.toLowerCase().indexOf("password") != -1;
+  }
+
+  /**
+   * Gets a copy of the map with password property values masked.
+   *
+   * @param original a property map
+   * @return a copy of the map with password property values
+   * replaced by the string "[...]"
+   */
+  /* Copied from com.google.enterprise.connector.otex.LivelinkConnectorType. */
+  private Map getMaskedMap(Map original) {
+    HashMap copy = new HashMap();
+    Iterator entries = original.entrySet().iterator();
+    while (entries.hasNext()) {
+      Map.Entry entry = (Map.Entry) entries.next();
+      String key = (String) entry.getKey();
+      if (isKeySensitive(key))
+        copy.put(key, "[...]");
+      else
+        copy.put(key, entry.getValue());
+    }
+    return copy;
   }
 
   private ConfigureResponse createErrorMessage(Map configData,
@@ -449,7 +481,7 @@ public class DctmConnectorType implements ConnectorType {
     }
     returnMessage = "<p><font color=\"#FF0000\">" + bundleMessage
           + "</font></p>";
-    logger.log(Level.WARNING, returnMessage);
+    logger.warning(returnMessage);
 
     form = makeValidatedForm(configData);
     return new ConfigureResponse(returnMessage, returnMessage + "<br>"
@@ -461,7 +493,7 @@ public class DctmConnectorType implements ConnectorType {
     int counter = 0;
 
     try {
-      logger.info("check additional where clause : " + additionalWhereClause);
+      logger.config("check additional where clause : " + additionalWhereClause);
 
       IQuery query = cl.getQuery();
       String dql = "select r_object_id from dm_sysobject where r_object_type='dm_document' ";
@@ -486,7 +518,7 @@ public class DctmConnectorType implements ConnectorType {
         if (collec != null) {
           if (collec.getState() != ICollection.DF_CLOSED_STATE) {
             collec.close();
-            logger.info("after closing the collection");
+            logger.fine("after closing the collection");
           }
         }
       } catch (RepositoryException re) {
@@ -504,7 +536,7 @@ public class DctmConnectorType implements ConnectorType {
 
   private int testWebtopUrl(String webtopServerUrl)
   throws RepositoryException {
-    logger.log(Level.INFO, "test connection to the webtop server : "
+    logger.config("test connection to the webtop server: "
         + webtopServerUrl);
     HttpClient client = new HttpClient();
     GetMethod getMethod = new GetMethod(webtopServerUrl);
@@ -512,7 +544,7 @@ public class DctmConnectorType implements ConnectorType {
     try {
       status = client.executeMethod(getMethod);
       if (status != 200) {
-        logger.log(Level.INFO, "status " + status);
+        logger.warning("status " + status);
         throw new RepositoryException(
             "[status] Http request returned a " + status
             + " status");
@@ -559,7 +591,7 @@ public class DctmConnectorType implements ConnectorType {
     ICollection collecTypes = null;
     String advConf = "";
 
-    logger.info("in makeValidatedForm");
+    logger.fine("in makeValidatedForm");
 
     //javascript functions used to
     buf.append("<script type=\"text/javascript\"><!--    \n");
@@ -602,27 +634,27 @@ public class DctmConnectorType implements ConnectorType {
       //parameters are loaded from the .properties file
       if ((configMap != null)) {
         rootType = (String) configMap.get(ROOT_OBJECT_TYPE);
-        logger.info("rootType from configmap : " + rootType);
+        logger.config("rootType from configmap : " + rootType);
         advConf = (String) configMap.get(ADVANCEDCONF);
-        logger.info("advConf from configmap : " + advConf);
+        logger.config("advConf from configmap : " + advConf);
         actionUpdate = (String) configMap.get(ACTIONUPDATE);
-        logger.info("actionUpdate from configmap : " + actionUpdate);
+        logger.config("actionUpdate from configmap : " + actionUpdate);
       } else {
         //if configmap is null : it is the first time the form is displayed.
         //parameters are loaded from the connectorType.xml file
-        logger.info("value de rootObjectType null : get from connectorInstance");
+        logger.config("value de rootObjectType null : get from connectorInstance");
         rootType = getRoot_object_type();
-        logger.info("rootType from getRoot_object_type() : " + rootType);
-        logger.info("rootObjectType : " + rootType);
+        logger.config("rootType from getRoot_object_type() : " + rootType);
+        logger.config("rootObjectType : " + rootType);
       }
 
       //loop of the config parameters
       for (Iterator i = keys.iterator(); i.hasNext();) {
         String key = (String) i.next();
-        ///logger.log(Level.INFO, "key vaut " + key);
+        ///logger.config("key vaut " + key);
         if (configMap != null) {
           value = (String) configMap.get(key);
-          ///logger.log(Level.INFO, "key " + key + " vaut " + value);
+          ///logger.config("key " + key + " vaut " + value);
         }
         if (key.equals(ISPUBLIC)) {
           appendCheckBox(buf, key, resource.getString(key), value);
@@ -648,17 +680,17 @@ public class DctmConnectorType implements ConnectorType {
             //if the form is not displayed for the first time (modification) and the advanced conf checkbox is checked
             if ((sess != null) && (!actionUpdate.equals("uncheckadvconf") && (advConf.equals("on")))) {
             ///if ((sess != null) && (!actionUpdate.equals("uncheckadvconf"))) {
-              logger.info("cas actionUpdate not uncheckadvconf");
+              logger.config("cas actionUpdate not uncheckadvconf");
 
               //properties are displayed according to the values stored in the .properties file
               appendSelectMultipleIncludeMetadatas(buf, INCLUDED_META, configMap);
 
-              logger.info("after closing the collection");
+              logger.fine("after closing the collection");
 
               buf.append("</table>");
               buf.append("</DIV></td></tr>");
             } else {
-              logger.info("cas actionUpdate uncheckadvconf or no sess");
+              logger.config("cas actionUpdate uncheckadvconf or no sess");
 
               //properties from connectorType.xml file are loaded in a hashset
               hashIncludedMeta = getSetfromXML(INCLUDED_META);
@@ -677,7 +709,7 @@ public class DctmConnectorType implements ConnectorType {
           } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
             if ((sess != null) && (!actionUpdate.equals("uncheckadvconf") && (advConf.equals("on")))) {
             ///if ((sess != null) && (!actionUpdate.equals("uncheckadvconf"))) {
-              logger.info("cas actionUpdate = " + actionUpdate);
+              logger.config("cas actionUpdate = " + actionUpdate);
 
               //creation of a collection of all Dctm types whose super_name attribute is not empty
               collecTypes = getListOfTypes(rootType);
@@ -685,22 +717,22 @@ public class DctmConnectorType implements ConnectorType {
               //properties are displayed according to the values stored in the .properties file
               appendSelectMultipleIncludeTypes(buf, INCLUDED_OBJECT_TYPE, collecTypes, configMap);
             } else {
-              logger.info("cas actionUpdate uncheckadvconf or no sess");
-              logger.info("cas actionUpdate " + actionUpdate);
-              logger.info("cas advConfe " + advConf);
+              logger.config("cas actionUpdate uncheckadvconf or no sess");
+              logger.config("cas actionUpdate " + actionUpdate);
+              logger.config("cas advConfe " + advConf);
               hashIncludedType = null;
 
               //properties from connectorType.xml file are loaded in a hashset
               hashIncludedType = getSetfromXML(INCLUDED_OBJECT_TYPE);
-              logger.info("after getSetfromXML de " + INCLUDED_OBJECT_TYPE);
+              logger.config("after getSetfromXML de " + INCLUDED_OBJECT_TYPE);
 
               //properties are displayed according to the default values stored in the connectorType.xml file
               appendSelectMultipleIncludeTypes(buf, INCLUDED_OBJECT_TYPE, hashIncludedType, rootType);
 
-              logger.info("after appendSelectMultiple");
+              logger.fine("after appendSelectMultiple");
             }
           } else if (key.equals(ROOT_OBJECT_TYPE)) {
-            logger.info("makeValidatedForm - rootObjectType");
+            logger.fine("makeValidatedForm - rootObjectType");
 
             buf.append(rootType);
             buf.append(TD_END);
@@ -800,15 +832,15 @@ public class DctmConnectorType implements ConnectorType {
     client = cl.getLocalClient();
     sessMag = client.newSessionManager();
     sessMag.clearIdentity((String) LogMap.get(DOCBASENAME));
-    logger.info("after clearIdentity for docbase : " + (String) LogMap.get(DOCBASENAME));
+    logger.config("after clearIdentity for docbase : " + (String) LogMap.get(DOCBASENAME));
     loginInfo = cl.getLoginInfo();
     loginInfo.setUser((String) LogMap.get(LOGIN));
-    logger.info("after setIdentity for login : " + (String) LogMap.get(LOGIN));
+    logger.config("after setIdentity for login : " + (String) LogMap.get(LOGIN));
     loginInfo.setPassword((String) LogMap.get(PASSWORD));
     sessMag.setIdentity((String) LogMap.get(DOCBASENAME), loginInfo);
     sessMag.setDocbaseName((String) LogMap.get(DOCBASENAME));
-    logger.info("after setIdentity for docbase : " + (String) LogMap.get(DOCBASENAME));
-    logger.info("new sessionManager");
+    logger.config("after setIdentity for docbase : " + (String) LogMap.get(DOCBASENAME));
+    logger.config("new sessionManager");
   }
 
 
@@ -818,13 +850,12 @@ public class DctmConnectorType implements ConnectorType {
       while (i.hasNext()) {
         String key = (String) i.next();
         String val = (String) LogMap.get(key);
-        ///logger.info("key " + key + " vaut " + val);
+        ///logger.config("key " + key + " vaut " + val);
       }
     }
 
-    logger.info("login vaut " + (String) LogMap.get(LOGIN));
-    logger.info("password vaut " + (String) LogMap.get(PASSWORD));
-    logger.info("docbase vaut " + (String) LogMap.get(DOCBASENAME));
+    logger.config("login vaut " + (String) LogMap.get(LOGIN));
+    logger.config("docbase vaut " + (String) LogMap.get(DOCBASENAME));
 
     sess = sessMag.getSession((String) LogMap.get(DOCBASENAME));
     sessMag.setSessionConfig(sess);
@@ -833,13 +864,13 @@ public class DctmConnectorType implements ConnectorType {
 
   private HashSet getSetfromXML(String setName) {
     HashSet hash = new HashSet();
-    logger.info("in getSetfromXML");
+    logger.fine("in getSetfromXML");
 
     if (setName.equals(INCLUDED_META)) {
-      logger.info("dans included_meta");
+      logger.config("dans included_meta");
       hash = getIncluded_meta();
     } else if (setName.equals(INCLUDED_OBJECT_TYPE)) {
-      logger.info("dans Included_object_type");
+      logger.config("dans Included_object_type");
       hash = getIncluded_object_type();
     }
     return hash;
@@ -850,14 +881,14 @@ private ICollection getListOfTypes(String root_object_type) {
     String queryString = "";
     ICollection collec = null;
     try {
-      logger.info("docbase of sessMag vaut " + sessMag.getDocbaseName());
+      logger.config("docbase of sessMag vaut " + sessMag.getDocbaseName());
       que = cl.getQuery();
       queryString = "select * from dm_type where super_name != '' order by r_object_id";
-      logger.info("queryString : " + queryString);
+      logger.config("queryString : " + queryString);
       que.setDQL(queryString);
 
       boolean auth = sessMag.authenticate(sessMag.getDocbaseName());
-      logger.info("AUTH VAUT " + auth);
+      logger.config("AUTH VAUT " + auth);
 
       collec = que.execute(sessMag, IQuery.EXECUTE_READ_QUERY);
     } catch (RepositoryException e) {
@@ -873,7 +904,7 @@ private ICollection getListOfTypes(String root_object_type) {
   }
 
 private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICollection collecTypes, Map configMap) throws RepositoryException {
-  logger.info("in SelectMultipleIncludeTypes with collectoin parameter");
+  logger.fine("in SelectMultipleIncludeTypes with collection parameter");
   String type;
   String super_type;
   String typeList[];
@@ -942,15 +973,15 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICo
       //loop of the Dctm types whose super_name field is not empty
       while (collecTypes.next()) {
         type = collecTypes.getString("name");
-        logger.info("type : " + type);
+        logger.config("type : " + type);
         super_type = collecTypes.getString("super_name");
-        logger.info("super type : " + super_type);
+        logger.config("super type : " + super_type);
         ///if (!hashTypes.contains(type) && (hashDctmTypes.contains(super_type) || super_type.equals("dm_sysobject") || hashTypes.contains(super_type))) {
         //exclusion of the selected types (=in the second select list and stored in the .properties file) and of the types whose super_name attribute is emty (the where clause in the query is not enough since a type can have a super_type whose super_name is empty)
         if (!hashTypes.contains(type) && !super_type.equals("")) {
           hashDctmTypes.add(type);
           nbtypes++;
-          logger.info("added type : " + type);
+          logger.config("added type : " + type);
           //Creation of the select list of the types available for selection
           buf.append("<option value=\"" + type + "\">");
           buf.append(type + "\n");
@@ -962,7 +993,7 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICo
     ///e.printStackTrace();
   ///}
 
-  logger.info("nbtypes is : " + nbtypes);
+  logger.config("nbtypes is : " + nbtypes);
   buf.append(SELECT_END);
   buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
   buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
@@ -978,7 +1009,7 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICo
     Iterator iter = hashTypes.iterator();
 
     while (iter.hasNext()) {
-      ///logger.info("appendSelectMultiple " + name + " type vaut " + type);
+      ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
       type = (String) iter.next();
       //Creation of the select list of the types previously selected
       buf.append("<option value=\"" + type + "\">");
@@ -1003,7 +1034,7 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICo
 
 private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name,
     HashSet hash, String superData) {
-  logger.info("in appendSelectMultipleIncludeTypes");
+  logger.fine("in appendSelectMultipleIncludeTypes");
 
   //javascript functions used to pass an item from a select list to another one
 
@@ -1054,7 +1085,7 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name,
     Iterator iter = hash.iterator();
 
     while (iter.hasNext()) {
-      ///logger.info("appendSelectMultiple " + name + " type vaut " + type);
+      ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
 
       type = (String) iter.next();
       stTypes = stTypes.concat(type + ",");
@@ -1064,9 +1095,13 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name,
   }
 
   ///
-  logger.info("stTypes before substring " + stTypes);
+  if (logger.isLoggable(Level.FINE)) {
+    logger.fine("stTypes before substring " + stTypes);
+  }
   stTypes = stTypes.substring(0, stTypes.length() - 1);
-  logger.info("stTypes after substring " + stTypes);
+  if (logger.isLoggable(Level.FINE)) {
+    logger.fine("stTypes after substring " + stTypes);
+  }
 
   buf.append(SELECT_END);
   buf.append(TD_END);
@@ -1075,7 +1110,7 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name,
 }
 
 private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name, Map configMap) throws RepositoryException {
-  logger.info("in appendSelectMultipleIncludeMetadatas collection");
+  logger.fine("in appendSelectMultipleIncludeMetadatas collection");
 
   String meta;
   String stType;
@@ -1094,7 +1129,7 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
   String stCurrentType = null;
   String dmsysattrname = null;
 
-  logger.info("string type : " + (String) configMap.get(INCLUDED_OBJECT_TYPE));
+  logger.config("string type : " + (String) configMap.get(INCLUDED_OBJECT_TYPE));
   typeList = ((String) configMap.get(INCLUDED_OBJECT_TYPE)).split(",");
 
   HashMap metasByTypes = new HashMap();
@@ -1111,7 +1146,7 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
   }
 
   String metaList[];
-  logger.info("string meta : " + (String) configMap.get(INCLUDED_META));
+  logger.config("string meta : " + (String) configMap.get(INCLUDED_META));
   stMeta = ((String) configMap.get(INCLUDED_META));
   metaList = stMeta.split(",");
 
@@ -1137,7 +1172,7 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
   for (int j = 0; j < dmsysType.getTypeAttrCount(); j++) {
     dmsysattr = dmsysType.getTypeAttr(j);
     dmsysattrname = dmsysattr.getName();
-    logger.info("dmsysattrname " + dmsysattrname + " is metadata of dm_sysobject");
+    logger.config("dmsysattrname " + dmsysattrname + " is metadata of dm_sysobject");
     hashDmSysMeta.add(dmsysattrname);
   }
 
@@ -1148,65 +1183,65 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
       mytype = sess.getType(stType);
       ///mytype = sess.getType(stType);
       ///mytype = (getSession(configMap)).getType(stType);
-      logger.info("stType is " + stType);
+      logger.config("stType is " + stType);
       ///loop of the properties of each selected type
       for (i = 0; i < mytype.getTypeAttrCount(); i++) {
-        logger.info("compteur: " + mytype.getTypeAttrCount());
+        logger.config("compteur: " + mytype.getTypeAttrCount());
         attr = mytype.getTypeAttr(i);
-        ///logger.info("attr vaut " + attr.toString());
+        ///logger.config("attr vaut " + attr.toString());
         data = attr.getName();
-        logger.info("attr is " + data + " - attr of the type " + stType);
+        logger.config("attr is " + data + " - attr of the type " + stType);
         if (!hashMetasOfSelectedTypes.contains(data)) {
           hashMetasOfSelectedTypes.add(data);
         }
         ///if the property is a dm_sysobject one, dm_sysobject is added to the temporary types hashset
         if (hashDmSysMeta.contains(data)) {
           tempTypes.add("dm_sysobject");
-          logger.info("attr " + data + " is a dm_sysobject attribute");
+          logger.config("attr " + data + " is a dm_sysobject attribute");
         ///if the property is not already present in the list of available properties : the type is added to the temporary types hashset
         } else if (!metasByTypes.containsKey(data)) {
           tempTypes.add(stType);
-          logger.info("attr " + data + " is a new attribute for the metas list");
+          logger.config("attr " + data + " is a new attribute for the metas list");
         ///if the property is not already present in the list of available properties
         } else {
-          logger.info("attr " + data + " is not a new attribute for the metas list");
+          logger.config("attr " + data + " is not a new attribute for the metas list");
           hashTypes = (HashSet) metasByTypes.get(data);
           iterTypes = hashTypes.iterator();
           ///loop of the hashset of types whom the property can belong to (among the selected types)
           while (iterTypes.hasNext()) {
             stCurrentType = (String) iterTypes.next();
-            logger.info("the type " + stCurrentType + " is already known to have the meta " + data);
+            logger.config("the type " + stCurrentType + " is already known to have the meta " + data);
             currentType = sess.getType(stCurrentType);
             ///is the selected type is dm_sysobject : dm_sysobject is added to the temporary types hashset
             if (stCurrentType.equals("dm_sysobject")) {
-              logger.info(stCurrentType + " is " + stCurrentType);
+              logger.config(stCurrentType + " is " + stCurrentType);
               tempTypes.add(stCurrentType);
             ///if the selected type is the supertype of one type whom the property can belong to : the selected type is added to the temporary types hashset
             } else if (((currentType.getSuperType()).getName()).equals(stType)) {
-              logger.info(stType + " is supertype of " + stCurrentType);
+              logger.config(stType + " is supertype of " + stCurrentType);
               tempTypes.add(stType);
-              logger.info("so supertype " + stType + " is added");
+              logger.config("so supertype " + stType + " is added");
             ///if the selected type is the subtype of one type whom the property can belong to : the type whom the property can belong to is added to the temporary types hashset
             } else if (mytype.isSubTypeOf(stCurrentType)) {
-              logger.info(stType + " is  subtype of " + stCurrentType);
+              logger.config(stType + " is  subtype of " + stCurrentType);
               tempTypes.add(stCurrentType);
-              logger.info(" so supertype " + stCurrentType + " is added");
+              logger.config(" so supertype " + stCurrentType + " is added");
                         ///if the selected type is one of the types whom the property can belong to  : the type whom the property can belong to is added to the temporary types hashset
             } else if (stType.equals(stCurrentType)) {
-              logger.info(stType + " is " + stCurrentType);
+              logger.config(stType + " is " + stCurrentType);
               tempTypes.add(stCurrentType);
-              logger.info(" so type " + stCurrentType + " is added");
+              logger.config(" so type " + stCurrentType + " is added");
             ///if the selected type and one of the types whom the property can belong to don't have any hierarchical link : the type whom the property can belong to and the selected type are added to the temporary types hashset
             } else {
-              logger.info("type " + stCurrentType + " is just another type with the attribute " + data);
+              logger.config("type " + stCurrentType + " is just another type with the attribute " + data);
               tempTypes.add(stType);
               tempTypes.add(stCurrentType);
-              logger.info(" so type " + stType + " is added and type " + stCurrentType + " is also added");
+              logger.config(" so type " + stType + " is added and type " + stCurrentType + " is also added");
             }
           }
         }
 
-        logger.info("adding tempTypes to metasByTypes hashMap");
+        logger.fine("adding tempTypes to metasByTypes hashMap");
         metasByTypes.put(data, tempTypes);
         ///temporary hashset of types reinitiated
         tempTypes = new HashSet();
@@ -1215,11 +1250,11 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
 
     //Creation of the select list of the available properties (properties of the selected types) with the names of the types it belongs to
     if (!metasByTypes.isEmpty()) {
-      logger.info("writing the select");
+      logger.fine("writing the select");
       Set dataSet = metasByTypes.keySet();
       Iterator iter = dataSet.iterator();
       while (iter.hasNext()) {
-        ///logger.info("appendSelectMultiple " + name + " type vaut " + type);
+        ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
         data = (String) iter.next();
         hashTypes = (HashSet) metasByTypes.get(data);
         iterTypes = hashTypes.iterator();
@@ -1249,11 +1284,11 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
     }
   }
 
-  ///logger.info("appendSelectMultipleIncludeMetadatas" + name);
+  ///logger.config("appendSelectMultipleIncludeMetadatas" + name);
 
-  logger.info("before select");
+  logger.fine("before select");
   buf.append(SELECT_END);
-  logger.info("after select");
+  logger.fine("after select");
 
   buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
   buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
@@ -1268,7 +1303,7 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
 
   private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
       HashSet hashMeta) {
-    logger.info("in appendSelectMultipleIncludeMetadatas hashMeta");
+    logger.fine("in appendSelectMultipleIncludeMetadatas hashMeta");
 
     String meta;
     String stMeta = "";
@@ -1305,9 +1340,9 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
 
     stMeta = stMeta.substring(0, stMeta.length() - 1);
 
-    logger.info("before select");
+    logger.fine("before select");
     buf.append(SELECT_END);
-    logger.info("after select");
+    logger.fine("after select");
 
     buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');\"></input>");
     buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');\"></input>");
@@ -1332,8 +1367,8 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
       buf.append("ID=\"ADVC\"");
       if (value != null && value.equals("on")) {
       ///if (value != null) {
-        logger.info("advanced conf not null");
-          logger.info("advanced conf set to on");
+        logger.config("advanced conf not null");
+          logger.config("advanced conf set to on");
           buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&&(document.getElementById('Password').value != '')&&(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
               "document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
                   "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\" checked>");
@@ -1354,7 +1389,7 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
           buf.append("<tr><td colspan=\"2\"><DIV ID=\"more\" style=\"DISPLAY: block\">");
           buf.append("<table>");
       } else {
-          logger.info("advanced conf set to off");
+          logger.config("advanced conf set to off");
           ///insertIncludeMetas();insertIncludeTypes();
           ///buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\">");
           buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&&(document.getElementById('Password').value != '')&&(document.getElementById('webtop_display_url').value != '')){" +
@@ -1509,7 +1544,7 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
 
   public void setAuthentication_type(String authentication_type) {
     this.authentication_type = authentication_type;
-    logger.log(Level.INFO, "authentication_type set to " +authentication_type);
+    logger.config("authentication_type set to " + authentication_type);
   }
 
   public String getClientX() {
@@ -1518,29 +1553,29 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
 
   public void setClientX(String clientX) {
     this.clientX = clientX;
-    logger.log(Level.INFO, "clientX set to " +clientX);
+    logger.config("clientX set to " + clientX);
   }
 
   /*
   public String getAdvanced_configuration() {
-    logger.info("get advanced_configuration : " +advanced_configuration);
+    logger.config("get advanced_configuration : " +advanced_configuration);
 
     return advanced_configuration;
   }
 
   public void setAdvanced_configuration(String advanced_configuration) {
     this.advanced_configuration = advanced_configuration;
-    logger.info("advanced_configuration set to " +advanced_configuration);
+    logger.config("advanced_configuration set to " +advanced_configuration);
   }
 
   public String getAction_update() {
-    logger.info("get action_update : " +action_update);
+    logger.config("get action_update : " +action_update);
     return action_update;
   }
 
   public void setAction_update(String action_update) {
     this.action_update = action_update;
-    logger.info("action_update set to " +action_update);
+    logger.config("action_update set to " +action_update);
   }
   */
 }
