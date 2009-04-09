@@ -165,7 +165,10 @@ public class DctmSysobjectDocument extends HashMap implements Document {
               logger.fine("property " + SpiConstants.PROPNAME_CONTENT + " after getContent");
            }
         } catch (RepositoryDocumentException e) {
-          // TODO Auto-generated catch block
+          // FIXME: In the unlikely event the user only has BROWSE
+          // permission for a document, we'll end up here. That's
+          // fine, but the google:mimetype property will not be reset
+          // to "text/plain" in that case.
           logger.warning("RepositoryDocumentException thrown : " + e + " on getting property : " + name);
           hashSet.add(null);
         }
