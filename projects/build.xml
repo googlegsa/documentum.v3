@@ -6,7 +6,7 @@
 	<property file="version.properties" />
 
 	<!-- Choose 5.2.5_5.3 or 6.0 for the value. -->
-	<property name="bean.id.version" value="5.2.5_5.3" />
+	<property name="bean.id.version" value="6.0" />
 	<property name="COMPILE_DEBUG_FLAG" value="true" />
 	<property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
 
