@@ -47,6 +47,9 @@ import com.google.enterprise.connector.spiimpl.StringValue;
 public class DctmSysobjectDocument extends HashMap implements Document {
   private static final long serialVersionUID = 126421624L;
 
+  /** The maximum content size that will be allowed. */
+  private static final long MAX_CONTENT_SIZE = 30L * 1024 * 1024;
+  
   private String docId;
   private String commonVersionID;
   private ITime timeStamp;
@@ -133,11 +136,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
   public Property findProperty(String name) throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
     IFormat dctmForm = null;
-    String mimetype = "";
-    String dosExtension = "";
-    long contentSize = 0;
     HashSet hashSet = new HashSet();
-    String timeSt = null;
 
     logger.fine("In findProperty; name : " + name);
     logger.fine("action : " + action);
@@ -154,12 +153,16 @@ public class DctmSysobjectDocument extends HashMap implements Document {
       } else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_CONTENT);
         try {
-          if (object.getContentSize() != 0) {
-              hashSet.add(new BinaryValue(object.getContent()));
-              logger.fine("property " + SpiConstants.PROPNAME_CONTENT + " after getContent");
-           } else {
+          long contentSize = object.getContentSize();
+          if (contentSize == 0) {
               hashSet.add(null);
               logger.fine("this object has no content");
+           } else if (contentSize > MAX_CONTENT_SIZE) {
+              hashSet.add(null);
+              logger.fine("content is too large: " + contentSize);
+           } else {
+              hashSet.add(new BinaryValue(object.getContent()));
+              logger.fine("property " + SpiConstants.PROPNAME_CONTENT + " after getContent");
            }
         } catch (RepositoryDocumentException e) {
           // TODO Auto-generated catch block
@@ -199,11 +202,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         logger.fine("getting the property " + SpiConstants.PROPNAME_MIMETYPE);
         try {
           dctmForm = object.getFormat();
-          mimetype = dctmForm.getMIMEType();
-          dosExtension = dctmForm.getDOSExtension();
-          contentSize = object.getContentSize();
+          String mimetype = dctmForm.getMIMEType();
+          String dosExtension = dctmForm.getDOSExtension();
+          long contentSize = object.getContentSize();
           ///modification in order to index empty documents
-          if (contentSize == 0) {
+          if (contentSize == 0 || contentSize > MAX_CONTENT_SIZE) {
             mimetype = "text/plain";
           }
           hashSet.add(new StringValue(mimetype));
@@ -281,7 +284,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         try {
           logger.fine("time stamp" + timeStamp);
           logger.fine("pattern44 : " + timeStamp.getTime_pattern44());
-          timeSt = timeStamp.asString(timeStamp.getTime_pattern44());
+          String timeSt = timeStamp.asString(timeStamp.getTime_pattern44());
           logger.fine("timeSt =" + timeSt);
 
           Date tmpDt = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(timeSt);
