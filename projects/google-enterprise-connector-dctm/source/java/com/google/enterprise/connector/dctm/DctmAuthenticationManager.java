@@ -54,8 +54,8 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
           loginInfo);
     } catch (RepositoryLoginException e) {
-      LOGGER.warning("authentication failed for user  " + username
-          + "\ncause:" + e.getMessage());
+      LOGGER.finer(e.getMessage());
+      LOGGER.info("authentication status: false");
       return new AuthenticationResponse(false, "");
     }
 

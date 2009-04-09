@@ -125,7 +125,7 @@ public class DmSessionManager implements ISessionManager {
       throw new IllegalArgumentException();
     }
     DmLoginInfo dctmLoginInfo = (DmLoginInfo) identity;
-    logger.fine("Set identity: " + identity.getUser());
+    logger.finer("Set identity: " + identity.getUser());
     IDfLoginInfo idfLoginInfo = dctmLoginInfo.getIdfLoginInfo();
     try {
       dfSessionManager.setIdentity(docbase, idfLoginInfo);
@@ -191,6 +191,7 @@ public class DmSessionManager implements ISessionManager {
       this.dfSessionManager.authenticate(docbaseName);
       authent = true;
     } catch (DfException e) {
+      logger.finer(e.getMessage());
       authent = false;
     }
     return authent;
