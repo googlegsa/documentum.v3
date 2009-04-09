@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.documentum.fc.client.DfAuthenticationException;
@@ -98,7 +99,10 @@ public class DmSessionManager implements ISessionManager {
     IDfSession DfSession = null;
     try {
       DfSession = dfSessionManager.getSession(docbase);
-      logger.finest("after getSession");
+      if (logger.isLoggable(Level.FINER)) {
+        IDfLoginInfo idfLoginInfo = dfSessionManager.getIdentity(docbase);
+        logger.finer("Session for user: " + idfLoginInfo.getUser());
+      }
     } catch (DfIdentityException iE) {
       RepositoryLoginException le = new RepositoryLoginException(iE);
       throw le;
@@ -121,6 +125,7 @@ public class DmSessionManager implements ISessionManager {
       throw new IllegalArgumentException();
     }
     DmLoginInfo dctmLoginInfo = (DmLoginInfo) identity;
+    logger.fine("Set identity: " + identity.getUser());
     IDfLoginInfo idfLoginInfo = dctmLoginInfo.getIdfLoginInfo();
     try {
       dfSessionManager.setIdentity(docbase, idfLoginInfo);
