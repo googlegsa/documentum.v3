@@ -16,10 +16,17 @@ package com.google.enterprise.connector.dctm.dfcwrap;
 
 import com.google.enterprise.connector.spi.RepositoryException;
 
+/**
+ * The methods in this class are advisory or informative. They are not
+ * allowed to throw checked exceptions, but should return some
+ * possibly null or empty value.
+ */
 public interface IFormat {
-  public boolean canIndex() throws RepositoryException;
+  String getName();
 
-  public String getMIMEType();
+  boolean canIndex();
 
-  public String getDOSExtension();
+  String getMIMEType();
+
+  String getDOSExtension();
 }

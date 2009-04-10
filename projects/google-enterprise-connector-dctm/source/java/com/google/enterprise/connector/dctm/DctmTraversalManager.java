@@ -141,7 +141,7 @@ public class DctmTraversalManager implements TraversalManager {
    */
   public DocumentList resumeTraversal(String checkPoint)
       throws RepositoryException {
-    logger.info("value of checkpoint  " + checkPoint);
+    logger.info("value of checkpoint: " + checkPoint);
     DocumentList documentList = null;
     IQuery query = makeCheckpointQuery(buildQueryString(checkPoint));
     IQuery queryGetDocToDel = makeCheckpointQuery(buildQueryStringToDel(checkPoint));
@@ -435,7 +435,7 @@ public class DctmTraversalManager implements TraversalManager {
         dateFirstPush = dateStandard.format(d);
         logger.info("Date of first push :" + dateStandard.format(d));
 
-        String whereClause =  " and ( time_stamp > date('" + dateFirstPush + "','yyyy-mm-dd hh:mi:ss'))";
+        String whereClause = " and ( time_stamp > date('" + dateFirstPush + "','yyyy-mm-dd hh:mi:ss'))";
         logger.info("whereclause : " + whereClause);
 
         if (whereClause.indexOf("date('',") == -1) {

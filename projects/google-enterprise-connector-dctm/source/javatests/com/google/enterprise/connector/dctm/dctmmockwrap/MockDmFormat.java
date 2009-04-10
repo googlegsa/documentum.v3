@@ -18,14 +18,17 @@ import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmFormat implements IFormat {
-  private String mimeType;
-  private String dosExtension;
+  private final String mimeType;
 
-  public MockDmFormat(String mimetype) {
-    this.mimeType = mimetype;
+  public MockDmFormat(String mimeType) {
+    this.mimeType = mimeType;
   }
 
-  public boolean canIndex() throws RepositoryException {
+  public String getName() {
+    return mimeType;
+  }
+
+  public boolean canIndex() {
     return true;
   }
 
@@ -34,6 +37,6 @@ public class MockDmFormat implements IFormat {
   }
 
   public String getDOSExtension() {
-    return dosExtension;
+    return null;
   }
 }

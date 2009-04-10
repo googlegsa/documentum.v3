@@ -20,41 +20,43 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface ISysObject {
-  public long getContentSize() throws RepositoryDocumentException;
+  String getObjectName() throws RepositoryDocumentException;
 
-  public ByteArrayInputStream getContent() throws RepositoryDocumentException;
+  long getContentSize() throws RepositoryDocumentException;
 
-  public String getACLDomain() throws RepositoryDocumentException;
+  ByteArrayInputStream getContent() throws RepositoryDocumentException;
 
-  public String getACLName() throws RepositoryDocumentException;
+  String getACLDomain() throws RepositoryDocumentException;
 
-  public String getString(String name) throws RepositoryDocumentException;
+  String getACLName() throws RepositoryDocumentException;
 
-  public int getInt(String name) throws RepositoryDocumentException;
+  String getString(String name) throws RepositoryDocumentException;
 
-  public ITime getTime(String name) throws RepositoryDocumentException;
+  int getInt(String name) throws RepositoryDocumentException;
 
-  public double getDouble(String name) throws RepositoryDocumentException;
+  ITime getTime(String name) throws RepositoryDocumentException;
 
-  public boolean getBoolean(String name) throws RepositoryDocumentException;
+  double getDouble(String name) throws RepositoryDocumentException;
 
-  public IId getId(String name) throws RepositoryDocumentException;
+  boolean getBoolean(String name) throws RepositoryDocumentException;
 
-  public IFormat getFormat() throws RepositoryDocumentException;
+  IId getId(String name) throws RepositoryDocumentException;
 
-  public int getAttrDataType(String name) throws RepositoryDocumentException;
+  IFormat getFormat() throws RepositoryDocumentException;
 
-  public int getAttrCount() throws RepositoryDocumentException;
+  int getAttrDataType(String name) throws RepositoryDocumentException;
 
-  public IAttr getAttr(int attrIndex) throws RepositoryDocumentException;
+  int getAttrCount() throws RepositoryDocumentException;
 
-  public void setSessionManager(ISessionManager sessionManager)
+  IAttr getAttr(int attrIndex) throws RepositoryDocumentException;
+
+  void setSessionManager(ISessionManager sessionManager)
       throws RepositoryDocumentException;
 
-  public IValue getRepeatingValue(String name, int index)
+  IValue getRepeatingValue(String name, int index)
       throws RepositoryDocumentException;
 
-  public int findAttrIndex(String name) throws RepositoryDocumentException;
+  int findAttrIndex(String name) throws RepositoryDocumentException;
 
-  public int getValueCount(String name) throws RepositoryDocumentException;
+  int getValueCount(String name) throws RepositoryDocumentException;
 }
