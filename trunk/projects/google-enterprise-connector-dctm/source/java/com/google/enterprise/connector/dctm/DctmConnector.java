@@ -159,7 +159,7 @@ public class DctmConnector implements Connector {
   }
 
   public void setIncluded_object_type(String included_object_type) {
-    this.included_object_type = included_object_type + ",dm_folder";
+    this.included_object_type = included_object_type;
     logger.log(Level.INFO, "included_object_type set to " +included_object_type);
   }
 
