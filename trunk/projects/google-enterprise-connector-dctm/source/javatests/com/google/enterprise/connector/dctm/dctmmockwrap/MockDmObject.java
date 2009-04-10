@@ -48,6 +48,10 @@ public class MockDmObject implements ISysObject {
     this.mockDocument = mRD;
   }
 
+  public String getObjectName() throws RepositoryDocumentException {
+    return this.mockDocument.getDocID();
+  }
+
   public long getContentSize() throws RepositoryDocumentException {
     ByteArrayInputStream contentStream = null;
     int avail = 0;
@@ -91,11 +95,7 @@ public class MockDmObject implements ISysObject {
       MockJcrValue propVal = new MockJcrValue(pm);
       try {
         propStrVal = propVal.getString();
-      } catch (ValueFormatException e) {
-        // TODO: Why is this exception ignored?
       } catch (IllegalStateException e) {
-        // TODO: Why is this exception ignored?
-      } catch (javax.jcr.RepositoryException e) {
         // TODO: Why is this exception ignored?
       }
     } else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
@@ -108,11 +108,7 @@ public class MockDmObject implements ISysObject {
       MockJcrValue propVal = new MockJcrValue(pm);
       try {
         propStrVal = propVal.getString();
-      } catch (ValueFormatException e) {
-        // TODO: Why is this exception ignored?
       } catch (IllegalStateException e) {
-        // TODO: Why is this exception ignored?
-      } catch (javax.jcr.RepositoryException e) {
         // TODO: Why is this exception ignored?
       }
     } else {
@@ -121,11 +117,7 @@ public class MockDmObject implements ISysObject {
       MockJcrValue propVal = new MockJcrValue(pm);
       try {
         propStrVal = propVal.getString();
-      } catch (ValueFormatException e) {
-        // TODO: Why is this exception ignored?
       } catch (IllegalStateException e) {
-        // TODO: Why is this exception ignored?
-      } catch (javax.jcr.RepositoryException e) {
         // TODO: Why is this exception ignored?
       }
     }
@@ -140,11 +132,7 @@ public class MockDmObject implements ISysObject {
     int propIntVal = 0;
     try {
       propIntVal = (int) propVal.getLong();
-    } catch (ValueFormatException e) {
-      // TODO: Why is this exception ignored?
     } catch (IllegalStateException e) {
-      // TODO: Why is this exception ignored?
-    } catch (javax.jcr.RepositoryException e) {
       // TODO: Why is this exception ignored?
     }
     return propIntVal;
@@ -181,11 +169,7 @@ public class MockDmObject implements ISysObject {
     double propDblVal = 0;
     try {
       propDblVal = propVal.getDouble();
-    } catch (ValueFormatException e) {
-      // TODO: Why is this exception ignored?
     } catch (IllegalStateException e) {
-      // TODO: Why is this exception ignored?
-    } catch (javax.jcr.RepositoryException e) {
       // TODO: Why is this exception ignored?
     }
     return propDblVal;
@@ -198,11 +182,7 @@ public class MockDmObject implements ISysObject {
     boolean propBlVal = true;
     try {
       propBlVal = propVal.getBoolean();
-    } catch (ValueFormatException e) {
-      // TODO: Why is this exception ignored?
     } catch (IllegalStateException e) {
-      // TODO: Why is this exception ignored?
-    } catch (javax.jcr.RepositoryException e) {
       // TODO: Why is this exception ignored?
     }
     return propBlVal;

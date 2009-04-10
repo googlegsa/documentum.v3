@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -87,6 +88,20 @@ public class MockDmValue implements IValue {
     MockDmTime ret = null;
     try {
       ret = new MockDmTime(value.getDate().getTime());
+    } catch (ValueFormatException e) {
+      throw new RepositoryException(e);
+    } catch (IllegalStateException e) {
+      throw new RepositoryException(e);
+    } catch (javax.jcr.RepositoryException e) {
+      throw new RepositoryException(e);
+    }
+    return ret;
+  }
+
+  public IId asId() throws RepositoryException {
+    MockDmId ret = null;
+    try {
+      ret = new MockDmId(value.getString());
     } catch (ValueFormatException e) {
       throw new RepositoryException(e);
     } catch (IllegalStateException e) {

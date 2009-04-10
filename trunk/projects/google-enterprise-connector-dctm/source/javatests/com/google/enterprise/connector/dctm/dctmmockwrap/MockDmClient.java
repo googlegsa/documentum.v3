@@ -20,7 +20,6 @@ import java.util.Iterator;
 import javax.jcr.Credentials;
 import javax.jcr.SimpleCredentials;
 
-import com.documentum.fc.client.IDfSession;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
@@ -226,14 +225,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
           + db);
     }
 
-    MockJcrSession sess = null;
-    try {
-      sess = (MockJcrSession) repo.login(creds);
-    } catch (javax.jcr.LoginException e) {
-      throw new RepositoryLoginException(e);
-    } catch (javax.jcr.RepositoryException e) {
-      throw new com.google.enterprise.connector.spi.RepositoryException(e);
-    }
+    MockJcrSession sess = (MockJcrSession) repo.login(creds);
     if (sess != null) {
       return new MockDmSession(repo, sess, db);
     } else {

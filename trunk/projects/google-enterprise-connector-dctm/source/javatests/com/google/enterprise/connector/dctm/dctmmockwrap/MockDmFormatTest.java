@@ -71,12 +71,7 @@ public class MockDmFormatTest extends TestCase {
   }
 
   public void testCanIndex() {
-    boolean indexable = false;
-    try {
-      indexable = ((MockDmFormat) format).canIndex();
-    } catch (RepositoryException e) {
-      // TODO: Why is this exception ignored?
-    }
+    boolean indexable = format.canIndex();
     assertTrue(indexable);
   }
 

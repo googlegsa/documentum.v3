@@ -26,26 +26,46 @@ public class DmFormat implements IFormat {
     this.idfFormat = idfFormat;
   }
 
-  public boolean canIndex() throws RepositoryLoginException {
-    boolean rep = false;
+  public String getName() {
+    String rep;
+    try {
+      if (idfFormat != null) {
+        rep = idfFormat.getName();
+      } else {
+        rep = "";
+      }
+    } catch (DfException de) {
+      rep = "";
+    }
+    return rep;
+  }
+
+  /** 
+   * Gets whether this format is configured for indexing on the
+   * server. If the answer isn't definitive, err on the side of
+   * feeding the content.
+   */
+  public boolean canIndex() {
+    boolean rep;
     try {
       if (idfFormat != null) {
         rep = idfFormat.canIndex();
       } else {
-        rep = false;
+        rep = true;
       }
     } catch (DfException de) {
-      RepositoryLoginException le = new RepositoryLoginException(de);
-      throw le;
+      rep = true;
     }
     return rep;
   }
 
   public String getMIMEType() {
-    String rep = null;
+    String rep;
     try {
       if (idfFormat != null) {
         rep = idfFormat.getMIMEType();
+        if (rep == null || rep.length() == 0)
+          rep = "application/octet-stream";
       } else {
         rep = "application/octet-stream";
       }
@@ -56,10 +76,12 @@ public class DmFormat implements IFormat {
   }
 
   public String getDOSExtension() {
-    String rep = null;
+    String rep;
     try {
       if (idfFormat != null) {
         rep = idfFormat.getDOSExtension();
+      } else {
+          rep = "";
       }
     } catch (DfException de) {
       rep = "";

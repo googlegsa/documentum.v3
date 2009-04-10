@@ -137,7 +137,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
         logger.fine("Creation of a new dctmSysobjectDocumentToDel");
         retDoc = dctmSysobjectDocumentToDel;
       } else {
-        logger.warning("End of document list");
+        logger.fine("End of document list");
       }
     } catch (RepositoryException re) {
       logger.warning("Error while trying to get next document : " + re);

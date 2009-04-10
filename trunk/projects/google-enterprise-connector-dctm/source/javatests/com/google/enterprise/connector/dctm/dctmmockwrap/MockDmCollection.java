@@ -22,9 +22,10 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.query.QueryResult;
 
-import com.documentum.fc.client.IDfSession;
-import com.google.enterprise.connector.dctm.dctmdfcwrap.DmSession;
-import com.google.enterprise.connector.dctm.dfcwrap.*;
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmCollection implements ICollection {

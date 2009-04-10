@@ -16,62 +16,82 @@
 	<property name="jarfile.dir" value="third_party/lib"/>
 	<property name="dctm_jarfile.dir" value="dctm_third_party/lib"/>
 	<property name="core.dir" value="google-enterprise-connector-dctm"/>
-	<property name="core.classes" value="${core.dir}/build/classes" />
 		
 	<property name="build-client" value="dctm-client/build" />
 	<property name="src-client" value="dctm-client/source/java" />
 	<property name="classes-client" value="${build-client}/classes" />	
 	
-	<property name="build-mock" value="google-enterprise-connector-dctm/build" /> 
-	<property name="src-mock" value="google-enterprise-connector-dctm/source/java" />
-	<property name="classes-mock" value="${build-mock}/classes" />
+	<property name="build-tests" value="google-enterprise-connector-dctm/build" /> 
+	<property name="src-tests" value="google-enterprise-connector-dctm/source/javatests" />
+	<property name="classes-tests" value="${build-tests}/testclasses" />
+
+	<property name="build-core" value="google-enterprise-connector-dctm/build" /> 
+	<property name="src-core" value="google-enterprise-connector-dctm/source/java" />
+	<property name="classes-core" value="${build-core}/classes" />
 
 	<property name="jar.dir" value="${dist}/jar" />
 	<property name="jarfile" value="${jar.dir}/connector-dctm.jar" />
 	
 	<property name="spi.jarfile" value="${jarfile.dir}/connector-spi.jar" />
 	<property name="cm.jarfile" value="${jarfile.dir}/connector.jar" />
+	<property name="tests.jarfile" value="${jarfile.dir}/connector-tests.jar" />
 	<property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
 	<property name="json.jarfile" location="${jarfile.dir}/json.jar" />
 	<property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
+	<property name="junit.jarfile" location="${jarfile.dir}/junit.jar" />
 	<property name="commons-codec.jarfile" location="${dctm_jarfile.dir}/commons-codec-1.3.jar" />
 	<property name="commons-http.jarfile" location="${dctm_jarfile.dir}/commons-httpclient-3.0.jar" />
 	<property name="spring.jarfile" value="${jarfile.dir}/spring.jar" />
 
 	<!-- ============================ TASKS ============================ -->
 	<target name="GoogleDCTM" 
-		depends="init,compile-mock,compile-client,jar">
+		depends="init,compile-core,compile-client,jar,compile-tests">
 	</target>
 
 	<target name="init">
 		<mkdir dir="${dist}" />
 		<mkdir dir="${build-client}" />
 		<mkdir dir="${classes-client}" />
-		<mkdir dir="${build-mock}" />
-		<mkdir dir="${classes-mock}" />
+		<mkdir dir="${build-tests}" />
+		<mkdir dir="${classes-tests}" />
+		<mkdir dir="${build-core}" />
+		<mkdir dir="${classes-core}" />
 		<mkdir dir="${jar.dir}" />
 	</target>
 
-	<target name="compile-client" depends="compile-mock">
+	<target name="compile-client" depends="compile-core">
 		<!-- compile java source files -->
 		<javac srcdir="${src-client}" destdir="${classes-client}" 
 			debug="${COMPILE_DEBUG_FLAG}"
 			debuglevel="${COMPILE_DEBUG_LEVEL}">
 			<classpath>
 				<pathelement location="${spi.jarfile}" />
-				<pathelement location="${cm.jarfile}" />
 				<pathelement location="${dfc.jarfile}" />
 				<pathelement location="${json.jarfile}" />
-				<pathelement location="${jcr.jarfile}" />
-				<pathelement location="${spring.jarfile}" />
-				<pathelement location="${core.classes}" />
+				<pathelement location="${classes-core}" />
 			</classpath>
 		</javac>
 	</target>
 		
-	<target name="compile-mock" depends="init">
+	<target name="compile-tests" depends="compile-core">
 		<!-- compile java source files -->
-		<javac srcdir="${src-mock}" destdir="${classes-mock}" 
+		<javac srcdir="${src-tests}" destdir="${classes-tests}" 
+			debug="${COMPILE_DEBUG_FLAG}"
+			debuglevel="${COMPILE_DEBUG_LEVEL}">
+			<classpath>
+				<pathelement location="${spi.jarfile}" />
+				<pathelement location="${tests.jarfile}" />
+				<pathelement location="${junit.jarfile}" />
+				<pathelement location="${json.jarfile}" />
+				<pathelement location="${jcr.jarfile}" />
+				<pathelement location="${classes-core}" />
+			</classpath>
+		</javac>
+	</target>
+		
+	<target name="compile-core" depends="init">
+		<!-- compile java source files -->
+		<javac srcdir="${src-core}" destdir="${classes-core}" 
 			debug="${COMPILE_DEBUG_FLAG}"
 			debuglevel="${COMPILE_DEBUG_LEVEL}">
 			<classpath>
@@ -85,7 +105,7 @@
 	</target>
 
 	<target name="jar" description="connector-dctm" 
-		depends="compile-mock,compile-client">
+		depends="compile-core,compile-client">
 		<exec executable="svnversion" spawn="false"
 			failifexecutionfails="false"
 			dir="${basedir}"
@@ -108,7 +128,7 @@
 				<include name="config/*.xml"/>
 			</fileset>
 			<fileset dir="${classes-client}"/>
-			<fileset dir="${classes-mock}"/>
+			<fileset dir="${classes-core}"/>
 			<manifest>
 			<!-- Manifest files are limited to 72 byte
 			     line lengths, but our "official" Title
@@ -213,7 +233,7 @@
 
 	<target name="clean" description="Deletes all build files.">
 		<delete dir="${build-client}" />
-		<delete dir="${build-mock}" />
+		<delete dir="${build-core}" />
 		<delete dir="${dist}" />
 		<delete file="${config}/config/connectorType.xml" />
 	</target>
