@@ -85,13 +85,19 @@ public class DctmConnectorType implements ConnectorType {
 
   private static final String TD_START = "<td>";
 
-  private static final String TD_START_COL2 = "<td colspan=\"2\">";
+  private static final String TD_START_LABEL = "<td style='white-space: nowrap'>";
+
+  private static final String TD_START_COLSPAN = "<td colspan='2'>";
 
   private static final String TR_START = "<tr>\r\n";
+
+  private static final String TR_START_HIDDEN = "<tr style='display: none'>\r\n";
 
   private static final String SELECT_START = "<select";
 
   private static final String SELECT_END = "</select>\r\n";
+
+  private static final String SELECTED = "selected='selected' ";
 
   private static final String TEXTAREA_START = "<textarea";
 
@@ -121,13 +127,15 @@ public class DctmConnectorType implements ConnectorType {
 
   private static final String LOGIN = "login";
 
-  private static final String PASSWORD = "Password";
+  private static final String PASSWORD = "password";
 
-  private static final String CHECKBOX = "CHECKBOX";
+  private static final String PASSWORD_KEY = "Password";
 
-  private static final String CHECKED = "CHECKED";
+  private static final String CHECKBOX = "checkbox";
 
-  private static final String ID = "ID";
+  private static final String CHECKED = "checked='checked'";
+
+  private static final String ID = "id";
 
   private IClient client;
 
@@ -351,7 +359,6 @@ public class DctmConnectorType implements ConnectorType {
     configData.put(ADVANCEDCONF, "off");
 
     form = makeValidatedForm(configData);
-
     return new ConfigureResponse(resource.getString(validation + "_error"),
         form);
   }
@@ -594,7 +601,8 @@ public class DctmConnectorType implements ConnectorType {
     logger.fine("in makeValidatedForm");
 
     //javascript functions used to
-    buf.append("<script type=\"text/javascript\"><!--    \n");
+    appendStartHiddenRow(buf);
+    buf.append("<script type=\"text/javascript\"><![CDATA[\n");
 
     buf.append("function insertIncludeMetas() { \n");
     buf.append("var txtIncludeMetas = document.getElementById('CM_included_meta');\n");
@@ -627,7 +635,8 @@ public class DctmConnectorType implements ConnectorType {
     buf.append("}\n");
     buf.append("txtIncludeTypes.value = selectedArray;\n");
     buf.append("}\n");
-    buf.append("  //--> </script>  ");
+    buf.append("]]></script>\n");
+    appendEndRow(buf);
 
     try {
       //if configmap is not null : it is not the first time the form is displayed
@@ -664,18 +673,23 @@ public class DctmConnectorType implements ConnectorType {
           appendAttribute(buf, TYPE, HIDDEN);
           appendAttribute(buf, VALUE, "false");
           appendAttribute(buf, NAME, key);
+          buf.append(CLOSE_ELEMENT);
           appendEndRow(buf);
 
           value = "";
         } else {
-          if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE) && !key.equals(ADVANCEDCONF)) {
-            appendStartRow(buf, resource.getString(key));
-          } else {
-            //creation of a hidden fields for the checkboxes
-            appendStartHiddenRow(buf);
+          if(!key.equals(ADVANCEDCONF)) {
+            if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE)) {
+              appendStartRow(buf, resource.getString(key));
+            } else {
+              //creation of a hidden fields for the checkboxes
+              appendStartHiddenRow(buf);
+            }
           }
           if (key.equals(DOCBASENAME)) {
+            logger.fine("docbase droplist");
             appendDropDownListAttribute(buf, TYPE, value);
+            appendEndRow(buf);
           } else if (key.equals(INCLUDED_META)) {
             //if the form is not displayed for the first time (modification) and the advanced conf checkbox is checked
             if ((sess != null) && (!actionUpdate.equals("uncheckadvconf") && (advConf.equals("on")))) {
@@ -688,7 +702,7 @@ public class DctmConnectorType implements ConnectorType {
               logger.fine("after closing the collection");
 
               buf.append("</table>");
-              buf.append("</DIV></td></tr>");
+              buf.append("</div></td></tr>");
             } else {
               logger.config("cas actionUpdate uncheckadvconf or no sess");
 
@@ -699,12 +713,14 @@ public class DctmConnectorType implements ConnectorType {
               appendSelectMultipleIncludeMetadatas(buf, INCLUDED_META, hashIncludedMeta);
 
               buf.append("</table>");
-              buf.append("</DIV></td></tr>");
+              buf.append("</div></td></tr>");
             }
           ///} else if (key.equals(ACTIONUPDATE)) {
           } else if (key.equals(ADVANCEDCONF)) {
+            logger.fine("advanced config");
             appendCheckBox(buf, ADVANCEDCONF, resource. getString(key), value);
           } else if (key.equals(WHERECLAUSE)) {
+            logger.fine("where clause");
             appendTextarea(buf, WHERECLAUSE, value);
           } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
             if ((sess != null) && (!actionUpdate.equals("uncheckadvconf") && (advConf.equals("on")))) {
@@ -744,11 +760,13 @@ public class DctmConnectorType implements ConnectorType {
             appendAttribute(buf, TYPE, HIDDEN);
             appendAttribute(buf, VALUE, rootType);
             appendAttribute(buf, NAME, key);
+            buf.append(CLOSE_ELEMENT);
             appendEndRow(buf);
           } else {
+            logger.fine("other stuff");
             buf.append(OPEN_ELEMENT);
             buf.append(INPUT);
-            if (key.equals(PASSWORD)) {
+            if (key.equals(PASSWORD_KEY)) {
               appendAttribute(buf, TYPE, PASSWORD);
               if (configMap != null && (String) configMap.get("password") != null) {
                 value = (String) configMap.get("password");
@@ -769,6 +787,7 @@ public class DctmConnectorType implements ConnectorType {
             appendAttribute(buf, VALUE, value);
             appendAttribute(buf, NAME, key);
             appendAttribute(buf, ID, key);
+            buf.append(CLOSE_ELEMENT);
             appendEndRow(buf);
             value = "";
           }
@@ -787,7 +806,7 @@ public class DctmConnectorType implements ConnectorType {
             buf.append(val);
             buf.append("\" name=\"");
             buf.append(key);
-            buf.append("\"/>\r\n");
+            buf.append("\" />\r\n");
           }
         }
       }
@@ -836,7 +855,7 @@ public class DctmConnectorType implements ConnectorType {
     loginInfo = cl.getLoginInfo();
     loginInfo.setUser((String) LogMap.get(LOGIN));
     logger.config("after setIdentity for login : " + (String) LogMap.get(LOGIN));
-    loginInfo.setPassword((String) LogMap.get(PASSWORD));
+    loginInfo.setPassword((String) LogMap.get(PASSWORD_KEY));
     sessMag.setIdentity((String) LogMap.get(DOCBASENAME), loginInfo);
     sessMag.setDocbaseName((String) LogMap.get(DOCBASENAME));
     logger.config("after setIdentity for docbase : " + (String) LogMap.get(DOCBASENAME));
@@ -876,7 +895,7 @@ public class DctmConnectorType implements ConnectorType {
     return hash;
   }
 
-private ICollection getListOfTypes(String root_object_type) {
+  private ICollection getListOfTypes(String root_object_type) {
     IQuery que = null;
     String queryString = "";
     ICollection collec = null;
@@ -903,25 +922,25 @@ private ICollection getListOfTypes(String root_object_type) {
     return collec;
   }
 
-private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICollection collecTypes, Map configMap) throws RepositoryException {
-  logger.fine("in SelectMultipleIncludeTypes with collection parameter");
-  String type;
-  String super_type;
-  String typeList[];
-  String stTypes = null;
+  private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICollection collecTypes, Map configMap) throws RepositoryException {
+    logger.fine("in SelectMultipleIncludeTypes with collection parameter");
+    String type;
+    String super_type;
+    String typeList[];
+    String stTypes = null;
 
-  stTypes = ((String) configMap.get(INCLUDED_OBJECT_TYPE));
-  ///stTypes = "dm_document,dm_folder";
-  typeList = stTypes.split(",");
+    stTypes = ((String) configMap.get(INCLUDED_OBJECT_TYPE));
+    ///stTypes = "dm_document,dm_folder";
+    typeList = stTypes.split(",");
 
-  HashSet hashTypes = new HashSet();
-  HashSet hashDctmTypes = new HashSet();
-  for (int x = 0; x < typeList.length; x++) {
-    hashTypes.add(typeList[x]);
-  }
+    HashSet hashTypes = new HashSet();
+    HashSet hashDctmTypes = new HashSet();
+    for (int x = 0; x < typeList.length; x++) {
+      hashTypes.add(typeList[x]);
+    }
 
-  //javascript functions used to pass an item from a select list to another one
-  buf.append("<script type=\"text/javascript\"> " +
+    //javascript functions used to pass an item from a select list to another one
+    buf.append("<script type=\"text/javascript\"><![CDATA[\n" +
       "var selOptions = new Array(); " +
       "function swap(listFrom, listTo){" +
         "fromList=document.getElementsByName(listFrom)[0];" +
@@ -960,15 +979,15 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICo
           "document.getElementById(select).options[i].selected = true;" +
         "}" +
       "}" +
-  "</script>");
-  buf.append(SELECT_START);
-  buf.append(" " + NAME);
-  buf.append("=\"");
-  buf.append("included_object_type_toinclude");
-  buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" >\n");
-
-  int nbtypes = 0;
-  ///try {
+      "\n]]></script>\n");
+    buf.append(SELECT_START);
+    buf.append(" " + NAME);
+    buf.append("=\"");
+    buf.append("included_object_type_toinclude");
+    buf.append("\" style=\"width:270px\" multiple='multiple' size=\"10\" >\n");
+    
+    int nbtypes = 0;
+    ///try {
     if (((String) configMap.get(ADVANCEDCONF)).equals("on")) {
       //loop of the Dctm types whose super_name field is not empty
       while (collecTypes.next()) {
@@ -984,321 +1003,321 @@ private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name, ICo
           logger.config("added type : " + type);
           //Creation of the select list of the types available for selection
           buf.append("<option value=\"" + type + "\">");
-          buf.append(type + "\n");
+          buf.append(type + "</option>\n");
         }
       }
     }
-  ///} catch (RepositoryException e) {
-    // TODO Auto-generated catch block
-    ///e.printStackTrace();
-  ///}
+    ///} catch (RepositoryException e) {
+      // TODO Auto-generated catch block
+      ///e.printStackTrace();
+    ///}
 
-  logger.config("nbtypes is : " + nbtypes);
-  buf.append(SELECT_END);
-  buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
-  buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
+    logger.config("nbtypes is : " + nbtypes);
+    buf.append(SELECT_END);
+    buf.append("<input type=\"button\" value=\"&gt;\"  onclick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
+    buf.append("<input type=\"button\" value=\"&lt;\"  onclick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
 
-  buf.append(SELECT_START);
-  buf.append(" " + NAME);
-  buf.append("=\"");
-  buf.append("included_object_type_bis");
-  buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" ID=\"CM_included_object_type_bis\" >\n");
+    buf.append(SELECT_START);
+    buf.append(" " + NAME);
+    buf.append("=\"");
+    buf.append("included_object_type_bis");
+    buf.append("\" style=\"width:270px\" multiple='multiple' size=\"10\" id=\"CM_included_object_type_bis\" >\n");
 
-  //C
-  if (!hashTypes.isEmpty()) {
-    Iterator iter = hashTypes.iterator();
+    //C
+    if (!hashTypes.isEmpty()) {
+      Iterator iter = hashTypes.iterator();
 
-    while (iter.hasNext()) {
-      ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
-      type = (String) iter.next();
-      //Creation of the select list of the types previously selected
-      buf.append("<option value=\"" + type + "\">");
-      buf.append(type + "\n");
-    }
-  }
-
-  buf.append(SELECT_END);
-  buf.append(TD_END);
-  buf.append(TR_END);
-  buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\"></td></tr>");
-
-  try {
-    if (collecTypes.getState() != ICollection.DF_CLOSED_STATE) {
-      collecTypes.close();
-      logger.fine("collection closed");
-    }
-  } catch (RepositoryException re1) {
-    logger.severe("Error while closing " + re1);
-  }
-}
-
-private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name,
-    HashSet hash, String superData) {
-  logger.fine("in appendSelectMultipleIncludeTypes");
-
-  //javascript functions used to pass an item from a select list to another one
-
-  String stTypes = "";
-  String type;
-  buf.append("<script type=\"text/javascript\"> " +
-      "var selOptions = new Array(); " +
-      "function swap(listFrom, listTo){" +
-        "fromList=document.getElementsByName(listFrom)[0]; " +
-        "toList = document.getElementsByName(listTo)[0]; " +
-        "while (fromList.selectedIndex != -1)" +
-        "{ " +
-          "addOption(toList,fromList.options[fromList.selectedIndex]); " +
-          "fromList.options[fromList.selectedIndex] = null;" +
-        " }" +
-      " } " +
-      "function addOption(list, option){" +
-        ///" list.options[list.options.length]=new Option(option.innerHTML,option.value);" +
-      " list.options[list.options.length]=new Option(option.value,option.value);" +
-      " } " +
-      "function selectAll(select){" +
-        "for (var i = 0; i < document.getElementById(select).length; i++)" +
-        "{" +
-          "document.getElementById(select).options[i].selected = true;" +
-        "}" +
-      "}" +
-  "</script>");
-  buf.append(SELECT_START);
-  buf.append(" " + NAME);
-  buf.append("=\"");
-  buf.append("included_object_type_toinclude");
-  buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" >\n");
-
-  buf.append(SELECT_END);
-
-  buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');\"></input>");
-  buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');\"></input>");
-
-  //Creation of the list of the types available for selection (empty)
-  buf.append(SELECT_START);
-  buf.append(" " + NAME);
-  buf.append("=\"");
-  buf.append("included_object_type_bis");
-  buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" ID=\"CM_included_object_type_bis\" >\n");
-
-  ///Creation of the select list of the default types (listed in the connectorType.xml file)
-  if (!hash.isEmpty()) {
-    Iterator iter = hash.iterator();
-
-    while (iter.hasNext()) {
-      ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
-
-      type = (String) iter.next();
-      stTypes = stTypes.concat(type + ",");
-      buf.append("<option value=\"" + type + "\">");
-      buf.append(type + "\n");
-    }
-  }
-
-  ///
-  if (logger.isLoggable(Level.FINE)) {
-    logger.fine("stTypes before substring " + stTypes);
-  }
-  stTypes = stTypes.substring(0, stTypes.length() - 1);
-  if (logger.isLoggable(Level.FINE)) {
-    logger.fine("stTypes after substring " + stTypes);
-  }
-
-  buf.append(SELECT_END);
-  buf.append(TD_END);
-  buf.append(TR_END);
-  buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\"></td></tr>");
-}
-
-private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name, Map configMap) throws RepositoryException {
-  logger.fine("in appendSelectMultipleIncludeMetadatas collection");
-
-  String meta;
-  String stType;
-  IType mytype;
-  IType currentType;
-  IType dmsysType;
-  IAttr attr;
-  IAttr dmsysattr;
-  String data;
-  int type_cnt = 0;
-  int i = 0;
-  StringBuffer buf2 = new StringBuffer();
-  String stMeta = null;
-  String typeList[];
-  Iterator iterTypes = null;
-  String stCurrentType = null;
-  String dmsysattrname = null;
-
-  logger.config("string type : " + (String) configMap.get(INCLUDED_OBJECT_TYPE));
-  typeList = ((String) configMap.get(INCLUDED_OBJECT_TYPE)).split(",");
-
-  HashMap metasByTypes = new HashMap();
-  HashSet hashTypes = new HashSet();
-  HashSet tempTypes = new HashSet();
-  HashSet hashDmSysMeta = new HashSet();
-  HashSet hashMetasOfSelectedTypes = new HashSet();
-
-  HashMap typesByMetas = new HashMap();
-  HashSet tempMetas = new HashSet();
-
-  for (int x = 0; x < typeList.length; x++) {
-    hashTypes.add(typeList[x]);
-  }
-
-  String metaList[];
-  logger.config("string meta : " + (String) configMap.get(INCLUDED_META));
-  stMeta = ((String) configMap.get(INCLUDED_META));
-  metaList = stMeta.split(",");
-
-  HashSet hashMetas = new HashSet();
-  for (int x = 0; x < metaList.length; x++) {
-    hashMetas.add(metaList[x]);
-  }
-
-  buf2.append(SELECT_START);
-  buf2.append(" " + NAME);
-  buf2.append("=\"");
-  buf2.append("included_meta_bis");
-  buf2.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" id=\"CM_included_meta_bis\">\n");
-
-  buf.append(SELECT_START);
-  buf.append(" " + NAME);
-  buf.append("=\"");
-  buf.append("included_meta_toinclude");
-  buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\">\n");
-
-  dmsysType = sess.getType("dm_sysobject");
-  hashDmSysMeta = new HashSet();
-  for (int j = 0; j < dmsysType.getTypeAttrCount(); j++) {
-    dmsysattr = dmsysType.getTypeAttr(j);
-    dmsysattrname = dmsysattr.getName();
-    logger.config("dmsysattrname " + dmsysattrname + " is metadata of dm_sysobject");
-    hashDmSysMeta.add(dmsysattrname);
-  }
-
-  if (((String) configMap.get(ADVANCEDCONF)).equals("on")) {
-    ///loop of the selected types list
-    for (int x = 0; x < typeList.length; x++) {
-      stType = typeList[x];
-      mytype = sess.getType(stType);
-      ///mytype = sess.getType(stType);
-      ///mytype = (getSession(configMap)).getType(stType);
-      logger.config("stType is " + stType);
-      ///loop of the properties of each selected type
-      for (i = 0; i < mytype.getTypeAttrCount(); i++) {
-        logger.config("compteur: " + mytype.getTypeAttrCount());
-        attr = mytype.getTypeAttr(i);
-        ///logger.config("attr vaut " + attr.toString());
-        data = attr.getName();
-        logger.config("attr is " + data + " - attr of the type " + stType);
-        if (!hashMetasOfSelectedTypes.contains(data)) {
-          hashMetasOfSelectedTypes.add(data);
-        }
-        ///if the property is a dm_sysobject one, dm_sysobject is added to the temporary types hashset
-        if (hashDmSysMeta.contains(data)) {
-          tempTypes.add("dm_sysobject");
-          logger.config("attr " + data + " is a dm_sysobject attribute");
-        ///if the property is not already present in the list of available properties : the type is added to the temporary types hashset
-        } else if (!metasByTypes.containsKey(data)) {
-          tempTypes.add(stType);
-          logger.config("attr " + data + " is a new attribute for the metas list");
-        ///if the property is not already present in the list of available properties
-        } else {
-          logger.config("attr " + data + " is not a new attribute for the metas list");
-          hashTypes = (HashSet) metasByTypes.get(data);
-          iterTypes = hashTypes.iterator();
-          ///loop of the hashset of types whom the property can belong to (among the selected types)
-          while (iterTypes.hasNext()) {
-            stCurrentType = (String) iterTypes.next();
-            logger.config("the type " + stCurrentType + " is already known to have the meta " + data);
-            currentType = sess.getType(stCurrentType);
-            ///is the selected type is dm_sysobject : dm_sysobject is added to the temporary types hashset
-            if (stCurrentType.equals("dm_sysobject")) {
-              logger.config(stCurrentType + " is " + stCurrentType);
-              tempTypes.add(stCurrentType);
-            ///if the selected type is the supertype of one type whom the property can belong to : the selected type is added to the temporary types hashset
-            } else if (((currentType.getSuperType()).getName()).equals(stType)) {
-              logger.config(stType + " is supertype of " + stCurrentType);
-              tempTypes.add(stType);
-              logger.config("so supertype " + stType + " is added");
-            ///if the selected type is the subtype of one type whom the property can belong to : the type whom the property can belong to is added to the temporary types hashset
-            } else if (mytype.isSubTypeOf(stCurrentType)) {
-              logger.config(stType + " is  subtype of " + stCurrentType);
-              tempTypes.add(stCurrentType);
-              logger.config(" so supertype " + stCurrentType + " is added");
-                        ///if the selected type is one of the types whom the property can belong to  : the type whom the property can belong to is added to the temporary types hashset
-            } else if (stType.equals(stCurrentType)) {
-              logger.config(stType + " is " + stCurrentType);
-              tempTypes.add(stCurrentType);
-              logger.config(" so type " + stCurrentType + " is added");
-            ///if the selected type and one of the types whom the property can belong to don't have any hierarchical link : the type whom the property can belong to and the selected type are added to the temporary types hashset
-            } else {
-              logger.config("type " + stCurrentType + " is just another type with the attribute " + data);
-              tempTypes.add(stType);
-              tempTypes.add(stCurrentType);
-              logger.config(" so type " + stType + " is added and type " + stCurrentType + " is also added");
-            }
-          }
-        }
-
-        logger.fine("adding tempTypes to metasByTypes hashMap");
-        metasByTypes.put(data, tempTypes);
-        ///temporary hashset of types reinitiated
-        tempTypes = new HashSet();
-      }
-    }
-
-    //Creation of the select list of the available properties (properties of the selected types) with the names of the types it belongs to
-    if (!metasByTypes.isEmpty()) {
-      logger.fine("writing the select");
-      Set dataSet = metasByTypes.keySet();
-      Iterator iter = dataSet.iterator();
       while (iter.hasNext()) {
         ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
-        data = (String) iter.next();
-        hashTypes = (HashSet) metasByTypes.get(data);
-        iterTypes = hashTypes.iterator();
-        if (!hashMetas.contains(data)) {
-          buf.append("<option value=\"" + data + "\">");
-          buf.append(data + " (");
-          while (iterTypes.hasNext()) {
-            stType = (String) iterTypes.next();
-            buf.append(" " + stType + " ");
+        type = (String) iter.next();
+        //Creation of the select list of the types previously selected
+        buf.append("<option value=\"" + type + "\">");
+        buf.append(type + "</option>\n");
+      }
+    }
+
+    buf.append(SELECT_END);
+    buf.append(TD_END);
+    buf.append(TR_END);
+    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\" /></td></tr>");
+
+    try {
+      if (collecTypes.getState() != ICollection.DF_CLOSED_STATE) {
+        collecTypes.close();
+        logger.fine("collection closed");
+      }
+    } catch (RepositoryException re1) {
+      logger.severe("Error while closing " + re1);
+    }
+  }
+
+  private void appendSelectMultipleIncludeTypes(StringBuffer buf, String name,
+      HashSet hash, String superData) {
+    logger.fine("in appendSelectMultipleIncludeTypes");
+
+    //javascript functions used to pass an item from a select list to another one
+
+    String stTypes = "";
+    String type;
+    buf.append("<script type=\"text/javascript\"><![CDATA[\n" +
+        "var selOptions = new Array(); " +
+        "function swap(listFrom, listTo){" +
+          "fromList=document.getElementsByName(listFrom)[0]; " +
+          "toList = document.getElementsByName(listTo)[0]; " +
+          "while (fromList.selectedIndex != -1)" +
+          "{ " +
+            "addOption(toList,fromList.options[fromList.selectedIndex]); " +
+            "fromList.options[fromList.selectedIndex] = null;" +
+          " }" +
+        " } " +
+        "function addOption(list, option){" +
+          ///" list.options[list.options.length]=new Option(option.innerHTML,option.value);" +
+        " list.options[list.options.length]=new Option(option.value,option.value);" +
+        " } " +
+        "function selectAll(select){" +
+          "for (var i = 0; i < document.getElementById(select).length; i++)" +
+          "{" +
+            "document.getElementById(select).options[i].selected = true;" +
+          "}" +
+        "}" +
+        "]]></script>\n");
+    buf.append(SELECT_START);
+    buf.append(" " + NAME);
+    buf.append("=\"");
+    buf.append("included_object_type_toinclude");
+    buf.append("\" style=\"width:270px\" multiple='multiple' size=\"10\" >\n");
+
+    buf.append(SELECT_END);
+
+    buf.append("<input type=\"button\" value=\"&gt;\"  onclick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');\"></input>");
+    buf.append("<input type=\"button\" value=\"&lt;\"  onclick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');\"></input>");
+
+    //Creation of the list of the types available for selection (empty)
+    buf.append(SELECT_START);
+    buf.append(" " + NAME);
+    buf.append("=\"");
+    buf.append("included_object_type_bis");
+    buf.append("\" style=\"width:270px\" multiple='multiple' size=\"10\" id=\"CM_included_object_type_bis\" >\n");
+
+    ///Creation of the select list of the default types (listed in the connectorType.xml file)
+    if (!hash.isEmpty()) {
+      Iterator iter = hash.iterator();
+
+      while (iter.hasNext()) {
+        ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
+
+        type = (String) iter.next();
+        stTypes = stTypes.concat(type + ",");
+        buf.append("<option value=\"" + type + "\">");
+        buf.append(type + "</option>\n");
+      }
+    }
+
+    ///
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine("stTypes before substring " + stTypes);
+    }
+    stTypes = stTypes.substring(0, stTypes.length() - 1);
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine("stTypes after substring " + stTypes);
+    }
+
+    buf.append(SELECT_END);
+    buf.append(TD_END);
+    buf.append(TR_END);
+    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\" /></td></tr>");
+  }
+
+  private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name, Map configMap) throws RepositoryException {
+    logger.fine("in appendSelectMultipleIncludeMetadatas collection");
+
+    String meta;
+    String stType;
+    IType mytype;
+    IType currentType;
+    IType dmsysType;
+    IAttr attr;
+    IAttr dmsysattr;
+    String data;
+    int type_cnt = 0;
+    int i = 0;
+    StringBuffer buf2 = new StringBuffer();
+    String stMeta = null;
+    String typeList[];
+    Iterator iterTypes = null;
+    String stCurrentType = null;
+    String dmsysattrname = null;
+
+    logger.config("string type : " + (String) configMap.get(INCLUDED_OBJECT_TYPE));
+    typeList = ((String) configMap.get(INCLUDED_OBJECT_TYPE)).split(",");
+
+    HashMap metasByTypes = new HashMap();
+    HashSet hashTypes = new HashSet();
+    HashSet tempTypes = new HashSet();
+    HashSet hashDmSysMeta = new HashSet();
+    HashSet hashMetasOfSelectedTypes = new HashSet();
+
+    HashMap typesByMetas = new HashMap();
+    HashSet tempMetas = new HashSet();
+
+    for (int x = 0; x < typeList.length; x++) {
+      hashTypes.add(typeList[x]);
+    }
+
+    String metaList[];
+    logger.config("string meta : " + (String) configMap.get(INCLUDED_META));
+    stMeta = ((String) configMap.get(INCLUDED_META));
+    metaList = stMeta.split(",");
+
+    HashSet hashMetas = new HashSet();
+    for (int x = 0; x < metaList.length; x++) {
+      hashMetas.add(metaList[x]);
+    }
+
+    buf2.append(SELECT_START);
+    buf2.append(" " + NAME);
+    buf2.append("=\"");
+    buf2.append("included_meta_bis");
+    buf2.append("\" style=\"width:270px\" multiple='multiple' size=\"10\" id=\"CM_included_meta_bis\">\n");
+
+    buf.append(SELECT_START);
+    buf.append(" " + NAME);
+    buf.append("=\"");
+    buf.append("included_meta_toinclude");
+    buf.append("\" style=\"width:270px\" multiple='multiple' size=\"10\">\n");
+
+    dmsysType = sess.getType("dm_sysobject");
+    hashDmSysMeta = new HashSet();
+    for (int j = 0; j < dmsysType.getTypeAttrCount(); j++) {
+      dmsysattr = dmsysType.getTypeAttr(j);
+      dmsysattrname = dmsysattr.getName();
+      logger.config("dmsysattrname " + dmsysattrname + " is metadata of dm_sysobject");
+      hashDmSysMeta.add(dmsysattrname);
+    }
+
+    if (((String) configMap.get(ADVANCEDCONF)).equals("on")) {
+      ///loop of the selected types list
+      for (int x = 0; x < typeList.length; x++) {
+        stType = typeList[x];
+        mytype = sess.getType(stType);
+        ///mytype = sess.getType(stType);
+        ///mytype = (getSession(configMap)).getType(stType);
+        logger.config("stType is " + stType);
+        ///loop of the properties of each selected type
+        for (i = 0; i < mytype.getTypeAttrCount(); i++) {
+          logger.config("compteur: " + mytype.getTypeAttrCount());
+          attr = mytype.getTypeAttr(i);
+          ///logger.config("attr vaut " + attr.toString());
+          data = attr.getName();
+          logger.config("attr is " + data + " - attr of the type " + stType);
+          if (!hashMetasOfSelectedTypes.contains(data)) {
+            hashMetasOfSelectedTypes.add(data);
           }
-          buf.append(") </option>\n");
+          ///if the property is a dm_sysobject one, dm_sysobject is added to the temporary types hashset
+          if (hashDmSysMeta.contains(data)) {
+            tempTypes.add("dm_sysobject");
+            logger.config("attr " + data + " is a dm_sysobject attribute");
+            ///if the property is not already present in the list of available properties : the type is added to the temporary types hashset
+          } else if (!metasByTypes.containsKey(data)) {
+            tempTypes.add(stType);
+            logger.config("attr " + data + " is a new attribute for the metas list");
+            ///if the property is not already present in the list of available properties
+          } else {
+            logger.config("attr " + data + " is not a new attribute for the metas list");
+            hashTypes = (HashSet) metasByTypes.get(data);
+            iterTypes = hashTypes.iterator();
+            ///loop of the hashset of types whom the property can belong to (among the selected types)
+            while (iterTypes.hasNext()) {
+              stCurrentType = (String) iterTypes.next();
+              logger.config("the type " + stCurrentType + " is already known to have the meta " + data);
+              currentType = sess.getType(stCurrentType);
+              ///is the selected type is dm_sysobject : dm_sysobject is added to the temporary types hashset
+              if (stCurrentType.equals("dm_sysobject")) {
+                logger.config(stCurrentType + " is " + stCurrentType);
+                tempTypes.add(stCurrentType);
+                ///if the selected type is the supertype of one type whom the property can belong to : the selected type is added to the temporary types hashset
+              } else if (((currentType.getSuperType()).getName()).equals(stType)) {
+                logger.config(stType + " is supertype of " + stCurrentType);
+                tempTypes.add(stType);
+                logger.config("so supertype " + stType + " is added");
+                ///if the selected type is the subtype of one type whom the property can belong to : the type whom the property can belong to is added to the temporary types hashset
+              } else if (mytype.isSubTypeOf(stCurrentType)) {
+                logger.config(stType + " is  subtype of " + stCurrentType);
+                tempTypes.add(stCurrentType);
+                logger.config(" so supertype " + stCurrentType + " is added");
+                ///if the selected type is one of the types whom the property can belong to  : the type whom the property can belong to is added to the temporary types hashset
+              } else if (stType.equals(stCurrentType)) {
+                logger.config(stType + " is " + stCurrentType);
+                tempTypes.add(stCurrentType);
+                logger.config(" so type " + stCurrentType + " is added");
+                ///if the selected type and one of the types whom the property can belong to don't have any hierarchical link : the type whom the property can belong to and the selected type are added to the temporary types hashset
+              } else {
+                logger.config("type " + stCurrentType + " is just another type with the attribute " + data);
+                tempTypes.add(stType);
+                tempTypes.add(stCurrentType);
+                logger.config(" so type " + stType + " is added and type " + stCurrentType + " is also added");
+              }
+            }
+          }
+
+          logger.fine("adding tempTypes to metasByTypes hashMap");
+          metasByTypes.put(data, tempTypes);
+          ///temporary hashset of types reinitiated
+          tempTypes = new HashSet();
+        }
+      }
+
+      //Creation of the select list of the available properties (properties of the selected types) with the names of the types it belongs to
+      if (!metasByTypes.isEmpty()) {
+        logger.fine("writing the select");
+        Set dataSet = metasByTypes.keySet();
+        Iterator iter = dataSet.iterator();
+        while (iter.hasNext()) {
+          ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
+          data = (String) iter.next();
+          hashTypes = (HashSet) metasByTypes.get(data);
+          iterTypes = hashTypes.iterator();
+          if (!hashMetas.contains(data)) {
+            buf.append("<option value=\"" + data + "\">");
+            buf.append(data + " (");
+            while (iterTypes.hasNext()) {
+              stType = (String) iterTypes.next();
+              buf.append(" " + stType + " ");
+            }
+            buf.append(") </option>\n");
+          }
         }
       }
     }
-  }
 
-  //Creation of the select list of the selected properties
-  if (!hashMetas.isEmpty()) {
-    Iterator iterMeta = hashMetas.iterator();
-    while (iterMeta.hasNext()) {
-      data = (String) iterMeta.next();
+    //Creation of the select list of the selected properties
+    if (!hashMetas.isEmpty()) {
+      Iterator iterMeta = hashMetas.iterator();
+      while (iterMeta.hasNext()) {
+        data = (String) iterMeta.next();
 
-      if (hashMetasOfSelectedTypes.contains(data)) {
-        buf2.append("<option value=\"" + data + "\">");
-        buf2.append(data + "</option>\n");
+        if (hashMetasOfSelectedTypes.contains(data)) {
+          buf2.append("<option value=\"" + data + "\">");
+          buf2.append(data + "</option>\n");
+        }
       }
     }
-  }
 
-  ///logger.config("appendSelectMultipleIncludeMetadatas" + name);
+    ///logger.config("appendSelectMultipleIncludeMetadatas" + name);
 
-  logger.fine("before select");
-  buf.append(SELECT_END);
-  logger.fine("after select");
+    logger.fine("before select");
+    buf.append(SELECT_END);
+    logger.fine("after select");
 
-  buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
-  buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
+    buf.append("<input type=\"button\" value=\"&gt;\"  onclick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
+    buf.append("<input type=\"button\" value=\"&lt;\"  onclick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>");
 
-  buf2.append(SELECT_END);
-  buf.append(buf2);
+    buf2.append(SELECT_END);
+    buf.append(buf2);
+    buf.append(TD_END);
+    buf.append(TR_END);
 
-  buf.append(TD_END);
-  buf.append(TR_END);
-  buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\"" + stMeta + "\"></td></tr>");
+    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\"" + stMeta + "\" /></td></tr>");
   }
 
   private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
@@ -1314,14 +1333,14 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
     buf2.append(" " + NAME);
     buf2.append("=\"");
     buf2.append("included_meta_bis");
-    buf2.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\" id=\"CM_included_meta_bis\">\n");
+    buf2.append("\" style=\"width:270px\" multiple='multiple' size=\"10\" id=\"CM_included_meta_bis\">\n");
 
     //Creation of the select list of the available properties (empty)
     buf.append(SELECT_START);
     buf.append(" " + NAME);
     buf.append("=\"");
     buf.append("included_meta_toinclude");
-    buf.append("\" STYLE=\"width:270px\" MULTIPLE size=\"10\">\n");
+    buf.append("\" style=\"width:270px\" multiple='multiple' size=\"10\">\n");
 
     //Creation of the select list of the selected properties
     if (name.equals(INCLUDED_META)) {
@@ -1344,82 +1363,81 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
     buf.append(SELECT_END);
     logger.fine("after select");
 
-    buf.append("<input type=\"button\" value=\">\"  onClick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');\"></input>");
-    buf.append("<input type=\"button\" value=\"<\"  onClick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');\"></input>");
+    buf.append("<input type=\"button\" value=\"&gt;\"  onclick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');\"></input>");
+    buf.append("<input type=\"button\" value=\"&lt;\"  onclick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');\"></input>");
 
-    buf.append(buf2);
     buf2.append(SELECT_END);
+    buf.append(buf2);
     buf.append(TD_END);
     buf.append(TR_END);
-    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\"" + stMeta + "\"></td></tr>");
+
+    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\"" + stMeta + "\" /></td></tr>");
   }
 
   private void appendCheckBox(StringBuffer buf, String key, String label,
       String value) {
     buf.append(TR_START);
-    buf.append(TD_START);
+    buf.append(TD_START_COLSPAN);
     buf.append(OPEN_ELEMENT);
     buf.append(INPUT);
-    buf.append(" " + TYPE + "=" + CHECKBOX);
+    buf.append(" " + TYPE + "=\"" + CHECKBOX + '"');
     buf.append(" " + NAME + "=\"" + key + "\" ");
 
     if (key.equals(ADVANCEDCONF)) {
-      buf.append("ID=\"ADVC\"");
+      buf.append("id=\"ADVC\" ");
       if (value != null && value.equals("on")) {
-      ///if (value != null) {
         logger.config("advanced conf not null");
-          logger.config("advanced conf set to on");
-          buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&&(document.getElementById('Password').value != '')&&(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
-              "document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
-                  "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\" checked>");
+        logger.config("advanced conf set to on");
+        buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
+            "document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
+            "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\" ");
+        buf.append(CHECKED);
+        buf.append(CLOSE_ELEMENT);
+        buf.append(label + TD_END);
 
-          buf.append(label + TD_END);
+        buf.append(TR_END);
 
-          buf.append(TR_END);
+        buf.append(TR_START_HIDDEN);
+        buf.append("<td colspan=\"2\"><input name=\"advanced_configuration\" type=\"hidden\" value=\"true\" /></td>");
+        buf.append(TR_END);
 
-          buf.append(TR_START);
-          buf.append("<td colspan=\"2\"><input name=\"advanced_configuration\" type=\"hidden\" value=\"true\"></td>");
-          buf.append(TR_END);
-
-          /*
-          buf.append(TR_START);
-          buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\"></td>");
-          buf.append(TR_END);
-          */
-          buf.append("<tr><td colspan=\"2\"><DIV ID=\"more\" style=\"DISPLAY: block\">");
-          buf.append("<table>");
+        /*
+        buf.append(TR_START);
+        buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\" /></td>");
+        buf.append(TR_END);
+        */
+        buf.append("<tr><td colspan=\"2\"><div id=\"more\" style=\"display: block\">");
+        buf.append("<table>");
       } else {
-          logger.config("advanced conf set to off");
-          ///insertIncludeMetas();insertIncludeTypes();
-          ///buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\">");
-          buf.append("onClick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&&(document.getElementById('Password').value != '')&&(document.getElementById('webtop_display_url').value != '')){" +
-              "document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}" +
-              "else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
-                  "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\">");
+        logger.config("advanced conf set to off");
+        ///insertIncludeMetas();insertIncludeTypes();
+        ///buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\">");
+        buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){" +
+            "document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}" +
+            "else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
+            "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\"");
+        buf.append(CLOSE_ELEMENT);
+        buf.append(label + TD_END);
+        buf.append(TR_END);
 
-          buf.append(label + TD_END);
+        buf.append(TR_START_HIDDEN);
+        buf.append("<td colspan=\"2\"><input name=\"advanced_configuration\" type=\"hidden\" value=\"false\" /></td>");
+        buf.append(TR_END);
 
-          buf.append(TR_END);
+        /*
+        buf.append(TR_START_HIDDEN);
+        buf.append("<td colspan=\"2\"><input name=\"action_update\" id=\"action_update\" type=\"hidden\" value=\"save\" /></td>");
+        buf.append(TR_END);
+        */
 
-          buf.append(TR_START);
-          buf.append("<td colspan=\"2\"><input name=\"advanced_configuration\" type=\"hidden\" value=\"false\"></td>");
-          buf.append(TR_END);
-
-          /*
-          buf.append(TR_START);
-          buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\"></td>");
-          buf.append(TR_END);
-          */
-
-          buf.append("<tr><td colspan=\"2\"><DIV ID=\"more\" style=\"DISPLAY: none\">");
-          buf.append("<table>");
+        buf.append("<tr><td colspan=\"2\"><div id=\"more\" style=\"display: none\">");
+        buf.append("<table>");
       }
     } else {
       if (value != null && value.equals("on")) {
         buf.append(CHECKED);
       }
       buf.append(CLOSE_ELEMENT);
-
       buf.append(label + TD_END);
 
       buf.append(TR_END);
@@ -1431,11 +1449,11 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
     buf.append(TEXTAREA_START);
     buf.append(" name"+ "=\"" + name + "\"");
     buf.append(" rows=\"10\" ");
-    buf.append(" STYLE=\"width:270px\" ");
-    buf.append(CLOSE_ELEMENT);
+    buf.append(" cols=\"50\">");
     buf.append(value);
     buf.append(TEXTAREA_END);
     buf.append(TD_END);
+    buf.append(TR_END);
   }
 
   private void appendDropDownListAttribute(StringBuffer buf, String type2,
@@ -1486,15 +1504,13 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
           if (value != null
               && mapOfDocbasesName.getDocbaseName(i)
               .equals(value)) {
-            buf.append("selected ");
+            buf.append(SELECTED);
           }
           buf.append("value=\"" + mapOfDocbasesName.getDocbaseName(i)
               + "\"" + ">" + mapOfDocbasesName.getDocbaseName(i)
               + "</option>\n");
         }
         buf.append(SELECT_END);
-        buf.append(TD_END);
-        buf.append(TR_END);
       }
     } catch (RepositoryException e) {
       logger.log(
@@ -1506,14 +1522,14 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
 
   private void appendStartRow(StringBuffer buf, String key) {
     buf.append(TR_START);
-    buf.append(TD_START);
+    buf.append(TD_START_LABEL);
     buf.append(key);
     buf.append(TD_END);
     buf.append(TD_START);
   }
 
   private void appendStartHiddenRow(StringBuffer buf) {
-    buf.append(TR_START);
+    buf.append(TR_START_HIDDEN);
     buf.append(TD_START);
     buf.append(TD_END);
     buf.append(TD_START);
@@ -1521,7 +1537,6 @@ private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
   }
 
   private void appendEndRow(StringBuffer buf) {
-    buf.append(CLOSE_ELEMENT);
     buf.append(TD_END);
     buf.append(TR_END);
   }
