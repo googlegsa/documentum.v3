@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,9 +16,6 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -268,19 +266,13 @@ public class DctmConnectorType implements ConnectorType {
 			throws RepositoryException {
 		logger.log(Level.INFO, "test connection to the webtop server : "
 				+ webtopServerUrl);
-		HttpClient client = new HttpClient();
-		GetMethod getMethod = new GetMethod(webtopServerUrl);
 		try {
-			int status = client.executeMethod(getMethod);
-			if (status != 200) {
-
-				logger.log(Level.INFO, "status " + status);
-
-				throw new RepositoryException(
-						"[status] Http request returned a " + status
-								+ " status");
-			}
-		} catch (HttpException e) {
+			new UrlValidator().validate(webtopServerUrl);
+		} catch (UrlValidatorException e) {
+			throw new RepositoryException(
+				"[status] Http request returned a " + e.getStatusCode()
+				+ " status");
+		} catch (GeneralSecurityException e) {
 			throw new RepositoryException("[HttpException]", e);
 		} catch (IOException e) {
 			throw new RepositoryException("[IOException]", e);
