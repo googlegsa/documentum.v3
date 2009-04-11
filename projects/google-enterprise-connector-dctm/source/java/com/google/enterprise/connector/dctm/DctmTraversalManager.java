@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
-import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.json.JSONException;
 import org.json.JSONObject;
 
