@@ -122,7 +122,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
       logger.fine("after collec.close");
     } finally {
       logger.fine("in finally");
-      if (collec.getSession() != null ) {
+      if (collec != null && collec.getSession() != null ) {
         logger.fine("collec getSession not null");
         sessionManagerUser.releaseSessionAuto();
         logger.fine("session of sessionManagerUser released");
