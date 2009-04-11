@@ -217,10 +217,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
           long contentSize = object.getContentSize();
           ///modification in order to index empty documents
           if (contentSize == 0 || contentSize > MAX_CONTENT_SIZE || !dctmForm.canIndex()) {
-            mimetype = "text/plain";
+            hashSet.add(null);
+          } else {
+            hashSet.add(new StringValue(mimetype));
+            logger.fine("property " + SpiConstants.PROPNAME_MIMETYPE + " has the value " + mimetype);
           }
-          hashSet.add(new StringValue(mimetype));
-          logger.fine("property " + SpiConstants.PROPNAME_MIMETYPE + " has the value " + mimetype);
           logger.fine("mimetype of the document " + versionId + " : " + mimetype);
           logger.fine("dosExtension of the document " + versionId + " : " + dosExtension);
           logger.fine("contentSize of the document " + versionId + " : " + contentSize);
