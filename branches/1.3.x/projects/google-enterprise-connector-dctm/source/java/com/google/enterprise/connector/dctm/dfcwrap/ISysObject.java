@@ -6,6 +6,8 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface ISysObject {
+	public String getObjectName() throws RepositoryDocumentException;
+
 	public long getContentSize() throws RepositoryDocumentException;
 
 	public ByteArrayInputStream getContent() throws RepositoryDocumentException;

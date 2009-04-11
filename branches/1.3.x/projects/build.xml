@@ -7,7 +7,8 @@
 
 	<!-- Choose 5.2.5_5.3 or 6.0 for the value. -->
 	<property name="bean.id.version" value="5.2.5_5.3" />
-	<property name="COMPILE_DEBUG_FLAG" value="false" />
+	<property name="COMPILE_DEBUG_FLAG" value="true" />
+	<property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
 
 	<!-- Define Directories. -->
 	<property name="dist" value="dist" />
@@ -54,7 +55,8 @@
 	<target name="compile-client" depends="compile-mock">
 		<!-- compile java source files -->
 		<javac srcdir="${src-client}" destdir="${classes-client}" 
-			debug="${COMPILE_DEBUG_FLAG}">
+			debug="${COMPILE_DEBUG_FLAG}"
+			debuglevel="${COMPILE_DEBUG_LEVEL}">
 			<classpath>
 				<pathelement location="${spi.jarfile}" />
 				<pathelement location="${cm.jarfile}" />
@@ -70,7 +72,8 @@
 	<target name="compile-mock" depends="init">
 		<!-- compile java source files -->
 		<javac srcdir="${src-mock}" destdir="${classes-mock}" 
-			debug="${COMPILE_DEBUG_FLAG}">
+			debug="${COMPILE_DEBUG_FLAG}"
+			debuglevel="${COMPILE_DEBUG_LEVEL}">
 			<classpath>
 				<pathelement location="${spring.jarfile}" />
 				<pathelement location="${spi.jarfile}" />

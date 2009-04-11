@@ -28,6 +28,16 @@ public class DmSysObject implements ISysObject {
 		this.idfSysObject = idfSysObject;
 	}
 
+	public String getObjectName() throws RepositoryDocumentException {
+		String name = null;
+		try {
+			name = idfSysObject.getObjectName();
+		} catch (DfException e) {
+			throw new RepositoryDocumentException(e);
+		}
+		return name;
+	}
+
 	public IFormat getFormat() throws RepositoryDocumentException {
 
 		IDfFormat idfFormat = null;

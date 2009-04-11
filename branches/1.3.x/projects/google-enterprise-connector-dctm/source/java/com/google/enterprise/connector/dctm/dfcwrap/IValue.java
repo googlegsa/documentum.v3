@@ -14,5 +14,5 @@ public interface IValue {
 
 	public ITime asTime() throws RepositoryException;
 	
-
+	public IId asId() throws RepositoryException;
 }

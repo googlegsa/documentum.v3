@@ -18,8 +18,6 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
 	IClientX clientX;
 
-	ILoginInfo loginInfo;
-
 	private static Logger logger = null;
 
 	static {
@@ -38,10 +36,10 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
 		logger.info("authentication process for user " + username);
 
-		setLoginInfo(username, password);
-		sessionManager.clearIdentity(sessionManager.getDocbaseName());
+		ILoginInfo loginInfo = getLoginInfo(username, password);
+		ISessionManager sessionManagerUser = clientX.getLocalClient().newSessionManager();
 		try {
-			sessionManager.setIdentity(sessionManager.getDocbaseName(),
+			sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
 					loginInfo);
 		} catch (RepositoryLoginException e) {
 			logger.warning("authentication failed for user  " + username
@@ -51,7 +49,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		}
 		boolean authenticate = false;
 
-		authenticate = sessionManager.authenticate(sessionManager
+		authenticate = sessionManagerUser.authenticate(sessionManager
 				.getDocbaseName());
 
 		logger.log(Level.INFO, "authentication status: " + authenticate);
@@ -59,10 +57,11 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 		return new AuthenticationResponse(authenticate, "");
 	}
 
-	public void setLoginInfo(String username, String password) {
-		loginInfo = clientX.getLoginInfo();
+	private ILoginInfo getLoginInfo(String username, String password) {
+		ILoginInfo loginInfo = clientX.getLoginInfo();
 		loginInfo.setUser(username);
 		loginInfo.setPassword(password);
+		return loginInfo;
 	}
 
 	public void setClientX(IClientX clientX) {
