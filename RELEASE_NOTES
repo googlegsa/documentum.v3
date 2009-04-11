@@ -11,6 +11,49 @@ Site for the current list of known issues and workarounds.
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
 
 
+Release 1.3.2, Apr 11, 2009
+===========================
+
+Introduction
+------------
+
+This is a maintenance release that improves quality, reliability, and
+performance without adding any new functionality. All users of
+previous 1.3.x releases should upgrade to this release. See the
+product website for a complete description.
+
+Summary of changes
+------------------
+
+  * Fixed issue 26 to avoid an error displaying the configuration form
+    when the password was missing.
+  * Fixed issue 28 to index metadata only if no content is available,
+    or if the content is too large (larger than 30 MB). This also
+    supports indexing folders.
+  * Fixed issue 31 to use the can_index attribute of the dm_format
+    object associated with a document to decide whether to index the
+    content.
+  * Fixed issue 42 to correctly index repeating ID attributes.
+  * Fixed issue 43 to require Read permission during authorization.
+    Previous versions only required Browse permission.
+  * Fixed issue 45 to add support for Documentum 6.5.
+  * Fixed issue 47 to compile the code with debug information.
+  * Fixed issue 48 to handle concurrent authentication requests. The
+    authentication process was not thread-safe, and multiple
+    concurrent requests could lead to errors and the denial of access.
+  * Fixed issue 49 to index the canonical google: properties with each
+    document.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.0 through 1.3.0
+may be used with this version. This version works with Connector
+Manager version 1.3.2. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector. This product is
+designed to function with EMC Documentum Content Server versions
+5.3, 6.0, and 6.5.
+
+
 Release 1.3.0, Jan 11, 2009
 ===========================
 

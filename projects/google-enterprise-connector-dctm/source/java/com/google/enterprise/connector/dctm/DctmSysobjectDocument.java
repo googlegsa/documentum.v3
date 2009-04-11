@@ -35,6 +35,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
 	private static final long serialVersionUID = 126421624L;
 
+	/** The maximum content size that will be allowed. */
+	private static final long MAX_CONTENT_SIZE = 30L * 1024 * 1024;
+
 	private String docId;
 	private String commonVersionID;
 	
@@ -151,20 +154,30 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 				} else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
 					logger.fine("getting the property "+SpiConstants.PROPNAME_CONTENT);
 					try {
-							if(object.getContentSize()!=0){
-							    hashSet.add(new BinaryValue(object.getContent()));
-							    logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
-							 }else{
-							    hashSet.add(null);
-							    logger.fine("this object has no content");
-							 }
-						} catch (RepositoryDocumentException e) {
-							// TODO Auto-generated catch block
-							logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
+						contentSize = object.getContentSize();
+						if (contentSize == 0) {
 							hashSet.add(null);
+							logger.fine("this object has no content");
+						} else if (contentSize > MAX_CONTENT_SIZE) {
+							hashSet.add(null);
+							logger.fine("content is too large: " + contentSize);
+						} else {
+							IFormat format = object.getFormat();
+							if (!format.canIndex()) {
+								hashSet.add(null);
+								logger.fine("unindexable content format: " + format.getName());
+							} else {
+								hashSet.add(new BinaryValue(object.getContent()));
+								logger.fine("property "+SpiConstants.PROPNAME_CONTENT+" after getContent");
+							 }
 						}
+					} catch (RepositoryDocumentException e) {
+						// TODO Auto-generated catch block
+						logger.warning("RepositoryDocumentException thrown : "+ e+" on getting property : "+name);
+						hashSet.add(null);
+					}
 					
-					   return new DctmSysobjectProperty(name, hashSet);
+					return new DctmSysobjectProperty(name, hashSet);
 	
 				} else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
 					logger.fine("getting the property "+SpiConstants.PROPNAME_DISPLAYURL);
@@ -204,8 +217,13 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 							mimetype = dctmForm.getMIMEType();
 							dosExtension = dctmForm.getDOSExtension();
 							contentSize= object.getContentSize();
-							hashSet.add(new StringValue(mimetype));
-							logger.fine("property "+SpiConstants.PROPNAME_MIMETYPE+" has the value "+mimetype);
+							///modification in order to index empty documents
+							if (contentSize == 0 || contentSize > MAX_CONTENT_SIZE || !dctmForm.canIndex()) {
+								hashSet.add(null);
+							} else {
+								hashSet.add(new StringValue(mimetype));
+								logger.fine("property "+SpiConstants.PROPNAME_MIMETYPE+" has the value "+mimetype);
+							}
 							logger.fine("mimetype of the document "+versionId+" : "+mimetype);
 							logger.fine("dosExtension of the document "+versionId+" : "+dosExtension);
 							logger.fine("contentSize of the document "+versionId+" : "+contentSize);
@@ -221,6 +239,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 					logger.fine("getting the property "+object_id_name);
 					hashSet.add(new StringValue(docId));
 					logger.fine("property "+object_id_name+" has the value "+docId);
+					return new DctmSysobjectProperty(name, hashSet);
+				} else if (SpiConstants.PROPNAME_TITLE.equals(name)) {
+					logger.fine("getting the property " + SpiConstants.PROPNAME_TITLE);
+					hashSet.add(new StringValue(object.getObjectName()));
+					logger.fine("property " + SpiConstants.PROPNAME_TITLE + " has the value " + object.getObjectName());
 					return new DctmSysobjectProperty(name, hashSet);
 				}
 
@@ -246,7 +269,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 								hashSet.add(new DoubleValue(val.asDouble()));
 							} else if (attr.getDataType() == IAttr.DM_ID) {
 								logger.finer("the attribute of index "+ j +" is of ID type");
-								hashSet.add(new StringValue(object.getId(name).getId()));
+								hashSet.add(new StringValue(val.asId().getId()));
 							} else if (attr.getDataType() == IAttr.DM_INTEGER) {
 								logger.finer("the attribute of index "+ j +" is of integer type");
 								hashSet.add(new LongValue(val.asInteger()));
@@ -323,6 +346,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 			logger.fine("fetching the object");
 			fetch();
 			properties = new HashSet();
+			properties.add(SpiConstants.PROPNAME_DISPLAYURL);
+			properties.add(SpiConstants.PROPNAME_ISPUBLIC);
+			properties.add(SpiConstants.PROPNAME_LASTMODIFIED);
+			properties.add(SpiConstants.PROPNAME_MIMETYPE);
+			properties.add(SpiConstants.PROPNAME_TITLE);
 
 			try {
 				for (int i = 0; i < object.getAttrCount(); i++) {

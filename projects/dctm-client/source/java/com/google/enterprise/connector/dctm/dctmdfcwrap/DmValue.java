@@ -1,6 +1,7 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.common.IDfValue;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 
@@ -30,5 +31,9 @@ public class DmValue implements IValue {
 
 	public ITime asTime() {
 		return new DmTime(idfValue.asTime());
+	}
+
+	public IId asId() {
+		return new DmId(idfValue.asId());
 	}
 }

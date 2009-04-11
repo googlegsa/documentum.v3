@@ -28,7 +28,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
 	private String attributeName = "i_chronicle_id";
 
-	private String queryStringAuthoriseDefault = "select i_chronicle_id from dm_sysobject where i_chronicle_id in (";
+	private String queryStringAuthoriseDefault = "select for read i_chronicle_id from dm_sysobject where i_chronicle_id in (";
 
 	private static Logger logger = null;
 
@@ -76,13 +76,11 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			logger.info("username :" + username);
 			
 			if (username.matches(".*@.*")){
-				logger.info("username contains @");
 				username=username.substring(0,username.indexOf('@'));
 				logger.info("username contains @ and is now :"+username);
 			}
 			
-			if (username.matches(".*\\.*")){
-				logger.info("username contains \\");
+			if (username.matches(".*\\\\.*")){
 				username=username.substring(username.indexOf("\\")+1,username.length());
 				logger.info("username contains \\ and is now :"+username);
 			}
@@ -142,7 +140,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 			logger.info("after collec.close");
 		}finally {
 			logger.info("in finally");
-			if(collec.getSession() != null ){
+			if (collec != null && collec.getSession() != null ){
 				logger.info("collec getSession not null");
 				///sessionManagerUser.release(collec.getSession());
 				sessionManagerUser.releaseSessionAuto();
