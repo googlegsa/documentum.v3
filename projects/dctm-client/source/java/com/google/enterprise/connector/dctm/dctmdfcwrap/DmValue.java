@@ -1,17 +1,3 @@
-// Copyright (C) 2006-2009 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.common.IDfValue;
@@ -20,33 +6,34 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 
 public class DmValue implements IValue {
-  IDfValue idfValue;
 
-  public DmValue(IDfValue idfValue) {
-    this.idfValue = idfValue;
-  }
+	IDfValue idfValue;
 
-  public String asString() {
-    return idfValue.asString();
-  }
+	public DmValue(IDfValue idfValue) {
+		this.idfValue = idfValue;
+	}
 
-  public boolean asBoolean() {
-    return idfValue.asBoolean();
-  }
+	public String asString() {
+		return idfValue.asString();
+	}
 
-  public double asDouble() {
-    return idfValue.asDouble();
-  }
+	public boolean asBoolean() {
+		return idfValue.asBoolean();
+	}
 
-  public long asInteger() {
-    return idfValue.asInteger();
-  }
+	public double asDouble() {
+		return idfValue.asDouble();
+	}
 
-  public ITime asTime() {
-    return new DmTime(idfValue.asTime());
-  }
+	public long asInteger() {
+		return idfValue.asInteger();
+	}
 
-  public IId asId() {
-    return new DmId(idfValue.asId());
-  }
+	public ITime asTime() {
+		return new DmTime(idfValue.asTime());
+	}
+
+	public IId asId() {
+		return new DmId(idfValue.asId());
+	}
 }

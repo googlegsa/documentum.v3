@@ -1,17 +1,3 @@
-// Copyright (C) 2006-2009 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.documentum.fc.common.DfException;
@@ -28,98 +14,103 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DmSessionManagerATest extends TestCase {
-  IClientX dctmClientX;
 
-  IClient localClient;
+	IClientX dctmClientX;
 
-  ISessionManager sessionManager;
+	IClient localClient;
 
-  ILoginInfo loginInfo;
+	ISessionManager sessionManager;
 
-  public void setUp() throws Exception {
-    super.setUp();
-    dctmClientX = new DmClientX();
-    localClient = dctmClientX.getLocalClient();
-    sessionManager = localClient.newSessionManager();
-    loginInfo = dctmClientX.getLoginInfo();
-  }
+	ILoginInfo loginInfo;
 
-  public void testGetSession() throws RepositoryException {
-    String user = DmInitialize.DM_LOGIN_OK4;
-    String password = DmInitialize.DM_PWD_OK4;
-    String docbase = DmInitialize.DM_DOCBASE;
+	public void setUp() throws Exception {
+		super.setUp();
+		dctmClientX = new DmClientX();
+		localClient = dctmClientX.getLocalClient();
+		sessionManager = localClient.newSessionManager();
+		loginInfo = dctmClientX.getLoginInfo();
+	}
 
-    loginInfo.setUser(user);
-    loginInfo.setPassword(password);
+	public void testGetSession() throws RepositoryException {
 
-    sessionManager.setIdentity(docbase, loginInfo);
+		String user = DmInitialize.DM_LOGIN_OK4;
+		String password = DmInitialize.DM_PWD_OK4;
+		String docbase = DmInitialize.DM_DOCBASE;
 
-    ISession session = null;
-    try {
-      session = sessionManager.getSession(docbase);
-      Assert.assertNotNull(session);
-      Assert.assertTrue(session instanceof DmSession);
-    } finally {
-      if (session != null) {
-        sessionManager.release(session);
-      }
-    }
-  }
+		loginInfo.setUser(user);
+		loginInfo.setPassword(password);
 
-  public void testGetIdentity() throws RepositoryLoginException {
-    loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
-    loginInfo.setPassword(DmInitialize.DM_PWD_OK4);
-    sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+		sessionManager.setIdentity(docbase, loginInfo);
 
-    ILoginInfo logInfo = sessionManager
-        .getIdentity(DmInitialize.DM_DOCBASE);
-    Assert.assertEquals(logInfo.getUser(), DmInitialize.DM_LOGIN_OK4);
-    Assert.assertEquals(logInfo.getPassword(), DmInitialize.DM_PWD_OK4);
-  }
+		ISession session = null;
+		try {
+			session = sessionManager.getSession(docbase);
+			Assert.assertNotNull(session);
+			Assert.assertTrue(session instanceof DmSession);
+		} finally {
+			if (session != null) {
+				sessionManager.release(session);
+			}
+		}
+	}
 
-  public void testNewSession() throws RepositoryLoginException,
-      RepositoryException {
-    ISession session = null;
-    try {
-      loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
-      loginInfo.setPassword(DmInitialize.DM_PWD_OK4);
-      sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-      session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
-      Assert.assertNotNull(session);
-      Assert.assertTrue(session instanceof DmSession);
-    } finally {
-      if (session != null) {
-        sessionManager.release(session);
-      }
-    }
-  }
+	public void testGetIdentity() throws RepositoryLoginException {
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
+		loginInfo.setPassword(DmInitialize.DM_PWD_OK4);
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
 
-  public void testAuthenticateOK() throws RepositoryLoginException,
-      DfException {
-    loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
-    loginInfo.setPassword(DmInitialize.DM_PWD_OK4);
-    sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-    boolean rep = sessionManager.authenticate(DmInitialize.DM_DOCBASE);
-    Assert.assertTrue(rep);
-  }
+		ILoginInfo logInfo = sessionManager
+				.getIdentity(DmInitialize.DM_DOCBASE);
+		Assert.assertEquals(logInfo.getUser(), DmInitialize.DM_LOGIN_OK4);
+		Assert.assertEquals(logInfo.getPassword(), DmInitialize.DM_PWD_OK4);
 
-  public void testAuthenticateK0() throws RepositoryLoginException,
-      DfException {
-    loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
-    loginInfo.setPassword(DmInitialize.DM_PWD_KO);
-    sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-    Assert.assertFalse(sessionManager
-        .authenticate(DmInitialize.DM_DOCBASE));
-  }
+	}
 
-  public void testClearIdentity() throws RepositoryLoginException {
+	public void testNewSession() throws RepositoryLoginException,
+			RepositoryException {
+		ISession session = null;
+		try {
+			loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
+			loginInfo.setPassword(DmInitialize.DM_PWD_OK4);
+			sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+			session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
+			Assert.assertNotNull(session);
+			Assert.assertTrue(session instanceof DmSession);
+		} finally {
+			if (session != null) {
+				sessionManager.release(session);
+			}
+		}
+	}
 
-    loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
-    loginInfo.setPassword(DmInitialize.DM_PWD_OK4);
-    sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-    sessionManager.clearIdentity(DmInitialize.DM_DOCBASE);
-    ILoginInfo logInfo = sessionManager
-        .getIdentity(DmInitialize.DM_DOCBASE);
-    Assert.assertNull(((DmLoginInfo) logInfo).getIdfLoginInfo());
-  }
+	public void testAuthenticateOK() throws RepositoryLoginException,
+			DfException {
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
+		loginInfo.setPassword(DmInitialize.DM_PWD_OK4);
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+		boolean rep = sessionManager.authenticate(DmInitialize.DM_DOCBASE);
+		Assert.assertTrue(rep);
+	}
+
+	public void testAuthenticateK0() throws RepositoryLoginException,
+			DfException {
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
+		loginInfo.setPassword(DmInitialize.DM_PWD_KO);
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+		Assert
+				.assertFalse(sessionManager
+						.authenticate(DmInitialize.DM_DOCBASE));
+	}
+
+	public void testClearIdentity() throws RepositoryLoginException {
+
+		loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
+		loginInfo.setPassword(DmInitialize.DM_PWD_OK4);
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+		sessionManager.clearIdentity(DmInitialize.DM_DOCBASE);
+		ILoginInfo logInfo = sessionManager
+				.getIdentity(DmInitialize.DM_DOCBASE);
+		Assert.assertNull(((DmLoginInfo) logInfo).getIdfLoginInfo());
+	}
+
 }

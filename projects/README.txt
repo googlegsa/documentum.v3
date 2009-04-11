@@ -5,8 +5,6 @@ REQUIRED FILES to compile and run the tests
 •	dfcbase.jar (in <Documentum  root folder>/Shared)
 •	xml-apis.jar (in <Documentum  root folder>/Shared)
 •	log4j.jar (in <Documentum  root folder>/Shared)
-•	commons-httpclient-3.0.1.jar (in dctm_third_party/lib folder of the project)
-•	commons-codec-1.3.jar (in dctm_third_party/lib folder of the project)
 •	json.jar (in thirdp_arty/lib folder of the project)
 •	jcr-1.0.jar
 •	junit.jar (in third_party/lib folder of the project)

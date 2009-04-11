@@ -1,17 +1,3 @@
-// Copyright (C) 2006-2009 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import java.io.ByteArrayInputStream;
@@ -42,207 +28,232 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 
 public class MockDmObject implements ISysObject {
-  private MockRepositoryDocument mockDocument;
+	private MockRepositoryDocument mockDocument;
 
-  public MockDmObject(MockRepositoryDocument mRD) {
-    this.mockDocument = mRD;
-  }
+	public MockDmObject(MockRepositoryDocument mRD) {
+		this.mockDocument = mRD;
+	}
 
-  public String getObjectName() throws RepositoryDocumentException {
-    return this.mockDocument.getDocID();
-  }
+	public long getContentSize() throws RepositoryDocumentException {
+		ByteArrayInputStream contentStream = null;
+		int avail = 0;
+		try {
+			contentStream = (ByteArrayInputStream) mockDocument
+					.getContentStream();
+			avail = contentStream.available();
+		} catch (FileNotFoundException e) {
 
-  public long getContentSize() throws RepositoryDocumentException {
-    ByteArrayInputStream contentStream = null;
-    int avail = 0;
-    try {
-      contentStream = (ByteArrayInputStream) mockDocument
-          .getContentStream();
-      avail = contentStream.available();
-    } catch (FileNotFoundException e) {
-      // TODO: Why is this exception ignored?
-    }
-    return avail;
-  }
+		}
+		return avail;
+	}
 
-  public ByteArrayInputStream getContent() throws RepositoryDocumentException {
-    ByteArrayInputStream contentStream = null;
-    try {
-      contentStream = (ByteArrayInputStream) mockDocument
-          .getContentStream();
-    } catch (FileNotFoundException e) {
-      // TODO: Why is this exception ignored?
-    }
-    return contentStream;
-  }
+	public ByteArrayInputStream getContent() throws RepositoryDocumentException {
+		ByteArrayInputStream contentStream = null;
+		try {
+			contentStream = (ByteArrayInputStream) mockDocument
+					.getContentStream();
+		} catch (FileNotFoundException e) {
 
-  public String getACLDomain() throws RepositoryDocumentException {
-    return "ACLDomain";
-  }
+		}
+		return contentStream;
+	}
 
-  public String getACLName() throws RepositoryDocumentException {
-    return "ACLName";
-  }
+	public String getACLDomain() throws RepositoryDocumentException {
+		return "ACLDomain";
+	}
 
-  public String getString(String name) throws RepositoryDocumentException {
-    // /faire les remplacements requis entre attributs Mock et attributs
-    // Dctm
-    String propStrVal = null;
-    if (name.equals("object_name")) {
-      name = "name";
-      MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
-          name);
-      MockJcrValue propVal = new MockJcrValue(pm);
-      try {
-        propStrVal = propVal.getString();
-      } catch (IllegalStateException e) {
-        // TODO: Why is this exception ignored?
-      }
-    } else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
-      name = "docid";
-      propStrVal = mockDocument.getDocID();
-    } else if (name.equals(SpiConstants.PROPNAME_SECURITYTOKEN)) {
-      name = "acl";
-      MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
-          name);
-      MockJcrValue propVal = new MockJcrValue(pm);
-      try {
-        propStrVal = propVal.getString();
-      } catch (IllegalStateException e) {
-        // TODO: Why is this exception ignored?
-      }
-    } else {
-      MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
-          name);
-      MockJcrValue propVal = new MockJcrValue(pm);
-      try {
-        propStrVal = propVal.getString();
-      } catch (IllegalStateException e) {
-        // TODO: Why is this exception ignored?
-      }
-    }
+	public String getACLName() throws RepositoryDocumentException {
+		return "ACLName";
+	}
 
-    return propStrVal;
-  }
+	public String getString(String name) throws RepositoryDocumentException {
+		// /faire les remplacements requis entre attributs Mock et attributs
+		// Dctm
+		String propStrVal = null;
+		if (name.equals("object_name")) {
+			name = "name";
+			MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
+					name);
+			MockJcrValue propVal = new MockJcrValue(pm);
+			try {
+				propStrVal = propVal.getString();
+			} catch (ValueFormatException e) {
 
-  public int getInt(String name) throws RepositoryDocumentException {
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
-    MockJcrValue propVal = new MockJcrValue(pm);
-    int propIntVal = 0;
-    try {
-      propIntVal = (int) propVal.getLong();
-    } catch (IllegalStateException e) {
-      // TODO: Why is this exception ignored?
-    }
-    return propIntVal;
-  }
+			} catch (IllegalStateException e) {
 
-  public ITime getTime(String name) throws RepositoryDocumentException {
-    Date propDateVal = null;
-    if (name.equals("r_modify_date")) {
-      name = "google:lastmodify";
-    }
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
-    long time = 0;
-    if (pm == null) {
-      MockRepositoryDateTime dateTime = mockDocument.getTimeStamp();
-      time = dateTime.getTicks();
-      propDateVal = new Date(time);
-    } else {
-      String propVal = pm.getValue();
-      SimpleDateFormat simple = new SimpleDateFormat(
-          "EEE, d MMM yyyy HH:mm:ss z", new Locale("EN"));
-      ParsePosition parsePosition = new ParsePosition(0);
-      propDateVal = simple.parse(propVal, parsePosition);
-      time = propDateVal.getTime();
-    }
+			} catch (javax.jcr.RepositoryException e) {
 
-    return new MockDmTime(propDateVal);
-  }
+			}
+		} else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
+			name = "docid";
+			propStrVal = mockDocument.getDocID();
+		} else if (name.equals(SpiConstants.PROPNAME_SECURITYTOKEN)) {
+			name = "acl";
+			MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
+					name);
+			MockJcrValue propVal = new MockJcrValue(pm);
+			try {
+				propStrVal = propVal.getString();
+			} catch (ValueFormatException e) {
 
-  public double getDouble(String name) throws RepositoryDocumentException {
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
-    MockJcrValue propVal = new MockJcrValue(pm);
-    double propDblVal = 0;
-    try {
-      propDblVal = propVal.getDouble();
-    } catch (IllegalStateException e) {
-      // TODO: Why is this exception ignored?
-    }
-    return propDblVal;
-  }
+			} catch (IllegalStateException e) {
 
-  public boolean getBoolean(String name) throws RepositoryDocumentException {
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
-    MockJcrValue propVal = new MockJcrValue(pm);
-    boolean propBlVal = true;
-    try {
-      propBlVal = propVal.getBoolean();
-    } catch (IllegalStateException e) {
-      // TODO: Why is this exception ignored?
-    }
-    return propBlVal;
-  }
+			} catch (javax.jcr.RepositoryException e) {
 
-  public IId getId(String id) throws RepositoryDocumentException {
-    return new MockDmId(this.mockDocument.getDocID());
-  }
+			}
+		} else {
+			MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
+					name);
+			MockJcrValue propVal = new MockJcrValue(pm);
+			try {
+				propStrVal = propVal.getString();
+			} catch (ValueFormatException e) {
 
-  public IFormat getFormat() throws RepositoryDocumentException {
-    // /return new MockDmFormat("text/plain");
-    return new MockDmFormat("application/octet-stream");
-  }
+			} catch (IllegalStateException e) {
 
-  public int getAttrDataType(String name) throws RepositoryDocumentException {
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
-    MockJcrValue propVal = new MockJcrValue(pm);
-    return propVal.getType();
-  }
+			} catch (javax.jcr.RepositoryException e) {
 
-  public int getAttrCount() throws RepositoryDocumentException {
-    MockRepositoryPropertyList Mockpm = mockDocument.getProplist();
-    int counter = 0;
-    for (Iterator mockIt = Mockpm.iterator(); mockIt.hasNext();) {
-      mockIt.next();
-      counter++;
-    }
-    return counter;
-  }
+			}
+		}
 
-  public IAttr getAttr(int attrIndex) throws RepositoryDocumentException {
-    MockRepositoryPropertyList Mockpm = mockDocument.getProplist();
-    MockRepositoryProperty pm = null;
-    int counter = 0;
-    for (Iterator mockIt = Mockpm.iterator(); mockIt.hasNext();) {
-      pm = (MockRepositoryProperty) mockIt.next();
-      if (counter == attrIndex) {
-        return new MockDmAttr(pm);
-      }
-      counter++;
-    }
-    return null;
-  }
+		return propStrVal;
+	}
 
-  public void setSessionManager(ISessionManager sessionManager)
-      throws RepositoryDocumentException {
-  }
+	public int getInt(String name) throws RepositoryDocumentException {
+		MockRepositoryProperty pm = mockDocument.getProplist()
+				.getProperty(name);
+		MockJcrValue propVal = new MockJcrValue(pm);
+		int propIntVal = 0;
+		try {
+			propIntVal = (int) propVal.getLong();
+		} catch (ValueFormatException e) {
 
-  public IValue getRepeatingValue(String name, int index)
-      throws RepositoryDocumentException {
-    return new MockDmValue(new MockJcrValue(new MockRepositoryProperty(
-        name, PropertyType.STRING, getString(name))));
-  }
+		} catch (IllegalStateException e) {
 
-  public int findAttrIndex(String name) throws RepositoryDocumentException {
-    return 0;
-  }
+		} catch (javax.jcr.RepositoryException e) {
 
-  public int getValueCount(String name) throws RepositoryDocumentException {
-    return 1;
-  }
+		}
+		return propIntVal;
+	}
+
+	public ITime getTime(String name) throws RepositoryDocumentException {
+		Date propDateVal = null;
+		if (name.equals("r_modify_date")) {
+			name = "google:lastmodify";
+		}
+		MockRepositoryProperty pm = mockDocument.getProplist()
+				.getProperty(name);
+		long time = 0;
+		if (pm == null) {
+			MockRepositoryDateTime dateTime = mockDocument.getTimeStamp();
+			time = dateTime.getTicks();
+			propDateVal = new Date(time);
+		} else {
+			String propVal = pm.getValue();
+			SimpleDateFormat simple = new SimpleDateFormat(
+					"EEE, d MMM yyyy HH:mm:ss z", new Locale("EN"));
+			ParsePosition parsePosition = new ParsePosition(0);
+			propDateVal = simple.parse(propVal, parsePosition);
+			time = propDateVal.getTime();
+		}
+
+		return new MockDmTime(propDateVal);
+	}
+
+	public double getDouble(String name) throws RepositoryDocumentException {
+		MockRepositoryProperty pm = mockDocument.getProplist()
+				.getProperty(name);
+		MockJcrValue propVal = new MockJcrValue(pm);
+		double propDblVal = 0;
+		try {
+			propDblVal = propVal.getDouble();
+		} catch (ValueFormatException e) {
+
+		} catch (IllegalStateException e) {
+
+		} catch (javax.jcr.RepositoryException e) {
+
+		}
+		return propDblVal;
+	}
+
+	public boolean getBoolean(String name) throws RepositoryDocumentException {
+		MockRepositoryProperty pm = mockDocument.getProplist()
+				.getProperty(name);
+		MockJcrValue propVal = new MockJcrValue(pm);
+		boolean propBlVal = true;
+		try {
+			propBlVal = propVal.getBoolean();
+		} catch (ValueFormatException e) {
+
+		} catch (IllegalStateException e) {
+
+		} catch (javax.jcr.RepositoryException e) {
+
+		}
+		return propBlVal;
+	}
+
+	public IId getId(String id) throws RepositoryDocumentException {
+
+		return new MockDmId(this.mockDocument.getDocID());
+	}
+
+	public IFormat getFormat() throws RepositoryDocumentException {
+		// /return new MockDmFormat("text/plain");
+		return new MockDmFormat("application/octet-stream");
+	}
+
+	public int getAttrDataType(String name) throws RepositoryDocumentException {
+		MockRepositoryProperty pm = mockDocument.getProplist()
+				.getProperty(name);
+		MockJcrValue propVal = new MockJcrValue(pm);
+		return propVal.getType();
+	}
+
+	public int getAttrCount() throws RepositoryDocumentException {
+		MockRepositoryPropertyList Mockpm = mockDocument.getProplist();
+		int counter = 0;
+		for (Iterator mockIt = Mockpm.iterator(); mockIt.hasNext();) {
+			mockIt.next();
+			counter++;
+		}
+		return counter;
+	}
+
+	public IAttr getAttr(int attrIndex) throws RepositoryDocumentException {
+		MockRepositoryPropertyList Mockpm = mockDocument.getProplist();
+		MockRepositoryProperty pm = null;
+		int counter = 0;
+		for (Iterator mockIt = Mockpm.iterator(); mockIt.hasNext();) {
+			pm = (MockRepositoryProperty) mockIt.next();
+			if (counter == attrIndex) {
+				return new MockDmAttr(pm);
+			}
+			counter++;
+		}
+		return null;
+	}
+
+	public void setSessionManager(ISessionManager sessionManager)
+			throws RepositoryDocumentException {
+
+	}
+
+	public IValue getRepeatingValue(String name, int index)
+			throws RepositoryDocumentException {
+		return new MockDmValue(new MockJcrValue(new MockRepositoryProperty(
+				name, PropertyType.STRING, getString(name))));
+	}
+
+	public int findAttrIndex(String name) throws RepositoryDocumentException {
+
+		return 0;
+	}
+
+	public int getValueCount(String name) throws RepositoryDocumentException {
+
+		return 1;
+	}
+
 }

@@ -1,17 +1,3 @@
-// Copyright (C) 2006-2009 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
@@ -30,49 +16,53 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class MockDmValueTest extends TestCase {
-  IClientX dctmClientX;
 
-  IClient localClient;
+	IClientX dctmClientX;
 
-  ISessionManager sessionManager;
+	IClient localClient;
 
-  ISession sess7;
+	ISessionManager sessionManager;
 
-  IId id;
+	ISession sess7;
 
-  ISysObject object;
+	IId id;
 
-  IQuery query;
+	ISysObject object;
 
-  String crID;
+	IQuery query;
 
-  ICollection collec;
+	String crID;
 
-  public void setUp() throws Exception {
-    super.setUp();
-    dctmClientX = new MockDmClient();
-    localClient = null;
-    localClient = dctmClientX.getLocalClient();
-    sessionManager = localClient.newSessionManager();
-    ILoginInfo ili = new MockDmLoginInfo();
-    ili.setUser(DmInitialize.DM_LOGIN_OK4);
-    ili.setPassword(DmInitialize.DM_PWD_OK4);
-    sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
-    sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-    query = localClient.getQuery();
-    query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-    collec = query.execute(sessionManager, IQuery.READ_QUERY);
-    collec.next();
-  }
+	ICollection collec;
 
-  public void testAsString() {
-    try {
-      IValue val = collec.getValue("r_object_id");
-      Assert.assertTrue(val instanceof MockDmValue);
-      String valSg = val.asString();
-      assertEquals(valSg, DmInitialize.DM_ID1);
-    } catch (RepositoryException e) {
-      // TODO: Why is this exception ignored?
-    }
-  }
+	public void setUp() throws Exception {
+
+		super.setUp();
+		dctmClientX = new MockDmClient();
+		localClient = null;
+		localClient = dctmClientX.getLocalClient();
+		sessionManager = localClient.newSessionManager();
+		ILoginInfo ili = new MockDmLoginInfo();
+		ili.setUser(DmInitialize.DM_LOGIN_OK4);
+		ili.setPassword(DmInitialize.DM_PWD_OK4);
+		sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
+		sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+		query = localClient.getQuery();
+		query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
+		collec = query.execute(sessionManager, IQuery.READ_QUERY);
+		collec.next();
+
+	}
+
+	public void testAsString() {
+		try {
+			IValue val = collec.getValue("r_object_id");
+			Assert.assertTrue(val instanceof MockDmValue);
+			String valSg = val.asString();
+			assertEquals(valSg, DmInitialize.DM_ID1);
+		} catch (RepositoryException e) {
+
+		}
+	}
+
 }

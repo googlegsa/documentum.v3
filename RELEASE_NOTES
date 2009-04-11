@@ -36,7 +36,11 @@ Summary of changes
   * Fixed issue 42 to correctly index repeating ID attributes.
   * Fixed issue 43 to require Read permission during authorization.
     Previous versions only required Browse permission.
-  * Fixed issue 45 to add support for Documentum 6.5.
+  * Fixed issue 44 to add support for Documentum 6.5.
+  * Fixed issue 45 to accept Webtop URLs in more circumstances, such
+    as authenticated web sites, self-signed certificates, certificates
+    with an internal certificte authority, and certificates with a
+    mismatching host name.
   * Fixed issue 47 to compile the code with debug information.
   * Fixed issue 48 to handle concurrent authentication requests. The
     authentication process was not thread-safe, and multiple
