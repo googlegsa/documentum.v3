@@ -156,6 +156,8 @@
 				value="${version.spi}"/>
 			<attribute name="Specification-Vendor" 
 				value="Google Inc."/>
+            <attribute name="Main-Class"
+                value="com.google.enterprise.connector.dctm.DctmMain" />
 			</manifest>
 		</jar>
 	</target>
