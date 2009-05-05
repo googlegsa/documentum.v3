@@ -1039,7 +1039,10 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(SELECT_END);
     buf.append(TD_END);
     buf.append(TR_END);
-    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\" /></td></tr>");
+
+    buf.append(TR_START_HIDDEN);
+    buf.append("<td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\" /></td>");
+    buf.append(TR_END);
 
     try {
       if (collecTypes.getState() != ICollection.DF_CLOSED_STATE) {
@@ -1125,7 +1128,9 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(SELECT_END);
     buf.append(TD_END);
     buf.append(TR_END);
-    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\" /></td></tr>");
+    buf.append(TR_START_HIDDEN);
+    buf.append("<td><input type=\"hidden\" id=\"CM_included_object_type\" name=\"included_object_type\" value=\"" + stTypes + "\" /></td>");
+    buf.append(TR_END);
   }
 
   private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name, Map configMap) throws RepositoryException {
@@ -1317,7 +1322,9 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TR_END);
 
-    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\"" + stMeta + "\" /></td></tr>");
+    buf.append(TR_START_HIDDEN);
+    buf.append("<td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\"" + stMeta + "\" /></td>");
+    buf.append(TR_END);
   }
 
   private void appendSelectMultipleIncludeMetadatas(StringBuffer buf, String name,
@@ -1371,7 +1378,9 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TR_END);
 
-    buf.append("<tr><td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\"" + stMeta + "\" /></td></tr>");
+    buf.append(TR_START_HIDDEN);
+    buf.append("<td><input type=\"hidden\" id=\"CM_included_meta\" name=\"included_meta\" value=\"" + stMeta + "\" /></td>");
+    buf.append(TR_END);
   }
 
   private void appendCheckBox(StringBuffer buf, String key, String label,
@@ -1402,7 +1411,7 @@ public class DctmConnectorType implements ConnectorType {
         buf.append(TR_END);
 
         /*
-        buf.append(TR_START);
+        buf.append(TR_START_HIDDEN);
         buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\" /></td>");
         buf.append(TR_END);
         */
