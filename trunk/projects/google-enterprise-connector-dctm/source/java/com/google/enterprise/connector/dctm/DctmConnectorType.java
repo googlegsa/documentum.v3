@@ -542,7 +542,7 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private int testWebtopUrl(String webtopServerUrl)
-  throws RepositoryException {
+      throws RepositoryException {
     logger.config("test connection to the webtop server: "
         + webtopServerUrl);
     HttpClient client = new HttpClient();
@@ -701,8 +701,7 @@ public class DctmConnectorType implements ConnectorType {
 
               logger.fine("after closing the collection");
 
-              buf.append("</table>");
-              buf.append("</div></td></tr>");
+              buf.append("</tbody>");
             } else {
               logger.config("cas actionUpdate uncheckadvconf or no sess");
 
@@ -712,8 +711,7 @@ public class DctmConnectorType implements ConnectorType {
               //properties are displayed according to the default values stored in the connectorType.xml file
               appendSelectMultipleIncludeMetadatas(buf, INCLUDED_META, hashIncludedMeta);
 
-              buf.append("</table>");
-              buf.append("</div></td></tr>");
+              buf.append("</tbody>");
             }
           ///} else if (key.equals(ACTIONUPDATE)) {
           } else if (key.equals(ADVANCEDCONF)) {
@@ -1397,7 +1395,7 @@ public class DctmConnectorType implements ConnectorType {
       if (value != null && value.equals("on")) {
         logger.config("advanced conf not null");
         logger.config("advanced conf set to on");
-        buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
+        buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
             "document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
             "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\" ");
         buf.append(CHECKED);
@@ -1415,14 +1413,13 @@ public class DctmConnectorType implements ConnectorType {
         buf.append("<td colspan=\"2\"><input name=\"action_update\" ID=\"action_update\" type=\"hidden\" value=\"save\" /></td>");
         buf.append(TR_END);
         */
-        buf.append("<tr><td colspan=\"2\"><div id=\"more\" style=\"display: block\">");
-        buf.append("<table>");
+        buf.append("<tbody id=\"more\">");
       } else {
         logger.config("advanced conf set to off");
         ///insertIncludeMetas();insertIncludeTypes();
-        ///buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\">");
+        ///buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\">");
         buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){" +
-            "document.getElementById('more').style.display='block';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}" +
+            "document.getElementById('more').style.display='';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}" +
             "else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
             "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\"");
         buf.append(CLOSE_ELEMENT);
@@ -1439,8 +1436,7 @@ public class DctmConnectorType implements ConnectorType {
         buf.append(TR_END);
         */
 
-        buf.append("<tr><td colspan=\"2\"><div id=\"more\" style=\"display: none\">");
-        buf.append("<table>");
+        buf.append("<tbody id=\"more\" style=\"display: none\">");
       }
     } else {
       if (value != null && value.equals("on")) {
