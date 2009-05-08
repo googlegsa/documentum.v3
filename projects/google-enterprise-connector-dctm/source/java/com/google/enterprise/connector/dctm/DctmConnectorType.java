@@ -309,10 +309,6 @@ public class DctmConnectorType implements ConnectorType {
 
         if ((String) configData.get(WHERECLAUSE) != null
             && !((String) configData.get(WHERECLAUSE)).equals("") ) {
-
-          ///qtm = (DctmTraversalManager) ((DctmSession) sess).getTraversalManager();
-
-          ///String additionalWhereClause = checkAdditionalWhereClause((String) configData.get("where_clause"), qtm);
           where_clause_config = true;
           additionalWhereClause = checkAdditionalWhereClause((String) configData.get("where_clause"));
 
@@ -323,16 +319,13 @@ public class DctmConnectorType implements ConnectorType {
           p.putAll(configData);
           cfg.setProperties(p);
           logger.config("after set properties : where_clause of configData is now " + configData.get("where_clause"));
-
-
-          ///} catch (RepositoryException e) {
-            //return the config form with an error message (written in red)
-            ///return createErrorMessage(configData, e);
-          ///}
         }
       } catch (RepositoryException e) {
         if (where_clause_config == false || (where_clause_config == true && additionalWhereClause != null) && (status == 200)) {
-          //uncheck the advanced configuration checkbox except if the
+          // If we get an exception and we haven't started checking
+          //the where clause yet, then there's a problem with the core
+          //configuration. We will turn the advanced configuration off
+          //until the user fixes the problem.
           configData.put(ADVANCEDCONF, "off");
           logger.config("ADVANCEDCONF set to " + configData.get(ADVANCEDCONF));
         }
@@ -421,8 +414,7 @@ public class DctmConnectorType implements ConnectorType {
         resource = ResourceBundle.getBundle("DctmConnectorResources");
       }
 
-      result = new ConfigureResponse("",
-          makeValidatedForm(configMap));
+      result = new ConfigureResponse("", makeValidatedForm(configMap));
     } catch (RepositoryException e1) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
@@ -471,7 +463,6 @@ public class DctmConnectorType implements ConnectorType {
       RepositoryException e) {
     String form;
     String message = e.getMessage();
-    String returnMessage = null;
     String extractErrorMessage = null;
     String bundleMessage = null;
     if (message.indexOf("[") != -1) {
@@ -486,13 +477,10 @@ public class DctmConnectorType implements ConnectorType {
       bundleMessage = resource.getString("DEFAULT_ERROR_MESSAGE") + " "
           + e.getMessage();
     }
-    returnMessage = "<p><font color=\"#FF0000\">" + bundleMessage
-          + "</font></p>";
-    logger.warning(returnMessage);
+    logger.warning(bundleMessage);
 
     form = makeValidatedForm(configData);
-    return new ConfigureResponse(returnMessage, returnMessage + "<br>"
-        + form);
+    return new ConfigureResponse(bundleMessage, form);
   }
 
   private String checkAdditionalWhereClause(String additionalWhereClause) throws RepositoryException {
