@@ -1,34 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-	<bean id="DefaultEncryptedPropertyPlaceholderConfigurator"
-      class="com.google.enterprise.connector.instantiator.EncryptedPropertyPlaceholderConfigurer">
-      <property name="properties">
-      <props>
-      	 <prop key="clientX">com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX</prop>
-         <prop key="authentication_type">api</prop>
-         <prop key="advanced_configuration">off</prop>
-         <prop key="action_update">save</prop>
-         <prop key="included_meta">object_name,r_object_type,title,subject,keywords,authors,r_creation_date,r_modify_date,r_content_size,a_content_type</prop>	
-         <prop key="included_object_type">dm_document</prop>
-         <prop key="root_object_type">dm_sysobject</prop>
- 	</props>
-	</property>
-    </bean>
-	<bean id="DctmConnectorInstance"
-		class="com.google.enterprise.connector.dctm.DctmConnector">
-		<property name="docbase" value="${docbase}" />
-		<property name="login" value="${login}" />
-		<property name="password" value="${Password}" />
-		<property name="clientX" value="${clientX}" />
-		<property name="authentication_type" value="${authentication_type}" />
-		<property name="webtop_display_url" value="${webtop_display_url}" />
-		<property name="advanced_configuration" value="${advanced_configuration}" />
-		<property name="action_update" value="${action_update}" />
-		<property name="where_clause" value="${where_clause}" />
-		<property name="is_public" value="${is_public}" />
-		<property name="included_meta" value="${included_meta}" />
-		<property name="included_object_type" value="${included_object_type}" />
-		<property name="root_object_type" value="${root_object_type}"/>
-	</bean>
+  <!-- EDIT THIS BEAN DEFINTION WITH CUSTOM PROPERTY VALUES -->
+  <bean id="DctmConnectorInstance"
+      class="com.google.enterprise.connector.dctm.DctmConnector"
+      parent="DctmConnectorInstance_Defaults"
+      singleton="false">
+
+    <!-- SET CUSTOM PROPERTY VALUES HERE -->
+
+  </bean>
 </beans>
