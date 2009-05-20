@@ -15,6 +15,7 @@
 package com.google.enterprise.connector.dctm;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,10 +29,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
@@ -247,7 +244,6 @@ public class DctmConnectorType implements ConnectorType {
     String validation = validateConfigMap(configData);
     String additionalWhereClause = null;
     boolean where_clause_config = false;
-    int status = 0;
     if (validation.equals("")) {
       try {
         logger.config("CONFIG DATA is " + getMaskedMap(configData));
@@ -271,7 +267,7 @@ public class DctmConnectorType implements ConnectorType {
         if (logger.isLoggable(Level.FINE)) {
           logger.fine("sess before testwebtop: " + sess);
         }
-        status = testWebtopUrl((String) configData.get(DISPLAYURL));
+        testWebtopUrl((String) configData.get(DISPLAYURL));
         if (logger.isLoggable(Level.FINE)) {
           logger.fine("sess after testwebtop: " + sess);
         }
@@ -296,7 +292,7 @@ public class DctmConnectorType implements ConnectorType {
           logger.config("after set properties: where_clause of configData is now " + configData.get("where_clause"));
         }
       } catch (RepositoryException e) {
-        if (where_clause_config == false || (where_clause_config == true && additionalWhereClause != null) && (status == 200)) {
+        if (where_clause_config == false || (where_clause_config == true && additionalWhereClause != null)) {
           // If we get an exception and we haven't started checking
           // the where clause yet, then there's a problem with the core
           // configuration. We will turn the advanced configuration off
@@ -503,22 +499,17 @@ public class DctmConnectorType implements ConnectorType {
     return additionalWhereClause;
   }
 
-  private int testWebtopUrl(String webtopServerUrl)
+  private void testWebtopUrl(String webtopServerUrl)
       throws RepositoryException {
     logger.config("test connection to the webtop server: "
         + webtopServerUrl);
-    HttpClient client = new HttpClient();
-    GetMethod getMethod = new GetMethod(webtopServerUrl);
-    int status = 0;
     try {
-      status = client.executeMethod(getMethod);
-      if (status != 200) {
-        logger.warning("status " + status);
-        throw new RepositoryException(
-            "[status] Http request returned a " + status
-            + " status");
-      }
-    } catch (HttpException e) {
+      new UrlValidator().validate(webtopServerUrl);
+    } catch (UrlValidatorException e) {
+      throw new RepositoryException(
+          "[status] Http request returned a " + e.getStatusCode()
+          + " status");
+    } catch (GeneralSecurityException e) {
       throw new RepositoryException("[HttpException]", e);
     } catch (IllegalArgumentException e) {
       // TODO(jl1615): There's no resource bundle entry for this one,
@@ -527,8 +518,6 @@ public class DctmConnectorType implements ConnectorType {
     } catch (IOException e) {
       throw new RepositoryException("[IOException]", e);
     }
-
-    return status;
   }
 
   private String validateConfigMap(Map configData) {
