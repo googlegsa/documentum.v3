@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -54,7 +55,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
     {
       String username = DmInitialize.DM_LOGIN_OK2;
 
-      Map expectedResults = new HashMap();
+      Map<String, Boolean> expectedResults = new HashMap<String, Boolean>();
       expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID2, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
@@ -70,7 +71,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
     {
       String username = DmInitialize.DM_LOGIN_OK3;
 
-      Map expectedResults = new HashMap();
+      Map<String, Boolean> expectedResults = new HashMap<String, Boolean>();
       expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID2, Boolean.FALSE);
       expectedResults.put(DmInitialize.DM_ID3, Boolean.FALSE);
@@ -83,7 +84,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
     {
       String username = DmInitialize.DM_LOGIN_OK1;
 
-      Map expectedResults = new HashMap();
+      Map<String, Boolean> expectedResults = new HashMap<String, Boolean>();
       expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID2, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
@@ -95,20 +96,20 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
     }
   }
 
-  private void testAuthorization(
-      DctmAuthorizationManager authorizationManager, Map expectedResults,
-      String username) throws RepositoryException {
-    List docids = new LinkedList(expectedResults.keySet());
+  private void testAuthorization(DctmAuthorizationManager authorizationManager,
+      Map<String, Boolean> expectedResults, String username)
+      throws RepositoryException {
+    List<String> docids = new LinkedList<String>(expectedResults.keySet());
 
     assertNotNull(docids);
-    List list = (List) authorizationManager.authorizeDocids(docids,
-        new SimpleAuthenticationIdentity(username, null));
+    Collection<AuthorizationResponse> list =
+        authorizationManager.authorizeDocids(docids,
+            new SimpleAuthenticationIdentity(username, null));
     assertNotNull(list);
-    for (Iterator i = list.iterator(); i.hasNext();) {
-      AuthorizationResponse pm = (AuthorizationResponse) i.next();
+    for (AuthorizationResponse pm : list) {
       String uuid = pm.getDocid();
       boolean ok = pm.isValid();
-      Boolean expected = (Boolean) expectedResults.get(uuid);
+      Boolean expected = expectedResults.get(uuid);
       Assert.assertEquals(username + " access to " + uuid, expected
           .booleanValue(), ok);
     }

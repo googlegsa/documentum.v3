@@ -16,7 +16,6 @@ package com.google.enterprise.connector.dctm;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,26 +50,20 @@ public class DctmAuthorizationManager implements AuthorizationManager {
     setSessionManager(this.clientX.getSessionManager());
   }
 
-  public Collection authorizeDocids(Collection docids,
-      AuthenticationIdentity authenticationIdentity) throws RepositoryException {
+  public Collection<AuthorizationResponse> authorizeDocids(
+      Collection<String> docids, AuthenticationIdentity authenticationIdentity)
+      throws RepositoryException {
     String username = authenticationIdentity.getUsername();
     logger.info("username: " + username);
-    ICollection collec = null;
-
-    ISessionManager sessionManagerUser = null;
-    ISession session = null;
-    ISession sessionUser = null;
-    DctmDocumentList dctmDocumentList = new DctmDocumentList();
 
     IQuery query = clientX.getQuery();
-    String dqlQuery = "";
-    List docidList = new ArrayList(docids);
 
-    session = sessionManager.getSession(sessionManager.getDocbaseName());
-
+    ISession session =
+        sessionManager.getSession(sessionManager.getDocbaseName());
     logger.info("docbase: " + sessionManager.getDocbaseName());
 
-    sessionManagerUser = clientX.getLocalClient().newSessionManager();
+    ISessionManager sessionManagerUser =
+        clientX.getLocalClient().newSessionManager();
 
     ///makes the connector handle the patterns username@domain, domain\\username and username
     if (username.matches(".*@.*")) {
@@ -95,27 +88,29 @@ public class DctmAuthorizationManager implements AuthorizationManager {
           logInfo);
     sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
-    dqlQuery = buildQuery(docidList);
+    String dqlQuery = buildQuery(docids);
     logger.info("dql: " + dqlQuery);
-
     query.setDQL(dqlQuery);
+
+    List<AuthorizationResponse> authorized =
+        new ArrayList<AuthorizationResponse>(docids.size());
+    ICollection collec = null;
     try {
-      sessionUser = sessionManagerUser.getSession(sessionManager.getDocbaseName());
+      ISession sessionUser =
+          sessionManagerUser.getSession(sessionManager.getDocbaseName());
       logger.fine("set the SessionAuto for the sessionManagerUser");
       sessionManagerUser.setSessionAuto(sessionUser);
 
       collec = query.execute(sessionUser, IQuery.READ_QUERY);
 
-      Iterator iterDocIdList = docidList.iterator();
-      ArrayList object_id = new ArrayList(docidList.size());
+      ArrayList<String> object_id = new ArrayList<String>(docids.size());
       while (collec.next()) {
         object_id.add(collec.getString("i_chronicle_id"));
       }
-      while (iterDocIdList.hasNext()) {
-        String id = (String) iterDocIdList.next();
-        boolean authorized = object_id.contains(id);
-        logger.info("id " + id + " hasRight? " + authorized);
-        dctmDocumentList.add(new AuthorizationResponse(authorized, id));
+      for (String id : docids) {
+        boolean isAuthorized = object_id.contains(id);
+        logger.info("id " + id + " hasRight? " + isAuthorized);
+        authorized.add(new AuthorizationResponse(isAuthorized, id));
       }
 
       collec.close();
@@ -133,30 +128,21 @@ public class DctmAuthorizationManager implements AuthorizationManager {
         logger.fine("session of sessionManager released");
       }
     }
-    return dctmDocumentList;
+    return authorized;
   }
 
-  private String buildQuery(List docidList) {
-    StringBuffer queryString = new StringBuffer();
+  private String buildQuery(Collection<String> docidList) {
+    StringBuilder queryString = new StringBuilder();
 
     queryString.append(queryStringAuthoriseDefault);
-    int i;
-    for (i = 0; i < docidList.size() - 1; i++) {
+    for (String docid : docidList) {
       queryString.append("'");
-      queryString.append(docidList.get(i).toString());
-      queryString.append("', ");
+      queryString.append(docid);
+      queryString.append("',");
     }
-    queryString.append("'");
-    queryString.append(docidList.get(i).toString());
-    queryString.append("')");
+    queryString.setCharAt(queryString.length() - 1, ')');
 
     return queryString.toString();
-  }
-
-  public List authorizeTokens(List tokenList, String username)
-      throws RepositoryException {
-    List responses = null;
-    return responses;
   }
 
   public IClientX getClientX() {

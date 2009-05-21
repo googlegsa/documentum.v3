@@ -15,6 +15,7 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class DmInitialize {
   public static String DM_LOGIN_OK1 = "joe";
@@ -86,10 +87,10 @@ public class DmInitialize {
 
   public static int DM_ID1_TYPE = 1;
 
-  public static HashSet excluded_meta = null;
+  public static final Set<String> excluded_meta;
 
   static {
-    excluded_meta = new HashSet();
+    excluded_meta = new HashSet<String>();
     excluded_meta.add("i_vstamp");
     excluded_meta.add("i_is_replica");
     excluded_meta.add("i_retainer_id");
@@ -171,10 +172,10 @@ public class DmInitialize {
     excluded_meta.add("a_application_type");
   }
 
-  public static HashSet included_meta = null;
+  public static final Set<String> included_meta;
 
   static {
-    included_meta = new HashSet();
+    included_meta = new HashSet<String>();
     included_meta.add("object_name");
     included_meta.add("r_object_type");
     included_meta.add("title");

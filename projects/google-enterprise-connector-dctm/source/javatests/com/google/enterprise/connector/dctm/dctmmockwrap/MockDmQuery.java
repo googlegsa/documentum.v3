@@ -30,6 +30,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryResult;
+import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmQuery implements IQuery {
@@ -69,7 +70,8 @@ public class MockDmQuery implements IQuery {
           .length());
       ids[ids.length - 1] = ids[ids.length - 1].substring(0,
           ids[ids.length - 1].length() - 2);
-      List filteredResults = new MockMockList(ids, sessionManager);
+      List<MockRepositoryDocument> filteredResults =
+          new MockMockList(ids, sessionManager);
 
       if (filteredResults != null) {
         QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
@@ -149,7 +151,8 @@ public class MockDmQuery implements IQuery {
       ids[ids.length - 1] = ids[ids.length - 1].substring(0,
           ids[ids.length - 1].length() - 2);
 
-      List filteredResults = new MockMockList(ids, session.getSessionManager());
+      List<MockRepositoryDocument> filteredResults =
+          new MockMockList(ids, session.getSessionManager());
       if (filteredResults != null) {
         QueryResult filteredQR = new MockJcrQueryResult(filteredResults);
         MockDmCollection finalCollection = new MockDmCollection(

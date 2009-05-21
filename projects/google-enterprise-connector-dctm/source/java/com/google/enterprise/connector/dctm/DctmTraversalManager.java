@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,9 +55,9 @@ public class DctmTraversalManager implements TraversalManager {
 
   private boolean isPublic;
 
-  private HashSet hash_included_object_type;
+  private Set<String> hash_included_object_type;
 
-  private HashSet hash_included_meta;
+  private Set<String> hash_included_meta;
 
   private String root_object_type;
 
@@ -354,16 +355,16 @@ public class DctmTraversalManager implements TraversalManager {
   }
 
   protected String buildQueryString(String checkpoint) {
-    StringBuffer query = new StringBuffer(
-        "select i_chronicle_id, r_object_id, r_modify_date from "
-        + this.root_object_type);
+    StringBuilder query = new StringBuilder(
+        "select i_chronicle_id, r_object_id, r_modify_date from ");
+    query.append(this.root_object_type);
     if (!hash_included_object_type.isEmpty()) {
       query.append(" where (");
-      Iterator iter = hash_included_object_type.iterator();
-      String name = (String) iter.next();
+      Iterator<String> iter = hash_included_object_type.iterator();
+      String name = iter.next();
       query.append(" r_object_type='" + name + "'");
       while (iter.hasNext()) {
-        name = (String) iter.next();
+        name = iter.next();
         query.append(" OR r_object_type='" + name + "'");
       }
       query.append(")");
@@ -407,12 +408,10 @@ public class DctmTraversalManager implements TraversalManager {
   }
 
   protected String buildQueryStringToDel(String checkpoint) {
-    StringBuffer query = new StringBuffer(
-        "select r_object_id,  chronicle_id, time_stamp from dm_audittrail " );
-
-    query.append(" where ");
-
-    query.append(" event_name='dm_destroy' ");
+    StringBuilder query = new StringBuilder(
+        "select r_object_id, chronicle_id, time_stamp from dm_audittrail ");
+    query.append("where ");
+    query.append("event_name='dm_destroy' ");
 
     if (checkpoint != null) {
       logger.fine("adding the checkpoint to the query : " + checkpoint);
@@ -505,20 +504,18 @@ public class DctmTraversalManager implements TraversalManager {
   }
 
   protected void setHash_included_object_type(String included_object_type) {
-    hash_included_object_type = new HashSet();
+    hash_included_object_type = new HashSet<String>();
     String[] hashTab = included_object_type.split(",");
     for (int i = 0; i < hashTab.length; i++) {
       hash_included_object_type.add(hashTab[i]);
     }
-    this.hash_included_object_type = hash_included_object_type;
   }
 
   protected void setHash_included_meta(String included_metadata) {
-    hash_included_meta = new HashSet();
+    hash_included_meta = new HashSet<String>();
     String[] hashTab = included_metadata.split(",");
     for (int i = 0; i < hashTab.length; i++) {
       hash_included_meta.add(hashTab[i]);
     }
-    this.hash_included_meta = hash_included_meta;
   }
 }

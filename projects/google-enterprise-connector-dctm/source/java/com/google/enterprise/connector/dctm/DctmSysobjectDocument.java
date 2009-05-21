@@ -39,6 +39,8 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.SpiConstants.ActionType;
+import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spiimpl.BinaryValue;
 import com.google.enterprise.connector.spiimpl.BooleanValue;
 import com.google.enterprise.connector.spiimpl.DoubleValue;
@@ -50,7 +52,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
   /** The maximum content size that will be allowed. */
   private static final long MAX_CONTENT_SIZE = 30L * 1024 * 1024;
-  
+
   private String docId;
   private String commonVersionID;
   private ITime timeStamp;
@@ -65,9 +67,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
   private String versionId;
 
-  private SpiConstants.ActionType action;
+  private final ActionType action;
 
-  private HashSet included_meta;
+  private final Set<String> included_meta;
 
   private String object_id_name = "r_object_id";
 
@@ -79,9 +81,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     logger = Logger.getLogger(DctmSysobjectDocument.class.getName());
   }
 
-  public DctmSysobjectDocument(String docid, ITime lastModifDate, ISessionManager sessionManager,
-      IClientX clientX, String isPublic, HashSet included_meta,
-      SpiConstants.ActionType action) {
+  public DctmSysobjectDocument(String docid, ITime lastModifDate,
+      ISessionManager sessionManager, IClientX clientX, String isPublic,
+      Set<String> included_meta, ActionType action) {
     this.docId = docid;
     this.sessionManager = sessionManager;
     this.clientX = clientX;
@@ -91,9 +93,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     this.action = action;
   }
 
-  public DctmSysobjectDocument(String docid, String commonVersionID, ITime timeStamp, ISessionManager sessionManager,
-      IClientX clientX, String isPublic, HashSet included_meta,
-      SpiConstants.ActionType action) {
+  public DctmSysobjectDocument(String docid, String commonVersionID,
+      ITime timeStamp, ISessionManager sessionManager, IClientX clientX,
+      String isPublic, Set<String> included_meta, ActionType action) {
     this.docId = docid;
     this.versionId = commonVersionID;
     this.timeStamp = timeStamp;
@@ -112,7 +114,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     try {
       String docbaseName = sessionManager.getDocbaseName();
       session = sessionManager.getSession(docbaseName);
-      if (SpiConstants.ActionType.ADD.equals(action)) {
+      if (ActionType.ADD.equals(action)) {
         logger.info("Get a session for the docbase " + docbaseName);
 
         IId id = clientX.getId(docId);
@@ -137,12 +139,12 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
   public Property findProperty(String name) throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
     IFormat dctmForm = null;
-    HashSet hashSet = new HashSet();
+    Set<Value> hashSet = new HashSet<Value>();
 
     logger.fine("In findProperty; name : " + name);
     logger.fine("action : " + action);
 
-    if (SpiConstants.ActionType.ADD.equals(action)) {
+    if (ActionType.ADD.equals(action)) {
       fetch();
       if (SpiConstants.PROPNAME_ACTION.equals(name)) {
         hashSet.add(new StringValue(action.toString()));
@@ -330,12 +332,12 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     return calendar;
   }
 
-  public Set getPropertyNames() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
-    HashSet properties = null;
-    if (SpiConstants.ActionType.ADD.equals(action)) {
+  public Set<String> getPropertyNames() throws RepositoryException {
+    Set<String> properties = null;
+    if (ActionType.ADD.equals(action)) {
       logger.fine("fetching the object");
       fetch();
-      properties = new HashSet();
+      properties = new HashSet<String>();
       properties.add(SpiConstants.PROPNAME_DISPLAYURL);
       properties.add(SpiConstants.PROPNAME_ISPUBLIC);
       properties.add(SpiConstants.PROPNAME_LASTMODIFIED);
@@ -356,7 +358,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         logger.log(Level.WARNING, "Error fetching property names", e);
       }
     } else {
-      properties = new HashSet();
+      properties = new HashSet<String>();
       properties.add(SpiConstants.PROPNAME_ACTION);
       properties.add(SpiConstants.PROPNAME_DOCID);
       properties.add("r_object_id");
