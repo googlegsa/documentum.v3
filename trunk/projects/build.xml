@@ -62,6 +62,8 @@
 		<javac srcdir="${src-client}" destdir="${classes-client}" 
 			debug="${COMPILE_DEBUG_FLAG}"
 			debuglevel="${COMPILE_DEBUG_LEVEL}">
+			<!-- javac does not handle JAR Class-Path references -->
+			<compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
 			<classpath>
 				<pathelement location="${spi.jarfile}" />
 				<pathelement location="${dfc.jarfile}" />
@@ -76,6 +78,7 @@
 		<javac srcdir="${src-tests}" destdir="${classes-tests}" 
 			debug="${COMPILE_DEBUG_FLAG}"
 			debuglevel="${COMPILE_DEBUG_LEVEL}">
+			<compilerarg line="-Xlint -Xlint:-serial"/>
 			<classpath>
 				<pathelement location="${spi.jarfile}" />
 				<pathelement location="${tests.jarfile}" />
@@ -92,6 +95,7 @@
 		<javac srcdir="${src-core}" destdir="${classes-core}" 
 			debug="${COMPILE_DEBUG_FLAG}"
 			debuglevel="${COMPILE_DEBUG_LEVEL}">
+			<compilerarg line="-Xlint -Xlint:-serial"/>
 			<classpath>
 				<pathelement location="${spring.jarfile}" />
 				<pathelement location="${spi.jarfile}" />

@@ -14,7 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.Iterator;
+import java.util.Set;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient;
@@ -28,7 +28,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.SpiConstants.ActionType;
+import com.google.enterprise.connector.spi.Value;
 
 import junit.framework.TestCase;
 
@@ -75,16 +76,11 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     object = session.getObject(id);
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-    DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
-    DmInitialize.included_meta, SpiConstants.ActionType.ADD);
+        DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX,
+        "false", DmInitialize.included_meta, ActionType.ADD);
 
-    Iterator iterator = dctmSpm.getPropertyNames().iterator();
-    int counter = 0;
-    while (iterator.hasNext()) {
-      iterator.next();
-      counter++;
-    }
-    assertEquals(3, counter);
+    Set<String> names = dctmSpm.getPropertyNames();
+    assertEquals(3, names.size());
   }
 
   public void testFindProperty() throws RepositoryException {
@@ -98,13 +94,13 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     object = session.getObject(id);
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-        DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
-        DmInitialize.included_meta, SpiConstants.ActionType.ADD);
-    Property property = dctmSpm.findProperty("google:docid");
-    assertTrue(property instanceof DctmSysobjectProperty);
+        DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX,
+        "false", DmInitialize.included_meta, ActionType.ADD);
 
-    assertEquals("google:docid", ((DctmSysobjectProperty) property)
-        .getName());
-    assertEquals(DmInitialize.DM_ID1, property.nextValue().toString());
+    Property property = dctmSpm.findProperty("google:docid");
+    assertNotNull(property);
+    Value value = property.nextValue();
+    assertNotNull(value);
+    assertEquals(DmInitialize.DM_ID1, value.toString());
   }
 }

@@ -16,9 +16,8 @@ package com.google.enterprise.connector.dctm;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.logging.Logger;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,10 +32,8 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spiimpl.StringValue;
 
-public class DctmDocumentList extends LinkedList implements DocumentList {
-  private static final long serialVersionUID = 9081981L;
-
-  private static Logger logger;
+public class DctmDocumentList implements DocumentList {
+  private static final Logger logger;
 
   ICollection collectionToAdd;
 
@@ -48,7 +45,7 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
 
   private boolean isPublic;
 
-  private HashSet included_meta;
+  private final Set<String> included_meta;
 
   private String lastCheckPoint;
   private String dateFirstPush;
@@ -61,11 +58,12 @@ public class DctmDocumentList extends LinkedList implements DocumentList {
   private DctmSysobjectDocument dctmSysobjectDocumentToDel;
 
   public DctmDocumentList() {
-    super();
+    this.included_meta = null;
   }
 
-  public DctmDocumentList(ICollection collToAdd, ICollection collToDel, ISessionManager sessMag,
-      IClientX clientX, boolean isPublic, HashSet included_meta, String dateFirstPush, String lastCheckPoint) {
+  public DctmDocumentList(ICollection collToAdd, ICollection collToDel,
+      ISessionManager sessMag, IClientX clientX, boolean isPublic,
+      Set<String> included_meta, String dateFirstPush, String lastCheckPoint) {
     this.collectionToAdd = collToAdd;
     this.collectionToDel = collToDel;
     this.clientX = clientX;

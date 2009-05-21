@@ -15,7 +15,6 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.jcr.Credentials;
 import javax.jcr.SimpleCredentials;
@@ -46,9 +45,11 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
   private MockDmSession sessionAuto;
   private MockDmSession sessionConfig;
 
-  private HashMap sessMgerCreds = new HashMap(1, 1);
+  private final HashMap<String, ILoginInfo> sessMgerCreds =
+      new HashMap<String, ILoginInfo>(1, 1);
 
-  private HashMap sessMgerSessions = new HashMap(1, 1);
+  private final HashMap<String, MockDmSession> sessMgerSessions =
+      new HashMap<String, MockDmSession>(1, 1);
 
   // //////////////////////////////////////////////////
   /** ******************Public use******************* */
@@ -97,7 +98,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
       throws com.google.enterprise.connector.spi.RepositoryException {
     if (sessMgerCreds.containsKey(docbase)) {
       currentSession = createAuthenticatedSession(docbase,
-          (ILoginInfo) sessMgerCreds.get(docbase));
+          sessMgerCreds.get(docbase));
       if (!sessMgerSessions.containsKey(docbase))
         sessMgerSessions.put(docbase, currentSession);
       else {
@@ -127,7 +128,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
     MockDmSession tmp;
     try {
       tmp = createAuthenticatedSession(docbaseName,
-          (ILoginInfo) sessMgerCreds.get(docbaseName));
+          sessMgerCreds.get(docbaseName));
     } catch (RepositoryException e) {
       return false;
     }
@@ -163,11 +164,9 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
   }
 
   public String getDocbaseName() {
-    Iterator e = sessMgerSessions.keySet().iterator();
-    while (e.hasNext()) {
-      Object n = e.next();
+    for (String n : sessMgerSessions.keySet()) {
       if (sessMgerSessions.get(n).equals(currentSession)) {
-        return (String) n;
+        return n;
       }
     }
     return null;
@@ -178,15 +177,14 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
    * session management
    */
   public void setDocbaseName(String docbaseName) {
-    currentSession = (MockDmSession) sessMgerSessions
-        .get((Object) docbaseName);
+    currentSession = sessMgerSessions.get(docbaseName);
   }
 
   public void setServerUrl(String serverUrl) {
   }
 
   public ILoginInfo getIdentity(String docbase) {
-    return (ILoginInfo) sessMgerCreds.get(docbase);
+    return sessMgerCreds.get(docbase);
   }
 
   // //////////////////////////////////////////////////
