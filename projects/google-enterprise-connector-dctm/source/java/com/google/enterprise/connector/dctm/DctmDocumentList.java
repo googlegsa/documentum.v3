@@ -28,6 +28,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
+import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spiimpl.StringValue;
@@ -157,12 +158,11 @@ public class DctmDocumentList implements DocumentList {
     String dateString = "";
     if (dctmSysobjectDocument != null) {
       logger.fine("in dctmSysobjectDocument not null");
-      DctmSysobjectProperty prop = ((DctmSysobjectProperty) (dctmSysobjectDocument
-          .findProperty("r_object_id")));
+      Property prop = dctmSysobjectDocument.findProperty("r_object_id");
       uuid = ((StringValue) prop.nextValue()).toString();
       logger.fine("uuid of the checkpoint is " + uuid);
 
-      prop = (DctmSysobjectProperty) dctmSysobjectDocument.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
+      prop = dctmSysobjectDocument.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
 
       DctmDateValue nextValAdd =  ((DctmDateValue) prop.nextValue());
 
@@ -195,7 +195,7 @@ public class DctmDocumentList implements DocumentList {
     if (dctmSysobjectDocumentToDel != null)
     {
       logger.fine("in dctmSysobjectDocumentToDel not null");
-      DctmSysobjectProperty propDocToDel = ((DctmSysobjectProperty) (dctmSysobjectDocumentToDel.findProperty("r_object_id")));
+      Property propDocToDel = dctmSysobjectDocumentToDel.findProperty("r_object_id");
 
       StringValue nextVal = ((StringValue) propDocToDel.nextValue());
       if (nextVal != null) {
@@ -203,7 +203,7 @@ public class DctmDocumentList implements DocumentList {
       }
 
       logger.fine("uuid of the checkpoint of deleted document is " + uuidDocToDel);
-      propDocToDel = (DctmSysobjectProperty) dctmSysobjectDocumentToDel.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
+      propDocToDel = dctmSysobjectDocumentToDel.findProperty(SpiConstants.PROPNAME_LASTMODIFIED);
 
       DctmDateValue nextVal2 = ((DctmDateValue) propDocToDel.nextValue());
       if (nextVal2 != null) {
