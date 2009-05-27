@@ -86,7 +86,7 @@ public class DctmConnectorType implements ConnectorType {
 
   private static final String SELECT_END = "</select>\r\n";
 
-  private static final String SELECTED = "selected='selected' ";
+  private static final String SELECTED = " selected='selected'";
 
   private static final String TEXTAREA_START = "<textarea";
 
@@ -131,7 +131,7 @@ public class DctmConnectorType implements ConnectorType {
 
   private static final String CHECKBOX = "checkbox";
 
-  private static final String CHECKED = "checked='checked'";
+  private static final String CHECKED = " checked='checked'";
 
   private static final String ID = "id";
 
@@ -150,10 +150,6 @@ public class DctmConnectorType implements ConnectorType {
   private IClient client;
 
   private IClientX cl = null;
-
-  private ISession sess = null;
-
-  private ISessionManager sessMag = null;
 
   /**
    * Set the keys that are required for configuration. One of the overloadings
@@ -213,47 +209,46 @@ public class DctmConnectorType implements ConnectorType {
       throw new IllegalStateException();
     }
 
-    return new ConfigureResponse("", makeValidatedForm(null, resource));
+    return new ConfigureResponse("",
+        makeValidatedForm(null, resource, null, null));
   }
 
   public ConfigureResponse validateConfig(Map<String, String> configData,
       Locale language, ConnectorFactory connectorFactory) {
-    sess = null;
-    sessMag = null;
+    ISession sess = null;
+    ISessionManager sessMag = null;
 
     ResourceBundle resource = getResources(language);
     String form = null;
 
     String validation = validateConfigMap(configData);
-    String additionalWhereClause = null;
-    boolean where_clause_config = false;
     if (validation.equals("")) {
+      // Make sure advanced_configuration has a default value.
+      if (!configData.containsKey(ADVANCEDCONF))
+        configData.put(ADVANCEDCONF, "");
+
+      String additionalWhereClause = null;
+      boolean where_clause_config = false;
       try {
         logger.config("CONFIG DATA is " + getMaskedMap(configData));
 
-        setSessionManager(configData);
+        sessMag = getSessionManager(configData);
 
         ILoginInfo myinfo = sessMag.getIdentity(configData.get(DOCBASENAME));
         String pass = myinfo.getPassword();
         String user = myinfo.getUser();
         logger.config("login user: " + user);
 
-        setSession(configData);
+        sess = getSession(configData, sessMag);
 
-        logger.fine("test connection to the repository");
+        logger.fine("test connection to the repository: " + sess);
 
         String isPublic = configData.get(ISPUBLIC);
         if (isPublic == null) {
           configData.put(isPublic, "false");
         }
 
-        if (logger.isLoggable(Level.FINE)) {
-          logger.fine("sess before testwebtop: " + sess);
-        }
         testWebtopUrl(configData.get(DISPLAYURL));
-        if (logger.isLoggable(Level.FINE)) {
-          logger.fine("sess after testwebtop: " + sess);
-        }
 
         // Display the form again when the advanced conf checkbox is
         // checked and before that the user had saved the
@@ -264,15 +259,15 @@ public class DctmConnectorType implements ConnectorType {
             || configData.get(ACTIONUPDATE).equals("uncheckadvconf")) {
           logger.config("CASE ADVANCEDCONF SET TO on or ACTIONUPDATE set to uncheckadvconf");
 
-          form = makeValidatedForm(configData, resource);
+          form = makeValidatedForm(configData, resource, sessMag, sess);
           return new ConfigureResponse("", form);
         }
 
         if (configData.get(WHERECLAUSE) != null
             && !configData.get(WHERECLAUSE).equals("")) {
           where_clause_config = true;
-          additionalWhereClause =
-              checkAdditionalWhereClause(configData.get("where_clause"));
+          additionalWhereClause = checkAdditionalWhereClause(
+              configData.get("where_clause"), sessMag);
 
           configData.put("where_clause", additionalWhereClause);
           configData.put(ACTIONUPDATE, "checkadvconf");
@@ -292,7 +287,7 @@ public class DctmConnectorType implements ConnectorType {
         logger.log(Level.SEVERE,
             "RepositoryException thrown in validateConfig: ", e);
         // Return the config form with an error message.
-        return createErrorMessage(configData, e, resource);
+        return createErrorMessage(configData, e, resource, sessMag, sess);
       } finally {
         if (sess != null) {
           sessMag.releaseSessionConfig();
@@ -312,7 +307,7 @@ public class DctmConnectorType implements ConnectorType {
     logger.config("sess: " + sess);
     configData.put(ADVANCEDCONF, "off");
 
-    form = makeValidatedForm(configData, resource);
+    form = makeValidatedForm(configData, resource, sessMag, sess);
     return new ConfigureResponse(resource.getString(validation + "_error"),
         form);
   }
@@ -322,10 +317,12 @@ public class DctmConnectorType implements ConnectorType {
     logger.fine("getPopulatedConfigForm");
     ConfigureResponse result = null;
 
+    ISessionManager sessMag = null;
+    ISession sess = null;
     try {
-      setSessionManager(configMap);
-      setSession(configMap);
-
+      sessMag = getSessionManager(configMap);
+      sess = getSession(configMap, sessMag);
+      
       for (String key : configKeys) {
         String val = configMap.get(key);
         if (key.equals("advanced_configuration") && val == null) {
@@ -364,7 +361,7 @@ public class DctmConnectorType implements ConnectorType {
       ResourceBundle resource = getResources(language);
 
       result = new ConfigureResponse("",
-          makeValidatedForm(configMap, resource));
+          makeValidatedForm(configMap, resource, sessMag, sess));
     } catch (RepositoryException e1) {
       logger.log(Level.WARNING, "Error building the configuration form", e1);
     } finally {
@@ -419,7 +416,8 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private ConfigureResponse createErrorMessage(Map<String, String> configData,
-      RepositoryException e, ResourceBundle resource) {
+      RepositoryException e, ResourceBundle resource, ISessionManager sessMag,
+      ISession sess) {
     String form;
     String message = e.getMessage();
     String extractErrorMessage = null;
@@ -438,12 +436,12 @@ public class DctmConnectorType implements ConnectorType {
     }
     logger.warning(bundleMessage);
 
-    form = makeValidatedForm(configData, resource);
+    form = makeValidatedForm(configData, resource, sessMag, sess);
     return new ConfigureResponse(bundleMessage, form);
   }
 
-  private String checkAdditionalWhereClause(String additionalWhereClause)
-      throws RepositoryException {
+  private String checkAdditionalWhereClause(String additionalWhereClause,
+      ISessionManager sessMag) throws RepositoryException {
     ICollection collec = null;
     int counter = 0;
 
@@ -453,7 +451,8 @@ public class DctmConnectorType implements ConnectorType {
       IQuery query = cl.getQuery();
       String dql = "select r_object_id from dm_sysobject "
           + "where r_object_type='dm_document' ";
-      // FIXME: Trim leading whitespace first (and don't require the space?).
+      // FIXME: Trim leading whitespace first (and maybe don't require the
+      // trailing space?).
       if (!additionalWhereClause.toLowerCase().startsWith("and ")) {
         query.setDQL(dql + "and "
             + additionalWhereClause);
@@ -519,7 +518,7 @@ public class DctmConnectorType implements ConnectorType {
           && !key.equals(WHERECLAUSE) && !key.equals(ISPUBLIC)
           && !key.equals(INCLUDED_OBJECT_TYPE)
           && !key.equals(INCLUDED_META) && !key.equals(ROOT_OBJECT_TYPE)
-          && !key.equals(WHERECLAUSE)
+          && !key.equals(WHERECLAUSE) && !key.equals(ADVANCEDCONF)
           && (val == null || val.length() == 0)) {
         return key;
       }
@@ -528,7 +527,7 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private String makeValidatedForm(Map<String, String> configMap,
-      ResourceBundle resource) {
+      ResourceBundle resource, ISessionManager sessMag, ISession sess) {
     StringBuilder buf = new StringBuilder();
 
     String rootType = "";
@@ -624,7 +623,7 @@ public class DctmConnectorType implements ConnectorType {
 
             // Creation of a collection of all Dctm types whose
             // super_name attribute is not empty.
-            collecTypes = getListOfTypes(rootType);
+            collecTypes = getListOfTypes(rootType, sessMag);
 
             // Properties are displayed according to the values stored
             // in the .properties file.
@@ -652,9 +651,8 @@ public class DctmConnectorType implements ConnectorType {
 
             // Properties are displayed according to the values stored
             // in the .properties file.
-            appendSelectMultipleIncludeMetadatas(buf, INCLUDED_META, configMap);
-
-            logger.fine("after closing the collection");
+            appendSelectMultipleIncludeMetadatas(buf, INCLUDED_META,
+                configMap, sess);
           } else {
             logger.config("cas actionUpdate uncheckadvconf or no sess");
 
@@ -673,16 +671,6 @@ public class DctmConnectorType implements ConnectorType {
           logger.fine("where clause");
           appendStartRow(buf, resource.getString(key));
           appendTextarea(buf, WHERECLAUSE, value);
-          /*
-        } else if (key.equals(ROOT_OBJECT_TYPE)) {
-          logger.fine("makeValidatedForm - rootObjectType");
-          // TODO: Move this lower with readonly
-          appendStartRow(buf, resource.getString(key));
-          buf.append(rootType);
-          appendEndRow(buf);
-
-          appendHiddenInput(buf, key, rootType);
-          */
         } else {
           logger.fine("makeValidatedForm - input - " + key);
           if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE)
@@ -730,7 +718,7 @@ public class DctmConnectorType implements ConnectorType {
     return buf.toString();
   }
 
-  private void setSessionManager(Map<String, String> logMap)
+  private ISessionManager getSessionManager(Map<String, String> logMap)
       throws RepositoryException {
     ILoginInfo loginInfo;
     try {
@@ -760,7 +748,7 @@ public class DctmConnectorType implements ConnectorType {
     }
 
     client = cl.getLocalClient();
-    sessMag = client.newSessionManager();
+    ISessionManager sessMag = client.newSessionManager();
     sessMag.clearIdentity(logMap.get(DOCBASENAME));
     logger.config("after clearIdentity for docbase: "
         + logMap.get(DOCBASENAME));
@@ -771,19 +759,21 @@ public class DctmConnectorType implements ConnectorType {
     sessMag.setIdentity(logMap.get(DOCBASENAME), loginInfo);
     sessMag.setDocbaseName(logMap.get(DOCBASENAME));
     logger.config("after setIdentity for docbase: " + logMap.get(DOCBASENAME));
-    logger.config("new sessionManager");
+    return sessMag;
   }
 
-  private void setSession(Map<String, String> logMap)
+  private ISession getSession(Map<String, String> logMap, ISessionManager sessMag)
       throws RepositoryException {
     logger.config("login vaut " + logMap.get(LOGIN));
     logger.config("docbase vaut " + logMap.get(DOCBASENAME));
 
-    sess = sessMag.getSession(logMap.get(DOCBASENAME));
+    ISession sess = sessMag.getSession(logMap.get(DOCBASENAME));
     sessMag.setSessionConfig(sess);
+    return sess;
   }
 
-  private ICollection getListOfTypes(String root_object_type) {
+  private ICollection getListOfTypes(String root_object_type,
+      ISessionManager sessMag) {
     IQuery que = null;
     String queryString = "";
     ICollection collec = null;
@@ -893,8 +883,8 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TD_START);
 
-    buf.append("<input type=\"button\" value=\"&gt;\"  onclick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
-    buf.append("<input type=\"button\" value=\"&lt;\"  onclick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
+    buf.append("<input type=\"button\" value=\"&gt;\" onclick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
+    buf.append("<input type=\"button\" value=\"&lt;\" onclick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
 
     buf.append(TD_END);
     buf.append(TD_START);
@@ -964,8 +954,8 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TD_START);
 
-    buf.append("<input type=\"button\" value=\"&gt;\"  onclick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');\"></input>\n");
-    buf.append("<input type=\"button\" value=\"&lt;\"  onclick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');\"></input>\n");
+    buf.append("<input type=\"button\" value=\"&gt;\" onclick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');\"></input>\n");
+    buf.append("<input type=\"button\" value=\"&lt;\" onclick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');\"></input>\n");
 
     buf.append(TD_END);
     buf.append(TD_START);
@@ -995,8 +985,9 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
-      String name, Map<String, String> configMap) throws RepositoryException {
-    logger.fine("in appendSelectMultipleIncludeMetadatas collection");
+      String name, Map<String, String> configMap, ISession sess)
+      throws RepositoryException {
+    logger.fine("in appendSelectMultipleIncludeMetadatas properties");
 
     StringBuilder buf2 = new StringBuilder();
 
@@ -1166,8 +1157,8 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TD_START);
 
-    buf.append("<input type=\"button\" value=\"&gt;\"  onclick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
-    buf.append("<input type=\"button\" value=\"&lt;\"  onclick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
+    buf.append("<input type=\"button\" value=\"&gt;\" onclick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
+    buf.append("<input type=\"button\" value=\"&lt;\" onclick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
 
     buf.append(TD_END);
     buf.append(TD_START);
@@ -1181,7 +1172,7 @@ public class DctmConnectorType implements ConnectorType {
 
   private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
       String name, Set<String> hashMeta) {
-    logger.fine("in appendSelectMultipleIncludeMetadatas hashMeta");
+    logger.fine("in appendSelectMultipleIncludeMetadatas defaults");
 
     StringBuilder buf2 = new StringBuilder();
 
@@ -1208,8 +1199,8 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TD_START);
 
-    buf.append("<input type=\"button\" value=\"&gt;\"  onclick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');\"></input>\n");
-    buf.append("<input type=\"button\" value=\"&lt;\"  onclick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');\"></input>\n");
+    buf.append("<input type=\"button\" value=\"&gt;\" onclick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');\"></input>\n");
+    buf.append("<input type=\"button\" value=\"&lt;\" onclick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');\"></input>\n");
 
     buf.append(TD_END);
     buf.append(TD_START);
@@ -1227,63 +1218,42 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_START_COLSPAN);
     buf.append(OPEN_ELEMENT);
     buf.append(INPUT);
-    buf.append(" ");
-    buf.append(TYPE);
-    buf.append("=\"");
-    buf.append(CHECKBOX);
-    buf.append("\" ");
-    buf.append(NAME);
-    buf.append("=\"");
-    buf.append(key);
-    buf.append("\" ");
+    appendAttribute(buf, TYPE, CHECKBOX);
+    appendAttribute(buf, VALUE, "on"); // Also the browsers default value.
+    appendAttribute(buf, NAME, key);
 
-    if (key.equals(ADVANCEDCONF)) {
-      buf.append("id=\"ADVC\" ");
-      if (value != null && value.equals("on")) {
-        logger.config("advanced conf not null");
-        logger.config("advanced conf set to on");
-        buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
-            "document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
-            "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\" ");
-        buf.append(CHECKED);
-        buf.append(CLOSE_ELEMENT);
-        buf.append(label);
-        appendEndRow(buf);
+    boolean isAdvanced = key.equals(ADVANCEDCONF);
+    boolean isOn = value != null && value.equals("on");
+    if (isAdvanced) {
+      logger.config("advanced conf set to " + value);
+      appendAttribute(buf, "id", "ADVC");
+      buf.append(" onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
+          "document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
+          "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\"");
+    }
 
-        appendHiddenInput(buf, "advanced_configuration", "true");
+    if (isOn) {
+      buf.append(CHECKED);
+    }
+    buf.append(CLOSE_ELEMENT);
+    if (isAdvanced) {
+      buf.append("<label");
+      appendAttribute(buf, "for", "ADVC");
+      buf.append(">");
+      buf.append(label);
+      buf.append("</label>");
+    } else {
+      buf.append(label);
+    }
+      
+    appendEndRow(buf);
 
-        /*
-        appendHiddenInput(buf, "action_update", "action_update", "save");
-        */
-
+    if (isAdvanced) {
+      if (isOn) {
         buf.append("<tbody id=\"more\">");
       } else {
-        logger.config("advanced conf set to off");
-        ///insertIncludeMetas();insertIncludeTypes();
-        ///buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){document.getElementById('more').style.display='';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}\">");
-        buf.append("onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){" +
-            "document.getElementById('more').style.display='';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}" +
-            "else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
-            "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\"");
-        buf.append(CLOSE_ELEMENT);
-        buf.append(label);
-        appendEndRow(buf);
-
-        appendHiddenInput(buf, "advanced_configuration", "false");
-
-        /*
-        appendHiddenInput(buf, "action_update", "action_update", "save");
-        */
-
         buf.append("<tbody id=\"more\" style=\"display: none\">");
       }
-    } else {
-      if (value != null && value.equals("on")) {
-        buf.append(CHECKED);
-      }
-      buf.append(CLOSE_ELEMENT);
-      buf.append(label);
-      appendEndRow(buf);
     }
   }
 
@@ -1344,14 +1314,13 @@ public class DctmConnectorType implements ConnectorType {
         buf.append(">\n");
 
         for (int i = 0; i < mapOfDocbasesName.getDocbaseCount(); i++) {
-          buf.append("\t<option ");
+          buf.append("\t<option");
           if (value != null
               && mapOfDocbasesName.getDocbaseName(i).equals(value)) {
             buf.append(SELECTED);
           }
-          buf.append("value=\"");
-          buf.append(mapOfDocbasesName.getDocbaseName(i));
-          buf.append("\">");
+          appendAttribute(buf, VALUE, mapOfDocbasesName.getDocbaseName(i));
+          buf.append(">");
           buf.append(mapOfDocbasesName.getDocbaseName(i));
           buf.append("</option>\n");
         }
