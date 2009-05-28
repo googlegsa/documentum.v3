@@ -137,9 +137,9 @@ public class DctmConnectorType implements ConnectorType {
 
   private List<String> configKeys = null;
 
-  private Set<String> included_object_type = null;
+  private Set<String> includedObjectType = null;
 
-  private Set<String> included_meta = null;
+  private Set<String> includedMeta = null;
 
   private String root_object_type = null;
 
@@ -178,14 +178,14 @@ public class DctmConnectorType implements ConnectorType {
     setConfigKeys(Arrays.asList(configKeys));
   }
 
-  public void setIncluded_meta(Set<String> included_meta) {
-    this.included_meta = included_meta;
-    logger.config("included_meta set to " + included_meta);
+  public void setIncluded_meta(Set<String> includedMeta) {
+    this.includedMeta = includedMeta;
+    logger.config("included_meta set to " + includedMeta);
   }
 
-  public void setIncluded_object_type(Set<String> included_object_type) {
-    this.included_object_type = included_object_type;
-    logger.config("included_object_type set to " + included_object_type);
+  public void setIncluded_object_type(Set<String> includedObjectType) {
+    this.includedObjectType = includedObjectType;
+    logger.config("included_object_type set to " + includedObjectType);
   }
 
   public void setRoot_object_type(String root_object_type) {
@@ -540,10 +540,10 @@ public class DctmConnectorType implements ConnectorType {
 
     logger.fine("in makeValidatedForm");
 
-    //javascript functions used to
+    // JavaScript functions used to sync the select lists with the
+    // hidden fields.
     appendStartHiddenRow(buf);
     buf.append(SCRIPT_START);
-
     buf.append("function insertIncludeMetas() { \n");
     buf.append("var txtIncludeMetas = document.getElementById('CM_included_meta');\n");
     buf.append("var selectedArray = new Array();\n");
@@ -627,8 +627,7 @@ public class DctmConnectorType implements ConnectorType {
 
             // Properties are displayed according to the values stored
             // in the .properties file.
-            appendSelectMultipleIncludeTypes(buf, INCLUDED_OBJECT_TYPE,
-                collecTypes, configMap);
+            appendSelectMultipleIncludeTypes(buf, collecTypes, configMap);
           } else {
             logger.config("cas actionUpdate uncheckadvconf or no sess");
             logger.config("cas actionUpdate " + actionUpdate);
@@ -636,8 +635,7 @@ public class DctmConnectorType implements ConnectorType {
 
             // Properties are displayed according to the default
             // values stored in the connectorType.xml file.
-            appendSelectMultipleIncludeTypes(buf, INCLUDED_OBJECT_TYPE,
-                included_object_type, rootType);
+            appendSelectMultipleIncludeTypes(buf, includedObjectType, configMap);
           }
         } else if (key.equals(INCLUDED_META)) {
           appendStartTableRow(buf, resource.getString(AVAILABLE_META),
@@ -651,15 +649,13 @@ public class DctmConnectorType implements ConnectorType {
 
             // Properties are displayed according to the values stored
             // in the .properties file.
-            appendSelectMultipleIncludeMetadatas(buf, INCLUDED_META,
-                configMap, sess);
+            appendSelectMultipleIncludeMetadatas(buf, configMap, sess);
           } else {
             logger.config("cas actionUpdate uncheckadvconf or no sess");
 
             // Properties are displayed according to the default
             // values stored in the connectorType.xml file.
-            appendSelectMultipleIncludeMetadatas(buf, INCLUDED_META,
-                included_meta);
+            appendSelectMultipleIncludeMetadatas(buf, includedMeta, configMap);
           }
           appendEndTable(buf);
           buf.append("</tbody>");
@@ -799,7 +795,7 @@ public class DctmConnectorType implements ConnectorType {
     return collec;
   }
 
-  private void appendSelectMultipleIncludeTypes(StringBuilder buf, String name,
+  private void appendSelectMultipleIncludeTypes(StringBuilder buf,
       ICollection collecTypes, Map<String, String> configMap)
       throws RepositoryException {
     logger.fine("in SelectMultipleIncludeTypes with collection parameter");
@@ -814,48 +810,50 @@ public class DctmConnectorType implements ConnectorType {
 
     // JavaScript functions used to pass an item from a select list to
     // another one.
-    buf.append(SCRIPT_START +
-      "var selOptions = new Array(); " +
-      "function swap(listFrom, listTo){" +
-        "fromList=document.getElementsByName(listFrom)[0];" +
-        "toList = document.getElementsByName(listTo)[0];" +
+    buf.append(SCRIPT_START);
+    buf.append("var selOptions = new Array(); ");
+    buf.append("function swap(listFrom, listTo){");
+    buf.append("fromList=document.getElementsByName(listFrom)[0];");
+    buf.append("toList = document.getElementsByName(listTo)[0];");
 
-        "var i;" +
-        "var count = 0;" +
-        ///"alert(fromList.options.length);" +
-        "for(i=0;i<fromList.options.length;i++){" +
-          "if (fromList.options[i].selected) {" +
-            "count++;" +
-            ///"alert('option '+i+' selected');" +
-            ///"alert('count = '+count);" +
-          "}" +
-          "if ((count == fromList.options.length)&&(listFrom=='CM_included_object_type_bis')){" +
-            "alert('You need to select at least one object type');" +
-            "return false;" +
-          "}" +
-          "if ((count == fromList.options.length)&&(listFrom=='CM_included_meta_bis')){" +
-            "alert('You need to select at least one property');" +
-            "return false;" +
-          "}" +
-        "}" +
-        ///"alert('selectedIndex = '+fromList.selectedIndex);" +
+    buf.append("var i;");
+    buf.append("var count = 0;");
+    ///buf.append("alert(fromList.options.length);");
+    buf.append("for(i=0;i<fromList.options.length;i++){");
+    buf.append("if (fromList.options[i].selected) {");
+    buf.append("count++;");
+    ///buf.append("alert('option '+i+' selected');");
+    ///buf.append("alert('count = '+count);");
+    buf.append("}");
+    buf.append("if ((count == fromList.options.length)")
+        .append("&&(listFrom=='CM_included_object_type_bis')){");
+    buf.append("alert('You need to select at least one object type');");
+    buf.append("return false;");
+    buf.append("}");
+    buf.append("if ((count == fromList.options.length)")
+        .append("&&(listFrom=='CM_included_meta_bis')){");
+    buf.append("alert('You need to select at least one property');");
+    buf.append("return false;");
+    buf.append("}");
+    buf.append("}");
 
-        "while (fromList.selectedIndex != -1)" +
-        "{ " +
-          "addOption(toList,fromList.options[fromList.selectedIndex]); " +
-          "fromList.options[fromList.selectedIndex] = null;" +
-        " }" +
-      " } " +
-      "function addOption(list, option){" +
-        " list.options[list.options.length]=new Option(option.value,option.value);" +
-      " } " +
-      "function selectAll(select){" +
-        "for (var i = 0; i < document.getElementById(select).length; i++)" +
-        "{" +
-          "document.getElementById(select).options[i].selected = true;" +
-        "}" +
-      "}\n" +
-      SCRIPT_END);
+    ///buf.append("alert('selectedIndex = '+fromList.selectedIndex);");
+    buf.append("while (fromList.selectedIndex != -1)");
+    buf.append("{ ");
+    buf.append("addOption(toList,fromList.options[fromList.selectedIndex]); ");
+    buf.append("fromList.options[fromList.selectedIndex] = null;");
+    buf.append(" }");
+    buf.append(" } ");
+    buf.append("function addOption(list, option){");
+    buf.append(" list.options[list.options.length]=new Option(option.value,option.value);");
+    buf.append(" } ");
+    buf.append("function selectAll(select){");
+    buf.append("for (var i = 0; i < document.getElementById(select).length; i++)");
+    buf.append("{");
+    buf.append("document.getElementById(select).options[i].selected = true;");
+    buf.append("}");
+    buf.append("}\n");
+    buf.append(SCRIPT_END);
 
     // Creation of the list of the types available for selection.
     appendSelectStart(buf, "included_object_type_toinclude");
@@ -883,8 +881,20 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TD_START);
 
-    buf.append("<input type=\"button\" value=\"&gt;\" onclick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
-    buf.append("<input type=\"button\" value=\"&lt;\" onclick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');insertIncludeTypes();insertIncludeMetas();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
+    appendStartOnclickButton(buf, "&gt;");
+    buf.append("swap('CM_included_object_type_toinclude','CM_included_object_type_bis');");
+    buf.append("insertIncludeTypes();insertIncludeMetas();");
+    buf.append("document.getElementById('action_update').value='addmeta';");
+    buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
+    buf.append("document.body.style.cursor='wait';");
+    appendEndOnclickButton(buf);
+    appendStartOnclickButton(buf, "&lt;");
+    buf.append("swap('CM_included_object_type_bis','CM_included_object_type_toinclude');");
+    buf.append("insertIncludeTypes();insertIncludeMetas();");
+    buf.append("document.getElementById('action_update').value='addmeta';");
+    buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
+    buf.append("document.body.style.cursor='wait';");
+    appendEndOnclickButton(buf);
 
     buf.append(TD_END);
     buf.append(TD_START);
@@ -892,11 +902,9 @@ public class DctmConnectorType implements ConnectorType {
     // Creation of the select list of the types previously selected.
     appendSelectStart(buf, "CM_included_object_type_bis",
         "included_object_type_bis");
-    if (!hashTypes.isEmpty()) {
-      for (String type : hashTypes) {
-        ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
-        appendOption(buf, type, type);
-      }
+    for (String type : hashTypes) {
+      ///logger.config("appendSelectMultipleIncludeTypes type is " + type);
+      appendOption(buf, type, type);
     }
     buf.append(SELECT_END);
 
@@ -918,65 +926,23 @@ public class DctmConnectorType implements ConnectorType {
     }
   }
 
-  private void appendSelectMultipleIncludeTypes(StringBuilder buf, String name,
-      Set<String> hash, String superData) {
+  private void appendSelectMultipleIncludeTypes(StringBuilder buf,
+      Set<String> defaultObjectTypes, Map<String, String> configMap) {
     logger.fine("in appendSelectMultipleIncludeTypes");
 
-    // JavaScript functions used to pass an item from a select list to
-    // another one.
-    buf.append(SCRIPT_START +
-        "var selOptions = new Array(); " +
-        "function swap(listFrom, listTo){" +
-          "fromList=document.getElementsByName(listFrom)[0]; " +
-          "toList = document.getElementsByName(listTo)[0]; " +
-          "while (fromList.selectedIndex != -1)" +
-          "{ " +
-            "addOption(toList,fromList.options[fromList.selectedIndex]); " +
-            "fromList.options[fromList.selectedIndex] = null;" +
-          " }" +
-        " } " +
-        "function addOption(list, option){" +
-          ///" list.options[list.options.length]=new Option(option.innerHTML,option.value);" +
-        " list.options[list.options.length]=new Option(option.value,option.value);" +
-        " } " +
-        "function selectAll(select){" +
-          "for (var i = 0; i < document.getElementById(select).length; i++)" +
-          "{" +
-            "document.getElementById(select).options[i].selected = true;" +
-          "}" +
-        "}" +
-        SCRIPT_END);
-
-    // Creation of the list of the types available for selection (empty).
-    appendSelectStart(buf, "included_object_type_toinclude");
-    buf.append(SELECT_END);
-
-    buf.append(TD_END);
-    buf.append(TD_START);
-
-    buf.append("<input type=\"button\" value=\"&gt;\" onclick=\"swap('CM_included_object_type_toinclude','CM_included_object_type_bis');\"></input>\n");
-    buf.append("<input type=\"button\" value=\"&lt;\" onclick=\"swap('CM_included_object_type_bis','CM_included_object_type_toinclude');\"></input>\n");
-
-    buf.append(TD_END);
-    buf.append(TD_START);
-
-    // Creation of the select list of the default types (listed in
-    // the connectorType.xml file).
-    appendSelectStart(buf, "CM_included_object_type_bis",
-        "included_object_type_bis");
-    String stTypes = "";
-    if (!hash.isEmpty()) {
-      for (String type : hash) {
-        ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
-        stTypes = stTypes.concat(type + ",");
-        appendOption(buf, type, type);
+    String stTypes;
+    if (configMap != null) {
+      stTypes = configMap.get(INCLUDED_OBJECT_TYPE);
+    } else {
+      stTypes = "";
+      for (String type : defaultObjectTypes) {
+        stTypes = stTypes + type + ",";
+        //appendOption(buf, type, type);
       }
+      stTypes = stTypes.substring(0, stTypes.length() - 1);
     }
-    stTypes = stTypes.substring(0, stTypes.length() - 1);
-    buf.append(SELECT_END);
 
     appendEndRow(buf);
-
     if (logger.isLoggable(Level.FINE)) {
       logger.fine("String included_object_type: " + stTypes);
     }
@@ -985,11 +951,9 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
-      String name, Map<String, String> configMap, ISession sess)
+      Map<String, String> configMap, ISession sess)
       throws RepositoryException {
     logger.fine("in appendSelectMultipleIncludeMetadatas properties");
-
-    StringBuilder buf2 = new StringBuilder();
 
     logger.config("string type: " + configMap.get(INCLUDED_OBJECT_TYPE));
     String[] typeList = configMap.get(INCLUDED_OBJECT_TYPE).split(",");
@@ -1013,7 +977,6 @@ public class DctmConnectorType implements ConnectorType {
       hashMetas.add(metaList[x]);
     }
 
-    appendSelectStart(buf2, "CM_included_meta_bis", "included_meta_bis");
     appendSelectStart(buf, "included_meta_toinclude");
 
     IType dmsysType = sess.getType("dm_sysobject");
@@ -1119,94 +1082,72 @@ public class DctmConnectorType implements ConnectorType {
       // Creation of the select list of the available properties
       // (properties of the selected types) with the names of the
       // types it belongs to.
-      if (!metasByTypes.isEmpty()) {
-        logger.fine("writing the select");
-        Set<String> dataSet = metasByTypes.keySet();
-        for (String data : dataSet) {
-          ///logger.config("appendSelectMultiple " + name + " type vaut " + type);
-          hashTypes = metasByTypes.get(data);
-          if (!hashMetas.contains(data)) {
-            buf.append("<option value=\"");
-            buf.append(data);
-            buf.append("\">");
-            buf.append(data);
-            buf.append(" (");
-            for (String stType : hashTypes) {
-              buf.append(" ");
-              buf.append(stType);
-              buf.append(" ");
-            }
-            buf.append(") </option>\n");
+      Set<String> dataSet = metasByTypes.keySet();
+      for (String data : dataSet) {
+        ///logger.config("appendSelectMultipleIncludeMetadatas type is " + type);
+        hashTypes = metasByTypes.get(data);
+        if (!hashMetas.contains(data)) {
+          buf.append("<option value=\"");
+          buf.append(data);
+          buf.append("\">");
+          buf.append(data);
+          buf.append(" (");
+          for (String stType : hashTypes) {
+            buf.append(" ");
+            buf.append(stType);
+            buf.append(" ");
           }
+          buf.append(") </option>\n");
         }
       }
     }
 
-    // Creation of the select list of the selected properties.
-    if (!hashMetas.isEmpty()) {
-      for (String data : hashMetas) {
-        if (hashMetasOfSelectedTypes.contains(data)) {
-          appendOption(buf2, data, data);
-        }
-      }
-    }
-
-    ///logger.config("appendSelectMultipleIncludeMetadatas " + name);
     buf.append(SELECT_END);
 
     buf.append(TD_END);
     buf.append(TD_START);
 
-    buf.append("<input type=\"button\" value=\"&gt;\" onclick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
-    buf.append("<input type=\"button\" value=\"&lt;\" onclick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');insertIncludeMetas();insertIncludeTypes();document.getElementById('action_update').value='addmeta';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();\"></input>\n");
+    appendStartOnclickButton(buf, "&gt;");
+    buf.append("swap('CM_included_meta_toinclude','CM_included_meta_bis');");
+    buf.append("insertIncludeMetas();insertIncludeTypes();");
+    appendEndOnclickButton(buf);
+    appendStartOnclickButton(buf, "&lt;");
+    buf.append("swap('CM_included_meta_bis','CM_included_meta_toinclude');");
+    buf.append("insertIncludeMetas();insertIncludeTypes();");
+    appendEndOnclickButton(buf);
 
     buf.append(TD_END);
     buf.append(TD_START);
 
-    buf2.append(SELECT_END);
-    buf.append(buf2);
+    // Creation of the select list of the selected properties.
+    appendSelectStart(buf, "CM_included_meta_bis", "included_meta_bis");
+    for (String data : hashMetas) {
+      if (hashMetasOfSelectedTypes.contains(data)) {
+        appendOption(buf, data, data);
+      }
+    }
+    buf.append(SELECT_END);
+
     appendEndRow(buf);
 
     appendHiddenInput(buf, "CM_included_meta", "included_meta", stMeta);
   }
 
   private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
-      String name, Set<String> hashMeta) {
+      Set<String> hashMeta, Map<String, String> configMap) {
     logger.fine("in appendSelectMultipleIncludeMetadatas defaults");
 
-    StringBuilder buf2 = new StringBuilder();
-
-    appendSelectStart(buf2, "CM_included_meta_bis", "included_meta_bis");
-
-    // Creation of the select list of the available properties (empty).
-    appendSelectStart(buf, "included_meta_toinclude");
-
-    // Creation of the select list of the selected properties.
-    String stMeta = "";
-    if (name.equals(INCLUDED_META)) {
-      if (!hashMeta.isEmpty()) {
-        for (String meta : hashMeta) {
-          stMeta = stMeta.concat(meta + ",");
-          appendOption(buf2, meta, meta);
-        }
+    String stMeta;
+    if (configMap != null) {
+      stMeta = configMap.get(INCLUDED_META);
+    } else {
+      stMeta = "";
+      for (String meta : hashMeta) {
+        stMeta = stMeta + meta + ",";
+        //appendOption(buf, meta, meta);
       }
+      stMeta = stMeta.substring(0, stMeta.length() - 1);
     }
-
-    stMeta = stMeta.substring(0, stMeta.length() - 1);
-
-    buf.append(SELECT_END);
-
-    buf.append(TD_END);
-    buf.append(TD_START);
-
-    buf.append("<input type=\"button\" value=\"&gt;\" onclick=\"swap('CM_included_meta_toinclude','CM_included_meta_bis');\"></input>\n");
-    buf.append("<input type=\"button\" value=\"&lt;\" onclick=\"swap('CM_included_meta_bis','CM_included_meta_toinclude');\"></input>\n");
-
-    buf.append(TD_END);
-    buf.append(TD_START);
-
-    buf2.append(SELECT_END);
-    buf.append(buf2);
     appendEndRow(buf);
 
     appendHiddenInput(buf, "CM_included_meta", "included_meta", stMeta);
@@ -1227,9 +1168,26 @@ public class DctmConnectorType implements ConnectorType {
     if (isAdvanced) {
       logger.config("advanced conf set to " + value);
       appendAttribute(buf, "id", "ADVC");
-      buf.append(" onclick=\"if(document.getElementById('more').style.display == 'none'){if((document.getElementById('login').value != '')&amp;&amp;(document.getElementById('Password').value != '')&amp;&amp;(document.getElementById('webtop_display_url').value != '')){document.getElementById('more').style.display='';document.getElementById('action_update').value='checkadvconf';insertIncludeMetas();insertIncludeTypes();" +
-          "document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();}else{alert('" + resource.getString("advanced_config_error") + "');this.checked=false;}}else{if(confirm('" + resource.getString("confirm_uncheck_advanced") + "')){document.getElementById('more').style.display='none';document.getElementById('action_update').value='uncheckadvconf';" +
-          "document.getElementById('where_clause').value='';document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();insertIncludeMetas();insertIncludeTypes();}}\"");
+      buf.append(" onclick=\"");
+      buf.append("if(document.getElementById('more').style.display == 'none'){");
+      buf.append("if((document.getElementById('login').value != '')")
+          .append("&amp;&amp;(document.getElementById('Password').value != '')")
+          .append("&amp;&amp;(document.getElementById('webtop_display_url').value != '')){");
+      if (isOn) {
+        buf.append("document.getElementById('more').style.display='';");
+      } else {
+        buf.append("document.getElementById('action_update').value='checkadvconf';");
+        buf.append("document.body.style.cursor='wait';");
+        buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
+      }
+      buf.append("}else{");
+      buf.append("alert('")
+          .append(resource.getString("advanced_config_error"))
+          .append("');this.checked=false;");
+      buf.append("}");
+      buf.append("}else{");
+      buf.append("document.getElementById('more').style.display='none';");
+      buf.append("}\"");
     }
 
     if (isOn) {
@@ -1421,5 +1379,16 @@ public class DctmConnectorType implements ConnectorType {
     if (attrName == TYPE && attrValue == TEXT) {
       buf.append(" size=\"50\"");
     }
+  }
+
+  private void appendStartOnclickButton(StringBuilder buf, String label) {
+    buf.append("<input");
+    appendAttribute(buf, "type", "button");
+    appendAttribute(buf, "value", label);
+    buf.append(" onclick=\"");
+  }
+
+  private void appendEndOnclickButton(StringBuilder buf) {
+    buf.append("\"></input>\n");
   }
 }
