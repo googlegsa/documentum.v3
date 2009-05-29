@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,6 +73,9 @@ public class DctmConnectorType implements ConnectorType {
 
   private static final String TD_START_LABEL =
       "<td style='white-space: nowrap'>";
+
+  private static final String TD_START_TEXTAREA =
+      "<td style='white-space: nowrap; vertical-align: top; padding-top: 2px'>";
 
   private static final String TD_START_PADDING =
       "<td style='white-space: nowrap; padding-top: 1ex'>\r\n";
@@ -518,7 +523,7 @@ public class DctmConnectorType implements ConnectorType {
           && !key.equals(WHERECLAUSE) && !key.equals(ISPUBLIC)
           && !key.equals(INCLUDED_OBJECT_TYPE)
           && !key.equals(INCLUDED_META) && !key.equals(ROOT_OBJECT_TYPE)
-          && !key.equals(WHERECLAUSE) && !key.equals(ADVANCEDCONF)
+          && !key.equals(ADVANCEDCONF)
           && (val == null || val.length() == 0)) {
         return key;
       }
@@ -665,7 +670,7 @@ public class DctmConnectorType implements ConnectorType {
               "<b>" + resource.getString(key) + "</b>", value, resource);
         } else if (key.equals(WHERECLAUSE)) {
           logger.fine("where clause");
-          appendStartRow(buf, resource.getString(key));
+          appendStartTextareaRow(buf, resource.getString(key));
           appendTextarea(buf, WHERECLAUSE, value);
         } else {
           logger.fine("makeValidatedForm - input - " + key);
@@ -802,10 +807,9 @@ public class DctmConnectorType implements ConnectorType {
     String stTypes = configMap.get(INCLUDED_OBJECT_TYPE);
     String[] typeList = stTypes.split(",");
 
-    HashSet<String> hashTypes = new HashSet<String>();
-    HashSet<String> hashDctmTypes = new HashSet<String>();
-    for (int x = 0; x < typeList.length; x++) {
-      hashTypes.add(typeList[x]);
+    Set<String> includedTypes = new TreeSet<String>();
+    for (String stType : typeList) {
+      includedTypes.add(stType);
     }
 
     // JavaScript functions used to pass an item from a select list to
@@ -856,26 +860,26 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(SCRIPT_END);
 
     // Creation of the list of the types available for selection.
-    appendSelectStart(buf, "included_object_type_toinclude");
-    int nbtypes = 0;
+    Set<String> hashDctmTypes = new TreeSet<String>();
     if (configMap.get(ADVANCEDCONF).equals("on")) {
-      //loop of the Dctm types whose super_name field is not empty
+      // Loop of the object types whose super_name field is not empty.
       while (collecTypes.next()) {
         String type = collecTypes.getString("name");
         logger.config("type: " + type);
         String super_type = collecTypes.getString("super_name");
         logger.config("super type: " + super_type);
-        ///if (!hashTypes.contains(type) && (hashDctmTypes.contains(super_type) || super_type.equals("dm_sysobject") || hashTypes.contains(super_type))) {
+        ///if (!includedTypes.contains(type) && (hashDctmTypes.contains(super_type) || super_type.equals("dm_sysobject") || includedTypes.contains(super_type))) {
         //exclusion of the selected types (=in the second select list and stored in the .properties file) and of the types whose super_name attribute is emty (the where clause in the query is not enough since a type can have a super_type whose super_name is empty)
-        if (!hashTypes.contains(type) && !super_type.equals("")) {
+        if (!includedTypes.contains(type) && !super_type.equals("")) {
           hashDctmTypes.add(type);
-          nbtypes++;
-          logger.config("added type: " + type);
-          appendOption(buf, type, type);
         }
       }
     }
-    logger.config("nbtypes is: " + nbtypes);
+    appendSelectStart(buf, "included_object_type_toinclude");
+    for (String type : hashDctmTypes) {
+      logger.config("Available object type: " + type);
+      appendOption(buf, type, type);
+    }
     buf.append(SELECT_END);
 
     buf.append(TD_END);
@@ -902,7 +906,7 @@ public class DctmConnectorType implements ConnectorType {
     // Creation of the select list of the types previously selected.
     appendSelectStart(buf, "CM_included_object_type_bis",
         "included_object_type_bis");
-    for (String type : hashTypes) {
+    for (String type : includedTypes) {
       ///logger.config("appendSelectMultipleIncludeTypes type is " + type);
       appendOption(buf, type, type);
     }
@@ -934,12 +938,11 @@ public class DctmConnectorType implements ConnectorType {
     if (configMap != null) {
       stTypes = configMap.get(INCLUDED_OBJECT_TYPE);
     } else {
-      stTypes = "";
+      StringBuilder buffer = new StringBuilder();
       for (String type : defaultObjectTypes) {
-        stTypes = stTypes + type + ",";
-        //appendOption(buf, type, type);
+        buffer.append(type).append(',');
       }
-      stTypes = stTypes.substring(0, stTypes.length() - 1);
+      stTypes = buffer.substring(0, buffer.length() - 1);
     }
 
     appendEndRow(buf);
@@ -958,26 +961,18 @@ public class DctmConnectorType implements ConnectorType {
     logger.config("string type: " + configMap.get(INCLUDED_OBJECT_TYPE));
     String[] typeList = configMap.get(INCLUDED_OBJECT_TYPE).split(",");
 
-    HashMap<String, Set<String>> metasByTypes =
-        new HashMap<String, Set<String>>();
-    Set<String> hashTypes = new HashSet<String>();
-    HashSet<String> tempTypes = new HashSet<String>();
-    HashSet<String> hashMetasOfSelectedTypes = new HashSet<String>();
-
-    for (int x = 0; x < typeList.length; x++) {
-      hashTypes.add(typeList[x]);
-    }
+    Map<String, Set<String>> metasByTypes =
+        new TreeMap<String, Set<String>>();
+    HashSet<String> existingProperties = new HashSet<String>();
 
     logger.config("string meta: " + configMap.get(INCLUDED_META));
     String stMeta = configMap.get(INCLUDED_META);
     String[] metaList = stMeta.split(",");
 
-    HashSet<String> hashMetas = new HashSet<String>();
-    for (int x = 0; x < metaList.length; x++) {
-      hashMetas.add(metaList[x]);
+    Set<String> includedProperties = new TreeSet<String>();
+    for (String property : metaList) {
+      includedProperties.add(property);
     }
-
-    appendSelectStart(buf, "included_meta_toinclude");
 
     IType dmsysType = sess.getType("dm_sysobject");
     HashSet<String> hashDmSysMeta = new HashSet<String>();
@@ -989,119 +984,116 @@ public class DctmConnectorType implements ConnectorType {
       hashDmSysMeta.add(dmsysattrname);
     }
 
-    if (configMap.get(ADVANCEDCONF).equals("on")) {
-      // Loop of the selected types list.
-      for (int x = 0; x < typeList.length; x++) {
-        String stType = typeList[x];
-        IType mytype = sess.getType(stType);
-        ///mytype = sess.getType(stType);
-        ///mytype = (getSession(configMap)).getType(stType);
-        logger.config("stType is " + stType);
-        // Loop of the properties of each selected type.
-        for (int i = 0; i < mytype.getTypeAttrCount(); i++) {
-          logger.config("compteur: " + mytype.getTypeAttrCount());
-          IAttr attr = mytype.getTypeAttr(i);
-          ///logger.config("attr vaut " + attr.toString());
-          String data = attr.getName();
-          logger.config("attr is " + data + " - attr of the type " + stType);
-          if (!hashMetasOfSelectedTypes.contains(data)) {
-            hashMetasOfSelectedTypes.add(data);
-          }
+    // Loop of the selected types list.
+    for (String stType : typeList) {
+      IType mytype = sess.getType(stType);
+      logger.config("stType is " + stType);
+      // Loop of the properties of each selected type.
+      for (int i = 0; i < mytype.getTypeAttrCount(); i++) {
+        logger.config("Property count: " + mytype.getTypeAttrCount());
+        HashSet<String> tempTypes = new HashSet<String>();
+        IAttr attr = mytype.getTypeAttr(i);
+        ///logger.config("attr vaut " + attr.toString());
+        String data = attr.getName();
+        logger.config("attr is " + data + " - attr of the type " + stType);
+        if (!existingProperties.contains(data)) {
+          existingProperties.add(data);
+        }
+        if (hashDmSysMeta.contains(data)) {
           // If the property is a dm_sysobject one, dm_sysobject is
           // added to the temporary types hashset.
-          if (hashDmSysMeta.contains(data)) {
-            tempTypes.add("dm_sysobject");
-            logger.config("attr " + data + " is a dm_sysobject attribute");
-            // If the property is not already present in the list of
-            // available properties : the type is added to the
-            // temporary types hashset.
-          } else if (!metasByTypes.containsKey(data)) {
-            tempTypes.add(stType);
-            logger.config("attr " + data + " is a new attribute for the metas list");
-            // If the property is not already present in the list of
-            // available properties.
-          } else {
-            logger.config("attr " + data + " is not a new attribute for the metas list");
-            hashTypes = metasByTypes.get(data);
-            // Loop of the hashset of types whom the property can
-            // belong to (among the selected types).
-            for (String stCurrentType : hashTypes) {
-              logger.config("the type " + stCurrentType + " is already known to have the meta " + data);
-              IType currentType = sess.getType(stCurrentType);
+          tempTypes.add("dm_sysobject");
+          logger.config("attr " + data + " is a dm_sysobject attribute");
+        } else if (!metasByTypes.containsKey(data)) {
+          // If the property is not already present in the list of
+          // available properties : the type is added to the
+          // temporary types hashset.
+          tempTypes.add(stType);
+          logger.config("attr " + data
+              + " is a new attribute for the metas list");
+        } else {
+          // If the property is not already present in the list of
+          // available properties.
+          logger.config("attr " + data
+              + " is not a new attribute for the metas list");
+          Set<String> hashTypes = metasByTypes.get(data);
+          // Loop of the hashset of types whom the property can
+          // belong to (among the selected types).
+          for (String stCurrentType : hashTypes) {
+            logger.config("the type " + stCurrentType
+                + " is already known to have the meta " + data);
+            IType currentType = sess.getType(stCurrentType);
+            if (stCurrentType.equals("dm_sysobject")) {
               // If the selected type is dm_sysobject : dm_sysobject
               // is added to the temporary types hashset.
-              if (stCurrentType.equals("dm_sysobject")) {
-                logger.config(stCurrentType + " is " + stCurrentType);
-                tempTypes.add(stCurrentType);
-                // If the selected type is the supertype of one type
-                // whom the property can belong to : the selected type
-                // is added to the temporary types hashset.
-              } else if (currentType.getSuperType().getName().equals(stType)) {
-                logger.config(stType + " is supertype of " + stCurrentType);
-                tempTypes.add(stType);
-                logger.config("so supertype " + stType + " is added");
-                // If the selected type is the subtype of one type
-                // whom the property can belong to : the type whom the
-                // property can belong to is added to the temporary
-                // types hashset.
-              } else if (mytype.isSubTypeOf(stCurrentType)) {
-                logger.config(stType + " is  subtype of " + stCurrentType);
-                tempTypes.add(stCurrentType);
-                logger.config(" so supertype " + stCurrentType + " is added");
-                // If the selected type is one of the types whom the
-                // property can belong to : the type whom the property
-                // can belong to is added to the temporary types
-                // hashset.
-              } else if (stType.equals(stCurrentType)) {
-                logger.config(stType + " is " + stCurrentType);
-                tempTypes.add(stCurrentType);
-                logger.config(" so type " + stCurrentType + " is added");
-                // If the selected type and one of the types whom the
-                // property can belong to don't have any hierarchical
-                // link : the type whom the property can belong to and
-                // the selected type are added to the temporary types
-                // hashset.
-              } else {
-                logger.config("type " + stCurrentType
-                    + " is just another type with the attribute " + data);
-                tempTypes.add(stType);
-                tempTypes.add(stCurrentType);
-                logger.config("so type " + stType + " is added and type "
-                    + stCurrentType + " is also added");
-              }
+              logger.config(stCurrentType + " is " + stCurrentType);
+              tempTypes.add(stCurrentType);
+            } else if (currentType.getSuperType().getName().equals(stType)) {
+              // If the selected type is the supertype of one type
+              // whom the property can belong to : the selected type
+              // is added to the temporary types hashset.
+              logger.config(stType + " is supertype of " + stCurrentType);
+              tempTypes.add(stType);
+              logger.config("so supertype " + stType + " is added");
+            } else if (mytype.isSubTypeOf(stCurrentType)) {
+              // If the selected type is the subtype of one type
+              // whom the property can belong to : the type whom the
+              // property can belong to is added to the temporary
+              // types hashset.
+              logger.config(stType + " is  subtype of " + stCurrentType);
+              tempTypes.add(stCurrentType);
+              logger.config(" so supertype " + stCurrentType + " is added");
+            } else if (stType.equals(stCurrentType)) {
+              // If the selected type is one of the types whom the
+              // property can belong to : the type whom the property
+              // can belong to is added to the temporary types
+              // hashset.
+              logger.config(stType + " is " + stCurrentType);
+              tempTypes.add(stCurrentType);
+              logger.config(" so type " + stCurrentType + " is added");
+            } else {
+              // If the selected type and one of the types whom the
+              // property can belong to don't have any hierarchical
+              // link : the type whom the property can belong to and
+              // the selected type are added to the temporary types
+              // hashset.
+              logger.config("type " + stCurrentType
+                  + " is just another type with the attribute " + data);
+              tempTypes.add(stType);
+              tempTypes.add(stCurrentType);
+              logger.config("so type " + stType + " is added and type "
+                  + stCurrentType + " is also added");
             }
           }
-
-          logger.fine("adding tempTypes to metasByTypes hashMap");
-          metasByTypes.put(data, tempTypes);
-          // Temporary hashset of types reinitialized.
-          tempTypes = new HashSet<String>();
         }
-      }
 
-      // Creation of the select list of the available properties
-      // (properties of the selected types) with the names of the
-      // types it belongs to.
-      Set<String> dataSet = metasByTypes.keySet();
-      for (String data : dataSet) {
-        ///logger.config("appendSelectMultipleIncludeMetadatas type is " + type);
-        hashTypes = metasByTypes.get(data);
-        if (!hashMetas.contains(data)) {
-          buf.append("<option value=\"");
-          buf.append(data);
-          buf.append("\">");
-          buf.append(data);
-          buf.append(" (");
-          for (String stType : hashTypes) {
-            buf.append(" ");
-            buf.append(stType);
-            buf.append(" ");
-          }
-          buf.append(") </option>\n");
-        }
+        logger.fine("adding tempTypes to metasByTypes hashMap");
+        metasByTypes.put(data, tempTypes);
       }
     }
 
+    // Creation of the select list of the available properties
+    // (properties of the selected types) with the names of the
+    // types it belongs to.
+    appendSelectStart(buf, "included_meta_toinclude");
+    Set<String> dataSet = metasByTypes.keySet();
+    for (String data : dataSet) {
+      ///logger.config("appendSelectMultipleIncludeMetadatas type is " + type);
+      Set<String> types = metasByTypes.get(data);
+      if (!includedProperties.contains(data)) {
+        buf.append("<option value=\"");
+        buf.append(data);
+        buf.append("\">");
+        buf.append(data);
+        buf.append(" (");
+        for (String stType : types) {
+          buf.append(" ");
+          buf.append(stType);
+          buf.append(" ");
+        }
+        buf.append(") </option>\n");
+      }
+    }
     buf.append(SELECT_END);
 
     buf.append(TD_END);
@@ -1120,12 +1112,17 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_START);
 
     // Creation of the select list of the selected properties.
+    // stMeta may contain properties that are no longer accessible,
+    // so rebuild the string.
     appendSelectStart(buf, "CM_included_meta_bis", "included_meta_bis");
-    for (String data : hashMetas) {
-      if (hashMetasOfSelectedTypes.contains(data)) {
+    StringBuilder buffer = new StringBuilder();
+    for (String data : includedProperties) {
+      if (existingProperties.contains(data)) {
+        buffer.append(stMeta).append(',');
         appendOption(buf, data, data);
       }
     }
+    stMeta = buffer.substring(0, buffer.length() - 1);
     buf.append(SELECT_END);
 
     appendEndRow(buf);
@@ -1141,12 +1138,11 @@ public class DctmConnectorType implements ConnectorType {
     if (configMap != null) {
       stMeta = configMap.get(INCLUDED_META);
     } else {
-      stMeta = "";
+      StringBuilder buffer = new StringBuilder();
       for (String meta : hashMeta) {
-        stMeta = stMeta + meta + ",";
-        //appendOption(buf, meta, meta);
+        buffer.append(meta).append(',');
       }
-      stMeta = stMeta.substring(0, stMeta.length() - 1);
+      stMeta = buffer.substring(0, buffer.length() - 1);
     }
     appendEndRow(buf);
 
@@ -1294,6 +1290,14 @@ public class DctmConnectorType implements ConnectorType {
   private void appendStartRow(StringBuilder buf, String key) {
     buf.append(TR_START);
     buf.append(TD_START_LABEL);
+    buf.append(key);
+    buf.append(TD_END);
+    buf.append(TD_START);
+  }
+
+  private void appendStartTextareaRow(StringBuilder buf, String key) {
+    buf.append(TR_START);
+    buf.append(TD_START_TEXTAREA);
     buf.append(key);
     buf.append(TD_END);
     buf.append(TD_START);
