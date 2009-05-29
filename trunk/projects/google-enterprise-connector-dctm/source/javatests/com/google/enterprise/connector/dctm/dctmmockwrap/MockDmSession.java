@@ -75,4 +75,8 @@ public class MockDmSession implements ISession {
     // TODO Auto-generated method stub
     return null;
   }
+
+  public boolean isConnected() {
+    return true;
+  }
 }
