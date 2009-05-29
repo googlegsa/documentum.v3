@@ -51,53 +51,40 @@ import com.google.enterprise.connector.spiimpl.StringValue;
 
 public class DctmSysobjectDocument extends HashMap implements Document {
   private static final long serialVersionUID = 126421624L;
+  private static final Logger logger =
+      Logger.getLogger(DctmSysobjectDocument.class.getName());
 
   /** The maximum content size that will be allowed. */
   private static final long MAX_CONTENT_SIZE = 30L * 1024 * 1024;
+
+  private String object_id_name = "r_object_id";
 
   private String docId;
   private String commonVersionID;
   private ITime timeStamp;
 
   private ISysObject object = null;
-
   private ISessionManager sessionManager = null;
-
   private IClientX clientX;
 
-  private String isPublic = "false";
-
+  private boolean isPublic = false;
   private String versionId;
-
   private final ActionType action;
-
   private final Set<String> included_meta;
+  private final Checkpoint checkpoint;
 
-  private String object_id_name = "r_object_id";
 
-  private static Logger logger = null;
-
-  private ITime lastModifDate;
-
-  static {
-    logger = Logger.getLogger(DctmSysobjectDocument.class.getName());
-  }
-
-  public DctmSysobjectDocument(String docid, ITime lastModifDate,
-      ISessionManager sessionManager, IClientX clientX, String isPublic,
-      Set<String> included_meta, ActionType action) {
-    this.docId = docid;
-    this.sessionManager = sessionManager;
-    this.clientX = clientX;
-    this.isPublic = isPublic;
-    this.included_meta = included_meta;
-    this.lastModifDate = lastModifDate;
-    this.action = action;
+  public DctmSysobjectDocument(String docid, ITime lastModifyDate,
+      ISessionManager sessionManager, IClientX clientX, boolean isPublic,
+      Set<String> included_meta, ActionType action, Checkpoint checkpoint) {
+    this(docid, null, lastModifyDate, sessionManager, clientX, isPublic,
+         included_meta, action, checkpoint);
   }
 
   public DctmSysobjectDocument(String docid, String commonVersionID,
       ITime timeStamp, ISessionManager sessionManager, IClientX clientX,
-      String isPublic, Set<String> included_meta, ActionType action) {
+      boolean isPublic, Set<String> included_meta, ActionType action,
+      Checkpoint checkpoint) {
     this.docId = docid;
     this.versionId = commonVersionID;
     this.timeStamp = timeStamp;
@@ -106,6 +93,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     this.isPublic = isPublic;
     this.included_meta = included_meta;
     this.action = action;
+    this.checkpoint = checkpoint;
   }
 
   private void fetch() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
@@ -131,11 +119,35 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
         object.setSessionManager(sessionManager);
       }
+    } catch (RepositoryDocumentException rde) {
+      // Propagate unmolested.
+      throw rde;
+    } catch (RepositoryException re) {
+      if (checkpoint != null && lostConnection(session)) {
+        // We have lost connectivity with the server.
+        // Rollback the checkpoint and retry this document later.
+        checkpoint.restore();
+      }
+      throw re;
     } finally {
       if (session != null) {
         sessionManager.release(session);
         logger.fine("session released");
       }
+    }
+  }
+
+  /**
+   * Test connectivity to server.  If we have a session and
+   * can verify that session isConnected(), return false.
+   * If we cannot verify the session is connected return true.
+   */
+  private boolean lostConnection(ISession session) {
+    try {
+      return !session.isConnected();
+    } catch (Exception e) {
+      logger.warning("Lost connectivity to server : " + e);
+      return true;
     }
   }
 
@@ -192,7 +204,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         }
       } else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_ISPUBLIC);
-        values.add(BooleanValue.makeBooleanValue("true".equals(isPublic)));
+        values.add(BooleanValue.makeBooleanValue(isPublic));
         logger.fine("property " + SpiConstants.PROPNAME_ISPUBLIC + " set to " + isPublic);
       } else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_LASTMODIFIED);
@@ -361,6 +373,6 @@ public class DctmSysobjectDocument extends HashMap implements Document {
   }
 
   protected ITime getLastModifDate() {
-    return lastModifDate;
+    return timeStamp;
   }
 }

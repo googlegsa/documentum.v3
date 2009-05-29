@@ -36,38 +36,26 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.TraversalManager;
 
 public class DctmTraversalManager implements TraversalManager {
-  private IClientX clientX;
+  private static final Logger logger =
+      Logger.getLogger(DctmTraversalManager.class.getName());
 
   private String order_by = " order by r_modify_date,r_object_id";
-
   private String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
-
   private String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
 
+  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
   private String serverUrl;
-
   private int batchHint = -1;
-
   private ISessionManager sessionManager;
+  private IClientX clientX;
 
   protected String additionalWhereClause;
-
   private boolean isPublic;
-
   private Set<String> hash_included_object_type;
-
   private Set<String> hash_included_meta;
-
   private String root_object_type;
-
-  private static Logger logger = null;
-
-  private static String dateFirstPush ;
-
-  static {
-    logger = Logger.getLogger(DctmTraversalManager.class.getName());
-  }
 
   public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
       String additionalWhereClause, boolean isPublic,
@@ -108,22 +96,17 @@ public class DctmTraversalManager implements TraversalManager {
    * Starts (or restarts) traversal from the beginning. This action will
    * return objects starting from the very oldest, or with the smallest IDs,
    * or whatever natural order the implementation prefers. The caller may
-   * consume as many or as few of the results as it wants, but it gurantees to
-   * call {@link #checkpoint(PropertyMap)} passing in the past object is has
-   * successfully processed.
+   * consume as many or as few of the results as it wants, but it will
+   * call {@link #checkpoint()} when it has finished with the results.
    *
-   * @return A ResultSet of documents from the repository in natural order
+   * @return A DocumentList of Documents from the repository in natural order
    * @throws RepositoryException
    *             if the Repository is unreachable or similar exceptional
    *             condition.
    */
   public DocumentList startTraversal() throws RepositoryException {
-    logger.info("Pull process started");
-
-    IQuery query = makeCheckpointQuery(buildQueryString(null));
-    IQuery queryGetDocToDel = makeCheckpointQuery(buildQueryStringToDel(null));
-
-    return execQuery(query, queryGetDocToDel, null);
+    logger.info("StartTraversal");
+    return execQuery(forgeStartCheckpoint());
   }
 
   /**
@@ -135,20 +118,14 @@ public class DctmTraversalManager implements TraversalManager {
    *
    * @param checkPoint
    *            String that indicates from where to resume traversal.
-   * @return ResultSet object that returns documents starting just after the
-   *         checkpoint.
+   * @return DocumentList object that returns Documents starting just after
+   *         the checkpoint.
    * @throws RepositoryException
    */
   public DocumentList resumeTraversal(String checkPoint)
       throws RepositoryException {
-    logger.info("value of checkpoint: " + checkPoint);
-    DocumentList documentList = null;
-    IQuery query = makeCheckpointQuery(buildQueryString(checkPoint));
-    IQuery queryGetDocToDel = makeCheckpointQuery(buildQueryStringToDel(checkPoint));
-
-    documentList = execQuery(query, queryGetDocToDel, checkPoint);
-
-    return documentList;
+    logger.info("ResumeTraversal from checkpoint: " + checkPoint);
+    return execQuery(new Checkpoint(checkPoint));
   }
 
   /**
@@ -166,13 +143,15 @@ public class DctmTraversalManager implements TraversalManager {
   }
 
   /**
-   * Execute queries to retrieve the documents to add to the GSA and the document to remove from the GSA.
-   * @param query
-   * @param queryDocToDel
-   * @return
+   * Execute queries to retrieve the documents to add to the GSA and the
+   * document to remove from the GSA.
+   *
+   * @param checkpoint the Checkpoint from which to resume traversal.
+   * @return DocumentList of traversal results.
    * @throws RepositoryException
    */
-  protected DocumentList execQuery(IQuery query, IQuery queryDocToDel, String checkPoint) throws RepositoryException {
+  protected DocumentList execQuery(Checkpoint checkpoint)
+      throws RepositoryException {
     sessionManager.setServerUrl(serverUrl);
     ICollection collecToAdd = null;
     ICollection collecToDel = null;
@@ -180,7 +159,11 @@ public class DctmTraversalManager implements TraversalManager {
     ISession sessAdd = null;
     ISession sessDel = null;
 
+    IQuery query = makeCheckpointQuery(buildQueryString(checkpoint));
+    IQuery queryDocToDel = makeCheckpointQuery(buildQueryStringToDel(checkpoint));
+
     DocumentList documentList = null;
+
     try {
       if (query != null) {
         sessAdd = sessionManager.getSession(sessionManager.getDocbaseName());
@@ -199,7 +182,7 @@ public class DctmTraversalManager implements TraversalManager {
       if ((collecToAdd != null && collecToAdd.hasNext()) ||
           (collecToDel != null && collecToDel.hasNext())) {
         documentList = new DctmDocumentList(collecToAdd, collecToDel, sessionManager,
-            clientX, isPublic, hash_included_meta, dateFirstPush, checkPoint);
+            clientX, isPublic, hash_included_meta, checkpoint);
       }
     } finally {
       // No documents to add or delete.   Return a null DocumentList,
@@ -231,14 +214,11 @@ public class DctmTraversalManager implements TraversalManager {
     return documentList;
   }
 
-  /**
-   * Overload execQuery to test checkAdditionalWhereClause
-   * @param query
-   * @return
-   * @throws RepositoryException
-   */
-  protected DocumentList execQuery(IQuery query) throws RepositoryException {
-    return this.execQuery(query, null, null);
+  protected Checkpoint forgeStartCheckpoint() {
+    Checkpoint checkpoint = new Checkpoint();
+    // Only consider delete actions that occur from this moment onward.
+    checkpoint.setDeleteCheckpoint(new java.util.Date(), null);
+    return checkpoint;
   }
 
   protected IQuery makeCheckpointQuery(String queryString) {
@@ -248,113 +228,7 @@ public class DctmTraversalManager implements TraversalManager {
     return query;
   }
 
-  protected String extractDocidFromCheckpoint(JSONObject jo, String checkPoint) {
-    String uuid = null;
-    try {
-      uuid = jo.getString("uuid");
-    } catch (JSONException e) {
-      logger.severe("could not get uuid from checkPoint string: "
-          + checkPoint);
-      throw new IllegalArgumentException(
-          "could not get uuid from checkPoint string: " + checkPoint);
-    }
-    return uuid;
-  }
-
-  /**
-   * Retrieve the last object_id removed from the GSA.
-   *
-   * @param jo
-   * @param checkPoint
-   * @return uuid
-   */
-  protected String extractDocidFromCheckpointRemove(JSONObject jo, String checkPoint) {
-    String uuid = null;
-    try {
-      uuid = jo.getString("uuidToRemove");
-    } catch (JSONException e) {
-      logger.severe("could not get uuid from checkPoint string: "
-          + checkPoint);
-      throw new IllegalArgumentException(
-          "could not get uuid from checkPoint string: " + checkPoint);
-    }
-    return uuid;
-  }
-
-  /**
-   * Retrieve the last remove date of the last document removed from the GSA.
-   * @param jo
-   * @param checkPoint
-   * @return dateString
-   */
-  protected String extractNativeDateFromCheckpointRemove(JSONObject jo,
-      String checkPoint) {
-    String dateString = null;
-    try {
-      dateString = jo.getString("lastRemoveDate");
-    } catch (JSONException e) {
-      logger.severe("could not get lastmodify from checkPoint string: "
-          + checkPoint);
-      throw new IllegalArgumentException(
-          "could not get lastmodify from checkPoint string: "
-          + checkPoint);
-    }
-    return dateString;
-  }
-
-  protected String extractNativeDateFromCheckpoint(JSONObject jo,
-      String checkPoint) {
-    String dateString = null;
-    try {
-      dateString = jo.getString("lastModified");
-    } catch (JSONException e) {
-      logger.severe("could not get lastmodify from checkPoint string: "
-          + checkPoint);
-      throw new IllegalArgumentException(
-          "could not get lastmodify from checkPoint string: "
-          + checkPoint);
-    }
-    return dateString;
-  }
-
-
-  protected String makeCheckpointQueryRemoveString(String uuid, String c)
-      throws RepositoryException {
-    //to format the date (0-24h instead of 0-12h)
-    try {
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      java.util.Date newDt = sdf.parse(c);
-      c = sdf.format(newDt);
-    } catch (ParseException e) {
-      logger.fine("Error while converting string to date.");
-    }
-    Object[] arguments = { c, uuid};
-    String statement = "";
-    if (uuid.equals("")) {
-      statement = MessageFormat.format(whereBoundedClauseRemoveDateOnly, arguments);
-    } else {
-      statement = MessageFormat.format(whereBoundedClauseRemove, arguments);
-    }
-    logger.fine("query after integration of the checkpoint " + statement);
-    return statement;
-  }
-
-  protected String makeCheckpointQueryString(String uuid, String c) {
-    //to format the date (0-24h instead of 0-12h)
-    try {
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      java.util.Date newDt = sdf.parse(c);
-      c = sdf.format(newDt);
-    } catch (ParseException e) {
-      logger.fine("Error while converting string to date.");
-    }
-    Object[] arguments = { c, uuid};
-    String statement = MessageFormat.format(whereBoundedClause, arguments);
-    logger.fine("query after integration of the checkpoint " + statement);
-    return statement;
-  }
-
-  protected String buildQueryString(String checkpoint) {
+  protected String buildQueryString(Checkpoint checkpoint) {
     StringBuilder query = new StringBuilder(
         "select i_chronicle_id, r_object_id, r_modify_date from ");
     query.append(this.root_object_type);
@@ -386,9 +260,10 @@ public class DctmTraversalManager implements TraversalManager {
 
       query.append(additionalWhereClause);
     }
-    if (checkpoint != null) {
+    if (checkpoint.insertId != null && checkpoint.insertDate != null) {
       logger.fine("adding the checkpoint to the query : " + checkpoint);
-      query.append(getCheckpointClause(checkpoint));
+      Object[] arguments = { dateFormat.format(checkpoint.insertDate), checkpoint.insertId };
+      query.append(MessageFormat.format(whereBoundedClause, arguments));
     }
 
     query.append(order_by);
@@ -407,92 +282,21 @@ public class DctmTraversalManager implements TraversalManager {
     return query.toString();
   }
 
-  protected String buildQueryStringToDel(String checkpoint) {
+  protected String buildQueryStringToDel(Checkpoint checkpoint) {
     StringBuilder query = new StringBuilder(
         "select r_object_id, chronicle_id, time_stamp from dm_audittrail ");
     query.append("where ");
     query.append("event_name='dm_destroy' ");
 
-    if (checkpoint != null) {
+    if (checkpoint.deleteDate != null) {
       logger.fine("adding the checkpoint to the query : " + checkpoint);
-      try {
-        String whereClause = getCheckpointRemoveClause(checkpoint);
-        logger.info("whereclause : " + whereClause);
-        if (whereClause.indexOf("date('',") == -1) {
-          logger.info("if not date");
-          query.append(whereClause);
-        }
-      } catch (Exception e) {
-        logger.severe("Error while getting checkpoint clause" + e.getMessage());
-      }
-    } else {
-      try {
-        //Get the date of today, corresponding to the date of first push
-        java.util.Date d = new java.util.Date();
-        java.text.SimpleDateFormat dateStandard = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dateFirstPush = dateStandard.format(d);
-        logger.info("Date of first push :" + dateStandard.format(d));
-
-        String whereClause = " and ( time_stamp > date('" + dateFirstPush + "','yyyy-mm-dd hh:mi:ss'))";
-        logger.info("whereclause : " + whereClause);
-
-        if (whereClause.indexOf("date('',") == -1) {
-          logger.info("if not date");
-          query.append(whereClause);
-        }
-      } catch (Exception e) {
-        logger.severe("Error while getting checkpoint clause" + e.getMessage());
-      }
+      Object[] arguments = { dateFormat.format(checkpoint.deleteDate), checkpoint.deleteId };
+      String whereClause = MessageFormat.format(
+           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
+           arguments);
     }
     logger.info("query.toString()" + query.toString());
     return  query.toString();
-  }
-
-  protected String getCheckpointRemoveClause(String checkPoint) {
-    logger.info("value of checkpoint" + checkPoint);
-    JSONObject jo = null;
-    try {
-      jo = new JSONObject(checkPoint);
-    } catch (JSONException e) {
-      logger.severe("checkPoint string does not parse as JSON: "
-          + checkPoint);
-      throw new IllegalArgumentException(
-          "checkPoint string does not parse as JSON: " + checkPoint);
-    }
-    String queryString = "";
-    try {
-      String uuid = extractDocidFromCheckpointRemove(jo, checkPoint);
-      logger.fine("uuid is " + uuid);
-      String c = extractNativeDateFromCheckpointRemove(jo, checkPoint);
-      logger.fine("native date is " + c);
-
-      queryString = makeCheckpointQueryRemoveString(uuid, c);
-      logger.fine("queryString is " + queryString);
-    } catch (Exception e) {
-      logger.severe("Error while retrieving " +
-          "the parameters of the previous checkpoint. " + e.getMessage() );
-    }
-    return queryString;
-  }
-
-  protected String getCheckpointClause(String checkPoint) {
-    logger.info("value of checkpoint" + checkPoint);
-    JSONObject jo = null;
-    try {
-      jo = new JSONObject(checkPoint);
-    } catch (JSONException e) {
-      logger.severe("checkPoint string does not parse as JSON: "
-          + checkPoint);
-      throw new IllegalArgumentException(
-          "checkPoint string does not parse as JSON: " + checkPoint);
-    }
-    String uuid = extractDocidFromCheckpoint(jo, checkPoint);
-    logger.fine("uuid is " + uuid);
-    String c = extractNativeDateFromCheckpoint(jo, checkPoint);
-    logger.fine("native date is " + c);
-    String queryString = makeCheckpointQueryString(uuid, c);
-    logger.fine("queryString is " + queryString);
-    return queryString;
   }
 
   public boolean isPublic() {

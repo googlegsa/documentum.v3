@@ -105,4 +105,12 @@ public class DmSession implements ISession {
     idfSessmag = (IDfSessionManager) this.idfSession.getSessionManager();
     return new DmSessionManager(idfSessmag);
   }
+
+  public boolean isConnected() {
+    try {
+      return this.idfSession.isConnected();
+    } catch (Throwable t) {
+      return false;
+    }
+  }
 }

@@ -63,52 +63,6 @@ public class DctmMockTraversalManagerTest extends TestCase {
     assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
   }
 
-  public void testMakeCheckpointQueryString() {
-    String uuid = "doc2";
-    String statement = "";
-
-    statement = qtm.makeCheckpointQueryString(uuid,
-        "1970-01-01 01:00:00");
-
-    assertNotNull(statement);
-    System.out.println(statement);
-    assertEquals(DmInitialize.DM_CHECKPOINT_QUERY_STRING, statement);
-  }
-
-  public void testExtractDocidFromCheckpoint() {
-    String checkPoint = "{\"uuid\":\"doc2\",\"lastModified\":\"1970-01-01 01:00:00.020\"}";
-    String uuid = null;
-    JSONObject jo = null;
-
-    try {
-      jo = new JSONObject(checkPoint);
-    } catch (JSONException e) {
-      throw new IllegalArgumentException(
-          "checkPoint string does not parse as JSON: " + checkPoint);
-    }
-
-    uuid = qtm.extractDocidFromCheckpoint(jo, checkPoint);
-    assertNotNull(uuid);
-    assertEquals(uuid, "doc2");
-  }
-
-  public void testExtractNativeDateFromCheckpoint() {
-    String checkPoint = "{\"uuid\":\"doc2\",\"lastModified\":\"1970-01-01 01:00:00.020\"}";
-    JSONObject jo = null;
-    String modifDate = null;
-
-    try {
-      jo = new JSONObject(checkPoint);
-    } catch (JSONException e) {
-      throw new IllegalArgumentException(
-          "checkPoint string does not parse as JSON: " + checkPoint);
-    }
-
-    modifDate = qtm.extractNativeDateFromCheckpoint(jo, checkPoint);
-    assertNotNull(modifDate);
-    assertEquals(modifDate, "1970-01-01 01:00:00.020");
-  }
-
   public void testResumeTraversal() throws RepositoryException {
     session = (DctmSession) connector.login();
     qtm = (DctmTraversalManager) session.getTraversalManager();

@@ -26,4 +26,6 @@ public interface ISession {
   public IType getType(String typeName) throws RepositoryException;
 
   public ISessionManager getSessionManager() throws RepositoryException;
+
+  public boolean isConnected();
 }
