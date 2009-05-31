@@ -139,9 +139,11 @@ public class DctmTraversalManagerTest extends TestCase {
           .nextValue().toString();
       String expectedid = "090000018000015e";
       assertEquals(expectedid, docId);
-      DctmDateValue date = (DctmDateValue) map.findProperty(
-          SpiConstants.PROPNAME_LASTMODIFIED).nextValue();
-      String modifyDate = date.toDctmFormat();
+      Value date =
+          map.findProperty(SpiConstants.PROPNAME_LASTMODIFIED).nextValue();
+      String modifyDate = date.toString();
+      // TODO: may have to adjust the assertion for the date format returned by Value.toString()
+      System.out.println("testResumeTraversalWithSimilarDate modifyDate = '" + modifyDate + "'");
       String expecterModifyDate = "2006-12-14 20:09:13";
       assertEquals(expecterModifyDate, modifyDate);
     }

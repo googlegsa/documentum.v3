@@ -44,11 +44,6 @@ import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.SpiConstants.ActionType;
 import com.google.enterprise.connector.spi.TraversalContext;
 import com.google.enterprise.connector.spi.Value;
-import com.google.enterprise.connector.spiimpl.BinaryValue;
-import com.google.enterprise.connector.spiimpl.BooleanValue;
-import com.google.enterprise.connector.spiimpl.DoubleValue;
-import com.google.enterprise.connector.spiimpl.LongValue;
-import com.google.enterprise.connector.spiimpl.StringValue;
 
 public class DctmSysobjectDocument extends HashMap implements Document {
   private static final long serialVersionUID = 126421624L;
@@ -160,15 +155,15 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     if (ActionType.ADD.equals(action)) {
       fetch();
       if (SpiConstants.PROPNAME_ACTION.equals(name)) {
-        values.add(new StringValue(action.toString()));
+        values.add(Value.getStringValue(action.toString()));
       } else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
-        values.add(new StringValue(versionId));
+        values.add(Value.getStringValue(versionId));
         logger.fine("property " + SpiConstants.PROPNAME_DOCID + " has the value " + versionId);
       } else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_CONTENT);
         try {
           if (canIndex(true)) {
-            values.add(new BinaryValue(object.getContent()));
+            values.add(Value.getBinaryValue(object.getContent()));
             logger.fine("property " + SpiConstants.PROPNAME_CONTENT + " after getContent");
           }
         } catch (RepositoryDocumentException e) {
@@ -180,12 +175,12 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         }
       } else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_DISPLAYURL);
-        values.add(new StringValue(sessionManager.getServerUrl() + docId));
+        values.add(Value.getStringValue(sessionManager.getServerUrl() + docId));
         logger.fine("property " + SpiConstants.PROPNAME_DISPLAYURL + " has the value " + sessionManager.getServerUrl() + docId);
       } else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_SECURITYTOKEN);
         try {
-          values.add(new StringValue(object.getACLDomain() + " " + object.getACLName()));
+          values.add(Value.getStringValue(object.getACLDomain() + " " + object.getACLName()));
           logger.fine("property " + SpiConstants.PROPNAME_SECURITYTOKEN + " has the value " + object.getACLDomain() + " " + object.getACLName());
         } catch (RepositoryDocumentException e) {
           // TODO Auto-generated catch block
@@ -193,11 +188,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         }
       } else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_ISPUBLIC);
-        values.add(BooleanValue.makeBooleanValue(isPublic));
+        values.add(Value.getBooleanValue(isPublic));
         logger.fine("property " + SpiConstants.PROPNAME_ISPUBLIC + " set to " + isPublic);
       } else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_LASTMODIFIED);
-        values.add(new DctmDateValue(getDate("r_modify_date")));
+        values.add(Value.getDateValue(getDate("r_modify_date")));
         logger.fine("property " + SpiConstants.PROPNAME_LASTMODIFIED + " has the value " + getDate("r_modify_date"));
       } else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_MIMETYPE);
@@ -207,7 +202,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
           logger.fine("mimetype of the document " + versionId + " : " + mimetype);
           // Modification in order to index empty documents.
           if (canIndex(false)) {
-            values.add(new StringValue(mimetype));
+            values.add(Value.getStringValue(mimetype));
             logger.fine("property " + SpiConstants.PROPNAME_MIMETYPE + " has the value " + mimetype);
           }
         } catch (RepositoryDocumentException e) {
@@ -216,11 +211,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         }
       } else if (object_id_name.equals(name)) {
         logger.fine("getting the property " + object_id_name);
-        values.add(new StringValue(docId));
+        values.add(Value.getStringValue(docId));
         logger.fine("property " + object_id_name + " has the value " + docId);
       } else if (SpiConstants.PROPNAME_TITLE.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_TITLE);
-        values.add(new StringValue(object.getObjectName()));
+        values.add(Value.getStringValue(object.getObjectName()));
         logger.fine("property " + SpiConstants.PROPNAME_TITLE + " has the value " + object.getObjectName());
       } else if (object.findAttrIndex(name) != -1) {
         IAttr attr = object.getAttr(object.findAttrIndex(name));
@@ -236,24 +231,24 @@ public class DctmSysobjectDocument extends HashMap implements Document {
           try {
             if (attr.getDataType() == IAttr.DM_BOOLEAN) {
               logger.finer("the attribute of index " + j +" is of boolean type");
-              values.add(BooleanValue.makeBooleanValue(val.asBoolean()));
+              values.add(Value.getBooleanValue(val.asBoolean()));
             } else if (attr.getDataType() == IAttr.DM_DOUBLE) {
               logger.finer("the attribute of index " + j +" is of double type");
-              values.add(new DoubleValue(val.asDouble()));
+              values.add(Value.getDoubleValue(val.asDouble()));
             } else if (attr.getDataType() == IAttr.DM_ID) {
               logger.finer("the attribute of index " + j +" is of ID type");
-              values.add(new StringValue(val.asId().getId()));
+              values.add(Value.getStringValue(val.asId().getId()));
             } else if (attr.getDataType() == IAttr.DM_INTEGER) {
               logger.finer("the attribute of index " + j +" is of integer type");
-              values.add(new LongValue(val.asInteger()));
+              values.add(Value.getLongValue(val.asInteger()));
             } else if (attr.getDataType() == IAttr.DM_STRING) {
               logger.finer("the attribute of index " + j +" is of String type");
-              values.add(new StringValue(val.asString()));
+              values.add(Value.getStringValue(val.asString()));
             } else if (attr.getDataType() == IAttr.DM_TIME) {
               logger.finer("the attribute of index " + j +" is of date type");
               Date date = val.asTime().getDate();
               if (date != null) {
-                values.add(new DctmDateValue(getCalendarFromDate(date)));
+                values.add(Value.getDateValue(getCalendarFromDate(date)));
               }
             }
           } catch (Exception e) {
@@ -268,9 +263,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     } else {
       logger.fine("Else delete document; name : " + name);
       if (SpiConstants.PROPNAME_ACTION.equals(name)) {
-        values.add(new StringValue(action.toString()));
+        values.add(Value.getStringValue(action.toString()));
       } else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
-        values.add(new StringValue(versionId));
+        values.add(Value.getStringValue(versionId));
         logger.fine("property " + SpiConstants.PROPNAME_DOCID + " has the value " + versionId);
       } else if (name.equals(SpiConstants.PROPNAME_LASTMODIFIED)) {
         logger.fine("LastModifiedDate for the deleteCollection");
@@ -289,11 +284,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
           logger.fine("Error: wrong last modified date");
           tmpCal.setTime(new Date());
         }
-        values.add(new DctmDateValue(tmpCal));
+        values.add(Value.getDateValue(tmpCal));
         logger.fine("property " + SpiConstants.PROPNAME_LASTMODIFIED + " has the value " + timeStamp);
       } else if (object_id_name.equals(name)) {
         logger.fine("getting the property " + object_id_name);
-        values.add(new StringValue(docId));
+        values.add(Value.getStringValue(docId));
         logger.fine("property " + object_id_name + " has the value " + docId);
       } else {
         // No property by that name found.
@@ -385,11 +380,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
   public Calendar getDate(String name) throws RepositoryDocumentException {
     logger.finest("in getDate");
     if (object != null) {
-      Date date = object.getTime(name).getDate();
-      logger.finest("Date : " + date);
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(date);
-      return calendar;
+      return getCalendarFromDate(object.getTime(name).getDate());
     } else {
       throw new RepositoryDocumentException();
     }
