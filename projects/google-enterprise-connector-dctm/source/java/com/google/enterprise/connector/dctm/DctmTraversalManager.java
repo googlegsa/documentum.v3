@@ -33,9 +33,11 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.TraversalContext;
+import com.google.enterprise.connector.spi.TraversalContextAware;
 import com.google.enterprise.connector.spi.TraversalManager;
 
-public class DctmTraversalManager implements TraversalManager {
+public class DctmTraversalManager implements TraversalManager, TraversalContextAware {
   private static final Logger logger =
       Logger.getLogger(DctmTraversalManager.class.getName());
 
@@ -57,10 +59,13 @@ public class DctmTraversalManager implements TraversalManager {
   private Set<String> hash_included_meta;
   private String root_object_type;
 
+  private TraversalContext traversalContext = null;
+
   public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-      String additionalWhereClause, boolean isPublic,
-      String included_meta, String included_object_type, String root_object_type)
+      String additionalWhereClause, boolean isPublic, String included_meta,
+      String included_object_type, String root_object_type)
       throws RepositoryException {
+
     this.additionalWhereClause = additionalWhereClause;
     setClientX(clientX);
     setSessionManager(clientX.getSessionManager());
@@ -90,6 +95,10 @@ public class DctmTraversalManager implements TraversalManager {
 
   protected String getServerUrl() {
     return serverUrl;
+  }
+
+  public void setTraversalContext(TraversalContext traversalContext) {
+    this.traversalContext = traversalContext;
   }
 
   /**
@@ -182,7 +191,7 @@ public class DctmTraversalManager implements TraversalManager {
       if ((collecToAdd != null && collecToAdd.hasNext()) ||
           (collecToDel != null && collecToDel.hasNext())) {
         documentList = new DctmDocumentList(collecToAdd, collecToDel, sessionManager,
-            clientX, isPublic, hash_included_meta, checkpoint);
+            clientX, isPublic, hash_included_meta, checkpoint, traversalContext);
       }
     } finally {
       // No documents to add or delete.   Return a null DocumentList,
@@ -231,7 +240,7 @@ public class DctmTraversalManager implements TraversalManager {
   protected String buildQueryString(Checkpoint checkpoint) {
     StringBuilder query = new StringBuilder(
         "select i_chronicle_id, r_object_id, r_modify_date from ");
-    query.append(this.root_object_type);
+    query.append(root_object_type);
     if (!hash_included_object_type.isEmpty()) {
       query.append(" where (");
       Iterator<String> iter = hash_included_object_type.iterator();
@@ -247,15 +256,13 @@ public class DctmTraversalManager implements TraversalManager {
       query.append("dm_document");
       query.append("' ");
     }
-    if (this.additionalWhereClause != null && (!this.additionalWhereClause.equals(""))) {
+    if (additionalWhereClause != null && additionalWhereClause.trim().length() > 0) {
       logger.fine("adding the additionalWhereClause to the query : " + additionalWhereClause);
       ///adding the "and" operator if not present in the additional where clause (mandatory)
-      if (!this.additionalWhereClause.toLowerCase().startsWith("and ")) {
-        ///throw new RepositoryException("[additional] ");
+      if (!additionalWhereClause.toLowerCase().startsWith("and ")) {
         logger.log(Level.INFO, "clause does not start with AND : ");
-        this.additionalWhereClause = "and ".concat(additionalWhereClause);
-        logger.log(Level.INFO, "after adding AND : "
-            + additionalWhereClause);
+        additionalWhereClause = "and ".concat(additionalWhereClause);
+        logger.log(Level.INFO, "after adding AND : " + additionalWhereClause);
       }
 
       query.append(additionalWhereClause);

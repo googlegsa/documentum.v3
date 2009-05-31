@@ -32,6 +32,7 @@ import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.TraversalContext;
 import com.google.enterprise.connector.spiimpl.StringValue;
 
 public class DctmDocumentList implements DocumentList {
@@ -46,15 +47,16 @@ public class DctmDocumentList implements DocumentList {
   private boolean isPublic;
   private final Set<String> included_meta;
   private Checkpoint checkpoint;
+  private final TraversalContext traversalContext;
 
   public DctmDocumentList() {
-    this.included_meta = null;
-    this.checkpoint = new Checkpoint();
+    this(null, null, null, null, false, null, new Checkpoint(), null);
   }
 
   public DctmDocumentList(ICollection collToAdd, ICollection collToDel,
       ISessionManager sessMag, IClientX clientX, boolean isPublic,
-      Set<String> included_meta, Checkpoint checkpoint) {
+      Set<String> included_meta, Checkpoint checkpoint,
+      TraversalContext traversalContext) {
     this.collectionToAdd = collToAdd;
     this.collectionToDel = collToDel;
     this.clientX = clientX;
@@ -62,6 +64,7 @@ public class DctmDocumentList implements DocumentList {
     this.isPublic = isPublic;
     this.included_meta = included_meta;
     this.checkpoint = checkpoint;
+    this.traversalContext = traversalContext;
   }
 
   public Document nextDocument() throws RepositoryException {
@@ -85,9 +88,9 @@ public class DctmDocumentList implements DocumentList {
         }
         checkpoint.setInsertCheckpoint(modifyDate.getDate(), crID);
 
-        dctmSysobjectDocument = new DctmSysobjectDocument(crID, modifyDate,
-            sessMag, clientX, isPublic, included_meta,
-            SpiConstants.ActionType.ADD, checkpoint);
+        dctmSysobjectDocument = new DctmSysobjectDocument(crID, null,
+            modifyDate, sessMag, clientX, isPublic, included_meta,
+            SpiConstants.ActionType.ADD, checkpoint, traversalContext);
 
         logger.fine("Creation of a new dctmSysobjectDocument to add");
         retDoc = dctmSysobjectDocument;
@@ -111,9 +114,9 @@ public class DctmDocumentList implements DocumentList {
         }
         checkpoint.setDeleteCheckpoint(deleteDate.getDate(), crID);
 
-        dctmSysobjectDocument = new DctmSysobjectDocument(crID,
-            commonVersionID, deleteDate, sessMag, clientX, isPublic,
-            included_meta, SpiConstants.ActionType.DELETE, checkpoint);
+        dctmSysobjectDocument = new DctmSysobjectDocument(crID, commonVersionID,
+            deleteDate, sessMag, clientX, isPublic, included_meta,
+            SpiConstants.ActionType.DELETE, checkpoint, traversalContext);
 
         logger.fine("Creation of a new dctmSysobjectDocument to delete");
         retDoc = dctmSysobjectDocument;

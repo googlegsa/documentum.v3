@@ -76,8 +76,8 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     object = session.getObject(id);
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-        DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX,
-        false, DmInitialize.included_meta, ActionType.ADD, null);
+        DmInitialize.DM_ID1, null, lastModifDate, sessionManager, dctmClientX,
+        false, DmInitialize.included_meta, ActionType.ADD, null, null);
 
     Set<String> names = dctmSpm.getPropertyNames();
     assertEquals(3, names.size());
@@ -94,8 +94,8 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     object = session.getObject(id);
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-        DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX,
-        false, DmInitialize.included_meta, ActionType.ADD, null);
+        DmInitialize.DM_ID1, null, lastModifDate, sessionManager, dctmClientX,
+        false, DmInitialize.included_meta, ActionType.ADD, null, null);
 
     Property property = dctmSpm.findProperty("google:docid");
     assertNotNull(property);

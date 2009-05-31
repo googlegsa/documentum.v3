@@ -42,6 +42,7 @@ import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.SimpleProperty;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.SpiConstants.ActionType;
+import com.google.enterprise.connector.spi.TraversalContext;
 import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spiimpl.BinaryValue;
 import com.google.enterprise.connector.spiimpl.BooleanValue;
@@ -58,6 +59,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
   private static final long MAX_CONTENT_SIZE = 30L * 1024 * 1024;
 
   private String object_id_name = "r_object_id";
+  private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
   private String docId;
   private String commonVersionID;
@@ -72,19 +74,12 @@ public class DctmSysobjectDocument extends HashMap implements Document {
   private final ActionType action;
   private final Set<String> included_meta;
   private final Checkpoint checkpoint;
-
-
-  public DctmSysobjectDocument(String docid, ITime lastModifyDate,
-      ISessionManager sessionManager, IClientX clientX, boolean isPublic,
-      Set<String> included_meta, ActionType action, Checkpoint checkpoint) {
-    this(docid, null, lastModifyDate, sessionManager, clientX, isPublic,
-         included_meta, action, checkpoint);
-  }
+  private final TraversalContext traversalContext;
 
   public DctmSysobjectDocument(String docid, String commonVersionID,
       ITime timeStamp, ISessionManager sessionManager, IClientX clientX,
       boolean isPublic, Set<String> included_meta, ActionType action,
-      Checkpoint checkpoint) {
+      Checkpoint checkpoint, TraversalContext traversalContext) {
     this.docId = docid;
     this.versionId = commonVersionID;
     this.timeStamp = timeStamp;
@@ -94,9 +89,12 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     this.included_meta = included_meta;
     this.action = action;
     this.checkpoint = checkpoint;
+    this.traversalContext = traversalContext;
   }
 
-  private void fetch() throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
+  private void fetch() throws RepositoryDocumentException,
+      RepositoryLoginException, RepositoryException {
+
     if (object != null) {
       return;
     }
@@ -151,8 +149,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     }
   }
 
-  public Property findProperty(String name) throws RepositoryDocumentException, RepositoryLoginException, RepositoryException {
-    IFormat dctmForm = null;
+  public Property findProperty(String name) throws RepositoryDocumentException,
+      RepositoryLoginException, RepositoryException {
+
     LinkedList<Value> values = new LinkedList<Value>();
 
     logger.fine("In findProperty; name : " + name);
@@ -168,19 +167,9 @@ public class DctmSysobjectDocument extends HashMap implements Document {
       } else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_CONTENT);
         try {
-          long contentSize = object.getContentSize();
-          if (contentSize == 0) {
-            logger.fine("this object has no content");
-          } else if (contentSize > MAX_CONTENT_SIZE) {
-            logger.fine("content is too large: " + contentSize);
-          } else {
-            IFormat format = object.getFormat();
-            if (!format.canIndex()) {
-              logger.fine("unindexable content format: " + format.getName());
-            } else {
-              values.add(new BinaryValue(object.getContent()));
-              logger.fine("property " + SpiConstants.PROPNAME_CONTENT + " after getContent");
-            }
+          if (canIndex(true)) {
+            values.add(new BinaryValue(object.getContent()));
+            logger.fine("property " + SpiConstants.PROPNAME_CONTENT + " after getContent");
           }
         } catch (RepositoryDocumentException e) {
           // FIXME: In the unlikely event the user only has BROWSE
@@ -213,18 +202,14 @@ public class DctmSysobjectDocument extends HashMap implements Document {
       } else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_MIMETYPE);
         try {
-          dctmForm = object.getFormat();
+          IFormat dctmForm = object.getFormat();
           String mimetype = dctmForm.getMIMEType();
-          String dosExtension = dctmForm.getDOSExtension();
-          long contentSize = object.getContentSize();
+          logger.fine("mimetype of the document " + versionId + " : " + mimetype);
           // Modification in order to index empty documents.
-          if (contentSize > 0 && contentSize <= MAX_CONTENT_SIZE && dctmForm.canIndex()) {
+          if (canIndex(false)) {
             values.add(new StringValue(mimetype));
             logger.fine("property " + SpiConstants.PROPNAME_MIMETYPE + " has the value " + mimetype);
           }
-          logger.fine("mimetype of the document " + versionId + " : " + mimetype);
-          logger.fine("dosExtension of the document " + versionId + " : " + dosExtension);
-          logger.fine("contentSize of the document " + versionId + " : " + contentSize);
         } catch (RepositoryDocumentException e) {
           // TODO Auto-generated catch block
           logger.warning("RepositoryDocumentException thrown : " + e + " on getting property : " + name);
@@ -296,7 +281,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
           String timeSt = timeStamp.asString(timeStamp.getTime_pattern44());
           logger.fine("timeSt =" + timeSt);
 
-          Date tmpDt = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(timeSt);
+          Date tmpDt = dateFormat.parse(timeSt);
           tmpCal.setTime(tmpDt);
           logger.fine("tmpDt is " + tmpDt);
 
@@ -317,6 +302,44 @@ public class DctmSysobjectDocument extends HashMap implements Document {
     }
 
     return new SimpleProperty(values);
+  }
+
+  /**
+   * Return true if the obect's content should be supplied for indexing.
+   */
+  private boolean canIndex(boolean logging) throws RepositoryException {
+    // Don't send content that is too big or too small.
+    long contentSize = object.getContentSize();
+    long maxContentSize = (traversalContext != null) ? traversalContext.maxDocumentSize() : MAX_CONTENT_SIZE;
+    if (contentSize <= 0) {
+      if (logging) {
+        logger.fine("this object has no content");
+      }
+      return false;
+    }
+    if (contentSize > maxContentSize) {
+      if (logging) {
+        logger.fine("content is too large: " + contentSize);
+      }
+      return false;
+    }
+    // Don't send content whose mimetype is not supported.
+    IFormat format = object.getFormat();
+    String mimetype = format.getMIMEType();
+    if (traversalContext != null) {
+      if (traversalContext.mimeTypeSupportLevel(mimetype) <= 0) {
+        if (logging) {
+          logger.fine("unindexable content format: " + format.getName());
+        }
+        return false;
+      }
+    } else if (!format.canIndex()) {
+      if (logging) {
+        logger.fine("unindexable content format: " + format.getName());
+      }
+      return false;
+    }
+    return true;
   }
 
   private Calendar getCalendarFromDate(Date date) {
