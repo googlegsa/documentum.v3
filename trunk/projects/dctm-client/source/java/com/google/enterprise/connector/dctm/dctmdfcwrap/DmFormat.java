@@ -40,7 +40,7 @@ public class DmFormat implements IFormat {
     return rep;
   }
 
-  /** 
+  /**
    * Gets whether this format is configured for indexing on the
    * server. If the answer isn't definitive, err on the side of
    * feeding the content.
@@ -64,8 +64,9 @@ public class DmFormat implements IFormat {
     try {
       if (idfFormat != null) {
         rep = idfFormat.getMIMEType();
-        if (rep == null || rep.length() == 0)
+        if (rep == null || rep.length() == 0 || rep.indexOf('/') < 0) {
           rep = "application/octet-stream";
+        }
       } else {
         rep = "application/octet-stream";
       }
