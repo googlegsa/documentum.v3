@@ -218,12 +218,11 @@ public class DctmSysobjectDocument extends HashMap implements Document {
       } else if (name.equals("r_object_type")) {
         logger.fine("getting the property " + name);
         // Retrieves object type and its super type(s).
-        IType value  = object.getType();
-        do {
-          String type = value.getName();
-          logger.fine("property " + name + " has the value " + type);
-          values.add(Value.getStringValue(value.getName()));
-        } while ((value = value.getSuperType()) != null);
+        for (IType value = object.getType(); value != null; value = value.getSuperType()) {
+          String typeName = value.getName();
+          logger.fine("property " + name + " has the value " + typeName);
+          values.add(Value.getStringValue(typeName));
+        }
       } else if (object.findAttrIndex(name) != -1) {
         IAttr attr = object.getAttr(object.findAttrIndex(name));
         logger.finer("the attribute " + name + " is in the position " + object.findAttrIndex(name)+ " in the list of attributes of the fetched object");
