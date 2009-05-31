@@ -32,7 +32,6 @@ import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.Value;
-import com.google.enterprise.connector.spiimpl.StringValue;
 
 public class DctmSysobjectDocumentTest extends TestCase {
   IClientX dctmClientX = null;
@@ -107,7 +106,7 @@ public class DctmSysobjectDocumentTest extends TestCase {
     Value val = null;
 
     while ((val = property.nextValue()) != null) {
-      assertTrue(val instanceof StringValue);
+      // TOOD: compare val.toString() to expected keywords.
     }
     property = dctmSpm.findProperty("r_object_id");
     assertTrue(property instanceof DctmSysobjectProperty);

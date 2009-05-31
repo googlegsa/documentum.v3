@@ -33,7 +33,6 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.TraversalContext;
-import com.google.enterprise.connector.spiimpl.StringValue;
 
 public class DctmDocumentList implements DocumentList {
   private static final Logger logger =
