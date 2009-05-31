@@ -36,6 +36,8 @@ public interface ISysObject {
 
   ITime getTime(String name) throws RepositoryDocumentException;
 
+  IType getType() throws RepositoryDocumentException;
+
   double getDouble(String name) throws RepositoryDocumentException;
 
   boolean getBoolean(String name) throws RepositoryDocumentException;

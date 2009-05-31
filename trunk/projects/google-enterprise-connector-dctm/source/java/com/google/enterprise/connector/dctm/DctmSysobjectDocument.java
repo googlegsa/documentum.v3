@@ -33,6 +33,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Property;
@@ -101,13 +102,10 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         logger.info("Get a session for the docbase " + docbaseName);
 
         IId id = clientX.getId(docId);
-
         logger.info("r_object_id of the fetched object is " + docId);
 
         object = session.getObject(id);
-
         versionId = object.getId("i_chronicle_id").getId();
-
         logger.info("i_chronicle_id of the fetched object is " + versionId);
 
         object.setSessionManager(sessionManager);
@@ -217,6 +215,15 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         logger.fine("getting the property " + SpiConstants.PROPNAME_TITLE);
         values.add(Value.getStringValue(object.getObjectName()));
         logger.fine("property " + SpiConstants.PROPNAME_TITLE + " has the value " + object.getObjectName());
+      } else if (name.equals("r_object_type")) {
+        logger.fine("getting the property " + name);
+        // Retrieves object type and its super type(s).
+        IType value  = object.getType();
+        do {
+          String type = value.getName();
+          logger.fine("property " + name + " has the value " + type);
+          values.add(Value.getStringValue(value.getName()));
+        } while ((value = value.getSuperType()) != null);
       } else if (object.findAttrIndex(name) != -1) {
         IAttr attr = object.getAttr(object.findAttrIndex(name));
         logger.finer("the attribute " + name + " is in the position " + object.findAttrIndex(name)+ " in the list of attributes of the fetched object");
