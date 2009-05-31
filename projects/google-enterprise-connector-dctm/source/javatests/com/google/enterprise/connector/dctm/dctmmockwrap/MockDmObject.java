@@ -30,6 +30,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.mock.MockRepositoryDateTime;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
@@ -160,6 +161,19 @@ public class MockDmObject implements ISysObject {
     }
 
     return new MockDmTime(propDateVal);
+  }
+
+  public IType getType() throws RepositoryDocumentException {
+    MockRepositoryProperty pm = mockDocument.getProplist()
+        .getProperty("r_object_type");
+    MockJcrValue propVal = new MockJcrValue(pm);
+    String propType = null;
+    try {
+      propType = propVal.getString();
+    } catch (IllegalStateException e) {
+      // TODO: Why is this exception ignored?
+    }
+    return (propType == null)? null :  new MockDmType(propType);
   }
 
   public double getDouble(String name) throws RepositoryDocumentException {

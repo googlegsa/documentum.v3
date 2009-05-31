@@ -47,7 +47,7 @@ public class DmType implements IType {
       RepositoryException re = new RepositoryException(de);
       throw re;
     }
-    return new DmType(idfSuperType);
+    return (idfSuperType == null) ? null : new DmType(idfSuperType);
   }
 
   public boolean isSubTypeOf(String type) throws RepositoryException {

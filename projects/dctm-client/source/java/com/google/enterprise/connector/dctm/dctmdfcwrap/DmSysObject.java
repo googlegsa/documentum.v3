@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.client.IDfSysObject;
+import com.documentum.fc.client.IDfType;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
@@ -27,6 +28,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -153,6 +155,15 @@ public class DmSysObject implements ISysObject {
   public ITime getTime(String name) throws RepositoryDocumentException {
     try {
       return new DmTime(idfSysObject.getTime(name));
+    } catch (DfException e) {
+      throw new RepositoryDocumentException(e);
+    }
+  }
+
+  public IType getType() throws RepositoryDocumentException {
+    try {
+      IDfType type = idfSysObject.getType();
+      return (type == null) ? null : new DmType(type);
     } catch (DfException e) {
       throw new RepositoryDocumentException(e);
     }
