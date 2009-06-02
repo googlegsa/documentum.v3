@@ -14,14 +14,14 @@
 				<value>is_public</value>
 				<value>advanced_configuration</value>
 				<value>action_update</value>
-				<value>where_clause</value>
 				<value>root_object_type</value>
+				<value>where_clause</value>
 				<value>included_object_type</value>
 				<value>included_meta</value>
 			</list>
 		</property>
 		<property name="included_meta">
-		<set>
+			<set>
 				<value>object_name</value>
 				<value>r_object_type</value>
 				<value>title</value>
@@ -32,15 +32,15 @@
 				<value>r_modify_date</value>
 				<value>r_content_size</value>
 				<value>a_content_type</value>
-		</set>
+			</set>
 		</property>
 		<property name="included_object_type">
-		<set>
-			<value>dm_document</value>
-		</set>
+			<set>
+				<value>dm_document</value>
+			</set>
 		</property>
 		<property name="root_object_type" value="dm_sysobject"/>
 		<property name="authentication_type" value="api"/>
-        <property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX"/>
+	<property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX"/>
 	</bean>
 </beans>
