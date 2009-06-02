@@ -5,8 +5,6 @@
 	<!-- ========================= PROPERTIES ========================= -->
 	<property file="version.properties" />
 
-	<!-- Choose 5.2.5_5.3 or 6.0 for the value. -->
-	<property name="bean.id.version" value="6.0" />
 	<property name="COMPILE_DEBUG_FLAG" value="true" />
 	<property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
 
@@ -114,15 +112,6 @@
 			<arg line="."/>
 		</exec>
 		<tstamp />
-		<copy tofile="${config}/config/connectorType.xml">
-			<fileset dir="${config}/config">
-				<include name="connectorType.xml.filter" />
-			</fileset>
-			<filterset>
-				<filter token="bean.id.version" 
-					value="${bean.id.version}" />
-			</filterset>
-		</copy>
 		<jar jarfile="${jarfile}">
 			<fileset dir="${config}">
 				<include name="*.properties"/>
@@ -160,7 +149,7 @@
 	</target>
 
 	<target name="bin-archive" depends="jar">
-		<property name="bin.archive" value="connector-dctm-${version}_${bean.id.version}" />
+		<property name="bin.archive" value="connector-dctm-${version}" />
 		<zip destfile="${dist}/${bin.archive}.zip">
 			<zipfileset dir="${jar.dir}" prefix="${bin.archive}" />
 			<zipfileset dir=".." prefix="${bin.archive}">
@@ -230,7 +219,6 @@
 		<delete dir="${build-client}" />
 		<delete dir="${build-core}" />
 		<delete dir="${dist}" />
-		<delete file="${config}/config/connectorType.xml" />
 	</target>
 
 	<target name="everything" depends="clean,bin-archive,src-archive" />
