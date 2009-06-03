@@ -22,9 +22,7 @@ import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
-import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
@@ -32,7 +30,6 @@ import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
-import com.google.enterprise.connector.spi.TraversalContext;
 
 public class DctmDocumentList implements DocumentList {
   private static final Logger logger =
@@ -41,29 +38,19 @@ public class DctmDocumentList implements DocumentList {
   ICollection collectionToAdd;
   ICollection collectionToDel;
 
-  IClientX clientX;
-  ISessionManager sessMag;
-  private boolean isPublic;
-  private final Set<String> included_meta;
   private Checkpoint checkpoint;
-  private final TraversalContext traversalContext;
+  private final DctmTraversalManager traversalManager;
 
   public DctmDocumentList() {
-    this(null, null, null, null, false, null, new Checkpoint(), null);
+    this(null, null, null, new Checkpoint());
   }
 
-  public DctmDocumentList(ICollection collToAdd, ICollection collToDel,
-      ISessionManager sessMag, IClientX clientX, boolean isPublic,
-      Set<String> included_meta, Checkpoint checkpoint,
-      TraversalContext traversalContext) {
+  public DctmDocumentList(DctmTraversalManager traversalManager,
+      ICollection collToAdd, ICollection collToDel, Checkpoint checkpoint) {
+    this.traversalManager = traversalManager;
     this.collectionToAdd = collToAdd;
     this.collectionToDel = collToDel;
-    this.clientX = clientX;
-    this.sessMag = sessMag;
-    this.isPublic = isPublic;
-    this.included_meta = included_meta;
     this.checkpoint = checkpoint;
-    this.traversalContext = traversalContext;
   }
 
   public Document nextDocument() throws RepositoryException {
@@ -87,9 +74,9 @@ public class DctmDocumentList implements DocumentList {
         }
         checkpoint.setInsertCheckpoint(modifyDate.getDate(), crID);
 
-        dctmSysobjectDocument = new DctmSysobjectDocument(crID, null,
-            modifyDate, sessMag, clientX, isPublic, included_meta,
-            SpiConstants.ActionType.ADD, checkpoint, traversalContext);
+        dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
+            crID, null, modifyDate, SpiConstants.ActionType.ADD,
+            checkpoint);
 
         logger.fine("Creation of a new dctmSysobjectDocument to add");
         retDoc = dctmSysobjectDocument;
@@ -113,9 +100,9 @@ public class DctmDocumentList implements DocumentList {
         }
         checkpoint.setDeleteCheckpoint(deleteDate.getDate(), crID);
 
-        dctmSysobjectDocument = new DctmSysobjectDocument(crID, commonVersionID,
-            deleteDate, sessMag, clientX, isPublic, included_meta,
-            SpiConstants.ActionType.DELETE, checkpoint, traversalContext);
+        dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
+            crID, commonVersionID, deleteDate, SpiConstants.ActionType.DELETE,
+            checkpoint);
 
         logger.fine("Creation of a new dctmSysobjectDocument to delete");
         retDoc = dctmSysobjectDocument;
@@ -189,7 +176,7 @@ public class DctmDocumentList implements DocumentList {
       try {
         collectionToAdd.close();
         logger.fine("collection of documents to add closed");
-        sessMag.releaseSessionAdd();
+        traversalManager.getSessionManager().releaseSessionAdd();
         logger.fine("collection session released");
       } catch (RepositoryException e) {
         logger.severe(
@@ -201,7 +188,7 @@ public class DctmDocumentList implements DocumentList {
       try {
         collectionToDel.close();
         logger.fine("collection of documents to delete closed");
-        sessMag.releaseSessionDel();
+        traversalManager.getSessionManager().releaseSessionDel();
         logger.fine("collection session released");
       } catch (RepositoryException e) {
         logger.severe(

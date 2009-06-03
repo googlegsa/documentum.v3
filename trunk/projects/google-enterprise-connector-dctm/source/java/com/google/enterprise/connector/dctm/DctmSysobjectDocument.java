@@ -21,12 +21,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
-import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
@@ -62,30 +62,20 @@ public class DctmSysobjectDocument extends HashMap implements Document {
   private ITime timeStamp;
 
   private ISysObject object = null;
-  private ISessionManager sessionManager = null;
-  private IClientX clientX;
-
-  private boolean isPublic = false;
   private String versionId;
   private final ActionType action;
-  private final Set<String> included_meta;
   private final Checkpoint checkpoint;
-  private final TraversalContext traversalContext;
+  private final DctmTraversalManager traversalManager;
 
-  public DctmSysobjectDocument(String docid, String commonVersionID,
-      ITime timeStamp, ISessionManager sessionManager, IClientX clientX,
-      boolean isPublic, Set<String> included_meta, ActionType action,
-      Checkpoint checkpoint, TraversalContext traversalContext) {
+  public DctmSysobjectDocument(DctmTraversalManager traversalManager,
+      String docid, String commonVersionID, ITime timeStamp, ActionType action,
+      Checkpoint checkpoint) {
+    this.traversalManager = traversalManager;
     this.docId = docid;
     this.versionId = commonVersionID;
     this.timeStamp = timeStamp;
-    this.sessionManager = sessionManager;
-    this.clientX = clientX;
-    this.isPublic = isPublic;
-    this.included_meta = included_meta;
     this.action = action;
     this.checkpoint = checkpoint;
-    this.traversalContext = traversalContext;
   }
 
   private void fetch() throws RepositoryDocumentException,
@@ -95,13 +85,14 @@ public class DctmSysobjectDocument extends HashMap implements Document {
       return;
     }
     ISession session = null;
+    ISessionManager sessionManager = traversalManager.getSessionManager();
     try {
       String docbaseName = sessionManager.getDocbaseName();
       session = sessionManager.getSession(docbaseName);
       if (ActionType.ADD.equals(action)) {
         logger.info("Get a session for the docbase " + docbaseName);
 
-        IId id = clientX.getId(docId);
+        IId id = traversalManager.getClientX().getId(docId);
         logger.info("r_object_id of the fetched object is " + docId);
 
         object = session.getObject(id);
@@ -173,6 +164,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         }
       } else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_DISPLAYURL);
+        ISessionManager sessionManager = traversalManager.getSessionManager();
         values.add(Value.getStringValue(sessionManager.getServerUrl() + docId));
         logger.fine("property " + SpiConstants.PROPNAME_DISPLAYURL + " has the value " + sessionManager.getServerUrl() + docId);
       } else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
@@ -186,8 +178,8 @@ public class DctmSysobjectDocument extends HashMap implements Document {
         }
       } else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_ISPUBLIC);
-        values.add(Value.getBooleanValue(isPublic));
-        logger.fine("property " + SpiConstants.PROPNAME_ISPUBLIC + " set to " + isPublic);
+        values.add(Value.getBooleanValue(traversalManager.isPublic()));
+        logger.fine("property " + SpiConstants.PROPNAME_ISPUBLIC + " set to " + traversalManager.isPublic());
       } else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_LASTMODIFIED);
         values.add(Value.getDateValue(getDate("r_modify_date")));
@@ -218,7 +210,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
       } else if (name.equals("r_object_type")) {
         logger.fine("getting the property " + name);
         // Retrieves object type and its super type(s).
-        for (IType value = object.getType(); value != null; value = value.getSuperType()) {
+        for (IType value = object.getType(); value != null; value = getSuperType(value)) {
           String typeName = value.getName();
           logger.fine("property " + name + " has the value " + typeName);
           values.add(Value.getStringValue(typeName));
@@ -306,11 +298,30 @@ public class DctmSysobjectDocument extends HashMap implements Document {
   }
 
   /**
+   * Return the supertype for the supplied type.  Caches result to
+   * avoid frequent round-trips to server.
+   *
+   * @return superType for supplied type, or null if type is root type.
+   */
+  private IType getSuperType(IType type) throws RepositoryException {
+    if (type == null)
+      return null;
+    Map<String, IType> superTypes = traversalManager.getSuperTypeCache();
+    String typeName = type.getName();
+    if (superTypes.containsKey(typeName))
+      return superTypes.get(typeName);
+    IType superType = type.getSuperType();
+    superTypes.put(typeName, superType);
+    return superType;
+  }
+
+  /**
    * Return true if the obect's content should be supplied for indexing.
    */
   private boolean canIndex(boolean logging) throws RepositoryException {
     // Don't send content that is too big or too small.
     long contentSize = object.getContentSize();
+    TraversalContext traversalContext = traversalManager.getTraversalContext();
     long maxContentSize = (traversalContext != null) ? traversalContext.maxDocumentSize() : MAX_CONTENT_SIZE;
     if (contentSize <= 0) {
       if (logging) {
@@ -365,7 +376,7 @@ public class DctmSysobjectDocument extends HashMap implements Document {
           IAttr curAttr = object.getAttr(i);
           String name = curAttr.getName();
           logger.finest("pass the attribute " + name);
-          if (included_meta.contains(name)) {
+          if (traversalManager.getIncludedMeta().contains(name)) {
             properties.add(name);
             logger.finest("attribute " + name + " added to the properties");
           }
