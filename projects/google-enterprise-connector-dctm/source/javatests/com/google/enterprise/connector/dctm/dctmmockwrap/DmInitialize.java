@@ -18,74 +18,74 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DmInitialize {
-  public static String DM_LOGIN_OK1 = "joe";
+  public static final String DM_LOGIN_OK1 = "joe";
 
-  public static String DM_LOGIN_OK2 = "mary";
+  public static final String DM_LOGIN_OK2 = "mary";
 
-  public static String DM_LOGIN_OK3 = "user1";
+  public static final String DM_LOGIN_OK3 = "user1";
 
-  public static String DM_LOGIN_OK4 = "mark";
+  public static final String DM_LOGIN_OK4 = "mark";
 
-  public static String DM_LOGIN_OK5 = "bill";
+  public static final String DM_LOGIN_OK5 = "bill";
 
-  public static String DM_LOGIN_KO = "machinchouette";
+  public static final String DM_LOGIN_KO = "machinchouette";
 
-  public static String DM_PWD_OK1 = "joe";
+  public static final String DM_PWD_OK1 = "joe";
 
-  public static String DM_PWD_OK2 = "mary";
+  public static final String DM_PWD_OK2 = "mary";
 
-  public static String DM_PWD_OK3 = "user1";
+  public static final String DM_PWD_OK3 = "user1";
 
-  public static String DM_PWD_OK4 = "mark";
+  public static final String DM_PWD_OK4 = "mark";
 
-  public static String DM_PWD_OK5 = "bill";
+  public static final String DM_PWD_OK5 = "bill";
 
-  public static String DM_PWD_KO = "wdfshsgdh";
+  public static final String DM_PWD_KO = "wdfshsgdh";
 
-  public static String DM_DOCBASE = "SwordEventLog.txt";
+  public static final String DM_DOCBASE = "SwordEventLog.txt";
 
-  public static int DM_RETURN_TOP_UNBOUNDED = 27;
+  public static final int DM_RETURN_TOP_UNBOUNDED = 27;
 
-  public static int DM_RETURN_TOP_BOUNDED = 27;
+  public static final int DM_RETURN_TOP_BOUNDED = 27;
 
-  public static String DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
+  public static final String DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
 
-  public static String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
+  public static final String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
 
-  // /public static String DM_CHECKPOINT_QUERY_STRING = " and
+  // /public static final String DM_CHECKPOINT_QUERY_STRING = " and
   // @jcr:lastModified >= ''{0}''";
 
-  public static String DM_CHECKPOINT_QUERY_STRING = " and ((r_modify_date = date('1970-01-01 01:00:00','yyyy-mm-dd hh:mi:ss')  and r_object_id > 'doc2') OR ( r_modify_date > date('1970-01-01 01:00:00','yyyy-mm-dd hh:mi:ss')))";
+  public static final String DM_CHECKPOINT_QUERY_STRING = " and ((r_modify_date = date('1970-01-01 01:00:00','yyyy-mm-dd hh:mi:ss')  and r_object_id > 'doc2') OR ( r_modify_date > date('1970-01-01 01:00:00','yyyy-mm-dd hh:mi:ss')))";
 
-  public static String DM_QUERY_STRING_ENABLE = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
+  public static final String DM_QUERY_STRING_ENABLE = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
 
-  public static String DM_FAlSE_PWD = "wdfshsgdh";
+  public static final String DM_FAlSE_PWD = "wdfshsgdh";
 
-  public static String DM_ID1 = "users";
+  public static final String DM_ID1 = "users";
 
-  public static String DM_ID2 = "doc2";
+  public static final String DM_ID2 = "doc2";
 
-  public static String DM_ID3 = "doc3";
+  public static final String DM_ID3 = "doc3";
 
-  public static String DM_ID4 = "doc10";
+  public static final String DM_ID4 = "doc10";
 
-  public static String DM_ID5 = "doc26";
+  public static final String DM_ID5 = "doc26";
 
-  public static boolean DM_ID2_IS_PUBLIC = false;
+  public static final boolean DM_ID2_IS_PUBLIC = false;
 
-  public static String DM_DEFAULT_MIMETYPE = "application/octet-stream";
+  public static final String DM_DEFAULT_MIMETYPE = "application/octet-stream";
 
-  public static int DM_DEFAULT_ATTRS = 2;
+  public static final int DM_DEFAULT_ATTRS = 2;
 
-  public static int DM_ID2_SIZE = 16;
+  public static final int DM_ID2_SIZE = 16;
 
-  public static int DM_ID2_TIMESTAMP = 20;
+  public static final int DM_ID2_TIMESTAMP = 20;
 
-  public static String DM_ID2_TIMESTRING = "1970-01-01T01:00:00Z";
+  public static final String DM_ID2_TIMESTRING = "1970-01-01T01:00:00Z";
 
-  public static String DM_FIRST_ATTR = "google:ispublic";
+  public static final String DM_FIRST_ATTR = "google:ispublic";
 
-  public static int DM_ID1_TYPE = 1;
+  public static final int DM_ID1_TYPE = 1;
 
   public static final Set<String> excluded_meta;
 
@@ -172,6 +172,7 @@ public class DmInitialize {
     excluded_meta.add("a_application_type");
   }
 
+  public static final String DM_INCLUDED_META = "object_name r_object_type title subject keywords authors r_creation_date r_modify_date";
   public static final Set<String> included_meta;
 
   static {

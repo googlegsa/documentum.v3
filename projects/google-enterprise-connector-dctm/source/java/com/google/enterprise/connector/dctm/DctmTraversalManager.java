@@ -17,10 +17,12 @@ package com.google.enterprise.connector.dctm;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -31,6 +33,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
+import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.TraversalContext;
@@ -52,6 +55,8 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private int batchHint = -1;
   private ISessionManager sessionManager;
   private IClientX clientX;
+  private TraversalContext traversalContext = null;
+  private Map<String, IType> superTypeCache;
 
   protected String additionalWhereClause;
   private boolean isPublic;
@@ -59,7 +64,13 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private Set<String> hash_included_meta;
   private String root_object_type;
 
-  private TraversalContext traversalContext = null;
+  // Constructor used by tests.
+  public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
+      String included_meta, ISessionManager sessionMgr)
+      throws RepositoryException {
+    this(clientX, webtopServerUrl, "", true, included_meta, "", "");
+    setSessionManager(sessionMgr);
+  }
 
   public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
       String additionalWhereClause, boolean isPublic, String included_meta,
@@ -69,6 +80,8 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     this.additionalWhereClause = additionalWhereClause;
     setClientX(clientX);
     setSessionManager(clientX.getSessionManager());
+
+    this.superTypeCache = new HashMap<String, IType>();
 
     this.serverUrl = webtopServerUrl;
     this.isPublic = isPublic;
@@ -81,7 +94,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     this.clientX = clientX;
   }
 
-  protected IClientX getClientX() {
+  public IClientX getClientX() {
     return clientX;
   }
 
@@ -99,6 +112,18 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   public void setTraversalContext(TraversalContext traversalContext) {
     this.traversalContext = traversalContext;
+  }
+
+  public TraversalContext getTraversalContext() {
+    return traversalContext;
+  }
+
+  public Map<String, IType> getSuperTypeCache() {
+    return superTypeCache;
+  }
+
+  public Set<String> getIncludedMeta() {
+    return hash_included_meta;
   }
 
   /**
@@ -190,8 +215,8 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
       if ((collecToAdd != null && collecToAdd.hasNext()) ||
           (collecToDel != null && collecToDel.hasNext())) {
-        documentList = new DctmDocumentList(collecToAdd, collecToDel, sessionManager,
-            clientX, isPublic, hash_included_meta, checkpoint, traversalContext);
+        documentList = new DctmDocumentList(this, collecToAdd, collecToDel,
+            checkpoint);
       }
     } finally {
       // No documents to add or delete.   Return a null DocumentList,

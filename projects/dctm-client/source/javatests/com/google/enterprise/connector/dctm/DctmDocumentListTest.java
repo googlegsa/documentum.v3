@@ -36,14 +36,14 @@ public class DctmDocumentListTest extends TestCase {
 
   IQuery query;
 
+  DctmTraversalManager traversalManager = null;
+
   DctmDocumentList documentList;
 
   public void setUp() throws Exception {
     super.setUp();
     dctmClientX = new DmClientX();
-
     localClient = dctmClientX.getLocalClient();
-
     sessionManager = localClient.newSessionManager();
 
     ILoginInfo loginInfo = dctmClientX.getLoginInfo();
@@ -51,14 +51,17 @@ public class DctmDocumentListTest extends TestCase {
     loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
     sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
-    query = dctmClientX.getQuery();
-    query
-        .setDQL("select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where folder('/test_docs/GoogleDemo',descend)");
-    ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
 
-    documentList = new DctmDocumentList(collec, collec, sessionManager,
-        dctmClientX, false, DmInitialize.hashIncluded_meta,
-        "","");
+    traversalManager = new DctmTraversalManager(dctmClientX,
+        DmInitialize.DM_WEBTOP_SERVER_URL, DmInitialize.DM_INCLUDED_META,
+        sessionManager);
+
+    query = dctmClientX.getQuery();
+    query.setDQL("select i_chronicle_id, r_object_id, r_modify_date from "
+        + "dm_sysobject where folder('/test_docs/GoogleDemo',descend)");
+    ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
+    documentList = new DctmDocumentList(traversalManager, collec, collec,
+        new Checkpoint());
   }
 
   /*
