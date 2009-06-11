@@ -44,25 +44,26 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private static final Logger logger =
       Logger.getLogger(DctmTraversalManager.class.getName());
 
-  private String order_by = " order by r_modify_date,r_object_id";
-  private String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
-  private String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
-  private String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
+  private static final String ORDER_BY = " order by r_modify_date,r_object_id";
+  private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
+  private static final String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
+  private static final String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
 
-  private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  private final SimpleDateFormat dateFormat =
+      new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-  private String serverUrl;
+  private final String serverUrl;
   private int batchHint = -1;
   private ISessionManager sessionManager;
   private IClientX clientX;
   private TraversalContext traversalContext = null;
-  private Map<String, IType> superTypeCache;
+  private final Map<String, IType> superTypeCache;
 
-  protected String additionalWhereClause;
-  private boolean isPublic;
-  private Set<String> hash_included_object_type;
-  private Set<String> hash_included_meta;
-  private String root_object_type;
+  private final String additionalWhereClause;
+  private final boolean isPublic;
+  private final Set<String> includedObjectType;
+  private final Set<String> includedMeta;
+  private final String rootObjectType;
 
   // Constructor used by tests.
   public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
@@ -73,10 +74,9 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   }
 
   public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-      String additionalWhereClause, boolean isPublic, String included_meta,
-      String included_object_type, String root_object_type)
+      String additionalWhereClause, boolean isPublic, String includedMeta,
+      String includedObjectType, String rootObjectType)
       throws RepositoryException {
-
     this.additionalWhereClause = additionalWhereClause;
     setClientX(clientX);
     setSessionManager(clientX.getSessionManager());
@@ -85,9 +85,9 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
     this.serverUrl = webtopServerUrl;
     this.isPublic = isPublic;
-    setHash_included_object_type(included_object_type);
-    setHash_included_meta(included_meta);
-    this.root_object_type = root_object_type;
+    this.includedObjectType = csvToSet(includedObjectType);
+    this.includedMeta = csvToSet(includedMeta);
+    this.rootObjectType = rootObjectType;
   }
 
   protected void setClientX(IClientX clientX) {
@@ -123,7 +123,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   }
 
   public Set<String> getIncludedMeta() {
-    return hash_included_meta;
+    return includedMeta;
   }
 
   /**
@@ -265,52 +265,32 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   protected String buildQueryString(Checkpoint checkpoint) {
     StringBuilder query = new StringBuilder(
         "select i_chronicle_id, r_object_id, r_modify_date from ");
-    query.append(root_object_type);
-    if (!hash_included_object_type.isEmpty()) {
-      query.append(" where (");
-      Iterator<String> iter = hash_included_object_type.iterator();
-      String name = iter.next();
-      query.append(" r_object_type='" + name + "'");
-      while (iter.hasNext()) {
-        name = iter.next();
-        query.append(" OR r_object_type='" + name + "'");
-      }
-      query.append(")");
+    query.append(rootObjectType);
+    query.append(" where ");
+    if (!includedObjectType.isEmpty()) {
+      DqlUtils.appendObjectTypes(query, includedObjectType);
     } else {
-      query.append(" where r_object_type='");
-      query.append("dm_document");
-      query.append("' ");
+      // FIXME: Append the WHERE text only when needed.
+      query.append("1=1 ");
     }
-    if (additionalWhereClause != null && additionalWhereClause.trim().length() > 0) {
-      logger.fine("adding the additionalWhereClause to the query : " + additionalWhereClause);
-      ///adding the "and" operator if not present in the additional where clause (mandatory)
-      if (!additionalWhereClause.toLowerCase().startsWith("and ")) {
-        logger.log(Level.INFO, "clause does not start with AND : ");
-        additionalWhereClause = "and ".concat(additionalWhereClause);
-        logger.log(Level.INFO, "after adding AND : " + additionalWhereClause);
-      }
-
+    if (additionalWhereClause != null && additionalWhereClause.length() > 0) {
+      logger.fine("adding the additionalWhereClause to the query: " + additionalWhereClause);
+      query.append("and (");
       query.append(additionalWhereClause);
+      query.append(") ");
     }
     if (checkpoint.insertId != null && checkpoint.insertDate != null) {
-      logger.fine("adding the checkpoint to the query : " + checkpoint);
+      logger.fine("adding the checkpoint to the query: " + checkpoint);
       Object[] arguments = { dateFormat.format(checkpoint.insertDate), checkpoint.insertId };
       query.append(MessageFormat.format(whereBoundedClause, arguments));
     }
 
-    query.append(order_by);
+    query.append(ORDER_BY);
 
     if (batchHint > 0) {
-      if (query.indexOf("ENABLE (return_top") == -1) {
-        query.append(" ENABLE (return_top "
-            + Integer.toString(batchHint) + ")");
-      } else {
-        int a = query.indexOf(" ENABLE (return_top");
-        query.replace(a, query.length(), " ENABLE (return_top "
-            + Integer.toString(batchHint) + ")");
-      }
+      query.append(" ENABLE (return_top " + batchHint + ")");
     }
-    logger.fine("query completed : " + query.toString());
+    logger.fine("query completed: " + query.toString());
     return query.toString();
   }
 
@@ -321,7 +301,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     query.append("event_name='dm_destroy' ");
 
     if (checkpoint.deleteDate != null) {
-      logger.fine("adding the checkpoint to the query : " + checkpoint);
+      logger.fine("adding the checkpoint to the query: " + checkpoint);
       Object[] arguments = { dateFormat.format(checkpoint.deleteDate), checkpoint.deleteId };
       String whereClause = MessageFormat.format(
            (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
@@ -335,23 +315,18 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     return isPublic;
   }
 
-  public void setPublic(boolean isPublic) {
-    this.isPublic = isPublic;
-  }
-
-  protected void setHash_included_object_type(String included_object_type) {
-    hash_included_object_type = new HashSet<String>();
-    String[] hashTab = included_object_type.split(",");
-    for (int i = 0; i < hashTab.length; i++) {
-      hash_included_object_type.add(hashTab[i]);
+  /**
+   * Converts a comma-separated string into a set of strings.
+   *
+   * @param csv a comma-separated string
+   * @return a set of strings
+   */
+  private Set<String> csvToSet(String csv) {
+    String[] values = csv.split(",");
+    Set<String> set = new HashSet<String>(values.length);
+    for (String value : values) {
+      set.add(value);
     }
-  }
-
-  protected void setHash_included_meta(String included_metadata) {
-    hash_included_meta = new HashSet<String>();
-    String[] hashTab = included_metadata.split(",");
-    for (int i = 0; i < hashTab.length; i++) {
-      hash_included_meta.add(hashTab[i]);
-    }
+    return set;
   }
 }

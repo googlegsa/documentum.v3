@@ -84,6 +84,9 @@ public class DctmConnectorType implements ConnectorType {
 
   private static final String TD_START_COLSPAN = "<td colspan='2'>";
 
+  private static final String TD_START_CENTER =
+      "<td style='text-align: center'>";
+
   private static final String TR_START = "<tr>\r\n";
 
   private static final String TR_START_HIDDEN =
@@ -103,10 +106,6 @@ public class DctmConnectorType implements ConnectorType {
       "<script type=\"text/javascript\"><![CDATA[\n";
 
   private static final String SCRIPT_END = "]]></script>\n";
-
-  private static final String DCTMCLASS = "clientX";
-
-  private static final String AUTHENTICATIONTYPE = "authentication_type";
 
   private static final String ISPUBLIC = "is_public";
 
@@ -149,10 +148,6 @@ public class DctmConnectorType implements ConnectorType {
   private Set<String> includedMeta = null;
 
   private String rootObjectType = null;
-
-  private String authenticationType = null;
-
-  private String clientX = null;
 
   private IClientX cl = null;
 
@@ -198,16 +193,6 @@ public class DctmConnectorType implements ConnectorType {
     logger.config("root_object_type set to " + rootObjectType);
   }
 
-  public void setAuthentication_type(String authenticationType) {
-    this.authenticationType = authenticationType;
-    logger.config("authentication_type set to " + authenticationType);
-  }
-
-  public void setClientX(String clientX) {
-    this.clientX = clientX;
-    logger.config("clientX set to " + clientX);
-  }
-
   public ConfigureResponse getConfigForm(Locale language) {
     ResourceBundle resource = getResources(language);
     if (configKeys == null) {
@@ -220,23 +205,21 @@ public class DctmConnectorType implements ConnectorType {
 
   public ConfigureResponse validateConfig(Map<String, String> configData,
       Locale language, ConnectorFactory connectorFactory) {
-    ISession sess = null;
-    ISessionManager sessMag = null;
+    logger.config("CONFIG DATA is " + getMaskedMap(configData));
 
     ResourceBundle resource = getResources(language);
-    String form = null;
 
-    String validation = validateConfigMap(configData);
-    if (validation.equals("")) {
+    String missing = validateCoreConfig(configData);
+    if (missing == null) {
       // Make sure advanced_configuration has a default value.
       if (!configData.containsKey(ADVANCEDCONF))
-        configData.put(ADVANCEDCONF, "");
+        configData.put(ADVANCEDCONF, "off");
 
-      String additionalWhereClause = null;
-      boolean where_clause_config = false;
+      ISession sess = null;
+      ISessionManager sessMag = null;
+      String whereClause = null;
+      boolean isCoreConfigValid = false;
       try {
-        logger.config("CONFIG DATA is " + getMaskedMap(configData));
-
         sessMag = getSessionManager(configData);
 
         ILoginInfo myinfo = sessMag.getIdentity(configData.get(DOCBASENAME));
@@ -247,6 +230,7 @@ public class DctmConnectorType implements ConnectorType {
         sess = getSession(configData, sessMag);
 
         logger.fine("test connection to the repository: " + sess);
+        isCoreConfigValid = true;
 
         String isPublic = configData.get(ISPUBLIC);
         if (isPublic == null) {
@@ -256,40 +240,32 @@ public class DctmConnectorType implements ConnectorType {
         testWebtopUrl(configData.get(DISPLAYURL));
 
         // Display the form again when the advanced conf checkbox is
-        // checked and before that the user had saved the
-        // configuration.
+        // checked and a JavaScript action submitted the form.
         if (configData.get(ADVANCEDCONF).equals("on")
             && configData.get(ACTIONUPDATE).equals("redisplay")) {
           logger.config("Redisplay the configuation form");
-          form = makeValidatedForm(configData, resource, sessMag, sess);
+          String form = makeValidatedForm(configData, resource, sessMag, sess);
           return new ConfigureResponse("", form);
         }
 
         if (configData.get(WHERECLAUSE) != null
             && !configData.get(WHERECLAUSE).equals("")) {
-          where_clause_config = true;
-          additionalWhereClause = checkAdditionalWhereClause(
-              configData.get("where_clause"), sessMag);
-
-          configData.put("where_clause", additionalWhereClause);
-          // FIXME: This setting isn't honored. We need to submit the
-          // modified configData map with the ConfigureResponse.
-          // configData.put(ACTIONUPDATE, "redisplay");
-          logger.config("where_clause is now " + additionalWhereClause);
+          whereClause = checkWhereClause(configData, sessMag);
+          configData.put(WHERECLAUSE, whereClause);
+          logger.config("where_clause is now " + whereClause);
         }
       } catch (RepositoryException e) {
-        if (where_clause_config == false
-            || (where_clause_config == true && additionalWhereClause != null)) {
-          // If we get an exception and we haven't started checking
-          // the where clause yet, then there's a problem with the core
-          // configuration. We will turn the advanced configuration off
-          // until the user fixes the problem.
-          configData.put(ADVANCEDCONF, "off");
-          logger.config("ADVANCEDCONF set to " + configData.get(ADVANCEDCONF));
-        }
-
         logger.log(Level.SEVERE,
             "RepositoryException thrown in validateConfig: ", e);
+
+        if (!isCoreConfigValid) {
+          // If there's a problem with the core configuration, we will
+          // turn the advanced configuration off until the user fixes
+          // the problem.
+          configData.put(ADVANCEDCONF, "off");
+          logger.config("ADVANCEDCONF reset to off");
+        }
+
         // Return the config form with an error message.
         return createErrorMessage(configData, e, resource, sessMag, sess);
       } finally {
@@ -303,17 +279,21 @@ public class DctmConnectorType implements ConnectorType {
         logger.fine("sess before return null: " + sess);
       }
       return null;
+    } else {
+      if (!missing.equals(DISPLAYURL)) {
+        // If there's a problem with the core configuration, we will
+        // turn the advanced configuration off until the user fixes
+        // the problem.
+        configData.put(ADVANCEDCONF, "off");
+        logger.config("ADVANCEDCONF reset to off");
+      }
+
+      // Return the config form with an error message indicating the
+      // name of the missing parameter.
+      String form = makeValidatedForm(configData, resource, null, null);
+      return new ConfigureResponse(resource.getString(missing + "_error"),
+          form);
     }
-
-    // Return the config form with an error message indicating the
-    // name of the missing parameter.
-    logger.config("if validation returns smthg");
-    logger.config("sess: " + sess);
-    configData.put(ADVANCEDCONF, "off");
-
-    form = makeValidatedForm(configData, resource, sessMag, sess);
-    return new ConfigureResponse(resource.getString(validation + "_error"),
-        form);
   }
 
   public ConfigureResponse getPopulatedConfigForm(
@@ -329,28 +309,17 @@ public class DctmConnectorType implements ConnectorType {
 
       for (String key : configKeys) {
         String val = configMap.get(key);
-        if (key.equals("advanced_configuration") && val == null) {
+        if (key.equals(ADVANCEDCONF) && val == null) {
           logger.config("advanced_configuration null");
           val = "off";
           logger.config("val advanced_configuration is now " + val);
           configMap.put(key, val);
-        } else if (key.equals("action_update") && val == null) {
+        } else if (key.equals(ACTIONUPDATE) && val == null) {
           logger.config("action_update null");
-          val = "save";
+          val = "";
           logger.config("val action_update is now " + val);
           configMap.put(key, val);
-        } else if (key.equals("clientX") && (val == null || val.equals(""))) {
-          logger.config("clientX null or empty");
-          val = clientX;
-          logger.config("val clientX is now " + val);
-          configMap.put(key, val);
-        } else if (key.equals("authentication_type")
-            && (val == null || val.equals(""))) {
-          logger.config("authentication_type null or empty");
-          val = authenticationType;
-          logger.config("val authentication_type is now " + val);
-          configMap.put(key, val);
-        } else if (key.equals("root_object_type") && val == null) {
+        } else if (key.equals(ROOT_OBJECT_TYPE) && val == null) {
           logger.config("root_object_type null or empty");
           val = rootObjectType;
           logger.config("val root_object_type is now " + val);
@@ -444,62 +413,46 @@ public class DctmConnectorType implements ConnectorType {
     return new ConfigureResponse(bundleMessage, form);
   }
 
-  private String checkAdditionalWhereClause(String additionalWhereClause,
+  private String checkWhereClause(Map<String, String> configData,
       ISessionManager sessMag) throws RepositoryException {
-    ICollection collec = null;
-    int counter = 0;
+    String whereClause = DqlUtils.stripLeadingAnd(configData.get(WHERECLAUSE));
+    String rootType = configData.get(ROOT_OBJECT_TYPE);
+    String includedTypes = configData.get(INCLUDED_OBJECT_TYPE);
 
+    StringBuilder dql = new StringBuilder();
+    dql.append("select r_object_id from ");
+    dql.append(rootType);
+    dql.append(" where ");
+    DqlUtils.appendObjectTypes(dql,
+        new HashSet<String>(Arrays.asList(includedTypes.split(","))));
+    dql.append(" and (");
+    dql.append(whereClause);
+    dql.append(") ENABLE (return_top 1)");
+
+    IQuery query = cl.getQuery();
+    query.setDQL(dql.toString());
+    ICollection collec = query.execute(sessMag, IQuery.EXECUTE_READ_QUERY);
     try {
-      logger.config("check additional where clause: " + additionalWhereClause);
-
-      IQuery query = cl.getQuery();
-      String dql = "select r_object_id from dm_sysobject "
-          + "where r_object_type='dm_document' ";
-      // FIXME: Trim leading whitespace first (and maybe don't require the
-      // trailing space?).
-      if (!additionalWhereClause.toLowerCase().startsWith("and ")) {
-        query.setDQL(dql + "and "
-            + additionalWhereClause);
-      } else {
-        query.setDQL(dql + additionalWhereClause);
+      if (!collec.next()) {
+        throw new RepositoryException("[additionalTooRestrictive]");
       }
-
-      collec = query.execute(sessMag, IQuery.EXECUTE_READ_QUERY);
-      while (collec.next()) {
-        counter++;
-        break;
-      }
-    } catch (RepositoryException re) {
-      // TODO(jl1615): Log and throw anti-pattern.
-      logger.info("throw " + re);
-      throw re;
     } finally {
-      try {
-        if (collec != null) {
-          if (collec.getState() != ICollection.DF_CLOSED_STATE) {
-            collec.close();
-            logger.fine("after closing the collection");
-          }
-        }
-      } catch (RepositoryException re) {
-        // TODO(jl1615): Why bother with this? Should we log and not throw?
-        throw re;
+      if (collec.getState() != ICollection.DF_CLOSED_STATE) {
+        collec.close();
       }
     }
 
-    if (counter == 0) {
-      throw new RepositoryException("[additionalTooRestrictive]");
-    }
-
-    return additionalWhereClause;
+    return whereClause;
   }
 
-  private void testWebtopUrl(String webtopServerUrl)
+  private void testWebtopUrl(String url)
       throws RepositoryException {
-    logger.config("test connection to the webtop server: "
-        + webtopServerUrl);
+    if (url == null || url.length() == 0) {
+      throw new RepositoryException("[webtop_display_url_error]");
+    }
+    logger.config("test connection to the webtop server: " + url);
     try {
-      new UrlValidator().validate(webtopServerUrl);
+      new UrlValidator().validate(url);
     } catch (UrlValidatorException e) {
       throw new RepositoryException(
           "[status] Http request returned a " + e.getStatusCode()
@@ -515,31 +468,23 @@ public class DctmConnectorType implements ConnectorType {
     }
   }
 
-  private String validateConfigMap(Map<String, String> configData) {
+  private String validateCoreConfig(Map<String, String> configData) {
     for (String key : configKeys) {
       String val = configData.get(key);
-      if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE)
-          && !key.equals(WHERECLAUSE) && !key.equals(ISPUBLIC)
-          && !key.equals(INCLUDED_OBJECT_TYPE)
-          && !key.equals(INCLUDED_META) && !key.equals(ROOT_OBJECT_TYPE)
-          && !key.equals(ADVANCEDCONF)
-          && (val == null || val.length() == 0)) {
+      if ((val == null || val.length() == 0)
+          && (key.equals(LOGIN) || key.equals(PASSWORD_KEY)
+              || key.equals(DOCBASENAME))) {
+        logger.warning("Missing key: " + key);
         return key;
       }
     }
-    return "";
+    return null;
   }
 
   private String makeValidatedForm(Map<String, String> configMap,
       ResourceBundle resource, ISessionManager sessMag, ISession sess) {
-    StringBuilder buf = new StringBuilder();
-
-    String rootType = "";
-    String actionUpdate = "";
-
-    String advConf = "";
-
     logger.fine("in makeValidatedForm");
+    StringBuilder buf = new StringBuilder();
 
     // JavaScript functions used to sync the select lists with the
     // hidden fields.
@@ -579,30 +524,32 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(SCRIPT_END);
     appendEndRow(buf);
 
-    try {
-      // If configmap is not null : it is not the first time the form
-      // is displayed parameters are loaded from the .properties file.
-      if (configMap != null) {
-        rootType = configMap.get(ROOT_OBJECT_TYPE);
-        logger.config("rootType from configmap: " + rootType);
-        advConf = configMap.get(ADVANCEDCONF);
-        logger.config("advConf from configmap: " + advConf);
-        actionUpdate = configMap.get(ACTIONUPDATE);
-        logger.config("actionUpdate from configmap: " + actionUpdate);
-      } else {
-        // If configmap is null : it is the first time the form is
-        // displayed. parameters are loaded from the connectorType.xml
-        // file.
-        rootType = rootObjectType;
-        logger.config("root_object_type: " + rootType);
-      }
+    // Get the properties from the config map, if one is present, or
+    // set some defaults.
+    String rootType;
+    String actionUpdate = "";
+    String advConf = "";
+    if (configMap != null) {
+      rootType = configMap.get(ROOT_OBJECT_TYPE);
+      logger.config("rootType from configmap: " + rootType);
+      advConf = configMap.get(ADVANCEDCONF);
+      logger.config("advConf from configmap: " + advConf);
+      actionUpdate = configMap.get(ACTIONUPDATE);
+      logger.config("actionUpdate from configmap: " + actionUpdate);
+    } else {
+      rootType = rootObjectType;
+      logger.config("root_object_type: " + rootType);
+      actionUpdate = "";
+      advConf = "";
+    }
 
+    try {
       for (String key : configKeys) {
-        ///logger.config("key vaut " + key);
+        ///logger.config("key is " + key);
         String value = "";
         if (configMap != null) {
           value = configMap.get(key);
-          ///logger.config("key " + key + " vaut " + value);
+          ///logger.config("key " + key + " is " + value);
         }
 
         if (key.equals(ISPUBLIC)) {
@@ -614,7 +561,6 @@ public class DctmConnectorType implements ConnectorType {
           appendDropDownListAttribute(buf, TYPE, value);
           appendEndRow(buf);
         } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
-          logger.config("cas advConfe " + advConf);
           if (sess != null && advConf.equals("on")) {
             appendStartTable(buf);
             appendStartTableRow(buf, resource.getString(AVAILABLE_OBJECT_TYPE),
@@ -651,7 +597,7 @@ public class DctmConnectorType implements ConnectorType {
           }
           buf.append("</tbody>");
         } else if (key.equals(ADVANCEDCONF)) {
-          logger.fine("advanced config");
+          logger.fine("advanced config: " + advConf);
           appendCheckBox(buf, ADVANCEDCONF,
               "<b>" + resource.getString(key) + "</b>", value, resource);
         } else if (key.equals(ROOT_OBJECT_TYPE)) {
@@ -686,14 +632,11 @@ public class DctmConnectorType implements ConnectorType {
           logger.fine("where clause");
           appendStartTextareaRow(buf, resource.getString(key));
           appendTextarea(buf, WHERECLAUSE, value);
+        } else if (key.equals(ACTIONUPDATE)) {
+          appendHiddenInput(buf, key, "");
         } else {
           logger.fine("makeValidatedForm - input - " + key);
-          if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE)
-              && !key.equals(ACTIONUPDATE)) {
-            appendStartRow(buf, resource.getString(key));
-          } else {
-            appendStartHiddenRow(buf);
-          }
+          appendStartRow(buf, resource.getString(key));
           buf.append(OPEN_ELEMENT);
           buf.append(INPUT);
           if (key.equals(PASSWORD_KEY)) {
@@ -702,15 +645,6 @@ public class DctmConnectorType implements ConnectorType {
               value = configMap.get("password");
               configMap.remove("password");
             }
-          } else if (key.equals(DCTMCLASS)) {
-            appendAttribute(buf, TYPE, HIDDEN);
-            value = clientX;
-          } else if (key.equals(AUTHENTICATIONTYPE)) {
-            appendAttribute(buf, TYPE, HIDDEN);
-            value = authenticationType;
-          } else if (key.equals(ACTIONUPDATE)) {
-            appendAttribute(buf, TYPE, HIDDEN);
-            value = "save";
           } else {
             appendAttribute(buf, TYPE, TEXT);
           }
@@ -774,8 +708,8 @@ public class DctmConnectorType implements ConnectorType {
 
   private ISession getSession(Map<String, String> logMap, ISessionManager sessMag)
       throws RepositoryException {
-    logger.config("login vaut " + logMap.get(LOGIN));
-    logger.config("docbase vaut " + logMap.get(DOCBASENAME));
+    logger.config("login is " + logMap.get(LOGIN));
+    logger.config("docbase is " + logMap.get(DOCBASENAME));
 
     ISession sess = sessMag.getSession(logMap.get(DOCBASENAME));
     sessMag.setSessionConfig(sess);
@@ -786,7 +720,7 @@ public class DctmConnectorType implements ConnectorType {
       ISessionManager sessMag) {
     SortedSet<String> types = new TreeSet<String>();
     try {
-      logger.config("docbase of sessMag vaut " + sessMag.getDocbaseName());
+      logger.config("docbase of sessMag is " + sessMag.getDocbaseName());
       IQuery que = cl.getQuery();
       String queryString =
           "select r_type_name from dmi_type_info where any r_supertype = '"
@@ -795,7 +729,7 @@ public class DctmConnectorType implements ConnectorType {
       que.setDQL(queryString);
 
       boolean auth = sessMag.authenticate(sessMag.getDocbaseName());
-      logger.config("AUTH VAUT " + auth);
+      logger.config("AUTH IS " + auth);
 
       ICollection collec = que.execute(sessMag, IQuery.EXECUTE_READ_QUERY);
       while (collec.next()) {
@@ -830,20 +764,22 @@ public class DctmConnectorType implements ConnectorType {
 
     // JavaScript functions used to pass an item from a select list to
     // another one.
+    // TODO: Two ways to improve this code, if it needs to run faster,
+    // would be to make sure the selected items are processed in order,
+    // and search the toList from the previous insertion point, and to
+    // use a binary search.
     buf.append(SCRIPT_START);
-    buf.append("var selOptions = new Array(); ");
-    buf.append("function swap(listFrom, listTo){");
+    buf.append("var selOptions = new Array();\n");
+    buf.append("function swap(listFrom, listTo) {");
     buf.append("fromList=document.getElementsByName(listFrom)[0];");
     buf.append("toList = document.getElementsByName(listTo)[0];");
-
     buf.append("var i;");
     buf.append("var count = 0;");
     ///buf.append("alert(fromList.options.length);");
     buf.append("for(i=0;i<fromList.options.length;i++){");
     buf.append("if (fromList.options[i].selected) {");
     buf.append("count++;");
-    ///buf.append("alert('option '+i+' selected');");
-    ///buf.append("alert('count = '+count);");
+    buf.append("}");
     buf.append("}");
     // TODO: Allow an empty included_object_type value, implying all
     // subtypes of the root_object_type. This fails in retrieving the
@@ -859,18 +795,34 @@ public class DctmConnectorType implements ConnectorType {
     buf.append("alert('You need to select at least one property');");
     buf.append("return false;");
     buf.append("}");
-    buf.append("}");
-
-    ///buf.append("alert('selectedIndex = '+fromList.selectedIndex);");
-    buf.append("while (fromList.selectedIndex != -1)");
-    buf.append("{ ");
+    buf.append("while (fromList.selectedIndex != -1) {");
     buf.append("addOption(toList,fromList.options[fromList.selectedIndex]); ");
     buf.append("fromList.options[fromList.selectedIndex] = null;");
-    buf.append(" }");
-    buf.append(" } ");
+    buf.append("}");
+    buf.append("}\n");
+
+    // Insert the moved option in alphabetic order.
     buf.append("function addOption(list, option){");
-    buf.append(" list.options[list.options.length]=new Option(option.value,option.value);");
-    buf.append(" } ");
+    buf.append(  "var beforeOption = null;");
+    buf.append(  "for (var i = 0; i < list.length; i++) {");
+    buf.append(    "if (option.value < list.options[i].value) {");
+    buf.append(      "beforeOption = list.options[i];");
+    buf.append(      "break;");
+    buf.append(    "}");
+    buf.append(  "}");
+    buf.append(  "var newOption = document.createElement('option'); ");
+    buf.append(  "newOption.value = option.value;");
+    buf.append(  "newOption.appendChild(document.createTextNode(option.value));");
+    buf.append(  "if (beforeOption == null) {");
+    buf.append(    "list.appendChild(newOption);");
+    buf.append(  "} else {");
+    buf.append(    "list.insertBefore(newOption, beforeOption);");
+    buf.append(  "}");
+    // Workaround IE7 bug where the width shrinks on each insert.
+    buf.append(  "list.style.width='';");
+    buf.append(  "list.style.width='100%';");
+    buf.append("}\n");
+
     buf.append("function selectAll(select){");
     buf.append("for (var i = 0; i < document.getElementById(select).length; i++)");
     buf.append("{");
@@ -909,17 +861,16 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(SELECT_END);
 
     buf.append(TD_END);
-    buf.append(TD_START);
+    buf.append(TD_START_CENTER);
 
-    appendStartOnclickButton(buf, "&gt;");
+    appendStartOnclickButton(buf, ">");
     buf.append("swap('CM_included_object_type_toinclude','CM_included_object_type_bis');");
     buf.append("insertIncludeTypes();insertIncludeMetas();");
     buf.append("document.getElementById('action_update').value='redisplay';");
     buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
     buf.append("document.body.style.cursor='wait';");
     appendEndOnclickButton(buf);
-    buf.append("<br />\n");
-    appendStartOnclickButton(buf, "&lt;");
+    appendStartOnclickButton(buf, "<");
     buf.append("swap('CM_included_object_type_bis','CM_included_object_type_toinclude');");
     buf.append("insertIncludeTypes();insertIncludeMetas();");
     buf.append("document.getElementById('action_update').value='redisplay';");
@@ -1010,7 +961,7 @@ public class DctmConnectorType implements ConnectorType {
         logger.config("Property count: " + mytype.getTypeAttrCount());
         HashSet<String> tempTypes = new HashSet<String>();
         IAttr attr = mytype.getTypeAttr(i);
-        ///logger.config("attr vaut " + attr.toString());
+        ///logger.config("attr is " + attr.toString());
         String data = attr.getName();
         logger.config("attr is " + data + " - attr of the type " + stType);
         if (!existingProperties.contains(data)) {
@@ -1100,28 +1051,27 @@ public class DctmConnectorType implements ConnectorType {
       if (!includedProperties.contains(data)) {
         buf.append("<option value=\"");
         buf.append(data);
+        buf.append("\" title=\"");
+        for (String stType : types) {
+          buf.append(stType);
+          buf.append(", ");
+        }
+        buf.delete(buf.length() - 2, buf.length());
         buf.append("\">");
         buf.append(data);
-        buf.append(" (");
-        for (String stType : types) {
-          buf.append(" ");
-          buf.append(stType);
-          buf.append(" ");
-        }
-        buf.append(")</option>\n");
+        buf.append("</option>\n");
       }
     }
     buf.append(SELECT_END);
 
     buf.append(TD_END);
-    buf.append(TD_START);
+    buf.append(TD_START_CENTER);
 
-    appendStartOnclickButton(buf, "&gt;");
+    appendStartOnclickButton(buf, ">");
     buf.append("swap('CM_included_meta_toinclude','CM_included_meta_bis');");
     buf.append("insertIncludeMetas();insertIncludeTypes();");
     appendEndOnclickButton(buf);
-    buf.append("<br />\n");
-    appendStartOnclickButton(buf, "&lt;");
+    appendStartOnclickButton(buf, "<");
     buf.append("swap('CM_included_meta_bis','CM_included_meta_toinclude');");
     buf.append("insertIncludeMetas();insertIncludeTypes();");
     appendEndOnclickButton(buf);
@@ -1184,8 +1134,7 @@ public class DctmConnectorType implements ConnectorType {
       buf.append(" onclick=\"");
       buf.append("if(document.getElementById('more').style.display == 'none'){");
       buf.append("if((document.getElementById('login').value != '')")
-          .append("&amp;&amp;(document.getElementById('Password').value != '')")
-          .append("&amp;&amp;(document.getElementById('webtop_display_url').value != '')){");
+          .append("&amp;&amp;(document.getElementById('Password').value != '')){");
       if (isOn) {
         buf.append("document.getElementById('more').style.display='';");
       } else {
@@ -1195,7 +1144,7 @@ public class DctmConnectorType implements ConnectorType {
       }
       buf.append("}else{");
       buf.append("alert('")
-          .append(resource.getString("advanced_config_error"))
+          .append(resource.getString("advanced_configuration_error"))
           .append("');this.checked=false;");
       buf.append("}");
       buf.append("}else{");
@@ -1234,7 +1183,7 @@ public class DctmConnectorType implements ConnectorType {
     appendAttribute(buf, "rows", "10");
     appendAttribute(buf, "cols", "50");
     buf.append(">");
-    buf.append(value);
+    escapeAndAppend(buf, value);
     buf.append(TEXTAREA_END);
     appendEndRow(buf);
   }
@@ -1336,7 +1285,7 @@ public class DctmConnectorType implements ConnectorType {
   private void appendStartTable(StringBuilder buf) {
     buf.append(TR_START);
     buf.append(TD_START_COLSPAN);
-    buf.append("<table style=\"border-collapse: collapse\">");
+    buf.append("<table style=\"width: 100%; border-collapse: collapse\">");
   }
 
   private void appendStartTableRow(StringBuilder buf, String leftKey,
@@ -1401,10 +1350,24 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(" ");
     buf.append(attrName);
     buf.append("=\"");
-    buf.append(attrValue);
+    escapeAndAppend(buf, attrValue);
     buf.append("\"");
     if (attrName == TYPE && (attrValue == TEXT || attrValue == PASSWORD)) {
       buf.append(" size=\"50\"");
+    }
+  }
+
+  /* Copied from com.google.enterprise.connector.otex.LivelinkConnectorType. */
+  private void escapeAndAppend(StringBuilder buffer, String data) {
+    for (int i = 0; i < data.length(); i++) {
+      switch (data.charAt(i)) {
+        case '\'': buffer.append("&apos;"); break;
+        case '"': buffer.append("&quot;"); break;
+        case '&': buffer.append("&amp;"); break;
+        case '<': buffer.append("&lt;"); break;
+        case '>': buffer.append("&gt;"); break;
+        default: buffer.append(data.charAt(i));
+      }
     }
   }
 
@@ -1416,6 +1379,10 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private void appendEndOnclickButton(StringBuilder buf) {
-    buf.append("\"></input>\n");
+    // Putting whitepace between the close input tag and the br tag
+    // causes a misalignment in Chrome. The extra break doesn't seem
+    // to cause vertical alignment issues in Chrome, Safari, Firefox,
+    // or IE.
+    buf.append("\"></input><br />\n");
   }
 }

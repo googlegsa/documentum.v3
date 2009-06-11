@@ -8,8 +8,6 @@
 				<value>login</value>
 				<value>Password</value>
 				<value>docbase</value>
-				<value>clientX</value>
-				<value>authentication_type</value>
 				<value>webtop_display_url</value>
 				<value>is_public</value>
 				<value>advanced_configuration</value>
@@ -40,7 +38,5 @@
 			</set>
 		</property>
 		<property name="root_object_type" value="dm_sysobject"/>
-		<property name="authentication_type" value="api"/>
-	<property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX"/>
 	</bean>
 </beans>

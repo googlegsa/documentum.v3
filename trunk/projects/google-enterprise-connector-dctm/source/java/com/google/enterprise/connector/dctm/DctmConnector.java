@@ -14,7 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,6 +22,9 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 
 public class DctmConnector implements Connector {
+  private static final Logger logger =
+      Logger.getLogger(DctmConnector.class.getName());
+
   private String login;
 
   private String password;
@@ -31,52 +33,41 @@ public class DctmConnector implements Connector {
 
   private String clientX;
 
-  private String webtop_display_url;
+  private String webtopDisplayUrl;
 
-  private String authentication_type;
+  private String authenticationType;
 
-  private String where_clause;
+  private String whereClause;
 
-  private String is_public;
+  private String isPublic;
 
-  private String included_meta;
+  private String includedMeta;
 
-  private String included_object_type;
+  private String includedObjectType;
 
-  private String root_object_type;
+  private String rootObjectType;
 
-  private String advanced_configuration;
-
-  private String action_update;
-
-  private static Logger logger = null;
-
-  static {
-    logger = Logger.getLogger(DctmConnector.class.getName());
-  }
-
-  /**
+  /*
    * Setters for the data retrieved from Spring
-   *
    */
   public void setLogin(String login) {
     this.login = login;
-    logger.log(Level.INFO, "login set to " +login);
+    logger.log(Level.CONFIG, "login set to " + login);
   }
 
   public void setDocbase(String docbase) {
     this.docbase = docbase;
-    logger.log(Level.INFO, "docbase set to " +docbase);
+    logger.log(Level.CONFIG, "docbase set to " + docbase);
   }
 
   public void setWebtop_display_url(String wsu) {
-    this.webtop_display_url = wsu;
-    logger.log(Level.INFO, "webtopdisplayurl set to " +wsu);
+    this.webtopDisplayUrl = wsu;
+    logger.log(Level.CONFIG, "webtop_display_url set to " + wsu);
   }
 
   public void setClientX(String clientX) {
     this.clientX = clientX;
-    logger.log(Level.INFO, "clientX set to " +clientX);
+    logger.log(Level.CONFIG, "clientX set to " +clientX);
   }
 
   public DctmConnector() {
@@ -86,90 +77,77 @@ public class DctmConnector implements Connector {
   }
 
   public Session login() throws RepositoryException {
-    logger.log(Level.INFO, "login in the docbase " + docbase + " and user "
+    logger.log(Level.CONFIG, "login in the docbase " + docbase + " and user "
         + login + " " + clientX + " " + docbase + " "
-        + webtop_display_url + " " + where_clause + " "
-        + is_public.equals("on"));
+        + webtopDisplayUrl + " " + whereClause + " "
+        + isPublic.equals("on"));
 
     Session sess = null;
     sess = new DctmSession(clientX, login, password, docbase,
-        webtop_display_url, where_clause, is_public.equals("on"),
-        included_meta, root_object_type,
-        included_object_type);
+        webtopDisplayUrl, whereClause, isPublic.equals("on"),
+        includedMeta, rootObjectType,
+        includedObjectType);
 
     return sess;
   }
 
   public void setAuthentication_type(String authenticationType) {
-    this.authentication_type = authenticationType;
-    logger.log(Level.INFO, "authenticationType set to " +authenticationType);
+    this.authenticationType = authenticationType;
+    logger.log(Level.CONFIG, "authenticationType set to " + authenticationType);
   }
 
   public void setWhere_clause(String additionalWhereClause) {
-    this.where_clause = additionalWhereClause;
-    logger.log(Level.INFO, "where_clause set to " +additionalWhereClause);
+    this.whereClause = DqlUtils.stripLeadingAnd(additionalWhereClause);
+    if (logger.isLoggable(Level.FINE)
+        && !whereClause.equals(additionalWhereClause)) {
+      logger.log(Level.FINE, "where_clause was " + additionalWhereClause);
+    }
+    logger.log(Level.CONFIG, "where_clause set to " + whereClause);
   }
 
   public String getIs_public() {
-    return is_public;
+    return isPublic;
   }
 
-  public void setIs_public(String is_public) {
-    this.is_public = is_public;
-    logger.log(Level.INFO, "is_public set to " +is_public);
+  public void setIs_public(String isPublic) {
+    this.isPublic = isPublic;
+    logger.log(Level.CONFIG, "is_public set to " + isPublic);
   }
 
   public String getAuthentication_type() {
-    return authentication_type;
+    return authenticationType;
   }
 
   public String getIncluded_meta() {
-    return included_meta;
+    return includedMeta;
   }
 
   public String getRoot_object_type() {
-    return root_object_type;
+    return rootObjectType;
   }
 
   public String getIncluded_object_type() {
-    return included_object_type;
+    return includedObjectType;
   }
 
-  public String getAdvanced_configuration() {
-    return advanced_configuration;
-  }
-
-  public String getAction_update() {
-    return action_update;
-  }
-
-  public void setIncluded_meta(String included_meta) {
-    this.included_meta = included_meta;
-    logger.log(Level.INFO, "included_meta set to " +included_meta);
-  }
-
-  public void setAdvanced_configuration(String advanced_configuration) {
-    this.advanced_configuration = advanced_configuration;
-    logger.log(Level.INFO, "advanced_configuration set to " +advanced_configuration);
+  public void setIncluded_meta(String includedMeta) {
+    this.includedMeta = includedMeta;
+    logger.log(Level.CONFIG, "included_meta set to " + includedMeta);
   }
 
   public void setPassword(String password) {
     this.password = password;
-    logger.log(Level.INFO, "password set to [...]");
+    logger.log(Level.CONFIG, "password set to [...]");
   }
 
-  public void setIncluded_object_type(String included_object_type) {
-    this.included_object_type = included_object_type;
-    logger.log(Level.INFO, "included_object_type set to " +included_object_type);
+  public void setIncluded_object_type(String includedObjectType) {
+    this.includedObjectType = includedObjectType;
+    logger.log(Level.CONFIG, "included_object_type set to "
+        + includedObjectType);
   }
 
-  public void setRoot_object_type(String root_object_type) {
-    this.root_object_type = root_object_type;
-    logger.log(Level.INFO, "root_object_type set to " +root_object_type);
-  }
-
-  public void setAction_update(String action_update) {
-    this.action_update = action_update;
-    logger.log(Level.INFO, "action_update set to " +action_update);
+  public void setRoot_object_type(String rootObjectType) {
+    this.rootObjectType = rootObjectType;
+    logger.log(Level.CONFIG, "root_object_type set to " + rootObjectType);
   }
 }
