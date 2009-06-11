@@ -44,7 +44,6 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private static final Logger logger =
       Logger.getLogger(DctmTraversalManager.class.getName());
 
-  private static final String ORDER_BY = " order by r_modify_date,r_object_id";
   private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private static final String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private static final String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
@@ -275,9 +274,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     }
     if (additionalWhereClause != null && additionalWhereClause.length() > 0) {
       logger.fine("adding the additionalWhereClause to the query: " + additionalWhereClause);
-      query.append("and (");
-      query.append(additionalWhereClause);
-      query.append(") ");
+      query.append("and (").append(additionalWhereClause).append(") ");
     }
     if (checkpoint.insertId != null && checkpoint.insertDate != null) {
       logger.fine("adding the checkpoint to the query: " + checkpoint);
@@ -285,10 +282,10 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
       query.append(MessageFormat.format(whereBoundedClause, arguments));
     }
 
-    query.append(ORDER_BY);
+    query.append(" order by r_modify_date,r_object_id");
 
     if (batchHint > 0) {
-      query.append(" ENABLE (return_top " + batchHint + ")");
+      query.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
     logger.fine("query completed: " + query.toString());
     return query.toString();
@@ -296,17 +293,23 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   protected String buildQueryStringToDel(Checkpoint checkpoint) {
     StringBuilder query = new StringBuilder(
-        "select r_object_id, chronicle_id, time_stamp from dm_audittrail ");
-    query.append("where ");
-    query.append("event_name='dm_destroy' ");
+        "select r_object_id, chronicle_id, time_stamp from dm_audittrail "
+        + "where event_name='dm_destroy' ");
 
     if (checkpoint.deleteDate != null) {
       logger.fine("adding the checkpoint to the query: " + checkpoint);
       Object[] arguments = { dateFormat.format(checkpoint.deleteDate), checkpoint.deleteId };
-      String whereClause = MessageFormat.format(
+      query.append(MessageFormat.format(
            (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
-           arguments);
+           arguments));
     }
+
+    query.append(" order by time_stamp,r_object_id");
+
+    if (batchHint > 0) {
+      query.append(" ENABLE (return_top ").append(batchHint).append(')');
+    }
+
     logger.info("query.toString()" + query.toString());
     return  query.toString();
   }
