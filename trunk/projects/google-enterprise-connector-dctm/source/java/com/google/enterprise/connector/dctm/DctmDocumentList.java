@@ -164,9 +164,9 @@ public class DctmDocumentList implements DocumentList {
   /**
    * Return true if the collection is open (non-null and not in CLOSED_STATE).
    */
-  private boolean isOpen(ICollection collection) {
-    return ((collectionToAdd != null) &&
-            (collectionToAdd.getState() != ICollection.DF_CLOSED_STATE));
+  private static boolean isOpen(ICollection collection) {
+    return ((collection != null) &&
+            (collection.getState() != ICollection.DF_CLOSED_STATE));
   }
 
   // Last chance to make sure the collections are closed and their sessions
