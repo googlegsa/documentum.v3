@@ -633,7 +633,7 @@ public class DctmConnectorType implements ConnectorType {
           appendStartTextareaRow(buf, resource.getString(key));
           appendTextarea(buf, WHERECLAUSE, value);
         } else if (key.equals(ACTIONUPDATE)) {
-          appendHiddenInput(buf, key, "");
+          appendHiddenInput(buf, key, key, "");
         } else {
           logger.fine("makeValidatedForm - input - " + key);
           appendStartRow(buf, resource.getString(key));
