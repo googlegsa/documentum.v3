@@ -231,11 +231,6 @@ public class DctmConnectorType implements ConnectorType {
         logger.fine("test connection to the repository: " + sess);
         isCoreConfigValid = true;
 
-        String isPublic = configData.get(ISPUBLIC);
-        if (isPublic == null) {
-          configData.put(isPublic, "false");
-        }
-
         testWebtopUrl(configData.get(DISPLAYURL));
 
         // Display the form again when the advanced conf checkbox is
@@ -467,12 +462,31 @@ public class DctmConnectorType implements ConnectorType {
     }
   }
 
+  /**
+   * Checks whether the given key is a core field needed to open the
+   * advanced configuration.
+   *
+   * @param key the property name
+   */
+  private boolean isCoreConfig(String key) {
+    return key.equals(LOGIN) || key.equals(PASSWORD_KEY)
+        || key.equals(DOCBASENAME);
+  }
+
+  /**
+   * Checks whether the given key is a required field.
+   *
+   * @param key the property name
+   */
+  private boolean isRequired(String key) {
+    return key.equals(LOGIN) || key.equals(PASSWORD_KEY)
+        || key.equals(DOCBASENAME) || key.equals(DISPLAYURL);
+  }
+
   private String validateCoreConfig(Map<String, String> configData) {
     for (String key : configKeys) {
       String val = configData.get(key);
-      if ((val == null || val.length() == 0)
-          && (key.equals(LOGIN) || key.equals(PASSWORD_KEY)
-              || key.equals(DOCBASENAME))) {
+      if ((val == null || val.length() == 0) && isCoreConfig(key)) {
         logger.warning("Missing key: " + key);
         return key;
       }
@@ -552,11 +566,12 @@ public class DctmConnectorType implements ConnectorType {
         }
 
         if (key.equals(ISPUBLIC)) {
-          appendCheckBox(buf, key, resource.getString(key), value, resource);
-          appendHiddenInput(buf, key, "false");
+          if (value != null && value.equals("on")) {
+            appendCheckBox(buf, key, resource.getString(key), value, resource);
+          }
         } else if (key.equals(DOCBASENAME)) {
           logger.fine("docbase droplist");
-          appendStartRow(buf, resource.getString(key));
+          appendStartRow(buf, resource.getString(key), isRequired(key));
           appendDropDownListAttribute(buf, TYPE, value);
           appendEndRow(buf);
         } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
@@ -602,7 +617,7 @@ public class DctmConnectorType implements ConnectorType {
         } else if (key.equals(ROOT_OBJECT_TYPE)) {
           logger.fine("makeValidatedForm - rootObjectType");
           if (sess != null && advConf.equals("on")) {
-            appendStartRow(buf, resource.getString(key));
+            appendStartRow(buf, resource.getString(key), isRequired(key));
             buf.append(SELECT_START);
             appendAttribute(buf, NAME, ROOT_OBJECT_TYPE);
             buf.append(" onchange=\"");
@@ -635,7 +650,7 @@ public class DctmConnectorType implements ConnectorType {
           appendHiddenInput(buf, key, key, "");
         } else {
           logger.fine("makeValidatedForm - input - " + key);
-          appendStartRow(buf, resource.getString(key));
+          appendStartRow(buf, resource.getString(key), isRequired(key));
           buf.append(OPEN_ELEMENT);
           buf.append(INPUT);
           if (key.equals(PASSWORD_KEY)) {
@@ -862,14 +877,14 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TD_START_CENTER);
 
-    appendStartOnclickButton(buf, ">");
+    appendStartOnclickButton(buf, " > ");
     buf.append("swap('CM_included_object_type_toinclude','CM_included_object_type_bis');");
     buf.append("insertIncludeTypes();insertIncludeMetas();");
     buf.append("document.getElementById('action_update').value='redisplay';");
     buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
     buf.append("document.body.style.cursor='wait';");
     appendEndOnclickButton(buf);
-    appendStartOnclickButton(buf, "<");
+    appendStartOnclickButton(buf, " < ");
     buf.append("swap('CM_included_object_type_bis','CM_included_object_type_toinclude');");
     buf.append("insertIncludeTypes();insertIncludeMetas();");
     buf.append("document.getElementById('action_update').value='redisplay';");
@@ -1066,11 +1081,11 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(TD_END);
     buf.append(TD_START_CENTER);
 
-    appendStartOnclickButton(buf, ">");
+    appendStartOnclickButton(buf, " > ");
     buf.append("swap('CM_included_meta_toinclude','CM_included_meta_bis');");
     buf.append("insertIncludeMetas();insertIncludeTypes();");
     appendEndOnclickButton(buf);
-    appendStartOnclickButton(buf, "<");
+    appendStartOnclickButton(buf, " < ");
     buf.append("swap('CM_included_meta_bis','CM_included_meta_toinclude');");
     buf.append("insertIncludeMetas();insertIncludeTypes();");
     appendEndOnclickButton(buf);
@@ -1117,19 +1132,24 @@ public class DctmConnectorType implements ConnectorType {
 
   private void appendCheckBox(StringBuilder buf, String key, String label,
       String value, ResourceBundle resource) {
+    boolean isAdvanced = key.equals(ADVANCEDCONF);
+    boolean isOn = value != null && value.equals("on");
+
     buf.append(TR_START);
-    buf.append(TD_START_COLSPAN);
+    if (isAdvanced) {
+      buf.append("<td colspan='2' style='padding-top: 3ex'>");
+    } else {
+      buf.append(TD_START_COLSPAN);
+    }
     buf.append(OPEN_ELEMENT);
     buf.append(INPUT);
     appendAttribute(buf, TYPE, CHECKBOX);
     appendAttribute(buf, VALUE, "on"); // Also the browsers default value.
     appendAttribute(buf, NAME, key);
+    appendAttribute(buf, ID, key);
 
-    boolean isAdvanced = key.equals(ADVANCEDCONF);
-    boolean isOn = value != null && value.equals("on");
     if (isAdvanced) {
       logger.config("advanced conf set to " + value);
-      appendAttribute(buf, "id", "ADVC");
       buf.append(" onclick=\"");
       buf.append("if(document.getElementById('more').style.display == 'none'){");
       buf.append("if((document.getElementById('login').value != '')")
@@ -1155,15 +1175,12 @@ public class DctmConnectorType implements ConnectorType {
       buf.append(CHECKED);
     }
     buf.append(CLOSE_ELEMENT);
-    if (isAdvanced) {
-      buf.append("<label");
-      appendAttribute(buf, "for", "ADVC");
-      buf.append(">");
-      buf.append(label);
-      buf.append("</label>");
-    } else {
-      buf.append(label);
-    }
+
+    buf.append("<label");
+    appendAttribute(buf, "for", key);
+    buf.append(">");
+    buf.append(label);
+    buf.append("</label>");
 
     appendEndRow(buf);
 
@@ -1258,10 +1275,15 @@ public class DctmConnectorType implements ConnectorType {
     }
   }
 
-  private void appendStartRow(StringBuilder buf, String key) {
+  private void appendStartRow(StringBuilder buf, String key,
+      boolean isRequired) {
     buf.append(TR_START);
     buf.append(TD_START_LABEL);
     buf.append(key);
+    if (isRequired) {
+      buf.append("<span style='color: red; font-weight: bold; ")
+          .append("margin: auto 0.3em;\'>*</span>");
+    }
     buf.append(TD_END);
     buf.append(TD_START);
   }
