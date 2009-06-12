@@ -15,7 +15,6 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;

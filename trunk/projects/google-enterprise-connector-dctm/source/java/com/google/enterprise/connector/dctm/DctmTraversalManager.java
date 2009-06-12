@@ -15,18 +15,12 @@
 package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.util.Set;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;

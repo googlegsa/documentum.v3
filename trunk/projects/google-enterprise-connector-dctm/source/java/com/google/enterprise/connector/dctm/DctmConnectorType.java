@@ -223,7 +223,6 @@ public class DctmConnectorType implements ConnectorType {
         sessMag = getSessionManager(configData);
 
         ILoginInfo myinfo = sessMag.getIdentity(configData.get(DOCBASENAME));
-        String pass = myinfo.getPassword();
         String user = myinfo.getUser();
         logger.config("login user: " + user);
 

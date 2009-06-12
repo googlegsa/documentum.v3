@@ -15,7 +15,7 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
-import com.google.enterprise.connector.spi.RepositoryException;
+
 
 public class MockDmFormat implements IFormat {
   private final String mimeType;

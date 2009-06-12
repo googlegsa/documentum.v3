@@ -17,7 +17,7 @@ package com.google.enterprise.connector.dctm.dfcwrap;
 import java.io.ByteArrayInputStream;
 
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
-import com.google.enterprise.connector.spi.RepositoryException;
+
 
 public interface ISysObject {
   String getObjectName() throws RepositoryDocumentException;

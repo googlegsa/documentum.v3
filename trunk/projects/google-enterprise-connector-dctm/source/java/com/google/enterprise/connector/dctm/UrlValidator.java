@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import com.google.enterprise.connector.spi.RepositoryException;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
@@ -93,7 +91,7 @@ class UrlValidator {
    * @see HttpURLConnection#setRequestMethod
    */
   public void setRequestMethod(String requestMethod) {
-    this.requestMethod = this.requestMethod;
+    this.requestMethod = requestMethod;
   }
 
   /**

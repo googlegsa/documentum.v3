@@ -31,7 +31,6 @@ import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
   IClientX clientX;

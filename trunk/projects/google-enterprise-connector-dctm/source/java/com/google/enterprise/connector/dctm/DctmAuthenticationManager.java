@@ -14,7 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;

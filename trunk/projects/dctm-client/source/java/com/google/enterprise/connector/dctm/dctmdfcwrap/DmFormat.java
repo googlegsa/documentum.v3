@@ -15,7 +15,6 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.common.DfException;
 

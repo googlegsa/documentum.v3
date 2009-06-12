@@ -58,7 +58,6 @@ public class DctmSysobjectDocument extends HashMap implements Document {
   private SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
   private String docId;
-  private String commonVersionID;
   private ITime timeStamp;
 
   private ISysObject object = null;

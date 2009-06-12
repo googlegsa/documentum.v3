@@ -14,19 +14,12 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.logging.Logger;
-import java.util.Set;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
-import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;

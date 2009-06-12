@@ -58,7 +58,7 @@ public class DctmTraversalUtilCall {
         .setWhere_clause("and folder('/test_docs',descend)");
     ((DctmConnector) connector).setIs_public("false");
     ((DctmConnector) connector)
-        .setIncluded_meta(DmInitialize.included_meta);
+        .setIncluded_meta(DmInitialize.DM_INCLUDED_META);
     /**
      * End simulation
      */
