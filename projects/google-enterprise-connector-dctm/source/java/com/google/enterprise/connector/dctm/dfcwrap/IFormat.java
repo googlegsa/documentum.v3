@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dfcwrap;
 
-import com.google.enterprise.connector.spi.RepositoryException;
-
 /**
  * The methods in this class are advisory or informative. They are not
  * allowed to throw checked exceptions, but should return some

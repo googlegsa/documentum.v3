@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.util.logging.Logger;
-
 import com.documentum.fc.client.IDfDocument;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
@@ -33,9 +31,6 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSession implements ISession {
   IDfSession idfSession;
-
-  private static Logger logger = Logger.getLogger(DmSession.class
-      .getName());
 
   public DmSession(IDfSession dfSession) {
     this.idfSession = dfSession;

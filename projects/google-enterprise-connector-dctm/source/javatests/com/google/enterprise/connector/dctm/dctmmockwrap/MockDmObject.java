@@ -22,8 +22,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 
-import javax.jcr.ValueFormatException;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -39,7 +37,6 @@ import com.google.enterprise.connector.mock.MockRepositoryPropertyList;
 import com.google.enterprise.connector.mock.MockRepositoryProperty.PropertyType;
 import com.google.enterprise.connector.mock.jcr.MockJcrValue;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
-import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 
 public class MockDmObject implements ISysObject {

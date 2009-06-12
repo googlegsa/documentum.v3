@@ -14,7 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.HashSet;
 import java.util.Iterator;
 
 import junit.framework.TestCase;
@@ -35,17 +34,14 @@ import com.google.enterprise.connector.spi.Value;
 
 public class DctmSysobjectDocumentTest extends TestCase {
   IClientX dctmClientX = null;
-
   IClient localClient = null;
-
   ISessionManager sessionManager = null;
+  DctmTraversalManager traversalManager = null;
 
   public void setUp() throws Exception {
     super.setUp();
     dctmClientX = new DmClientX();
-
     localClient = dctmClientX.getLocalClient();
-
     sessionManager = localClient.newSessionManager();
 
     ILoginInfo loginInfo = dctmClientX.getLoginInfo();
@@ -53,18 +49,12 @@ public class DctmSysobjectDocumentTest extends TestCase {
     loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
     sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
+
+    traversalManager = new DctmTraversalManager(dctmClientX, "",
+        DmInitialize.DM_INCLUDED_META, sessionManager);
   }
 
   public void testGetPropertyNames() throws RepositoryException {
-    /*
-    (String docid, ITime lastModifDate, ISessionManager sessionManager,
-        IClientX clientX, String isPublic, HashSet included_meta,
-        SpiConstants.ActionType action)
-
-    (String docid, String commonVersionID, ITime timeStamp, ISessionManager sessionManager,
-        IClientX clientX, String isPublic, HashSet included_meta,
-        SpiConstants.ActionType action)
-    */
         ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
         IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 
@@ -74,9 +64,9 @@ public class DctmSysobjectDocumentTest extends TestCase {
 
         object = session.getObject(id);
 
-    DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-        DmInitialize.DM_ID1, lastModifDate, sessionManager, dctmClientX, "false",
-        DmInitialize.hashIncluded_meta, SpiConstants.ActionType.ADD);
+        DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
+            traversalManager, DmInitialize.DM_ID1, null, lastModifDate,
+            SpiConstants.ActionType.ADD, null);
 
         Iterator iterator = dctmSpm.getPropertyNames().iterator();
         int counter = 0;
@@ -90,30 +80,24 @@ public class DctmSysobjectDocumentTest extends TestCase {
   public void testFindProperty() throws RepositoryException {
     ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     IId id = dctmClientX.getId(DmInitialize.DM_ID2);
-
     ISysObject object = session.getObject(id);
-
     ITime lastModifDate = object.getTime("r_modify_date");
 
-    object = session.getObject(id);
-
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-    DmInitialize.DM_ID2, lastModifDate, sessionManager, dctmClientX, "false",
-    DmInitialize.hashIncluded_meta, SpiConstants.ActionType.ADD);
+        traversalManager, DmInitialize.DM_ID2, null, lastModifDate,
+        SpiConstants.ActionType.ADD, null);
 
     Property property = dctmSpm.findProperty("keywords");
-    assertTrue(property instanceof DctmSysobjectProperty);
     Value val = null;
 
     while ((val = property.nextValue()) != null) {
       // TOOD: compare val.toString() to expected keywords.
     }
-    property = dctmSpm.findProperty("r_object_id");
-    assertTrue(property instanceof DctmSysobjectProperty);
 
+    property = dctmSpm.findProperty("r_object_id");
     assertEquals(DmInitialize.DM_ID2, property.nextValue().toString());
+
     property = dctmSpm.findProperty(SpiConstants.PROPNAME_DOCID);
-    assertTrue(property instanceof DctmSysobjectProperty);
     assertEquals(DmInitialize.DM_VSID2, property.nextValue().toString());
   }
 }

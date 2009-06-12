@@ -14,7 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.HashSet;
 import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;

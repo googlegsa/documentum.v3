@@ -14,14 +14,14 @@
 
 package com.google.enterprise.connector.dctm;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.text.SimpleDateFormat;
 
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.Value;
 
 import junit.framework.TestCase;
 
@@ -44,10 +44,10 @@ public class DctmTraversalManagerTest extends TestCase {
         .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
     ((DctmConnector) connector).setIs_public("false");
     ((DctmConnector) connector)
-        .setIncluded_object_type(DmInitialize.included_object_type);
+        .setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
 
     ((DctmConnector) connector)
-        .setRoot_object_type(DmInitialize.root_object_type);
+        .setRoot_object_type(DmInitialize.ROOT_OBJECT_TYPE);
     Session sess = (DctmSession) connector.login();
     qtm = (DctmTraversalManager) sess.getTraversalManager();
   }
@@ -65,47 +65,17 @@ public class DctmTraversalManagerTest extends TestCase {
     assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
   }
 
-  public void testMakeCheckpointQueryString() {
-    String uuid = "090000018000e100";
-    String statement = "";
-
-    statement = qtm.makeCheckpointQueryString(uuid,
-          "2007-01-02 13:58:10");
-
-    assertNotNull(statement);
-    assertEquals(DmInitialize.DM_CHECKPOINT_QUERY_STRING, statement);
-  }
-
-  public void testExtractDocidFromCheckpoint() {
-    String checkPoint = "{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
-    String uuid = null;
-    JSONObject jo = null;
-
-    try {
-      jo = new JSONObject(checkPoint);
-    } catch (JSONException e) {
-      throw new IllegalArgumentException(
-          "checkPoint string does not parse as JSON: " + checkPoint);
-    }
-
-    uuid = qtm.extractDocidFromCheckpoint(jo, checkPoint);
+  public void testExtractDocidFromCheckpoint() throws Exception {
+    Checkpoint checkpoint = new Checkpoint("{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}");
+    String uuid = checkpoint.insertId;
     assertNotNull(uuid);
     assertEquals(uuid, "090000018000e100");
   }
 
-  public void testExtractNativeDateFromCheckpoint() {
-    String checkPoint = "{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}";
-    JSONObject jo = null;
-    String modifDate = null;
-
-    try {
-      jo = new JSONObject(checkPoint);
-    } catch (JSONException e) {
-      throw new IllegalArgumentException(
-          "checkPoint string does not parse as JSON: " + checkPoint);
-    }
-
-    modifDate = qtm.extractNativeDateFromCheckpoint(jo, checkPoint);
+  public void testExtractNativeDateFromCheckpoint() throws Exception {
+    Checkpoint checkpoint = new Checkpoint("{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String modifDate = dateFormat.format(checkpoint.insertDate);
     assertNotNull(modifDate);
     assertEquals(modifDate, "2007-01-02 13:58:10");
   }

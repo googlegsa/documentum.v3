@@ -14,9 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.DocumentList;
