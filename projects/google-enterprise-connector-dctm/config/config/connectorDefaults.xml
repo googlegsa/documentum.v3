@@ -31,6 +31,7 @@
         <prop key="included_meta">object_name,r_object_type,title,subject,keywords,authors,r_creation_date,r_modify_date,r_content_size,a_content_type</prop>	
         <prop key="included_object_type">dm_document</prop>
         <prop key="root_object_type">dm_sysobject</prop>
+        <prop key="is_public">false</prop>
       </props>
     </property>
   </bean>
