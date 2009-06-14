@@ -186,8 +186,8 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     ISession sessAdd = null;
     ISession sessDel = null;
 
-    IQuery query = makeCheckpointQuery(buildQueryString(checkpoint));
-    IQuery queryDocToDel = makeCheckpointQuery(buildQueryStringToDel(checkpoint));
+    IQuery query = buildAddQuery(checkpoint);
+    IQuery queryDocToDel = buildDelQuery(checkpoint);
 
     DocumentList documentList = null;
 
@@ -196,20 +196,22 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
         sessAdd = sessionManager.getSession(sessionManager.getDocbaseName());
         sessionManager.setSessionAdd(sessAdd);
         collecToAdd = query.execute(sessAdd, IQuery.EXECUTE_READ_QUERY);
-        logger.fine("execution of the query returns a collection of document to add");
+        logger.fine("execution of the query returns a collection of documents"
+                    + " to add");
       }
 
       if (queryDocToDel != null) {
         sessDel = sessionManager.getSession(sessionManager.getDocbaseName());
         sessionManager.setSessionDel(sessDel);
         collecToDel = queryDocToDel.execute(sessDel, IQuery.EXECUTE_READ_QUERY);
-        logger.fine("execution of the query returns a collection of document to delete");
+        logger.fine("execution of the query returns a collection of documents"
+                    + " to delete");
       }
 
       if ((collecToAdd != null && collecToAdd.hasNext()) ||
           (collecToDel != null && collecToDel.hasNext())) {
-        documentList = new DctmDocumentList(this, collecToAdd, collecToDel,
-            checkpoint);
+        documentList =
+            new DctmDocumentList(this, collecToAdd, collecToDel, checkpoint);
       }
     } finally {
       // No documents to add or delete.   Return a null DocumentList,
@@ -222,7 +224,8 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
             sessionManager.releaseSessionAdd();
             logger.fine("collection session released");
           } catch (RepositoryException e) {
-            logger.severe("Error while closing the collection of documents to add: " + e);
+            logger.severe("Error while closing the collection of documents"
+                          + " to add: " + e);
           }
         }
         if (collecToDel != null) {
@@ -232,7 +235,8 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
             sessionManager.releaseSessionDel();
             logger.fine("collection session released");
           } catch (RepositoryException e) {
-            logger.severe("Error while closing the collection of documents to delete: " + e);
+            logger.severe("Error while closing the collection of documents"
+                          + " to delete: " + e);
           }
         }
       }
@@ -248,16 +252,38 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     return checkpoint;
   }
 
-  protected IQuery makeCheckpointQuery(String queryString) {
-    IQuery query = null;
-    query = clientX.getQuery();
-    query.setDQL(queryString);
+  protected IQuery makeQuery(String queryStr) {
+    IQuery query = clientX.getQuery();
+    query.setDQL(queryStr);
     return query;
   }
 
-  protected String buildQueryString(Checkpoint checkpoint) {
-    StringBuilder query = new StringBuilder(
-        "select i_chronicle_id, r_object_id, r_modify_date from ");
+  protected IQuery buildAddQuery(Checkpoint checkpoint) {
+    StringBuilder queryStr = new StringBuilder();
+    baseQueryString(queryStr);
+    if (checkpoint.insertId != null && checkpoint.insertDate != null) {
+      Object[] arguments = { dateFormat.format(checkpoint.insertDate),
+                             checkpoint.insertId };
+      queryStr.append(MessageFormat.format(whereBoundedClause, arguments));
+    }
+    queryStr.append(" order by r_modify_date,r_object_id");
+    if (batchHint > 0) {
+      queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
+    }
+    logger.fine("queryToAdd completed : " + queryStr.toString());
+    return makeQuery(queryStr.toString());
+  }
+
+  public String buildVersionsQueryString(String chronicleId) {
+    StringBuilder queryStr = new StringBuilder();
+    baseQueryString(queryStr);
+    queryStr.append(" and i_chronicle_id='").append(chronicleId);
+    queryStr.append("' order by r_modify_date,r_object_id desc");
+    return queryStr.toString();
+  }
+
+  protected void baseQueryString(StringBuilder query) {
+    query.append("select i_chronicle_id, r_object_id, r_modify_date from ");
     query.append(rootObjectType);
     query.append(" where ");
     if (!includedObjectType.isEmpty()) {
@@ -267,45 +293,30 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
       query.append("1=1 ");
     }
     if (additionalWhereClause != null && additionalWhereClause.length() > 0) {
-      logger.fine("adding the additionalWhereClause to the query: " + additionalWhereClause);
-      query.append("and (").append(additionalWhereClause).append(") ");
+      logger.fine("adding the additionalWhereClause to the query : "
+                  + additionalWhereClause);
+      query.append(" and (").append(additionalWhereClause).append(")");
     }
-    if (checkpoint.insertId != null && checkpoint.insertDate != null) {
-      logger.fine("adding the checkpoint to the query: " + checkpoint);
-      Object[] arguments = { dateFormat.format(checkpoint.insertDate), checkpoint.insertId };
-      query.append(MessageFormat.format(whereBoundedClause, arguments));
-    }
-
-    query.append(" order by r_modify_date,r_object_id");
-
-    if (batchHint > 0) {
-      query.append(" ENABLE (return_top ").append(batchHint).append(')');
-    }
-    logger.fine("query completed: " + query.toString());
-    return query.toString();
   }
 
-  protected String buildQueryStringToDel(Checkpoint checkpoint) {
-    StringBuilder query = new StringBuilder(
-        "select r_object_id, chronicle_id, time_stamp from dm_audittrail "
-        + "where event_name='dm_destroy' ");
-
+  protected IQuery buildDelQuery(Checkpoint checkpoint) {
+    StringBuilder queryStr = new StringBuilder(
+        "select r_object_id, chronicle_id, audited_obj_id, time_stamp "
+        + "from dm_audittrail "
+        + "where (event_name='dm_destroy' or event_name='dm_prune') ");
     if (checkpoint.deleteDate != null) {
-      logger.fine("adding the checkpoint to the query: " + checkpoint);
-      Object[] arguments = { dateFormat.format(checkpoint.deleteDate), checkpoint.deleteId };
-      query.append(MessageFormat.format(
-           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
-           arguments));
+      Object[] arguments = { dateFormat.format(checkpoint.deleteDate),
+                             checkpoint.deleteId };
+      queryStr.append(MessageFormat.format(
+          (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
+          arguments));
     }
-
-    query.append(" order by time_stamp,r_object_id");
-
+    queryStr.append(" order by time_stamp,r_object_id");
     if (batchHint > 0) {
-      query.append(" ENABLE (return_top ").append(batchHint).append(')');
+      queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
-
-    logger.info("query.toString()" + query.toString());
-    return  query.toString();
+    logger.info("queryToDel.toString()" + queryStr.toString());
+    return makeQuery(queryStr.toString());
   }
 
   public boolean isPublic() {
@@ -322,7 +333,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     String[] values = csv.split(",");
     Set<String> set = new HashSet<String>(values.length);
     for (String value : values) {
-      set.add(value);
+      set.add(value.trim());
     }
     return set;
   }

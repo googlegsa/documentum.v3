@@ -15,8 +15,10 @@
 package com.google.enterprise.connector.dctm;
 
 import java.util.logging.Logger;
+import java.util.HashSet;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
@@ -31,6 +33,12 @@ public class DctmDocumentList implements DocumentList {
   ICollection collectionToAdd;
   ICollection collectionToDel;
 
+  /**
+   * Used for uniquing multiple chronicleIds in the same batch of deletes,
+   * so we only send a single add or delete request.
+   */
+  private HashSet<String> deletedIds;
+
   private Checkpoint checkpoint;
   private final DctmTraversalManager traversalManager;
 
@@ -44,6 +52,7 @@ public class DctmDocumentList implements DocumentList {
     this.collectionToAdd = collToAdd;
     this.collectionToDel = collToDel;
     this.checkpoint = checkpoint;
+    this.deletedIds = new HashSet<String>();
   }
 
   public Document nextDocument() throws RepositoryException {
@@ -51,56 +60,100 @@ public class DctmDocumentList implements DocumentList {
     Document retDoc = null;
     boolean skippingDoc = false;
     try {
-      if (isOpen(collectionToAdd) && collectionToAdd.next()) {
-        logger.fine("Looking through the collection of documents to add");
+      while (retDoc == null) {
+        if (isOpen(collectionToAdd) && collectionToAdd.next()) {
+          logger.fine("Looking through the collection of documents to add");
 
-        String crID = "";
-        ITime modifyDate = null;
-        try {
-          crID = collectionToAdd.getString("r_object_id");
-          modifyDate = collectionToAdd.getTime("r_modify_date");
-          logger.fine("modifyDate is " + modifyDate);
-          logger.fine("r_object_id is " + crID);
-        } catch (RepositoryException e) {
-          logger.severe("impossible to get the r_object_id of the document");
-          return null;
+          String objId = "";
+          ITime modifyDate = null;
+          try {
+            objId = collectionToAdd.getString("r_object_id");
+            modifyDate = collectionToAdd.getTime("r_modify_date");
+            logger.fine("r_object_id is " + objId + "  modifyDate is "
+                        + modifyDate.getDate());
+          } catch (RepositoryException e) {
+            logger.severe("impossible to get the r_object_id of the document");
+            return null;
+          }
+          checkpoint.setInsertCheckpoint(modifyDate.getDate(), objId);
+
+          dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
+              objId, collectionToAdd.getString("i_chronicle_id"), modifyDate,
+              SpiConstants.ActionType.ADD, checkpoint);
+
+          logger.fine("Creation of a new dctmSysobjectDocument to add");
+          retDoc = dctmSysobjectDocument;
+
+        } else if (isOpen(collectionToDel) && collectionToDel.next()) {
+          logger.fine("Looking through the collection of documents to remove");
+
+          String eventId = "";
+          ITime deleteDate = null;
+          try {
+            eventId = collectionToDel.getString("r_object_id");
+            deleteDate = collectionToDel.getTime("time_stamp");
+            logger.fine("delete event r_object_id is " + eventId
+                        + "  deleteDate is " + deleteDate.getDate());
+          } catch (RepositoryException e) {
+            logger.warning("impossible to get the r_object_id of the delete event");
+            return null;
+          }
+          checkpoint.setDeleteCheckpoint(deleteDate.getDate(), eventId);
+
+          String chronicleId = collectionToDel.getString("chronicle_id");
+
+          // Deleting multiple versions can post multiple dm_destroy and
+          // dm_prune events with the same chronicle_id.  We only want to
+          // send a single delete request to the GSA.
+          if (deletedIds.contains(chronicleId)) {
+            logger.fine("Skipping redundant delete of version: " + chronicleId);
+            continue; // Already deleted this chronicle_id in this batch.
+          }
+
+          // If we are deleting the last version of a document, remove it
+          // from the index.  If we may be deleting the latest version of
+          // the document, force the new latest version to be re-indexed.
+          ICollection versions = null;
+          try {
+            versions = getCurrentVersion(chronicleId);
+            if (versions != null && versions.next()) {
+              ITime lastModify = versions.getTime("r_modify_date");
+              if (lastModify.getDate().before(deleteDate.getDate())) {
+                // We may have deleted the latest version, so refeed the
+                // current latest version.
+                dctmSysobjectDocument = new DctmSysobjectDocument(
+                    traversalManager, versions.getString("r_object_id"),
+                    chronicleId, lastModify,
+                    SpiConstants.ActionType.ADD, checkpoint);
+                logger.fine("Creation of a new dctmSysobjectDocument to "
+                            + "resubmit newest version of deleted item: "
+                            + chronicleId);
+              } else {
+                // Skip this doc.
+                logger.fine("Skipping delete of old version: " + chronicleId);
+                continue;
+              }
+            } else {
+              // No more versions of the document remain.
+              // Delete the document from the index.
+              dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
+                collectionToDel.getString("audited_obj_id"), chronicleId,
+                deleteDate, SpiConstants.ActionType.DELETE, checkpoint);
+              logger.fine("Creation of a new dctmSysobjectDocument to delete: "
+                          + chronicleId);
+            }
+          } finally {
+            if (versions != null) {
+              versions.close();
+            }
+          }
+          // Handled this version in this batch.
+          deletedIds.add(chronicleId);
+          retDoc = dctmSysobjectDocument;
+        } else {
+          logger.fine("End of document list");
+          break;
         }
-        checkpoint.setInsertCheckpoint(modifyDate.getDate(), crID);
-
-        dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
-            crID, null, modifyDate, SpiConstants.ActionType.ADD,
-            checkpoint);
-
-        logger.fine("Creation of a new dctmSysobjectDocument to add");
-        retDoc = dctmSysobjectDocument;
-
-      } else if (isOpen(collectionToDel) && collectionToDel.next()) {
-        logger.fine("Looking through the collection of documents to remove");
-
-        String crID = "";
-        String commonVersionID = "";
-        ITime deleteDate = null;
-        try {
-          crID = collectionToDel.getString("r_object_id");
-
-          commonVersionID = collectionToDel.getString("chronicle_id");
-          deleteDate = collectionToDel.getTime("time_stamp");
-
-          logger.fine("r_object_id is " + crID);
-        } catch (RepositoryException e) {
-          logger.warning("impossible to get the r_object_id of the document");
-          return null;
-        }
-        checkpoint.setDeleteCheckpoint(deleteDate.getDate(), crID);
-
-        dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
-            crID, commonVersionID, deleteDate, SpiConstants.ActionType.DELETE,
-            checkpoint);
-
-        logger.fine("Creation of a new dctmSysobjectDocument to delete");
-        retDoc = dctmSysobjectDocument;
-      } else {
-        logger.fine("End of document list");
       }
     } catch (RepositoryDocumentException rde) {
       logger.warning("Error while trying to get next document : " + rde);
@@ -129,6 +182,21 @@ public class DctmDocumentList implements DocumentList {
     } finally {
       finalize();
     }
+  }
+
+  /**
+   * Return a ICollection containing the latest version of document based
+   * upon the supplied chronicleId.
+   *
+   * @param chronicleId root document version
+   * @return ICollection of versions.
+   */
+  public ICollection getCurrentVersion(String chronicleId)
+      throws RepositoryException {
+    IQuery query = traversalManager.getClientX().getQuery();
+    query.setDQL(traversalManager.buildVersionsQueryString(chronicleId));
+    return query.execute(collectionToDel.getSession(),
+                         IQuery.EXECUTE_READ_QUERY);
   }
 
   /**
