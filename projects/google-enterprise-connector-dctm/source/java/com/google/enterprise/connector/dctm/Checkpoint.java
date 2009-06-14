@@ -65,6 +65,9 @@ class Checkpoint {
   private String oldDeleteId;
   private Date oldDeleteDate;
 
+  private enum LastAction { NONE, ADD, DELETE }
+  private LastAction lastAction = LastAction.NONE;
+
   /** Generic Constructor */
   Checkpoint() {
   }
@@ -132,6 +135,7 @@ class Checkpoint {
     // Set the new insert checkpoint.
     insertDate = date;
     insertId = objectId;
+    lastAction = LastAction.ADD;
   }
 
   /**
@@ -148,6 +152,7 @@ class Checkpoint {
     // Set the new insert checkpoint.
     deleteDate = date;
     deleteId = objectId;
+    lastAction = LastAction.DELETE;
   }
 
   /**
@@ -164,10 +169,15 @@ class Checkpoint {
    * we wish to retry an item that seems to have failed.
    */
   public void restore() {
-    insertDate = oldInsertDate;
-    insertId = oldInsertId;
-    deleteDate = oldDeleteDate;
-    deleteId = oldDeleteId;
+    if (lastAction == LastAction.ADD) {
+      insertDate = oldInsertDate;
+      insertId = oldInsertId;
+    }
+    if (lastAction == LastAction.DELETE) {
+      deleteDate = oldDeleteDate;
+      deleteId = oldDeleteId;
+    }
+    lastAction = LastAction.NONE;
   }
 
   /**
