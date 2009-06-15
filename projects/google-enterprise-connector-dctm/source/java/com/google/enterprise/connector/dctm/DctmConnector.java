@@ -14,6 +14,8 @@
 
 package com.google.enterprise.connector.dctm;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,9 +43,11 @@ public class DctmConnector implements Connector {
 
   private String isPublic;
 
-  private String includedMeta;
+  private Set<String> includedMeta;
 
-  private String includedObjectType;
+  private Set<String> excludedMeta;
+
+  private Set<String> includedObjectType;
 
   private String rootObjectType;
 
@@ -85,8 +89,7 @@ public class DctmConnector implements Connector {
     Session sess = null;
     sess = new DctmSession(clientX, login, password, docbase,
         webtopDisplayUrl, whereClause, isPublic.equals("on"),
-        includedMeta, rootObjectType,
-        includedObjectType);
+        includedMeta, excludedMeta, rootObjectType, includedObjectType);
 
     return sess;
   }
@@ -118,21 +121,25 @@ public class DctmConnector implements Connector {
     return authenticationType;
   }
 
-  public String getIncluded_meta() {
-    return includedMeta;
-  }
-
   public String getRoot_object_type() {
     return rootObjectType;
   }
 
-  public String getIncluded_object_type() {
-    return includedObjectType;
+  @SuppressWarnings("unchecked")
+  public void setIncluded_meta(Object includedMeta) {
+    if (includedMeta instanceof String) {
+      this.includedMeta = csvToSet((String) includedMeta);
+    } else if (includedMeta instanceof Set) {
+      this.includedMeta = (Set<String>) includedMeta;
+    } else {
+      throw new ClassCastException(includedMeta.getClass().getName());
+    }
+    logger.log(Level.CONFIG, "included_meta set to " + this.includedMeta);
   }
 
-  public void setIncluded_meta(String includedMeta) {
-    this.includedMeta = includedMeta;
-    logger.log(Level.CONFIG, "included_meta set to " + includedMeta);
+  public void setExcluded_meta(Set<String> excludedMeta) {
+    this.excludedMeta = excludedMeta;
+    logger.log(Level.CONFIG, "excluded_meta set to " + this.excludedMeta);
   }
 
   public void setPassword(String password) {
@@ -140,14 +147,36 @@ public class DctmConnector implements Connector {
     logger.log(Level.CONFIG, "password set to [...]");
   }
 
-  public void setIncluded_object_type(String includedObjectType) {
-    this.includedObjectType = includedObjectType;
+  @SuppressWarnings("unchecked")
+  public void setIncluded_object_type(Object includedObjectType) {
+    if (includedObjectType instanceof String) {
+      this.includedObjectType = csvToSet((String) includedObjectType);
+    } else if (includedObjectType instanceof Set) {
+      this.includedObjectType = (Set<String>) includedObjectType;
+    } else {
+      throw new ClassCastException(includedObjectType.getClass().getName());
+    }
     logger.log(Level.CONFIG, "included_object_type set to "
-        + includedObjectType);
+        + this.includedObjectType);
   }
 
   public void setRoot_object_type(String rootObjectType) {
     this.rootObjectType = rootObjectType;
     logger.log(Level.CONFIG, "root_object_type set to " + rootObjectType);
+  }
+
+  /**
+   * Converts a comma-separated string into a set of strings.
+   *
+   * @param csv a comma-separated string
+   * @return a set of strings
+   */
+  private Set<String> csvToSet(String csv) {
+    String[] values = csv.split(",");
+    Set<String> set = new HashSet<String>(values.length);
+    for (String value : values) {
+      set.add(value.trim());
+    }
+    return set;
   }
 }

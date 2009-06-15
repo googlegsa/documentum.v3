@@ -16,8 +16,8 @@ package com.google.enterprise.connector.dctm;
 
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +38,8 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private static final Logger logger =
       Logger.getLogger(DctmTraversalManager.class.getName());
 
+  private static final Set<String> EMPTY_SET = Collections.<String>emptySet();
+
   private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private static final String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private static final String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
@@ -56,19 +58,22 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private final boolean isPublic;
   private final Set<String> includedObjectType;
   private final Set<String> includedMeta;
+  private final Set<String> excludedMeta;
   private final String rootObjectType;
 
   // Constructor used by tests.
   public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-      String included_meta, ISessionManager sessionMgr)
+      Set<String> included_meta, ISessionManager sessionMgr)
       throws RepositoryException {
-    this(clientX, webtopServerUrl, "", true, included_meta, "", "");
+    this(clientX, webtopServerUrl, "", true, included_meta, EMPTY_SET,
+        EMPTY_SET, "");
     setSessionManager(sessionMgr);
   }
 
   public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-      String additionalWhereClause, boolean isPublic, String includedMeta,
-      String includedObjectType, String rootObjectType)
+      String additionalWhereClause, boolean isPublic,
+      Set<String> includedMeta, Set<String> excludedMeta,
+      Set<String> includedObjectType, String rootObjectType)
       throws RepositoryException {
     this.additionalWhereClause = additionalWhereClause;
     setClientX(clientX);
@@ -78,8 +83,9 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
     this.serverUrl = webtopServerUrl;
     this.isPublic = isPublic;
-    this.includedObjectType = csvToSet(includedObjectType);
-    this.includedMeta = csvToSet(includedMeta);
+    this.includedObjectType = includedObjectType;
+    this.includedMeta = includedMeta;
+    this.excludedMeta = excludedMeta;
     this.rootObjectType = rootObjectType;
   }
 
@@ -117,6 +123,10 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   public Set<String> getIncludedMeta() {
     return includedMeta;
+  }
+
+  public Set<String> getExcludedMeta() {
+    return excludedMeta;
   }
 
   /**
@@ -321,20 +331,5 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   public boolean isPublic() {
     return isPublic;
-  }
-
-  /**
-   * Converts a comma-separated string into a set of strings.
-   *
-   * @param csv a comma-separated string
-   * @return a set of strings
-   */
-  private Set<String> csvToSet(String csv) {
-    String[] values = csv.split(",");
-    Set<String> set = new HashSet<String>(values.length);
-    for (String value : values) {
-      set.add(value.trim());
-    }
-    return set;
   }
 }

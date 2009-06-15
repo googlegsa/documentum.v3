@@ -143,9 +143,9 @@ public class DctmConnectorType implements ConnectorType {
 
   private List<String> configKeys = null;
 
-  private Set<String> includedObjectType = null;
+  private String includedObjectType = null;
 
-  private Set<String> includedMeta = null;
+  private String includedMeta = null;
 
   private String rootObjectType = null;
 
@@ -178,12 +178,12 @@ public class DctmConnectorType implements ConnectorType {
     setConfigKeys(Arrays.asList(configKeys));
   }
 
-  public void setIncluded_meta(Set<String> includedMeta) {
+  public void setIncluded_meta(String includedMeta) {
     this.includedMeta = includedMeta;
     logger.config("included_meta set to " + includedMeta);
   }
 
-  public void setIncluded_object_type(Set<String> includedObjectType) {
+  public void setIncluded_object_type(String includedObjectType) {
     this.includedObjectType = includedObjectType;
     logger.config("included_object_type set to " + includedObjectType);
   }
@@ -269,6 +269,9 @@ public class DctmConnectorType implements ConnectorType {
         }
       }
 
+      // There's no need to persist action_update.
+      configData.remove(ACTIONUPDATE);
+
       if (logger.isLoggable(Level.FINE)) {
         logger.fine("sess before return null: " + sess);
       }
@@ -303,20 +306,21 @@ public class DctmConnectorType implements ConnectorType {
 
       for (String key : configKeys) {
         String val = configMap.get(key);
-        if (key.equals(ADVANCEDCONF) && val == null) {
-          logger.config("advanced_configuration null");
-          val = "off";
-          logger.config("val advanced_configuration is now " + val);
-          configMap.put(key, val);
-        } else if (key.equals(ACTIONUPDATE) && val == null) {
-          logger.config("action_update null");
-          val = "";
-          logger.config("val action_update is now " + val);
-          configMap.put(key, val);
-        } else if (key.equals(ROOT_OBJECT_TYPE) && val == null) {
-          logger.config("root_object_type null or empty");
-          val = rootObjectType;
-          logger.config("val root_object_type is now " + val);
+        if (val == null) {
+          if (key.equals(ADVANCEDCONF)) {
+            val = "off";
+          } else if (key.equals(ACTIONUPDATE)) {
+            val = "";
+          } else if (key.equals(ROOT_OBJECT_TYPE) && val == null) {
+            val = rootObjectType;
+          } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
+            val = includedObjectType;
+          } else if (key.equals(INCLUDED_META)) {
+            val = includedMeta;
+          } else {
+            continue;
+          }
+          logger.config(key + " was null; set to " + val);
           configMap.put(key, val);
         }
       }
@@ -540,19 +544,15 @@ public class DctmConnectorType implements ConnectorType {
     // Get the properties from the config map, if one is present, or
     // set some defaults.
     String rootType;
-    String actionUpdate = "";
-    String advConf = "";
+    String advConf;
     if (configMap != null) {
-      rootType = configMap.get(ROOT_OBJECT_TYPE);
+      rootType = configMap.get(ROOT_OBJECT_TYPE).trim();
       logger.config("rootType from configmap: " + rootType);
       advConf = configMap.get(ADVANCEDCONF);
       logger.config("advConf from configmap: " + advConf);
-      actionUpdate = configMap.get(ACTIONUPDATE);
-      logger.config("actionUpdate from configmap: " + actionUpdate);
     } else {
       rootType = rootObjectType;
       logger.config("root_object_type: " + rootType);
-      actionUpdate = "";
       advConf = "";
     }
 
@@ -589,8 +589,7 @@ public class DctmConnectorType implements ConnectorType {
           } else {
             // Properties are displayed according to the default
             // values stored in the connectorType.xml file.
-            appendSelectMultipleIncludeTypes(buf, includedObjectType,
-                configMap);
+            appendSelectMultipleIncludeTypes(buf, configMap);
           }
         } else if (key.equals(INCLUDED_META)) {
           // If the form is not displayed for the first time
@@ -607,7 +606,7 @@ public class DctmConnectorType implements ConnectorType {
           } else {
             // Properties are displayed according to the default
             // values stored in the connectorType.xml file.
-            appendSelectMultipleIncludeMetadatas(buf, includedMeta, configMap);
+            appendSelectMultipleIncludeMetadatas(buf, configMap);
           }
           buf.append("</tbody>");
         } else if (key.equals(ADVANCEDCONF)) {
@@ -655,10 +654,6 @@ public class DctmConnectorType implements ConnectorType {
           buf.append(INPUT);
           if (key.equals(PASSWORD_KEY)) {
             appendAttribute(buf, TYPE, PASSWORD);
-            if (configMap != null && configMap.get("password") != null) {
-              value = configMap.get("password");
-              configMap.remove("password");
-            }
           } else {
             appendAttribute(buf, TYPE, TEXT);
           }
@@ -773,7 +768,7 @@ public class DctmConnectorType implements ConnectorType {
 
     Set<String> includedTypes = new TreeSet<String>();
     for (String stType : typeList) {
-      includedTypes.add(stType);
+      includedTypes.add(stType.trim());
     }
 
     // JavaScript functions used to pass an item from a select list to
@@ -914,20 +909,11 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private void appendSelectMultipleIncludeTypes(StringBuilder buf,
-      Set<String> defaultObjectTypes, Map<String, String> configMap) {
+      Map<String, String> configMap) {
     logger.fine("in appendSelectMultipleIncludeTypes");
 
-    String stTypes;
-    if (configMap != null) {
-      stTypes = configMap.get(INCLUDED_OBJECT_TYPE);
-    } else {
-      StringBuilder buffer = new StringBuilder();
-      for (String type : defaultObjectTypes) {
-        buffer.append(type).append(',');
-      }
-      stTypes = buffer.substring(0, buffer.length() - 1);
-    }
-
+    String stTypes = (configMap != null) ?
+        configMap.get(INCLUDED_OBJECT_TYPE) : includedObjectType;
     if (logger.isLoggable(Level.FINE)) {
       logger.fine("String included_object_type: " + stTypes);
     }
@@ -953,7 +939,7 @@ public class DctmConnectorType implements ConnectorType {
 
     Set<String> includedProperties = new TreeSet<String>();
     for (String property : metaList) {
-      includedProperties.add(property);
+      includedProperties.add(property.trim());
     }
 
     IType dmsysType = sess.getType("dm_sysobject");
@@ -1113,19 +1099,11 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
-      Set<String> hashMeta, Map<String, String> configMap) {
+      Map<String, String> configMap) {
     logger.fine("in appendSelectMultipleIncludeMetadatas defaults");
 
-    String stMeta;
-    if (configMap != null) {
-      stMeta = configMap.get(INCLUDED_META);
-    } else {
-      StringBuilder buffer = new StringBuilder();
-      for (String meta : hashMeta) {
-        buffer.append(meta).append(',');
-      }
-      stMeta = buffer.substring(0, buffer.length() - 1);
-    }
+    String stMeta = (configMap != null) ?
+        configMap.get(INCLUDED_META) : includedMeta;
 
     appendHiddenInput(buf, "CM_included_meta", "included_meta", stMeta);
   }

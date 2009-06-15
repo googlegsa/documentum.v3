@@ -59,7 +59,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
     sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
     traversalManager = new DctmTraversalManager(dctmClientX,
-        DmInitialize.DM_WEBTOP_SERVER_URL, DmInitialize.DM_INCLUDED_META,
+        DmInitialize.DM_WEBTOP_SERVER_URL, DmInitialize.included_meta,
         sessionManager);
 
     try {

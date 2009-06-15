@@ -380,14 +380,20 @@ public class DctmSysobjectDocument extends HashMap implements Document {
       properties.add(SpiConstants.PROPNAME_LASTMODIFIED);
       properties.add(SpiConstants.PROPNAME_MIMETYPE);
       properties.add(SpiConstants.PROPNAME_TITLE);
+
+      Set<String> includedMeta = traversalManager.getIncludedMeta();
+      Set<String> excludedMeta = traversalManager.getExcludedMeta();
       try {
         for (int i = 0; i < object.getAttrCount(); i++) {
           IAttr curAttr = object.getAttr(i);
           String name = curAttr.getName();
-          logger.finest("pass the attribute " + name);
-          if (traversalManager.getIncludedMeta().contains(name)) {
+          if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
+              !excludedMeta.contains(name)) {
             properties.add(name);
             logger.finest("attribute " + name + " added to the properties");
+          } else {
+            logger.finest("attribute " + name
+                + " excluded from the properties");
           }
         }
       } catch (RepositoryDocumentException e) {
