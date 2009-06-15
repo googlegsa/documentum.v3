@@ -11,6 +11,65 @@ Site for the current list of known issues and workarounds.
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
 
 
+Release 2.0.0, Jun 15, 2009
+===========================
+
+Introduction
+------------
+This is an upgrade release with some enhancements. Users of previous
+releases are encouraged to upgrade. See the product website for a
+complete description.
+
+Summary of changes
+------------------
+
+For the latest details on the changes, see http://code.google.com/p/google-enterprise-connector-dctm/issues/list?can=0&q=label%3AMilestone-Release_2.0.0
+
+  * Fixed issue 23 to include the full type hierarchy in the indexed
+    r_object_type property.
+  * Fixed issue 33 to avoid deleting a document when a version is
+    deleted. If the current version is deleted, the new current
+    version will be reindexed.
+  * Fixed issue 40 to avoid a potential infinite loop if the
+    checkpoint method throws a DfRuntimeException.
+  * Fixed issue 41 to implement TraversalContextAware. The connector
+    now uses the MIME type configuration in applicationContext.xml to
+    determine whether to send the document content. The connector
+    always sends the metadata, even if the content itself is rejected.
+  * Fixed issue 52, moving the root_object_type, where_clause,
+    included_object_type, and included_meta properties from the
+    connectorInstance.xml file to the configuration form in the admin
+    console. This dramatically simplifies common configuration
+    scenarios.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.1 through 1.3.2
+may be used with this version. This version works with Connector
+Manager version 2.0.0. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector. This product is
+designed to function with EMC Documentum Content Server versions
+5.3, 6.0, and 6.5, including service packs.
+
+Version 2.0.0 requires Java SE 5.0, and hence requires DFC 5.3 SP4 or
+later.
+
+Customers upgrading an existing installation from a previous release
+must stop Tomcat and rename the EMC_Documentum_Content_Server_VERSION
+directory, where VERSION is either 5.2.5_5.3 or 6.0, to
+EMC_Documentum_Content_Server before beginning the upgrade. This
+directory can be found in the WEB-INF/connectors directory of the
+connector manager application.
+
+Customers with custom connectorInstance.xml files created for version
+1.3.2 or earlier must update those files in order to use the Advanced
+Configuration section of the configuration form in the admin console.
+Please see issue 52 for details, and contact Google Enterprise Support
+if you need assistance.
+
+http://code.google.com/p/google-enterprise-connector-dctm/issues/detail?id=52
+
+
 Release 1.3.2, Apr 11, 2009
 ===========================
 
@@ -46,12 +105,12 @@ Summary of changes
 
 Version Compatibility
 ---------------------
-Connector instances created using versions 1.0.0 through 1.3.0
+Connector instances created using versions 1.0.1 through 1.3.0
 may be used with this version. This version works with Connector
 Manager version 1.3.2. Earlier versions of the Connector Manager will
 not work correctly with this version of the connector. This product is
 designed to function with EMC Documentum Content Server versions
-5.3, 6.0, and 6.5.
+5.3, 6.0, and 6.5, including service packs.
 
 
 Release 1.3.0, Jan 11, 2009
@@ -71,7 +130,7 @@ Summary of changes
 
 Version Compatibility
 ---------------------
-Connector instances created using versions 1.0.0 through 1.1.0 r468
+Connector instances created using versions 1.0.1 through 1.1.0 r468
 may be used with this version. This version works with Connector
 Manager version 1.3.0. Earlier versions of the Connector Manager will
 not work correctly with this version of the connector. This product is
