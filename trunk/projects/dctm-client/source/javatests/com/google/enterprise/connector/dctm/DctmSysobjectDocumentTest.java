@@ -51,7 +51,7 @@ public class DctmSysobjectDocumentTest extends TestCase {
     sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
 
     traversalManager = new DctmTraversalManager(dctmClientX, "",
-        DmInitialize.hashIncluded_meta, sessionManager);
+        DmInitialize.included_meta, sessionManager);
   }
 
   public void testGetPropertyNames() throws RepositoryException {

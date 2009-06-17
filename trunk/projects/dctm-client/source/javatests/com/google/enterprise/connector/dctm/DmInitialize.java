@@ -94,18 +94,18 @@ public class DmInitialize {
   public static final String DM_INCLUDED_META = "object_name r_object_type title subject keywords authors r_creation_date r_modify_date";
   public static final String DM_INCLUDED_OBJECT_TYPE = "dm_document custom_type";
 
-  public static HashSet hashIncluded_meta = null;
+  public static HashSet included_meta = null;
 
   static {
-    hashIncluded_meta = new HashSet();
-    hashIncluded_meta.add("object_name");
-    hashIncluded_meta.add("r_object_type");
-    hashIncluded_meta.add("title");
-    hashIncluded_meta.add("subject");
-    hashIncluded_meta.add("keywords");
-    hashIncluded_meta.add("authors");
-    hashIncluded_meta.add("r_creation_date");
-    hashIncluded_meta.add("r_modify_date");
+    included_meta = new HashSet();
+    included_meta.add("object_name");
+    included_meta.add("r_object_type");
+    included_meta.add("title");
+    included_meta.add("subject");
+    included_meta.add("keywords");
+    included_meta.add("authors");
+    included_meta.add("r_creation_date");
+    included_meta.add("r_modify_date");
   }
 
   public static final String ROOT_OBJECT_TYPE = "dm_sysobject";
