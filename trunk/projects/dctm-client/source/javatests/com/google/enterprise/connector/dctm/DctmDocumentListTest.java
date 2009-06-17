@@ -52,7 +52,7 @@ public class DctmDocumentListTest extends TestCase {
     sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
 
     traversalManager = new DctmTraversalManager(dctmClientX,
-        DmInitialize.DM_WEBTOP_SERVER_URL, DmInitialize.DM_INCLUDED_META,
+        DmInitialize.DM_WEBTOP_SERVER_URL, DmInitialize.hashIncluded_meta,
         sessionManager);
 
     query = dctmClientX.getQuery();
