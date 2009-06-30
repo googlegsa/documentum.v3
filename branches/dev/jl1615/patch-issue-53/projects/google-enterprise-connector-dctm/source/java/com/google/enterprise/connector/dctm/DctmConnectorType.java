@@ -1,0 +1,503 @@
+package com.google.enterprise.connector.dctm;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+
+import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
+import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.spi.ConfigureResponse;
+import com.google.enterprise.connector.spi.ConnectorFactory;
+import com.google.enterprise.connector.spi.ConnectorType;
+import com.google.enterprise.connector.spi.RepositoryException;
+
+public class DctmConnectorType implements ConnectorType {
+
+	private static final String HIDDEN = "hidden";
+
+	private static final String VALUE = "value";
+
+	private static final String NAME = "name";
+
+	private static final String TEXT = "text";
+
+	private static final String TYPE = "type";
+
+	private static final String INPUT = "input";
+
+	private static final String CLOSE_ELEMENT = "/>";
+
+	private static final String OPEN_ELEMENT = "<";
+
+	private static final String PASSWORD = "password";
+
+	private static final String PASSWORD_KEY = "Password";
+
+	private static final String TR_END = "</tr>\r\n";
+
+	private static final String TD_END = "</td>\r\n";
+
+	private static final String TD_START = "<td>";
+
+	private static final String TD_START_LABEL = "<td style='white-space: nowrap'>";
+
+	private static final String TD_START_COLSPAN = "<td colspan='2'>";
+
+	private static final String TR_START = "<tr>\r\n";
+
+	private static final String TR_START_HIDDEN = "<tr style='display: none'>\r\n";
+
+	private static final String SELECT_START = "<select";
+
+	private static final String SELECT_END = "</select>\r\n";
+
+	private static final String SELECTED = "selected='selected' ";
+
+	private static final String DCTMCLASS = "clientX";
+
+	private static final String AUTHENTICATIONTYPE = "authentication_type";
+
+	private static final String ISPUBLIC = "is_public";
+
+	private static final String WHERECLAUSE = "where_clause";
+
+	private static final String DOCBASENAME = "docbase";
+
+	private static final String DISPLAYURL = "webtop_display_url";
+
+	private static final String CHECKBOX = "checkbox";
+
+	private static final String CHECKED = "checked='checked'";
+
+	private List keys = null;
+
+	private Set keySet = null;
+
+	private String initialConfigForm = null;
+
+	private static Logger logger = Logger.getLogger(DctmConnectorType.class
+			.getName());
+
+	ResourceBundle resource;
+
+	/**
+	 * Set the keys that are required for configuration. One of the overloadings
+	 * of this method must be called exactly once before the SPI methods are
+	 * used.
+	 * 
+	 * @param keys
+	 *            A list of String keys
+	 */
+	public void setConfigKeys(List keys) {
+		if (this.keys != null) {
+			throw new IllegalStateException();
+		}
+		this.keys = keys;
+		this.keySet = new HashSet(keys);
+
+	}
+
+	/**
+	 * Set the keys that are required for configuration. One of the overloadings
+	 * of this method must be called exactly once before the SPI methods are
+	 * used.
+	 * 
+	 * @param keys
+	 *            An array of String keys
+	 */
+	public void setConfigKeys(String[] keys) {
+		setConfigKeys(Arrays.asList(keys));
+	}
+
+	public ConfigureResponse getConfigForm(Locale language) {
+
+		try {
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					language);
+		} catch (MissingResourceException e) {
+			resource = ResourceBundle.getBundle("DctmConnectorResources");
+		}
+		if (initialConfigForm != null) {
+			return new ConfigureResponse("", initialConfigForm);
+		}
+		if (keys == null) {
+			throw new IllegalStateException();
+		}
+		this.initialConfigForm = makeValidatedForm(null);
+
+		return new ConfigureResponse("", initialConfigForm);
+	}
+
+	public ConfigureResponse validateConfig(Map configData, Locale language,
+			ConnectorFactory connectorFactory) {
+		try {
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					language);
+		} catch (MissingResourceException e) {
+			resource = ResourceBundle.getBundle("DctmConnectorResources");
+		}
+		String form = null;
+		DctmSession session;
+		String validation = validateConfigMap(configData);
+		if (validation.equals("")) {
+			try {
+				logger.log(Level.INFO, "test connection to the repository");
+
+				Properties p = new Properties();
+				p.putAll(configData);
+				String isPublic = (String) configData.get(ISPUBLIC);
+				if (isPublic == null) {
+					p.put(ISPUBLIC, "false");
+				}
+				Resource res = new ClassPathResource(
+						"config/connectorInstance.xml");
+
+				XmlBeanFactory factory = new XmlBeanFactory(res);
+				PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
+				cfg.setProperties(p);
+				cfg.postProcessBeanFactory(factory);
+				DctmConnector conn = (DctmConnector) factory
+						.getBean("DctmConnectorInstance");
+				session = (DctmSession) conn.login();
+				testWebtopUrl((String) configData.get(DISPLAYURL));
+				if ((String) configData.get(WHERECLAUSE) != null
+						&& !((String) configData.get(WHERECLAUSE)).equals("")) {
+					DctmTraversalManager qtm = (DctmTraversalManager) session
+							.getTraversalManager();
+
+					checkAdditionalWhereClause((String) configData
+							.get("where_clause"), qtm);
+				}
+
+			} catch (RepositoryException e) {
+				logger.log(Level.INFO, "RepositoryException thrown in validateConfig:", e);
+				return createErrorMessage(configData, e);
+
+			} finally {
+
+			}
+			return null;
+		}
+
+		form = makeValidatedForm(configData);
+		return new ConfigureResponse(resource.getString(validation + "_error"),
+				form);
+	}
+
+	public ConfigureResponse getPopulatedConfigForm(Map configMap,
+			Locale language) {
+		try {
+			resource = ResourceBundle.getBundle("DctmConnectorResources",
+					language);
+		} catch (MissingResourceException e) {
+			resource = ResourceBundle.getBundle("DctmConnectorResources");
+		}
+		ConfigureResponse result = new ConfigureResponse("",
+				makeValidatedForm(configMap));
+		return result;
+	}
+
+	private ConfigureResponse createErrorMessage(Map configData,
+			RepositoryException e) {
+		String form;
+		String message = e.getMessage();
+		String extractErrorMessage = null;
+		String bundleMessage = null;
+		if (message.indexOf("[") != -1) {
+			extractErrorMessage = message.substring(message.indexOf("[") + 1,
+					message.indexOf("]"));
+		} else {
+			extractErrorMessage = e.getCause().getClass().getName();
+		}
+		try {
+			bundleMessage = resource.getString(extractErrorMessage);
+		} catch (MissingResourceException mre) {
+			bundleMessage = resource.getString("DEFAULT_ERROR_MESSAGE") + " "
+					+ e.getMessage();
+		}
+		logger.log(Level.WARNING, bundleMessage);
+
+		form = makeValidatedForm(configData);
+		return new ConfigureResponse(bundleMessage, form);
+	}
+
+	private void checkAdditionalWhereClause(String additionalWhereClause,
+			DctmTraversalManager qtm) throws RepositoryException {
+
+		logger.log(Level.INFO, "check additional where clause : "
+				+ additionalWhereClause);
+
+		if (!additionalWhereClause.toLowerCase().startsWith("and")) {
+			throw new RepositoryException("[additional] ");
+		}
+		IQuery query = qtm.getClientX().getQuery();
+		query
+				.setDQL("select r_object_id from dm_sysobject where r_object_type='dm_document' "
+						+ additionalWhereClause);
+		DctmDocumentList result = (DctmDocumentList) qtm.execQuery(query);
+		if (result == null) {
+			throw new RepositoryException("[additionalTooRestrictive]");
+		} else {
+			result.finalize();
+		}
+
+	}
+
+	private void testWebtopUrl(String webtopServerUrl)
+			throws RepositoryException {
+		logger.log(Level.INFO, "test connection to the webtop server : "
+				+ webtopServerUrl);
+		try {
+			new UrlValidator().validate(webtopServerUrl);
+		} catch (UrlValidatorException e) {
+			throw new RepositoryException(
+				"[status] Http request returned a " + e.getStatusCode()
+				+ " status");
+		} catch (GeneralSecurityException e) {
+			throw new RepositoryException("[HttpException]", e);
+		} catch (IOException e) {
+			throw new RepositoryException("[IOException]", e);
+		}
+	}
+
+	private String validateConfigMap(Map configData) {
+		for (Iterator i = keys.iterator(); i.hasNext();) {
+			String key = (String) i.next();
+			String val = (String) configData.get(key);
+			if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE)
+					&& !key.equals(WHERECLAUSE) && !key.equals(ISPUBLIC)
+					&& (val == null || val.length() == 0)) {
+				return key;
+			}
+		}
+		return "";
+	}
+
+	private String makeValidatedForm(Map configMap) {
+		StringBuffer buf = new StringBuffer(2048);
+		String value = "";
+		for (Iterator i = keys.iterator(); i.hasNext();) {
+			String key = (String) i.next();
+
+			if (configMap != null) {
+				value = (String) configMap.get(key);
+			}
+
+			if (key.equals(ISPUBLIC)) {
+				appendCheckBox(buf, key, resource.getString(key), value);
+				appendStartHiddenRow(buf);
+				buf.append(OPEN_ELEMENT);
+				buf.append(INPUT);
+				appendAttribute(buf, TYPE, HIDDEN);
+				appendAttribute(buf, VALUE, "false");
+				appendAttribute(buf, NAME, key);
+				buf.append(CLOSE_ELEMENT);
+				appendEndRow(buf);
+				value = "";
+			} else {
+				if (!key.equals(DCTMCLASS) && !key.equals(AUTHENTICATIONTYPE)
+						&& !key.equals(WHERECLAUSE)) {
+					appendStartRow(buf, resource.getString(key));
+				} else {
+					appendStartHiddenRow(buf);
+				}
+				if (key.equals(DOCBASENAME)) {
+					appendDropDownListAttribute(buf, TYPE, value);
+					appendEndRow(buf);
+				} else {
+					buf.append(OPEN_ELEMENT);
+					buf.append(INPUT);
+					if (key.equals(PASSWORD_KEY)) {
+						appendAttribute(buf, TYPE, PASSWORD);
+						if (configMap != null && (String) configMap.get("password") != null) {
+							value = (String) configMap.get("password");
+							configMap.remove("password");
+						}
+					} else if (key.equals(DCTMCLASS)
+							|| key.equals(AUTHENTICATIONTYPE)
+							|| key.equals(WHERECLAUSE)) {
+						appendAttribute(buf, TYPE, HIDDEN);
+					} else {
+						appendAttribute(buf, TYPE, TEXT);
+					}
+					appendAttribute(buf, VALUE, value);
+					appendAttribute(buf, NAME, key);
+					buf.append(CLOSE_ELEMENT);
+					appendEndRow(buf);
+					value = "";
+				}
+			}
+		}
+		if (configMap != null) {
+			appendStartHiddenRow(buf);
+			Iterator i = new TreeSet(configMap.keySet()).iterator();
+			while (i.hasNext()) {
+				String key = (String) i.next();
+				if (!keySet.contains(key)) {
+					// add another hidden field to preserve this data
+					String val = (String) configMap.get(key);
+					buf.append("<input type=\"hidden\" value=\"");
+					buf.append(val);
+					buf.append("\" name=\"");
+					buf.append(key);
+					buf.append("\"/>\r\n");
+				}
+			}
+			appendEndRow(buf);
+		}
+		return buf.toString();
+
+	}
+
+	private void appendCheckBox(StringBuffer buf, String key, String label,
+			String value) {
+		buf.append(TR_START);
+		buf.append(TD_START_COLSPAN);
+		buf.append(OPEN_ELEMENT);
+		buf.append(INPUT);
+		buf.append(" " + TYPE + "=\"" + CHECKBOX + '"');
+		buf.append(" " + NAME + "=\"" + key + "\" ");
+		if (value != null && value.equals("on")) {
+			buf.append(CHECKED);
+		}
+		buf.append(CLOSE_ELEMENT);
+		buf.append(label + TD_END);
+
+		buf.append(TR_END);
+
+	}
+
+	private void appendDropDownListAttribute(StringBuffer buf, String type2,
+			String value) {
+		IClientX cl = null;
+		try {
+			cl = (IClientX) Class
+					.forName(
+							"com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX")
+					.newInstance();
+		} catch (InstantiationException e) {
+			logger
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
+		} catch (IllegalAccessException e) {
+			logger
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
+		} catch (ClassNotFoundException e) {
+			logger
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
+		} catch (NoClassDefFoundError e) {
+			logger
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
+		}
+
+		// Once we start writing the select element, we need
+		// to be careful that any thrown exceptions don't
+		// result in invalid XHTML. So we carefully make the
+		// Documentum calls and then write the corresponding
+		// tags.
+
+		buf.append(SELECT_START);
+		buf.append(" " + NAME);
+		buf.append("=\"");
+		buf.append(DOCBASENAME);
+		buf.append("\">\n");
+
+		try {
+			// If getting the docbase list fails, we don't write
+			// any option elements.
+			IClient client = cl.getLocalClient();
+			IDocbaseMap mapOfDocbasesName = client.getDocbaseMap();
+
+			for (int i = 0; i < mapOfDocbasesName.getDocbaseCount(); i++) {
+				// If getting the docbase name fails,
+				// we don't write the option element.
+				String docbaseName = mapOfDocbasesName.getDocbaseName(i);
+
+				buf.append("\t<option ");
+				if (value != null
+						&& docbaseName.equals(value)) {
+					buf.append(SELECTED);
+				}
+				buf.append("value=\"" + docbaseName
+						+ "\">" + docbaseName
+						+ "</option>\n");
+			}
+		} catch (RepositoryException e) {
+			logger
+					.log(
+							Level.SEVERE,
+							"error while building the configuration form. The docbase will be added manually. ",
+							e);
+
+		} finally {
+			buf.append(SELECT_END);
+		}
+
+	}
+
+	private void appendStartRow(StringBuffer buf, String key) {
+		buf.append(TR_START);
+		buf.append(TD_START_LABEL);
+		buf.append(key);
+		buf.append(TD_END);
+		buf.append(TD_START);
+	}
+
+	private void appendStartHiddenRow(StringBuffer buf) {
+		buf.append(TR_START_HIDDEN);
+		buf.append(TD_START);
+
+	}
+
+	private void appendEndRow(StringBuffer buf) {
+		buf.append(TD_END);
+		buf.append(TR_END);
+	}
+
+	private void appendAttribute(StringBuffer buf, String attrName,
+			String attrValue) {
+		buf.append(" ");
+		buf.append(attrName);
+		buf.append("=\"");
+		buf.append(attrValue);
+		buf.append("\"");
+		if (attrName == TYPE && attrValue == TEXT) {
+			buf.append(" size=\"50\"");
+		}
+	}
+
+}
