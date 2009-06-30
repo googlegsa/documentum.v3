@@ -61,7 +61,10 @@ public class DmSession implements ISession {
 			throws RepositoryException {
 		String ticket = null;
 		try {
-			ticket = this.idfSession.getLoginTicketForUser(username);
+			ticket = this.idfSession.getLoginTicketEx(username,
+                            "global", 0, false, null);
+			logger.finest("Ticket diagnostics: "
+				+ idfSession.getClient().getLoginTicketDiagnostics(ticket));
 		} catch (DfException de) {
 			RepositoryException re = new RepositoryException(de);
 			throw re;
