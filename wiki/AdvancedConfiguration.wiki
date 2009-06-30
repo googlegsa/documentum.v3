@@ -1,4 +1,5 @@
 #summary Advanced configuration for the Documentum connector
+#labels Featured,Phase-Deploy
 
 = Configure the connectorInstance.xml file =
 
