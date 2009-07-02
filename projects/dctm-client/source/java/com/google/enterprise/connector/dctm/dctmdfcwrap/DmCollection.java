@@ -52,7 +52,7 @@ public class DmCollection implements ICollection {
     IDfValue dfValue = null;
     try {
       dfValue = idfCollection.getValue(attrName);
-      logger.finest("getting the value of attribute "+attrName);
+      logger.finest("getting the value of attribute " + attrName);
     } catch (DfException e) {
       RepositoryException re = new RepositoryException(e);
       throw re;
@@ -89,14 +89,14 @@ public class DmCollection implements ICollection {
 
     try {
       rep = idfCollection.next();
-      logger.finest("collection.next() returns "+rep);
+      logger.finest("collection.next() returns " + rep);
     } catch (DfException e) {
       e.printStackTrace();
       throw new RepositoryException(e);
     }
     if (rep)
       numberOfRows++;
-    logger.finest("number Of Rows is "+numberOfRows);
+    logger.finest("number Of Rows is " + numberOfRows);
     return rep;
   }
 
@@ -109,8 +109,8 @@ public class DmCollection implements ICollection {
       throw new IllegalStateException("Cannot access current row after hasNext()");
     }
     try {
-      logger.finest("column name is "+this.idfCollection.getString(colName));
-      return this.idfCollection.getString(colName);
+      logger.finest("column value is " + idfCollection.getString(colName));
+      return idfCollection.getString(colName);
     } catch (DfException e) {
       throw new RepositoryException(e);
     }
@@ -119,8 +119,8 @@ public class DmCollection implements ICollection {
   public ITime getTime(String colName) throws RepositoryException {
     IDfTime dfTime = null;
     try {
-      logger.finest("column name is "+this.idfCollection.getTime(colName));
-      dfTime = this.idfCollection.getTime(colName);
+      logger.finest("column value is " + idfCollection.getTime(colName));
+      dfTime = idfCollection.getTime(colName);
     } catch (DfException e) {
       throw new RepositoryException(e);
     }
@@ -131,18 +131,17 @@ public class DmCollection implements ICollection {
     logger.info(numberOfRows + " documents have been processed");
     try {
       didPeek = false;
-      this.idfCollection.close();
+      idfCollection.close();
     } catch (DfException e) {
       throw new RepositoryException(e);
     }
   }
 
   public int getState() {
-    int state = (didPeek) ? peekState : this.idfCollection.getState();
+    int state = (didPeek) ? peekState : idfCollection.getState();
     logger.fine("state of the collection : " + state);
     return state;
   }
-
 
   public ISession getSession() {
     IDfSession dfSession = null;
