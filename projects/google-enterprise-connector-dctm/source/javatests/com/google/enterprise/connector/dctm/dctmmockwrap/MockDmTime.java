@@ -17,6 +17,7 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 
@@ -34,7 +35,7 @@ public class MockDmTime implements ITime {
   public String getFormattedDate() {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
         "yyyy-MM-dd'T'HH:mm:ss'Z'", new Locale("EN"));
-
+    simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0"));
     return simpleDateFormat.format(time);
   }
 

@@ -27,12 +27,15 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmSession implements ISession {
-  private MockJcrRepository mockRep;
+  private final ISessionManager sessMgr;
 
-  private String sessionFileNameSuffix;
+  private final MockJcrRepository mockRep;
 
-  public MockDmSession(MockJcrRepository mjR, MockJcrSession mjS,
-      String dbFileName) {
+  private final String sessionFileNameSuffix;
+
+  public MockDmSession(ISessionManager sessMgr, MockJcrRepository mjR,
+      MockJcrSession mjS, String dbFileName) {
+    this.sessMgr = sessMgr;
     this.mockRep = mjR;
     this.sessionFileNameSuffix = dbFileName;
   }
@@ -72,8 +75,7 @@ public class MockDmSession implements ISession {
   }
 
   public ISessionManager getSessionManager() throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    return sessMgr;
   }
 
   public boolean isConnected() {

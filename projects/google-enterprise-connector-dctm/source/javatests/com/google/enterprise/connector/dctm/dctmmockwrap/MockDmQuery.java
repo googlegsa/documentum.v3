@@ -65,7 +65,7 @@ public class MockDmQuery implements IQuery {
         throw new RepositoryException(e);
       }
     } else { // Authorize query...
-      String[] ids = this.query.split("', '");
+      String[] ids = this.query.split("','");
       ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
           .length());
       ids[ids.length - 1] = ids[ids.length - 1].substring(0,
@@ -127,7 +127,7 @@ public class MockDmQuery implements IQuery {
   }
 
   public ICollection execute(ISession session, int queryType) throws RepositoryException {
-    if (query.equals("")) {
+    if (query.equals("") || query.indexOf("dm_audittrail") != -1) {
       return null;
     } else if (query.startsWith(XPATH_QUERY_STRING_UNBOUNDED_DEFAULT
         .substring(0, 15))) {
@@ -145,7 +145,7 @@ public class MockDmQuery implements IQuery {
         throw new RepositoryException(e);
       }
     } else { // Authorize query...
-      String[] ids = this.query.split("', '");
+      String[] ids = this.query.split("','");
       ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
           .length());
       ids[ids.length - 1] = ids[ids.length - 1].substring(0,

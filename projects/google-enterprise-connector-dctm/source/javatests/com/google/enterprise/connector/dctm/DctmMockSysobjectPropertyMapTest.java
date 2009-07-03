@@ -85,7 +85,10 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
         DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD, null);
 
     Set<String> names = dctmSpm.getPropertyNames();
-    assertEquals(3, names.size());
+    assertEquals(5, names.size());
+    for (String name : names) {
+      assertTrue(name, name.startsWith("google:"));
+    }
   }
 
   public void testFindProperty() throws RepositoryException {
