@@ -14,6 +14,9 @@
 
 package com.google.enterprise.connector.dctm;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
@@ -42,6 +45,9 @@ public class DctmMockDocumentListTest extends TestCase {
     ((DctmConnector) connector)
         .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
     ((DctmConnector) connector).setIs_public("false");
+    ((DctmConnector) connector)
+        .setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
+    ((DctmConnector) connector).setIncluded_meta(DmInitialize.DM_INCLUDED_META);
     dctmSession = (DctmSession) connector.login();
 
     qtm = (DctmTraversalManager) dctmSession.getTraversalManager();
@@ -85,9 +91,19 @@ public class DctmMockDocumentListTest extends TestCase {
     while ((propertyMapList.nextDocument()) != null) {
       counter++;
     }
+    assertEquals(27, counter);
+
+    // XXX: This time comes back as if the timestamp value were in
+    // seconds, but in MockDmTimeTest we get milliseconds. Also, this
+    // time is local time. Should it be UTC?
+    SimpleDateFormat iso8601 =
+      new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String lastModified = iso8601.format(new Date(260 * 1000));
+
     checkPoint = propertyMapList.checkpoint();
-    assertEquals(
-        "{\"uuid\":\"doc26\",\"lastModified\":\"1970-01-01 01:00:00\"}",
-        checkPoint);
+    assertTrue(checkPoint,
+        checkPoint.startsWith("{\"uuid\":\"doc26\""));
+    assertTrue(checkPoint,
+        checkPoint.endsWith("\"lastModified\":\"" + lastModified + "\"}"));
   }
 }

@@ -14,6 +14,8 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import java.util.Calendar;
+
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -46,8 +48,10 @@ public class MockDmCollection implements ICollection {
     if (collection.hasNext()) {
       currentNode = collection.nextNode();
       return true;
+    } else {
+      currentNode = null;
+      return false;
     }
-    return false;
   }
 
   public String getString(String colName) throws RepositoryException {
@@ -121,6 +125,20 @@ public class MockDmCollection implements ICollection {
   }
 
   public ITime getTime(String colName) throws RepositoryException {
-    return null;
+    Calendar val = null;
+    if (colName.equals("r_modify_date")) {
+      colName = "jcr:lastModified";
+    }
+
+    try {
+      val = currentNode.getProperty(colName).getDate();
+    } catch (ValueFormatException e) {
+      throw new RepositoryException(e);
+    } catch (PathNotFoundException e) {
+      throw new RepositoryException(e);
+    } catch (javax.jcr.RepositoryException e) {
+      throw new RepositoryException(e);
+    }      
+    return new MockDmTime(val.getTime());
   }
 }

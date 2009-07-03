@@ -81,7 +81,7 @@ public class DmInitialize {
 
   public static final int DM_ID2_TIMESTAMP = 20;
 
-  public static final String DM_ID2_TIMESTRING = "1970-01-01T01:00:00Z";
+  public static final String DM_ID2_TIMESTRING = "1970-01-01T00:00:00Z";
 
   public static final String DM_FIRST_ATTR = "google:ispublic";
 
@@ -172,7 +172,8 @@ public class DmInitialize {
     excluded_meta.add("a_application_type");
   }
 
-  public static final String DM_INCLUDED_META = "object_name r_object_type title subject keywords authors r_creation_date r_modify_date";
+  public static final String DM_INCLUDED_OBJECT_TYPE = "dm_document";
+  public static final String DM_INCLUDED_META = "object_name,r_object_type,title,subject,keywords,authors,r_creation_date,r_modify_date,r_content_size,a_content_type";
   public static final Set<String> included_meta;
 
   static {

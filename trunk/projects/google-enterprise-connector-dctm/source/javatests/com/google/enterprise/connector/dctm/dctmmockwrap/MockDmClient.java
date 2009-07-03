@@ -225,7 +225,7 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 
     MockJcrSession sess = (MockJcrSession) repo.login(creds);
     if (sess != null) {
-      return new MockDmSession(repo, sess, db);
+      return new MockDmSession(this, repo, sess, db);
     } else {
       return null;
     }

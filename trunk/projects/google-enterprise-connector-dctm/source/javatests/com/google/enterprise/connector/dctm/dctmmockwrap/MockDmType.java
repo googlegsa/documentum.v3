@@ -41,7 +41,7 @@ public class MockDmType implements IType {
   }
 
   public String getDescription() {
-    return type + "Desciption";
+    return type + "Description";
   }
 
   public boolean isSubTypeOf(String type) {

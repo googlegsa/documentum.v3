@@ -42,6 +42,9 @@ public class DctmMockTraversalManagerTest extends TestCase {
     ((DctmConnector) connector)
         .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
     ((DctmConnector) connector).setIs_public("true");
+    ((DctmConnector) connector)
+        .setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
+    ((DctmConnector) connector).setIncluded_meta(DmInitialize.DM_INCLUDED_META);
     session = (DctmSession) connector.login();
     qtm = (DctmTraversalManager) session.getTraversalManager();
   }
