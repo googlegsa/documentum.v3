@@ -57,6 +57,12 @@ public class MockDmSession implements ISession {
     // nullPointerException
   }
 
+  public String getLoginTicketEx(String username, String scope, int timeout,
+      boolean singleUse, String serverName) {
+    // See getLoginTicketForUser.
+    return username;
+  }
+
   public String getDocbaseName() {
     return this.sessionFileNameSuffix;
   }

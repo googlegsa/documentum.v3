@@ -23,6 +23,9 @@ public interface ISession {
   public String getLoginTicketForUser(String username)
       throws RepositoryException;
 
+  public String getLoginTicketEx(String username, String scope, int timeout,
+      boolean singleUse, String serverName) throws RepositoryException;
+
   public IType getType(String typeName) throws RepositoryException;
 
   public ISessionManager getSessionManager() throws RepositoryException;
