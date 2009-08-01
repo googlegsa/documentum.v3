@@ -64,19 +64,21 @@ public class DctmAuthorizationManager implements AuthorizationManager {
     ISessionManager sessionManagerUser =
         clientX.getLocalClient().newSessionManager();
 
-    ///makes the connector handle the patterns username@domain, domain\\username and username
-    if (username.matches(".*@.*")) {
-      username = username.substring(0, username.indexOf('@'));
+    /// Makes the connector handle the patterns username@domain,
+    /// domain\\username and username.
+    int index = username.indexOf('@');
+    if (index != -1) {
+      username = username.substring(0, index);
       logger.info("username contains @ and is now: " + username);
     }
-
-    if (username.matches(".*\\\\.*")) {
-      username = username.substring(username.indexOf("\\") + 1, username.length());
+    index = username.indexOf('\\');
+    if (index != -1) {
+      username = username.substring(index + 1);
       logger.info("username contains \\ and is now: " + username);
     }
 
-    String ticket = session.getLoginTicketForUser(username);
-    logger.info("ticket: " + ticket);
+    String ticket = session.getLoginTicketEx(username, "docbase", 0, false,
+        null);
     ILoginInfo logInfo = clientX.getLoginInfo();
     logInfo.setUser(username);
     logInfo.setPassword(ticket);

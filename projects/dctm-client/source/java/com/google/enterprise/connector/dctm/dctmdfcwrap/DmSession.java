@@ -29,7 +29,33 @@ import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class DmSession implements ISession {
+  private static final Logger logger =
+      Logger.getLogger(DmSession.class.getName());
+
+  /**
+   * This DfClient method was introduced in DFC 6.0, so we need to use
+   * reflection so that we can use it if we happen to be using DFC 6.0
+   * or later.
+   */
+  private static final Method getLoginTicketDiagnostics;
+
+  static {
+    Method m;
+    try {
+      m = IDfSession.class.getMethod("getLoginTicketDiagnostics",
+          new Class[] { String.class });
+    } catch (NoSuchMethodException e) {
+      m = null;
+    }
+    getLoginTicketDiagnostics = m;
+  }
+
   IDfSession idfSession;
 
   public DmSession(IDfSession dfSession) {
@@ -67,10 +93,38 @@ public class DmSession implements ISession {
     try {
       ticket = this.idfSession.getLoginTicketForUser(username);
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
     return ticket;
+  }
+
+  public String getLoginTicketEx(String username, String scope, int timeout,
+      boolean singleUse, String serverName) throws RepositoryException {
+    try {
+      String ticket = this.idfSession.getLoginTicketEx(username, scope, timeout,
+          singleUse, serverName);
+
+      // TODO: This call should be moved to DctmAuthorizationManager,
+      // but the client and session aren't wired together. If we
+      // refactor the sessions or create a facade pattern DFC
+      // interface, then we should include this in the refactoring.
+      if (logger.isLoggable(Level.FINEST)
+          && getLoginTicketDiagnostics != null) {
+        try {
+          logger.finest("Ticket diagnostics: "
+              + getLoginTicketDiagnostics.invoke(idfSession.getClient(),
+                  new Object[] { ticket }));
+        } catch (IllegalAccessException e) {
+          throw new AssertionError(e);
+        } catch (InvocationTargetException e) {
+          throw new RepositoryException(e.getCause());
+        }
+      }
+
+      return ticket;
+    } catch (DfException de) {
+      throw new RepositoryException(de);
+    }
   }
 
   public DmDocument newObject() throws RepositoryException {
@@ -78,8 +132,7 @@ public class DmSession implements ISession {
     try {
       document = (IDfDocument) this.idfSession.newObject("dm_document");
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
     return new DmDocument(document);
   }
@@ -89,8 +142,7 @@ public class DmSession implements ISession {
     try {
       idfType = (IDfType) idfSession.getType(typeName);
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
     return new DmType(idfType);
   }
