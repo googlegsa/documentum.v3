@@ -48,10 +48,10 @@ public class DctmSysobjectDocumentTest extends TestCase {
     loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
     loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-    sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
 
-    traversalManager = new DctmTraversalManager(dctmClientX, "",
-        DmInitialize.included_meta, sessionManager);
+    traversalManager = new DctmTraversalManager(dctmClientX,
+        DmInitialize.DM_DOCBASE, "", DmInitialize.included_meta,
+        sessionManager);
   }
 
   public void testGetPropertyNames() throws RepositoryException {

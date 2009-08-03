@@ -29,9 +29,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmQuery implements IQuery {
-  IDfQuery idfQuery;
-
-  DmSession dmSession;
+  private final IDfQuery idfQuery;
 
   private static Logger logger = null;
 
@@ -51,38 +49,13 @@ public class DmQuery implements IQuery {
     idfQuery.setDQL(dqlStatement);
   }
 
-  public ICollection execute(ISessionManager sessionManager, int queryType)
-      throws RepositoryException {
-    if (!(sessionManager instanceof DmSessionManager)) {
-      throw new IllegalArgumentException();
-    }
-
-    DmSessionManager dmSessionManager = (DmSessionManager) sessionManager;
-    IDfSessionManager idfSessionmanager = dmSessionManager
-        .getDfSessionManager();
-
-    logger.info("value of IdfQuery " + idfQuery.getDQL());
-
-    IDfSession idfSession = null;
-    IDfCollection dfCollection = null;
-    try {
-      idfSession = idfSessionmanager.getSession(sessionManager
-          .getDocbaseName());
-      dfCollection = idfQuery.execute(idfSession, queryType);
-    } catch (DfException de) {
-      throw new RepositoryException(de);
-    }
-
-    return new DmCollection(dfCollection);
-  }
-
   public ICollection execute(ISession session, int queryType)
       throws RepositoryException {
     if (!(session instanceof DmSession)) {
       throw new IllegalArgumentException();
     }
 
-    dmSession = (DmSession) session;
+    DmSession dmSession = (DmSession) session;
     IDfSession idfSession = dmSession.getDfSession();
 
     logger.info("value of IdfQuery " + idfQuery.getDQL());

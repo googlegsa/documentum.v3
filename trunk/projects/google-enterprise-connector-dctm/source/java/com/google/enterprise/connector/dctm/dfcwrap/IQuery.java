@@ -21,9 +21,6 @@ public interface IQuery {
 
   public static int EXECUTE_READ_QUERY = 4;
 
-  ICollection execute(ISessionManager sessionManager, int queryType)
-      throws RepositoryException;
-
   ICollection execute(ISession session, int queryType)
       throws RepositoryException;
 

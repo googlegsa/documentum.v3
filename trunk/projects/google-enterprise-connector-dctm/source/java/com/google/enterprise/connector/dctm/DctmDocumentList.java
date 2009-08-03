@@ -34,7 +34,7 @@ public class DctmDocumentList implements DocumentList {
   ICollection collectionToDel;
 
   /**
-   * Used for uniquing multiple chronicleIds in the same batch of deletes,
+   * Used for merging multiple chronicleIds in the same batch of deletes,
    * so we only send a single add or delete request.
    */
   private HashSet<String> deletedIds;
@@ -202,7 +202,7 @@ public class DctmDocumentList implements DocumentList {
   /**
    * Test connectivity to server.  If we have a session and
    * can verify that session isConnected(), return false.
-   * If we cannot verfy the session is connected return true.
+   * If we cannot verify the session is connected return true.
    * If we don't have a session to test, return false.
    */
   private boolean lostConnection() {

@@ -28,13 +28,13 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class DctmAuthenticationManager implements AuthenticationManager {
   private static final Logger LOGGER = Logger.getLogger(DctmAuthenticationManager.class.getName());
 
-  private final ISessionManager sessionManager;
-
   private final IClientX clientX;
 
-  public DctmAuthenticationManager(IClientX clientX) {
+  private final String docbase;
+
+  public DctmAuthenticationManager(IClientX clientX, String docbase) {
     this.clientX = clientX;
-    this.sessionManager = clientX.getSessionManager();
+    this.docbase = docbase;
   }
 
   public AuthenticationResponse authenticate(
@@ -50,16 +50,14 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     ISessionManager sessionManagerUser = clientX.getLocalClient().newSessionManager();
 
     try {
-      sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
-          loginInfo);
+      sessionManagerUser.setIdentity(docbase, loginInfo);
     } catch (RepositoryLoginException e) {
       LOGGER.finer(e.getMessage());
       LOGGER.info("authentication status: false");
       return new AuthenticationResponse(false, "");
     }
 
-    boolean authenticate = sessionManagerUser.authenticate(sessionManager
-        .getDocbaseName());
+    boolean authenticate = sessionManagerUser.authenticate(docbase);
     LOGGER.info("authentication status: " + authenticate);
     return new AuthenticationResponse(authenticate, "");
   }

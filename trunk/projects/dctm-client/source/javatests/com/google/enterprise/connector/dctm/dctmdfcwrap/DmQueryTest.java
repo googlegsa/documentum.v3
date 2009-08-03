@@ -20,6 +20,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
@@ -44,9 +45,7 @@ public class DmQueryTest extends TestCase {
 
     loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
     loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
-    sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-    dctmClientX.setSessionManager(sessionManager);
     query = dctmClientX.getQuery();
   }
 
@@ -57,10 +56,15 @@ public class DmQueryTest extends TestCase {
   }
 
   public void testExecute() throws RepositoryException {
-    Assert.assertNotNull(query);
-    Assert.assertTrue(query instanceof DmQuery);
-    query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-    ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
-    Assert.assertNotNull(collec);
+    ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+    try {
+      Assert.assertNotNull(query);
+      Assert.assertTrue(query instanceof DmQuery);
+      query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
+      ICollection collec = query.execute(session, IQuery.READ_QUERY);
+      Assert.assertNotNull(collec);
+    } finally {
+      sessionManager.release(session);
+    }
   }
 }

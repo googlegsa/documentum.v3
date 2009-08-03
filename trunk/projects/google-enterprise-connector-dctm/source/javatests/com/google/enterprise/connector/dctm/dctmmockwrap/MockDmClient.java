@@ -42,8 +42,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 
   private MockDmSession sessionDel;
   private MockDmSession sessionAdd;
-  private MockDmSession sessionAuto;
-  private MockDmSession sessionConfig;
 
   private final HashMap<String, ILoginInfo> sessMgerCreds =
       new HashMap<String, ILoginInfo>(1, 1);
@@ -89,11 +87,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
     return new MockDmLoginInfo();
   }
 
-  public void setSessionManager(ISessionManager session) {
-    // IClientX and ISessionManager are both
-    // implemented by the MockDmClient then nothing to do.
-  }
-
   public ISession newSession(String docbase)
       throws com.google.enterprise.connector.spi.RepositoryException {
     if (sessMgerCreds.containsKey(docbase)) {
@@ -114,10 +107,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 
   public void release(ISession session) {
     // No need to do anything regarding Mock sessions.
-  }
-
-  public ISessionManager getSessionManager() {
-    return this;
   }
 
   public void clearIdentity(String docbase) {
@@ -172,17 +161,6 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
     return null;
   }
 
-  /**
-   * This method sets current session's docbase name. Substitute IDs based
-   * session management
-   */
-  public void setDocbaseName(String docbaseName) {
-    currentSession = sessMgerSessions.get(docbaseName);
-  }
-
-  public void setServerUrl(String serverUrl) {
-  }
-
   public ILoginInfo getIdentity(String docbase) {
     return sessMgerCreds.get(docbase);
   }
@@ -234,29 +212,8 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
   /**
    * Never called for mock
    */
-  public String getServerUrl() {
-    return null;
-  }
-
-  /**
-   * Never called for mock
-   */
   public IId getId(String id) {
     return new MockDmId(id);
-  }
-
-  /**
-   * Never called for mock
-   */
-  public IClient getClient() {
-    // return this;
-    return null;
-  }
-
-  /**
-   * Never called for mock
-   */
-  public void setClient(IClient client) {
   }
 
   public IDocbaseMap getDocbaseMap() throws RepositoryException {
@@ -271,27 +228,11 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
     // TODO Auto-generated method stub
   }
 
-  public void releaseSessionAuto() {
-    // TODO Auto-generated method stub
-  }
-
   public void setSessionAdd(ISession sess) {
     sessionAdd = (MockDmSession) sess;
   }
 
   public void setSessionDel(ISession sess) {
     sessionDel = (MockDmSession) sess;
-  }
-
-  public void setSessionAuto(ISession sess) {
-    sessionAuto = (MockDmSession) sess;
-  }
-
-  public void releaseSessionConfig() {
-    // TODO Auto-generated method stub
-  }
-
-  public void setSessionConfig(ISession sess) {
-    sessionConfig = (MockDmSession) sess;
   }
 }

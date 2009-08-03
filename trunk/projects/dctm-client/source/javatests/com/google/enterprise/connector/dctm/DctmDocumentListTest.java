@@ -20,6 +20,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -32,6 +33,8 @@ public class DctmDocumentListTest extends TestCase {
   IClient localClient = null;
 
   ISessionManager sessionManager = null;
+
+  ISession session = null;
 
   IQuery query;
 
@@ -49,18 +52,22 @@ public class DctmDocumentListTest extends TestCase {
     loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
     loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-    sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
+    session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 
     traversalManager = new DctmTraversalManager(dctmClientX,
-        DmInitialize.DM_WEBTOP_SERVER_URL, DmInitialize.included_meta,
-        sessionManager);
+        DmInitialize.DM_DOCBASE, DmInitialize.DM_WEBTOP_SERVER_URL,
+        DmInitialize.included_meta, sessionManager);
 
     query = dctmClientX.getQuery();
     query.setDQL("select i_chronicle_id, r_object_id, r_modify_date from "
         + "dm_sysobject where folder('/test_docs/GoogleDemo',descend)");
-    ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
+    ICollection collec = query.execute(session, IQuery.READ_QUERY);
     documentList = new DctmDocumentList(traversalManager, collec, collec,
         new Checkpoint());
+  }
+
+  public void tearDown() throws RepositoryException {
+    sessionManager.release(session);
   }
 
   /*

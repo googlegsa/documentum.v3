@@ -18,6 +18,8 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface ISession {
+  String getDocbaseName() throws RepositoryException;
+
   public ISysObject getObject(IId objectId) throws RepositoryDocumentException;
 
   public String getLoginTicketForUser(String username)
