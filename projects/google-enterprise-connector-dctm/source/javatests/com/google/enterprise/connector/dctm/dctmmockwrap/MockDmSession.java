@@ -40,7 +40,7 @@ public class MockDmSession implements ISession {
     this.sessionFileNameSuffix = dbFileName;
   }
 
-  public MockRepositoryDocumentStore getStore() {
+  MockRepositoryDocumentStore getStore() {
     return mockRep.getRepo().getStore();
   }
 

@@ -29,33 +29,21 @@ public interface ISessionManager {
 
   public void release(ISession session);
 
-  public void setServerUrl(String serverUrl);
-
-  public String getDocbaseName();
-
-  public void setDocbaseName(String docbaseName);
-
-  public String getServerUrl();
-
   public ILoginInfo getIdentity(String docbase);
 
   public boolean authenticate(String docbaseName);
 
   public void clearIdentity(String docbase);
 
+  /** Non-DFC method. */
   public void releaseSessionAdd();
 
+  /** Non-DFC method. */
   public void releaseSessionDel();
 
-  public void releaseSessionAuto();
-
-  public void releaseSessionConfig();
-
+  /** Non-DFC method. */
   public void setSessionAdd(ISession sess);
 
+  /** Non-DFC method. */
   public void setSessionDel(ISession sess);
-
-  public void setSessionAuto(ISession sess);
-
-  public void setSessionConfig(ISession sess);
 }

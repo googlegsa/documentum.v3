@@ -48,9 +48,9 @@ public class MockMockListTest extends TestCase {
     ids[ids.length - 1] = ids[ids.length - 1].substring(0, ids.length);
     MockMockList lst = null;
     try {
-      lst = new MockMockList(ids, sessionManager);
+      lst = new MockMockList(ids, sessionManager, DmInitialize.DM_DOCBASE);
     } catch (Exception e) {
-      assertTrue(false);
+      fail(e.toString());
     }
     assertTrue(lst.iterator().next() instanceof MockRepositoryDocument);
   }

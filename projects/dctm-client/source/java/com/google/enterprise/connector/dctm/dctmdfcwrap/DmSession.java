@@ -56,10 +56,18 @@ public class DmSession implements ISession {
     getLoginTicketDiagnostics = m;
   }
 
-  IDfSession idfSession;
+  private final IDfSession idfSession;
 
   public DmSession(IDfSession dfSession) {
     this.idfSession = dfSession;
+  }
+
+  public String getDocbaseName() throws RepositoryException {
+    try {
+      return idfSession.getDocbaseName();
+    } catch (DfException de) {
+      throw new RepositoryException(de);
+    }
   }
 
   public ISysObject getObject(IId objectId) throws RepositoryDocumentException {
@@ -73,25 +81,20 @@ public class DmSession implements ISession {
     try {
       idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
     } catch (DfException de) {
-      RepositoryDocumentException re = new RepositoryDocumentException(de);
-      throw re;
+      throw new RepositoryDocumentException(de);
     }
     return new DmSysObject(idfSysObject);
   }
 
-  public IDfSession getDfSession() {
+  IDfSession getDfSession() {
     return idfSession;
-  }
-
-  public void setDfSession(IDfSession dfSession) {
-    idfSession = dfSession;
   }
 
   public String getLoginTicketForUser(String username)
       throws RepositoryException {
     String ticket = null;
     try {
-      ticket = this.idfSession.getLoginTicketForUser(username);
+      ticket = idfSession.getLoginTicketForUser(username);
     } catch (DfException de) {
       throw new RepositoryException(de);
     }
@@ -101,7 +104,7 @@ public class DmSession implements ISession {
   public String getLoginTicketEx(String username, String scope, int timeout,
       boolean singleUse, String serverName) throws RepositoryException {
     try {
-      String ticket = this.idfSession.getLoginTicketEx(username, scope, timeout,
+      String ticket = idfSession.getLoginTicketEx(username, scope, timeout,
           singleUse, serverName);
 
       // TODO: This call should be moved to DctmAuthorizationManager,
@@ -127,10 +130,10 @@ public class DmSession implements ISession {
     }
   }
 
-  public DmDocument newObject() throws RepositoryException {
+  DmDocument newObject() throws RepositoryException {
     IDfDocument document = null;
     try {
-      document = (IDfDocument) this.idfSession.newObject("dm_document");
+      document = (IDfDocument) idfSession.newObject("dm_document");
     } catch (DfException de) {
       throw new RepositoryException(de);
     }
@@ -148,14 +151,12 @@ public class DmSession implements ISession {
   }
 
   public ISessionManager getSessionManager() {
-    IDfSessionManager idfSessmag = null;
-    idfSessmag = (IDfSessionManager) this.idfSession.getSessionManager();
-    return new DmSessionManager(idfSessmag);
+    return new DmSessionManager(idfSession.getSessionManager());
   }
 
   public boolean isConnected() {
     try {
-      return this.idfSession.isConnected();
+      return idfSession.isConnected();
     } catch (Throwable t) {
       return false;
     }

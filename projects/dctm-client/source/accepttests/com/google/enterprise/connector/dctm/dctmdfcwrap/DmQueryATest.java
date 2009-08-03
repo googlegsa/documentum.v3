@@ -51,19 +51,15 @@ public class DmQueryATest extends TestCase {
     try {
       loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
       loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
-
-      sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
       sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+      session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 
-      dctmClientX.setSessionManager(sessionManager);
       IQuery query = dctmClientX.getQuery();
       Assert.assertNotNull(query);
       Assert.assertTrue(query instanceof DmQuery);
       query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-      ICollection collec = query.execute(sessionManager,
-          IQuery.READ_QUERY);
+      ICollection collec = query.execute(session, IQuery.READ_QUERY);
       Assert.assertNotNull(collec);
-      session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     } finally {
       if (session != null)
         sessionManager.release(session);

@@ -100,10 +100,6 @@ public class DmCollection implements ICollection {
     return rep;
   }
 
-  public IDfCollection getIDfCollection() {
-    return idfCollection;
-  }
-
   public String getString(String colName) throws RepositoryException {
     if (didPeek) {
       throw new IllegalStateException("Cannot access current row after hasNext()");

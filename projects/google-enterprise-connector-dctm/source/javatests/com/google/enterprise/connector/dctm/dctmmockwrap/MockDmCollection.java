@@ -107,7 +107,6 @@ public class MockDmCollection implements ICollection {
     return ICollection.DF_READY_STATE;
   }
 
-
   public ISession getSession(){
       MockDmClient mockDm = new MockDmClient();
       ISession session = null;

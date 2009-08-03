@@ -33,20 +33,22 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
-  IClientX clientX;
+  private final IClientX clientX;
 
-  ISessionManager sessionManager;
+  private final ISessionManager sessionManager;
 
-  private String attributeName = "i_chronicle_id";
-
+  private final String docbase;
+  
   private String queryStringAuthoriseDefault = "select for read i_chronicle_id from dm_sysobject where i_chronicle_id in (";
 
   private static Logger logger =
       Logger.getLogger(DctmAuthorizationManager.class.getName());
 
-  public DctmAuthorizationManager(IClientX clientX) {
-    setClientX(clientX);
-    setSessionManager(this.clientX.getSessionManager());
+  public DctmAuthorizationManager(IClientX clientX,
+      ISessionManager sessionManager, String docbase) {
+    this.clientX = clientX;
+    this.sessionManager = sessionManager;
+    this.docbase = docbase;
   }
 
   public Collection<AuthorizationResponse> authorizeDocids(
@@ -57,9 +59,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
     IQuery query = clientX.getQuery();
 
-    ISession session =
-        sessionManager.getSession(sessionManager.getDocbaseName());
-    logger.info("docbase: " + sessionManager.getDocbaseName());
+    logger.info("docbase: " + docbase);
 
     ISessionManager sessionManagerUser =
         clientX.getLocalClient().newSessionManager();
@@ -77,17 +77,20 @@ public class DctmAuthorizationManager implements AuthorizationManager {
       logger.info("username contains \\ and is now: " + username);
     }
 
-    String ticket = session.getLoginTicketEx(username, "docbase", 0, false,
-        null);
+    String ticket;
+    ISession session = sessionManager.getSession(docbase);
+    try {
+      ticket = session.getLoginTicketEx(username, "docbase", 0, false, null);
+    } finally {
+      sessionManager.release(session);
+    }
+
     ILoginInfo logInfo = clientX.getLoginInfo();
     logInfo.setUser(username);
     logInfo.setPassword(ticket);
+    sessionManagerUser.setIdentity(docbase, logInfo);
 
     logger.log(Level.INFO, "authorisation for: " + username);
-
-    sessionManagerUser.setIdentity(sessionManager.getDocbaseName(),
-          logInfo);
-    sessionManagerUser.setDocbaseName(sessionManager.getDocbaseName());
 
     String dqlQuery = buildQuery(docids);
     logger.info("dql: " + dqlQuery);
@@ -95,13 +98,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
     List<AuthorizationResponse> authorized =
         new ArrayList<AuthorizationResponse>(docids.size());
-    ICollection collec = null;
+    ISession sessionUser = sessionManagerUser.getSession(docbase);
     try {
-      ISession sessionUser =
-          sessionManagerUser.getSession(sessionManager.getDocbaseName());
-      logger.fine("set the SessionAuto for the sessionManagerUser");
-      sessionManagerUser.setSessionAuto(sessionUser);
-
+      ICollection collec = null;
       collec = query.execute(sessionUser, IQuery.READ_QUERY);
 
       ArrayList<String> object_id = new ArrayList<String>(docids.size());
@@ -117,17 +116,8 @@ public class DctmAuthorizationManager implements AuthorizationManager {
       collec.close();
       logger.fine("after collec.close");
     } finally {
-      logger.fine("in finally");
-      if (collec != null && collec.getSession() != null ) {
-        logger.fine("collec getSession not null");
-        sessionManagerUser.releaseSessionAuto();
-        logger.fine("session of sessionManagerUser released");
-      }
-      if (session != null) {
-        logger.fine("session not null");
-        sessionManager.release(session);
-        logger.fine("session of sessionManager released");
-      }
+      sessionManagerUser.release(sessionUser);
+      logger.fine("session of sessionManagerUser released");
     }
     return authorized;
   }
@@ -144,34 +134,5 @@ public class DctmAuthorizationManager implements AuthorizationManager {
     queryString.setCharAt(queryString.length() - 1, ')');
 
     return queryString.toString();
-  }
-
-  public IClientX getClientX() {
-    return clientX;
-  }
-
-  public void setClientX(IClientX clientX) {
-    this.clientX = clientX;
-  }
-
-  public ISessionManager getSessionManager() {
-    return sessionManager;
-  }
-
-  private void setSessionManager(ISessionManager sessionManager) {
-    this.sessionManager = sessionManager;
-  }
-
-  protected String getAttributeName() {
-    return attributeName;
-  }
-
-  protected String getQueryStringAuthoriseDefault() {
-    return queryStringAuthoriseDefault;
-  }
-
-  protected void setQueryStringAuthoriseDefault(
-      String queryStringAuthoriseDefault) {
-    this.queryStringAuthoriseDefault = queryStringAuthoriseDefault;
   }
 }

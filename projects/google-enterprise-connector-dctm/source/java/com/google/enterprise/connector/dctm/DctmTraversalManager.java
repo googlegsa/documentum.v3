@@ -47,10 +47,11 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+  private final String docbase;
   private final String serverUrl;
   private int batchHint = -1;
-  private ISessionManager sessionManager;
-  private IClientX clientX;
+  private final ISessionManager sessionManager;
+  private final IClientX clientX;
   private TraversalContext traversalContext = null;
   private final Map<String, IType> superTypeCache;
 
@@ -61,36 +62,41 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private final Set<String> excludedMeta;
   private final String rootObjectType;
 
-  // Constructor used by tests.
-  public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-      Set<String> included_meta, ISessionManager sessionMgr)
-      throws RepositoryException {
-    this(clientX, webtopServerUrl, "", true, included_meta, EMPTY_SET,
-        EMPTY_SET, "");
-    setSessionManager(sessionMgr);
+  public DctmTraversalManager(DctmConnector connector,
+      ISessionManager sessionManager) throws RepositoryException {
+    this(connector.getClientX(), connector.getDocbase(),
+        connector.getWebtopDisplayUrl(), connector.getWhereClause(),
+        connector.isPublic(), connector.getRootObjectType(),
+        connector.getIncludedObjectType(), connector.getIncludedMeta(),
+        connector.getExcludedMeta(), sessionManager);
+  }
+  
+  /** Constructor used by tests. */
+  DctmTraversalManager(IClientX clientX, String docbase,
+      String webtopServerUrl, Set<String> included_meta,
+      ISessionManager sessionManager) throws RepositoryException {
+    this(clientX, docbase, webtopServerUrl, "", true, "", EMPTY_SET,
+        included_meta, EMPTY_SET, sessionManager);
   }
 
-  public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-      String additionalWhereClause, boolean isPublic,
+  private DctmTraversalManager(IClientX clientX, String docbase,
+      String webtopServerUrl, String additionalWhereClause, boolean isPublic,
+      String rootObjectType, Set<String> includedObjectType,
       Set<String> includedMeta, Set<String> excludedMeta,
-      Set<String> includedObjectType, String rootObjectType)
-      throws RepositoryException {
+      ISessionManager sessionManager) throws RepositoryException {
     this.additionalWhereClause = additionalWhereClause;
-    setClientX(clientX);
-    setSessionManager(clientX.getSessionManager());
+    this.clientX = clientX;
+    this.sessionManager = sessionManager;
 
     this.superTypeCache = new HashMap<String, IType>();
 
+    this.docbase = docbase;
     this.serverUrl = webtopServerUrl;
     this.isPublic = isPublic;
     this.includedObjectType = includedObjectType;
     this.includedMeta = includedMeta;
     this.excludedMeta = excludedMeta;
     this.rootObjectType = rootObjectType;
-  }
-
-  protected void setClientX(IClientX clientX) {
-    this.clientX = clientX;
   }
 
   public IClientX getClientX() {
@@ -101,8 +107,8 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     return sessionManager;
   }
 
-  public void setSessionManager(ISessionManager sessionManager) {
-    this.sessionManager = sessionManager;
+  String getDocbase() {
+    return docbase;
   }
 
   protected String getServerUrl() {
@@ -189,7 +195,6 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
    */
   protected DocumentList execQuery(Checkpoint checkpoint)
       throws RepositoryException {
-    sessionManager.setServerUrl(serverUrl);
     ICollection collecToAdd = null;
     ICollection collecToDel = null;
 
@@ -203,7 +208,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
     try {
       if (query != null) {
-        sessAdd = sessionManager.getSession(sessionManager.getDocbaseName());
+        sessAdd = sessionManager.getSession(docbase);
         sessionManager.setSessionAdd(sessAdd);
         collecToAdd = query.execute(sessAdd, IQuery.EXECUTE_READ_QUERY);
         logger.fine("execution of the query returns a collection of documents"
@@ -211,7 +216,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
       }
 
       if (queryDocToDel != null) {
-        sessDel = sessionManager.getSession(sessionManager.getDocbaseName());
+        sessDel = sessionManager.getSession(docbase);
         sessionManager.setSessionDel(sessDel);
         collecToDel = queryDocToDel.execute(sessDel, IQuery.EXECUTE_READ_QUERY);
         logger.fine("execution of the query returns a collection of documents"

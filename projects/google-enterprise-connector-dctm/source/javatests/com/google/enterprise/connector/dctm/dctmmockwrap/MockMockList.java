@@ -32,12 +32,11 @@ import com.google.enterprise.connector.spi.RepositoryLoginException;
  *         cast as a MockRepositoryDocument.
  */
 public class MockMockList extends ArrayList<MockRepositoryDocument> {
-  protected MockMockList(String[] ids, ISessionManager sessionManager)
+  MockMockList(String[] ids, ISessionManager sessionManager, String docbase)
       throws RepositoryLoginException, RepositoryException {
-    String claimant = sessionManager.getIdentity(
-        sessionManager.getDocbaseName()).getUser();
+    String claimant = sessionManager.getIdentity(docbase).getUser();
     MockRepositoryDocumentStore store = ((MockDmSession) sessionManager
-        .getSession(sessionManager.getDocbaseName())).getStore();
+        .getSession(docbase)).getStore();
     for (int j = 0; j < ids.length; j++) {
       MockRepositoryDocument doc = store.getDocByID(ids[j]);// if no
       // 'content'

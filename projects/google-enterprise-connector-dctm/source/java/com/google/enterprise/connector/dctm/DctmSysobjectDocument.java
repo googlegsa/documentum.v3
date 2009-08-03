@@ -75,14 +75,13 @@ public class DctmSysobjectDocument extends HashMap implements Document {
 
   private void fetch() throws RepositoryDocumentException,
       RepositoryLoginException, RepositoryException {
-
     if (object != null) {
       return;
     }
     ISession session = null;
     ISessionManager sessionManager = traversalManager.getSessionManager();
     try {
-      String docbaseName = sessionManager.getDocbaseName();
+      String docbaseName = traversalManager.getDocbase();
       session = sessionManager.getSession(docbaseName);
       if (ActionType.ADD.equals(action)) {
         logger.info("Get a session for the docbase " + docbaseName);
@@ -169,9 +168,10 @@ public class DctmSysobjectDocument extends HashMap implements Document {
       } else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_DISPLAYURL);
         ISessionManager sessionManager = traversalManager.getSessionManager();
-        values.add(Value.getStringValue(sessionManager.getServerUrl() + docId));
+        String displayUrl = traversalManager.getServerUrl() + docId;
+        values.add(Value.getStringValue(displayUrl));
         logger.fine("property " + SpiConstants.PROPNAME_DISPLAYURL
-                    + " has the value " + sessionManager.getServerUrl() + docId);
+                    + " has the value " + displayUrl);
       } else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
         logger.fine("getting the property " + SpiConstants.PROPNAME_SECURITYTOKEN);
         try {
