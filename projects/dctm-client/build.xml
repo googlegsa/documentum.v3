@@ -54,7 +54,7 @@
     <javac srcdir="${src}" destdir="${classes}" 
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}">
-      <!-- javac does not handle JAR Class-Path references -->
+      <!-- DFC JAR Class-Path references are not available. -->
       <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
       <classpath>
         <pathelement location="${spi.jarfile}" />
@@ -68,6 +68,8 @@
     <javac srcdir="${tests.src}" destdir="${tests.classes}"
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}">
+      <!-- DFC JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
       <classpath>
         <pathelement location="${core.classes}" />
         <pathelement location="${connector.jarfile}" />
@@ -81,36 +83,40 @@
   </target>
 
   <target name="compile_perftests" depends="compile_tests">
-      <javac srcdir="${perfstests.src}" destdir="${tests.classes}"
-             debug="${COMPILE_DEBUG_FLAG}"
-             debuglevel="${COMPILE_DEBUG_LEVEL}">
-        <classpath>
-          <pathelement location="${tests.classes}" />
-          <pathelement location="${core.classes}" />
-          <pathelement location="${connector.jarfile}" />
-          <pathelement location="${tests.jarfile}" />
-          <pathelement location="${spi.jarfile}" />
-          <pathelement location="${junit.jarfile}" />
-          <pathelement location="${dfc.jarfile}" />
-        </classpath>
-      </javac>
-    </target>
+    <javac srcdir="${perfstests.src}" destdir="${tests.classes}"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}">
+      <!-- DFC JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <classpath>
+        <pathelement location="${tests.classes}" />
+        <pathelement location="${core.classes}" />
+        <pathelement location="${connector.jarfile}" />
+        <pathelement location="${tests.jarfile}" />
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${junit.jarfile}" />
+        <pathelement location="${dfc.jarfile}" />
+      </classpath>
+    </javac>
+  </target>
 
   <target name="compile_accepttests" depends="compile_tests">
-        <javac srcdir="${accepttests.src}" destdir="${tests.classes}"
-               debug="${COMPILE_DEBUG_FLAG}"
-               debuglevel="${COMPILE_DEBUG_LEVEL}">
-          <classpath>
-            <pathelement location="${connector.jarfile}" />
-            <pathelement location="${tests.jarfile}" />
-            <pathelement location="${spi.jarfile}" />
-            <pathelement location="${junit.jarfile}" />
-            <pathelement location="${classes}" />
-            <pathelement location="${dfc.jarfile}" />
-            <pathelement location="${core.classes}" />
-          </classpath>
-        </javac>
-      </target>
+    <javac srcdir="${accepttests.src}" destdir="${tests.classes}"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}">
+      <!-- DFC JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <classpath>
+        <pathelement location="${connector.jarfile}" />
+        <pathelement location="${tests.jarfile}" />
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${junit.jarfile}" />
+        <pathelement location="${classes}" />
+        <pathelement location="${dfc.jarfile}" />
+        <pathelement location="${core.classes}" />
+      </classpath>
+    </javac>
+  </target>
 
   <target name="jar" description="connector-dctm">
     <jar jarfile="${jarfile}">

@@ -18,32 +18,32 @@ import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface ISessionManager {
-  public ISession getSession(String docbase) throws RepositoryLoginException,
+  ISession getSession(String docbase) throws RepositoryLoginException,
       RepositoryException;
 
-  public ISession newSession(String docbase) throws RepositoryLoginException,
+  ISession newSession(String docbase) throws RepositoryLoginException,
       RepositoryException;
 
-  public void setIdentity(String docbase, ILoginInfo identity)
+  void setIdentity(String docbase, ILoginInfo identity)
       throws RepositoryLoginException;
 
-  public void release(ISession session);
+  void release(ISession session);
 
-  public ILoginInfo getIdentity(String docbase);
+  ILoginInfo getIdentity(String docbase);
 
-  public boolean authenticate(String docbaseName);
+  boolean authenticate(String docbaseName);
 
-  public void clearIdentity(String docbase);
-
-  /** Non-DFC method. */
-  public void releaseSessionAdd();
+  void clearIdentity(String docbase);
 
   /** Non-DFC method. */
-  public void releaseSessionDel();
+  void releaseSessionAdd();
 
   /** Non-DFC method. */
-  public void setSessionAdd(ISession sess);
+  void releaseSessionDel();
 
   /** Non-DFC method. */
-  public void setSessionDel(ISession sess);
+  void setSessionAdd(ISession sess);
+
+  /** Non-DFC method. */
+  void setSessionDel(ISession sess);
 }

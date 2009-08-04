@@ -22,6 +22,12 @@ import com.google.enterprise.connector.spi.ConfigureResponse;
 import junit.framework.TestCase;
 
 public class DctmConnectorTypeTest extends TestCase {
+  private HashMap<String, String> map;
+
+  public void setUp() {
+    map = new HashMap<String, String>();
+  }
+
   /*
    * Test method for
    * 'com.google.enterprise.connector.dctm.DctmConnectorType.getConfigForm(String)'
@@ -50,7 +56,6 @@ public class DctmConnectorTypeTest extends TestCase {
    * String)'
    */
   public void testValidateConfig() {
-    HashMap map = new HashMap();
     map.put("login", "queryUser");
     map.put("Password", "p@ssw0rd");
     map.put("docbase", "gsadctm");
@@ -73,7 +78,6 @@ public class DctmConnectorTypeTest extends TestCase {
    * String)'
    */
   public void testValidateConfigWithConnectionError() {
-    HashMap map = new HashMap();
     map.put("login", "queryUser");
     map.put("Password", "p@ssw@r");
     map.put("docbase", "gsadctm");
@@ -96,7 +100,6 @@ public class DctmConnectorTypeTest extends TestCase {
   }
 
   public void testValidateConfigWithServerWebtopError() {
-    HashMap map = new HashMap();
     map.put("login", "queryUser");
     map.put("Password", "p@ssw0rd");
     map.put("docbase", "gsadctm");
@@ -119,7 +122,6 @@ public class DctmConnectorTypeTest extends TestCase {
   }
 
   public void testValidateConfigWithWebtopError() {
-    HashMap map = new HashMap();
     map.put("login", "queryUser");
     map.put("Password", "p@ssw0rd");
     map.put("docbase", "gsadctm");
@@ -142,7 +144,6 @@ public class DctmConnectorTypeTest extends TestCase {
   }
 
   public void testValidateConfigWithQueryError() {
-    HashMap map = new HashMap();
     map.put("login", "queryUser");
     map.put("Password", "p@ssw0rd");
     map.put("docbase", "gsadctm");
@@ -165,7 +166,6 @@ public class DctmConnectorTypeTest extends TestCase {
   }
 
   public void testValidateConfigWithAnotherQueryError() {
-    HashMap map = new HashMap();
     map.put("login", "user1");
     map.put("Password", "p@ssw0rd");
     map.put("docbase", "gsadctm");
@@ -189,7 +189,6 @@ public class DctmConnectorTypeTest extends TestCase {
   }
 
   public void testValidateConfigWithAnotherSecondQueryError() {
-    HashMap map = new HashMap();
     map.put("login", "queryUser");
     map.put("Password", "p@ssw0rd");
     map.put("docbase", "gsadctm");
@@ -217,7 +216,6 @@ public class DctmConnectorTypeTest extends TestCase {
    * String)'
    */
   public void testGetPopulatedConfigForm() {
-    HashMap map = new HashMap();
     map.put("login", "queryUser");
     map.put("Password", "p@ssw0rd");
     map.put("docbase", "gsadctm");

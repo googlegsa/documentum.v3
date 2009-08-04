@@ -20,17 +20,17 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public interface ISession {
   String getDocbaseName() throws RepositoryException;
 
-  public ISysObject getObject(IId objectId) throws RepositoryDocumentException;
+  ISysObject getObject(IId objectId) throws RepositoryDocumentException;
 
-  public String getLoginTicketForUser(String username)
+  String getLoginTicketForUser(String username)
       throws RepositoryException;
 
-  public String getLoginTicketEx(String username, String scope, int timeout,
+  String getLoginTicketEx(String username, String scope, int timeout,
       boolean singleUse, String serverName) throws RepositoryException;
 
-  public IType getType(String typeName) throws RepositoryException;
+  IType getType(String typeName) throws RepositoryException;
 
-  public ISessionManager getSessionManager() throws RepositoryException;
+  ISessionManager getSessionManager() throws RepositoryException;
 
-  public boolean isConnected();
+  boolean isConnected();
 }

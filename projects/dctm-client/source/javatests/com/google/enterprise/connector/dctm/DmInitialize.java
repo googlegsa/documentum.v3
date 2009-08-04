@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import java.util.Set;
 import java.util.HashSet;
 
 public class DmInitialize {
@@ -90,14 +91,12 @@ public class DmInitialize {
 
   public static final String DM_FIRST_ATTR = "google:ispublic";
 
-
   public static final String DM_INCLUDED_META = "object_name r_object_type title subject keywords authors r_creation_date r_modify_date";
   public static final String DM_INCLUDED_OBJECT_TYPE = "dm_document custom_type";
 
-  public static HashSet included_meta = null;
+  public static final Set<String> included_meta = new HashSet<String>();
 
   static {
-    included_meta = new HashSet();
     included_meta.add("object_name");
     included_meta.add("r_object_type");
     included_meta.add("title");
@@ -110,12 +109,11 @@ public class DmInitialize {
 
   public static final String ROOT_OBJECT_TYPE = "dm_sysobject";
 
-  public static HashSet hashIncluded_object_type = null;
+  public static final Set<String> hashIncluded_object_type =
+      new HashSet<String>();
 
   static {
-    hashIncluded_object_type = new HashSet();
     hashIncluded_object_type.add("dm_document");
     hashIncluded_object_type.add("custom_type");
   }
-
 }

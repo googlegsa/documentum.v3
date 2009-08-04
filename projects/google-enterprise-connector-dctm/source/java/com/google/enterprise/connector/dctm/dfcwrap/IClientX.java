@@ -23,5 +23,5 @@ public interface IClientX {
 
   ILoginInfo getLoginInfo();
 
-  public IQuery getQuery();
+  IQuery getQuery();
 }
