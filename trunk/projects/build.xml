@@ -63,7 +63,7 @@
     <javac srcdir="${src-client}" destdir="${classes-client}"
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}">
-      <!-- javac does not handle JAR Class-Path references -->
+      <!-- DFC JAR Class-Path references are not available. -->
       <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
       <classpath>
         <pathelement location="${spi.jarfile}" />
