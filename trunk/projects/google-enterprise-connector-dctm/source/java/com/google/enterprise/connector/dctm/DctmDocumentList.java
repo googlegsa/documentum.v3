@@ -19,6 +19,7 @@ import java.util.HashSet;
 
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
@@ -30,29 +31,30 @@ public class DctmDocumentList implements DocumentList {
   private static final Logger logger =
       Logger.getLogger(DctmDocumentList.class.getName());
 
-  ICollection collectionToAdd;
-  ICollection collectionToDel;
+  private ISession session;
+
+  private final ICollection collectionToAdd;
+
+  private final ICollection collectionToDel;
 
   /**
    * Used for merging multiple chronicleIds in the same batch of deletes,
    * so we only send a single add or delete request.
    */
-  private HashSet<String> deletedIds;
+  private final HashSet<String> deletedIds = new HashSet<String>();
 
-  private Checkpoint checkpoint;
+  private final Checkpoint checkpoint;
+
   private final DctmTraversalManager traversalManager;
 
-  public DctmDocumentList() {
-    this(null, null, null, new Checkpoint());
-  }
-
   public DctmDocumentList(DctmTraversalManager traversalManager,
-      ICollection collToAdd, ICollection collToDel, Checkpoint checkpoint) {
+      ISession session, ICollection collToAdd, ICollection collToDel,
+      Checkpoint checkpoint) {
     this.traversalManager = traversalManager;
+    this.session = session;
     this.collectionToAdd = collToAdd;
     this.collectionToDel = collToDel;
     this.checkpoint = checkpoint;
-    this.deletedIds = new HashSet<String>();
   }
 
   public Document nextDocument() throws RepositoryException {
@@ -78,12 +80,11 @@ public class DctmDocumentList implements DocumentList {
           checkpoint.setInsertCheckpoint(modifyDate.getDate(), objId);
 
           dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
-              objId, collectionToAdd.getString("i_chronicle_id"), modifyDate,
-              SpiConstants.ActionType.ADD, checkpoint);
+              session, objId, collectionToAdd.getString("i_chronicle_id"),
+              modifyDate, SpiConstants.ActionType.ADD, checkpoint);
 
           logger.fine("Creation of a new dctmSysobjectDocument to add");
           retDoc = dctmSysobjectDocument;
-
         } else if (isOpen(collectionToDel) && collectionToDel.next()) {
           logger.fine("Looking through the collection of documents to remove");
 
@@ -122,9 +123,9 @@ public class DctmDocumentList implements DocumentList {
                 // We may have deleted the latest version, so refeed the
                 // current latest version.
                 dctmSysobjectDocument = new DctmSysobjectDocument(
-                    traversalManager, versions.getString("r_object_id"),
-                    chronicleId, lastModify,
-                    SpiConstants.ActionType.ADD, checkpoint);
+                    traversalManager, session,
+                    versions.getString("r_object_id"), chronicleId,
+                    lastModify, SpiConstants.ActionType.ADD, checkpoint);
                 logger.fine("Creation of a new dctmSysobjectDocument to "
                             + "resubmit newest version of deleted item: "
                             + chronicleId);
@@ -136,9 +137,10 @@ public class DctmDocumentList implements DocumentList {
             } else {
               // No more versions of the document remain.
               // Delete the document from the index.
-              dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
-                collectionToDel.getString("audited_obj_id"), chronicleId,
-                deleteDate, SpiConstants.ActionType.DELETE, checkpoint);
+              dctmSysobjectDocument = new DctmSysobjectDocument(
+                  traversalManager, session,
+                  collectionToDel.getString("audited_obj_id"), chronicleId,
+                  deleteDate, SpiConstants.ActionType.DELETE, checkpoint);
               logger.fine("Creation of a new dctmSysobjectDocument to delete: "
                           + chronicleId);
             }
@@ -195,8 +197,7 @@ public class DctmDocumentList implements DocumentList {
       throws RepositoryException {
     IQuery query = traversalManager.getClientX().getQuery();
     query.setDQL(traversalManager.buildVersionsQueryString(chronicleId));
-    return query.execute(collectionToDel.getSession(),
-                         IQuery.EXECUTE_READ_QUERY);
+    return query.execute(session, IQuery.EXECUTE_READ_QUERY);
   }
 
   /**
@@ -207,19 +208,11 @@ public class DctmDocumentList implements DocumentList {
    */
   private boolean lostConnection() {
     try {
-      if (isOpen(collectionToAdd) &&
-          !collectionToAdd.getSession().isConnected()) {
-        return true;
-      }
-      if (isOpen(collectionToDel) &&
-          !collectionToDel.getSession().isConnected()) {
-        return true;
-      }
+      return (session != null && !session.isConnected());
     } catch (Exception e) {
-      logger.warning("Lost connectivity to server : " + e);
+      logger.warning("Lost connectivity to server: " + e);
       return true;
     }
-    return false;
   }
 
   /**
@@ -233,27 +226,32 @@ public class DctmDocumentList implements DocumentList {
   // Last chance to make sure the collections are closed and their sessions
   // are released.
   public void finalize() {
-    if (isOpen(collectionToAdd)) {
-      try {
-        collectionToAdd.close();
-        logger.fine("collection of documents to add closed");
-        traversalManager.getSessionManager().releaseSessionAdd();
-        logger.fine("collection session released");
-      } catch (RepositoryException e) {
-        logger.severe(
-            "Error while closing the collection of documents to add: " + e);
+    try {
+      if (isOpen(collectionToAdd)) {
+        try {
+          collectionToAdd.close();
+          logger.fine("collection of documents to add closed");
+        } catch (RepositoryException e) {
+          logger.severe(
+              "Error while closing the collection of documents to add: " + e);
+        }
       }
-    }
 
-    if (isOpen(collectionToDel)) {
-      try {
-        collectionToDel.close();
-        logger.fine("collection of documents to delete closed");
-        traversalManager.getSessionManager().releaseSessionDel();
+      if (isOpen(collectionToDel)) {
+        try {
+          collectionToDel.close();
+          logger.fine("collection of documents to delete closed");
+        } catch (RepositoryException e) {
+          logger.severe(
+              "Error while closing the collection of documents to delete: "
+              + e);
+        }
+      }
+    } finally {
+      if (session != null) {
+        traversalManager.getSessionManager().release(session);
+        session = null;
         logger.fine("collection session released");
-      } catch (RepositoryException e) {
-        logger.severe(
-            "Error while closing the collection of documents to delete: " + e);
       }
     }
   }

@@ -34,33 +34,11 @@ import com.google.enterprise.connector.spi.RepositoryException;
 public class DmSessionManager implements ISessionManager {
   private final IDfSessionManager dfSessionManager;
 
-  private ISession sessionDel;
-
-  private ISession sessionAdd;
-
   private static Logger logger = Logger.getLogger(DmSessionManager.class
       .getName());
 
   public DmSessionManager(IDfSessionManager DfSessionManager) {
     this.dfSessionManager = DfSessionManager;
-  }
-
-  public void setSessionDel(ISession sess) {
-    this.sessionDel = sess;
-    logger.finest("setSessionDel");
-  }
-
-  public void setSessionAdd(ISession sess) {
-    this.sessionAdd = sess;
-    logger.finest("setSessionAdd");
-  }
-
-  public void releaseSessionAdd() {
-    release(sessionAdd);
-  }
-
-  public void releaseSessionDel() {
-    release(sessionDel);
   }
 
   public ISession getSession(String docbase) throws RepositoryLoginException,

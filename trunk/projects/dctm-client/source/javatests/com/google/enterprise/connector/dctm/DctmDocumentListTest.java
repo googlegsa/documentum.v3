@@ -62,12 +62,12 @@ public class DctmDocumentListTest extends TestCase {
     query.setDQL("select i_chronicle_id, r_object_id, r_modify_date from "
         + "dm_sysobject where folder('/test_docs/GoogleDemo',descend)");
     ICollection collec = query.execute(session, IQuery.READ_QUERY);
-    documentList = new DctmDocumentList(traversalManager, collec, collec,
-        new Checkpoint());
+    documentList = new DctmDocumentList(traversalManager, session, collec,
+        collec, new Checkpoint());
   }
 
   public void tearDown() throws RepositoryException {
-    sessionManager.release(session);
+    documentList.checkpoint();
   }
 
   /*

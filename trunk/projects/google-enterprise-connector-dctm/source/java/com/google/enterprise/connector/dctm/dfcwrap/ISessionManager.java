@@ -34,16 +34,4 @@ public interface ISessionManager {
   boolean authenticate(String docbaseName);
 
   void clearIdentity(String docbase);
-
-  /** Non-DFC method. */
-  void releaseSessionAdd();
-
-  /** Non-DFC method. */
-  void releaseSessionDel();
-
-  /** Non-DFC method. */
-  void setSessionAdd(ISession sess);
-
-  /** Non-DFC method. */
-  void setSessionDel(ISession sess);
 }
