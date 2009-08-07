@@ -99,11 +99,11 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     this.rootObjectType = rootObjectType;
   }
 
-  public IClientX getClientX() {
+  IClientX getClientX() {
     return clientX;
   }
 
-  public ISessionManager getSessionManager() {
+  ISessionManager getSessionManager() {
     return sessionManager;
   }
 
@@ -111,7 +111,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     return docbase;
   }
 
-  protected String getServerUrl() {
+  String getServerUrl() {
     return serverUrl;
   }
 
@@ -119,19 +119,23 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     this.traversalContext = traversalContext;
   }
 
-  public TraversalContext getTraversalContext() {
+  TraversalContext getTraversalContext() {
     return traversalContext;
   }
 
-  public Map<String, IType> getSuperTypeCache() {
+  Map<String, IType> getSuperTypeCache() {
     return superTypeCache;
   }
 
-  public Set<String> getIncludedMeta() {
+  boolean isPublic() {
+    return isPublic;
+  }
+
+  Set<String> getIncludedMeta() {
     return includedMeta;
   }
 
-  public Set<String> getExcludedMeta() {
+  Set<String> getExcludedMeta() {
     return excludedMeta;
   }
 
@@ -193,13 +197,12 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
    * @return DocumentList of traversal results.
    * @throws RepositoryException
    */
-  protected DocumentList execQuery(Checkpoint checkpoint)
+  private DocumentList execQuery(Checkpoint checkpoint)
       throws RepositoryException {
     ICollection collecToAdd = null;
     ICollection collecToDel = null;
 
-    ISession sessAdd = null;
-    ISession sessDel = null;
+    ISession session = null;
 
     IQuery query = buildAddQuery(checkpoint);
     IQuery queryDocToDel = buildDelQuery(checkpoint);
@@ -207,51 +210,48 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     DocumentList documentList = null;
 
     try {
-      if (query != null) {
-        sessAdd = sessionManager.getSession(docbase);
-        sessionManager.setSessionAdd(sessAdd);
-        collecToAdd = query.execute(sessAdd, IQuery.EXECUTE_READ_QUERY);
-        logger.fine("execution of the query returns a collection of documents"
-                    + " to add");
-      }
+      session = sessionManager.getSession(docbase);
 
-      if (queryDocToDel != null) {
-        sessDel = sessionManager.getSession(docbase);
-        sessionManager.setSessionDel(sessDel);
-        collecToDel = queryDocToDel.execute(sessDel, IQuery.EXECUTE_READ_QUERY);
-        logger.fine("execution of the query returns a collection of documents"
-                    + " to delete");
-      }
+      collecToAdd = query.execute(session, IQuery.EXECUTE_READ_QUERY);
+      logger.fine("execution of the query returns a collection of documents"
+          + " to add");
+
+      collecToDel = queryDocToDel.execute(session, IQuery.EXECUTE_READ_QUERY);
+      logger.fine("execution of the query returns a collection of documents"
+          + " to delete");
 
       if ((collecToAdd != null && collecToAdd.hasNext()) ||
           (collecToDel != null && collecToDel.hasNext())) {
-        documentList =
-            new DctmDocumentList(this, collecToAdd, collecToDel, checkpoint);
+        documentList = new DctmDocumentList(this, session, collecToAdd,
+            collecToDel, checkpoint);
       }
     } finally {
-      // No documents to add or delete.   Return a null DocumentList,
-      // but close the collections first!
+      // No documents to add or delete. Return a null DocumentList,
+      // but close the collections and release the session first.
       if (documentList == null) {
-        if (collecToAdd != null) {
-          try {
-            collecToAdd.close();
-            logger.fine("collection of documents to add closed");
-            sessionManager.releaseSessionAdd();
-            logger.fine("collection session released");
-          } catch (RepositoryException e) {
-            logger.severe("Error while closing the collection of documents"
-                          + " to add: " + e);
+        try {
+          if (collecToAdd != null) {
+            try {
+              collecToAdd.close();
+              logger.fine("collection of documents to add closed");
+            } catch (RepositoryException e) {
+              logger.severe("Error while closing the collection of documents"
+                  + " to add: " + e);
+            }
           }
-        }
-        if (collecToDel != null) {
-          try {
-            collecToDel.close();
-            logger.fine("collection of documents to delete closed");
-            sessionManager.releaseSessionDel();
+          if (collecToDel != null) {
+            try {
+              collecToDel.close();
+              logger.fine("collection of documents to delete closed");
+            } catch (RepositoryException e) {
+              logger.severe("Error while closing the collection of documents"
+                  + " to delete: " + e);
+            }
+          }
+        } finally {
+          if (session != null) {
+            sessionManager.release(session);
             logger.fine("collection session released");
-          } catch (RepositoryException e) {
-            logger.severe("Error while closing the collection of documents"
-                          + " to delete: " + e);
           }
         }
       }
@@ -332,9 +332,5 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     }
     logger.info("queryToDel.toString()" + queryStr.toString());
     return makeQuery(queryStr.toString());
-  }
-
-  public boolean isPublic() {
-    return isPublic;
   }
 }

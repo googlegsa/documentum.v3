@@ -55,26 +55,26 @@ public class DctmSysobjectDocumentTest extends TestCase {
   }
 
   public void testGetPropertyNames() throws RepositoryException {
-        ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-        IId id = dctmClientX.getId(DmInitialize.DM_ID1);
+    ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+    IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 
-        ISysObject object = session.getObject(id);
+    ISysObject object = session.getObject(id);
 
-        ITime lastModifDate = object.getTime("r_modify_date");
+    ITime lastModifDate = object.getTime("r_modify_date");
 
-        object = session.getObject(id);
+    object = session.getObject(id);
 
-        DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-            traversalManager, DmInitialize.DM_ID1, null, lastModifDate,
-            SpiConstants.ActionType.ADD, null);
+    DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
+        traversalManager, session, DmInitialize.DM_ID1, null, lastModifDate,
+        SpiConstants.ActionType.ADD, null);
 
-        Iterator iterator = dctmSpm.getPropertyNames().iterator();
-        int counter = 0;
-        while (iterator.hasNext()) {
-          iterator.next();
-          counter++;
-        }
-        assertEquals(8, counter);
+    Iterator iterator = dctmSpm.getPropertyNames().iterator();
+    int counter = 0;
+    while (iterator.hasNext()) {
+      iterator.next();
+      counter++;
+    }
+    assertEquals(8, counter);
   }
 
   public void testFindProperty() throws RepositoryException {
@@ -84,7 +84,7 @@ public class DctmSysobjectDocumentTest extends TestCase {
     ITime lastModifDate = object.getTime("r_modify_date");
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-        traversalManager, DmInitialize.DM_ID2, null, lastModifDate,
+        traversalManager, session, DmInitialize.DM_ID2, null, lastModifDate,
         SpiConstants.ActionType.ADD, null);
 
     Property property = dctmSpm.findProperty("keywords");

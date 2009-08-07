@@ -40,9 +40,6 @@ import com.google.enterprise.connector.spi.RepositoryLoginException;
 public class MockDmClient implements IClientX, IClient, ISessionManager {
   private MockDmSession currentSession;
 
-  private MockDmSession sessionDel;
-  private MockDmSession sessionAdd;
-
   private final HashMap<String, ILoginInfo> sessMgerCreds =
       new HashMap<String, ILoginInfo>(1, 1);
 
@@ -218,21 +215,5 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
 
   public IDocbaseMap getDocbaseMap() throws RepositoryException {
     return null;
-  }
-
-  public void releaseSessionAdd() {
-    // TODO Auto-generated method stub
-  }
-
-  public void releaseSessionDel() {
-    // TODO Auto-generated method stub
-  }
-
-  public void setSessionAdd(ISession sess) {
-    sessionAdd = (MockDmSession) sess;
-  }
-
-  public void setSessionDel(ISession sess) {
-    sessionDel = (MockDmSession) sess;
   }
 }
