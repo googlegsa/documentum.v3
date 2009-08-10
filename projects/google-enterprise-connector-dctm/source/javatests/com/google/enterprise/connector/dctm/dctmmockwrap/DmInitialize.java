@@ -22,6 +22,10 @@ public class DmInitialize {
 
   public static final String DM_LOGIN_OK2 = "mary";
 
+  public static final String DM_LOGIN_OK2_DOMAIN = "example\\mary";
+
+  public static final String DM_LOGIN_OK2_DNS_DOMAIN = "mary@example.com";
+
   public static final String DM_LOGIN_OK3 = "user1";
 
   public static final String DM_LOGIN_OK4 = "mark";
