@@ -18,6 +18,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +54,11 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private final ISessionManager sessionManager;
   private final IClientX clientX;
   private TraversalContext traversalContext = null;
-  private final Map<String, IType> superTypeCache;
+
+  private final Map<String, IType> superTypeCache =
+      new HashMap<String, IType>();
+  private final Map<String, List<String>> typeAttributesCache =
+      new HashMap<String, List<String>>();
 
   private final String additionalWhereClause;
   private final boolean isPublic;
@@ -87,8 +92,6 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     this.additionalWhereClause = additionalWhereClause;
     this.clientX = clientX;
     this.sessionManager = sessionManager;
-
-    this.superTypeCache = new HashMap<String, IType>();
 
     this.docbase = docbase;
     this.serverUrl = webtopServerUrl;
@@ -125,6 +128,10 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   Map<String, IType> getSuperTypeCache() {
     return superTypeCache;
+  }
+
+  Map<String, List<String>> getTypeAttributesCache() {
+    return typeAttributesCache;
   }
 
   boolean isPublic() {
@@ -285,7 +292,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     if (batchHint > 0) {
       queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
-    logger.fine("queryToAdd completed : " + queryStr.toString());
+    logger.fine("queryToAdd completed: " + queryStr.toString());
     return makeQuery(queryStr.toString());
   }
 

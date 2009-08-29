@@ -14,11 +14,13 @@
 
 package com.google.enterprise.connector.dctm;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -184,51 +186,55 @@ public class DctmSysobjectDocument implements Document {
           String typeName = value.getName();
           values.add(Value.getStringValue(typeName));
         }
-      } else if (object.findAttrIndex(name) != -1) {
-        IAttr attr = object.getAttr(object.findAttrIndex(name));
-        int i = object.getValueCount(name);
-
-        IValue val = null;
-        for (int j = 0; j < i; j++) {
-          val = object.getRepeatingValue(name, j);
-          try {
-            switch (attr.getDataType()) {
-              case IAttr.DM_BOOLEAN:
-                values.add(Value.getBooleanValue(val.asBoolean()));
-                break;
-              case IAttr.DM_DOUBLE:
-                values.add(Value.getDoubleValue(val.asDouble()));
-                break;
-              case IAttr.DM_ID:
-                // TODO: Should we check for null here?
-                values.add(Value.getStringValue(val.asId().getId()));
-                break;
-              case IAttr.DM_INTEGER:
-                values.add(Value.getLongValue(val.asInteger()));
-                break;
-              case IAttr.DM_STRING:
-                values.add(Value.getStringValue(val.asString()));
-                break;
-              case IAttr.DM_TIME:
-                Date date = val.asTime().getDate();
-                if (date != null) {
-                  values.add(Value.getDateValue(getCalendarFromDate(date)));
-                }
-                break;
-              default:
-                // TODO: Should this be an exception, or just logged
-                // directly as a warning?
-                throw new AssertionError(String.valueOf(attr.getDataType()));
-            }
-          } catch (Exception e) {
-            logger.warning("error getting the value of index "
-                           + j +" of the attribute " + name);
-            logger.warning("exception " + e);
-          }
-        }
       } else {
-        // No property by that name found.
-        return null;
+        // TODO: We could store the data types for each attribute in
+        // the type attributes cache, and save about 2% of the
+        // traversal time here by avoiding the calls to findAttrIndex
+        // and getAttr.
+        int attrIndex = object.findAttrIndex(name);
+        if (attrIndex != -1) {
+          IAttr attr = object.getAttr(attrIndex);
+          for (int i = 0, n = object.getValueCount(name); i < n; i++) {
+            IValue val = object.getRepeatingValue(name, i);
+            try {
+              switch (attr.getDataType()) {
+                case IAttr.DM_BOOLEAN:
+                  values.add(Value.getBooleanValue(val.asBoolean()));
+                  break;
+                case IAttr.DM_DOUBLE:
+                  values.add(Value.getDoubleValue(val.asDouble()));
+                  break;
+                case IAttr.DM_ID:
+                  // TODO: Should we check for null here?
+                  values.add(Value.getStringValue(val.asId().getId()));
+                  break;
+                case IAttr.DM_INTEGER:
+                  values.add(Value.getLongValue(val.asInteger()));
+                  break;
+                case IAttr.DM_STRING:
+                  values.add(Value.getStringValue(val.asString()));
+                  break;
+                case IAttr.DM_TIME:
+                  Date date = val.asTime().getDate();
+                  if (date != null) {
+                    values.add(Value.getDateValue(getCalendarFromDate(date)));
+                  }
+                  break;
+                default:
+                  // TODO: Should this be an exception, or just logged
+                  // directly as a warning?
+                  throw new AssertionError(String.valueOf(attr.getDataType()));
+              }
+            } catch (Exception e) {
+              logger.warning("error getting the value of index "
+                  + i +" of the attribute " + name);
+              logger.warning("exception " + e);
+            }
+          }
+        } else {
+          // No property by that name found.
+          return null;
+        }
       }
     } else {
       if (SpiConstants.PROPNAME_ACTION.equals(name)) {
@@ -247,7 +253,9 @@ public class DctmSysobjectDocument implements Document {
       }
     }
 
-        logger.fine("property " + name + " has the values " + values);
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine("property " + name + " has the values " + values);
+    }
     return new SimpleProperty(values);
   }
 
@@ -314,6 +322,56 @@ public class DctmSysobjectDocument implements Document {
     return calendar;
   }
 
+  /**
+   * Return the attributes for the supplied type.  Caches result to
+   * avoid frequent round-trips to server.
+   *
+   * @param type the object type to get attributes for
+   * @return type attributes for the supplied type
+   * @throws RepositoryException if an error occurs retrieving the attributes
+   */
+  private List<String> getTypeAttributes(IType type)
+      throws RepositoryException {
+    Map<String, List<String>> cache = traversalManager.getTypeAttributesCache();
+    String typeName = type.getName();
+    if (cache.containsKey(typeName)) {
+      return cache.get(typeName);
+    } else {
+      if (logger.isLoggable(Level.FINER)) {
+        logger.finer("Processing attributes for type " + typeName);
+      }
+
+      int count = type.getTypeAttrCount();
+      ArrayList<String> typeAttributes = new ArrayList<String>(count);
+
+      Set<String> includedMeta = traversalManager.getIncludedMeta();
+      Set<String> excludedMeta = traversalManager.getExcludedMeta();
+      try {
+        for (int i = 0; i < count; i++) {
+          IAttr curAttr = type.getTypeAttr(i);
+          String name = curAttr.getName();
+          if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
+              !excludedMeta.contains(name)) {
+            typeAttributes.add(name);
+            if (logger.isLoggable(Level.FINEST)) {
+              logger.finest("attribute " + name + " added to the properties");
+            }
+          } else {
+            if (logger.isLoggable(Level.FINEST)) {
+              logger.finest("attribute " + name
+                  + " excluded from the properties");
+            }
+          }
+        }
+      } catch (RepositoryDocumentException e) {
+        logger.log(Level.WARNING, "Error fetching property names", e);
+      }
+
+      cache.put(typeName, typeAttributes);
+      return typeAttributes;
+    }
+  }
+
   public Set<String> getPropertyNames() throws RepositoryException {
     Set<String> properties = null;
     if (ActionType.ADD.equals(action)) {
@@ -325,25 +383,8 @@ public class DctmSysobjectDocument implements Document {
       properties.add(SpiConstants.PROPNAME_MIMETYPE);
       properties.add(SpiConstants.PROPNAME_TITLE);
 
-      Set<String> includedMeta = traversalManager.getIncludedMeta();
-      Set<String> excludedMeta = traversalManager.getExcludedMeta();
-      try {
-        for (int i = 0; i < object.getAttrCount(); i++) {
-          IAttr curAttr = object.getAttr(i);
-          String name = curAttr.getName();
-          if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
-              !excludedMeta.contains(name)) {
-            properties.add(name);
-            logger.finest("attribute " + name + " added to the properties");
-          } else {
-            logger.finest("attribute " + name
-                + " excluded from the properties");
-          }
-        }
-      } catch (RepositoryDocumentException e) {
-        // TODO Auto-generated catch block
-        logger.log(Level.WARNING, "Error fetching property names", e);
-      }
+      List<String> typeAttributes = getTypeAttributes(object.getType());
+      properties.addAll(typeAttributes);
     } else {
       properties = new HashSet<String>();
       properties.add(SpiConstants.PROPNAME_ACTION);
