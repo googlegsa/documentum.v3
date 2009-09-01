@@ -92,7 +92,7 @@ public class DctmDocumentList implements DocumentList {
           ITime deleteDate = null;
           try {
             eventId = collectionToDel.getString("r_object_id");
-            deleteDate = collectionToDel.getTime("time_stamp");
+            deleteDate = collectionToDel.getTime("time_stamp_utc");
             logger.fine("delete event r_object_id is " + eventId
                         + "  deleteDate is " + deleteDate.getDate());
           } catch (RepositoryException e) {
