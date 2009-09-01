@@ -41,9 +41,9 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   private static final Set<String> EMPTY_SET = Collections.<String>emptySet();
 
-  private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
-  private static final String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
-  private static final String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
+  private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and r_object_id > ''{1}'') OR (r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
+  private static final String whereBoundedClauseRemove = " and ((time_stamp_utc = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR (time_stamp_utc > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
+  private static final String whereBoundedClauseRemoveDateOnly = " and (time_stamp_utc > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
 
   private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -315,7 +315,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
       query.append("1=1 ");
     }
     if (additionalWhereClause != null && additionalWhereClause.length() > 0) {
-      logger.fine("adding the additionalWhereClause to the query : "
+      logger.fine("adding the additionalWhereClause to the query: "
                   + additionalWhereClause);
       query.append(" and (").append(additionalWhereClause).append(")");
     }
@@ -323,9 +323,9 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   protected IQuery buildDelQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder(
-        "select r_object_id, chronicle_id, audited_obj_id, time_stamp "
+        "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc "
         + "from dm_audittrail "
-        + "where (event_name='dm_destroy' or event_name='dm_prune') ");
+        + "where (event_name='dm_destroy' or event_name='dm_prune')");
     if (checkpoint.deleteDate != null) {
       Object[] arguments = { dateFormat.format(checkpoint.deleteDate),
                              checkpoint.deleteId };
@@ -333,11 +333,11 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
           arguments));
     }
-    queryStr.append(" order by time_stamp,r_object_id");
+    queryStr.append(" order by time_stamp_utc,r_object_id");
     if (batchHint > 0) {
       queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
-    logger.info("queryToDel.toString()" + queryStr.toString());
+    logger.info("queryToDel completed: " + queryStr.toString());
     return makeQuery(queryStr.toString());
   }
 }
