@@ -18,7 +18,6 @@ import java.io.ByteArrayInputStream;
 
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 
-
 public interface ISysObject {
   String getObjectName() throws RepositoryDocumentException;
 

@@ -39,33 +39,26 @@ public class DctmTraversalUtilCall {
       docbase = "MockRepositoryEventLog7.txt";
     }
 
-    Session session = null;
-    Connector connector = null;
-    TraversalManager qtm = null;
-
-    connector = new DctmConnector();
-
-    /**
-     * Simulation of the setters used by Instance.xml
-     */
-    ((DctmConnector) connector).setLogin(user);
-    ((DctmConnector) connector).setPassword(password);
-    ((DctmConnector) connector).setDocbase(docbase);
-    ((DctmConnector) connector)
-        .setWebtop_display_url("http://swp-vm-wt:8080/webtop/drl/objectId/");
-    ((DctmConnector) connector).setClientX(clientX);
-    ((DctmConnector) connector)
-        .setWhere_clause("and folder('/test_docs',descend)");
-    ((DctmConnector) connector).setIs_public("false");
-    ((DctmConnector) connector)
-        .setIncluded_meta(DmInitialize.DM_INCLUDED_META);
-    /**
-     * End simulation
-     */
-
+    DctmConnector connector = new DctmConnector();
     try {
-      session = (DctmSession) connector.login();
-      qtm = (DctmTraversalManager) session.getTraversalManager();
+      /**
+       * Simulation of the setters used by Instance.xml
+       */
+      connector.setLogin(user);
+      connector.setPassword(password);
+      connector.setDocbase(docbase);
+      connector.setWebtop_display_url(
+          "http://swp-vm-wt:8080/webtop/drl/objectId/");
+      connector.setClientX(clientX);
+      connector.setWhere_clause("and folder('/test_docs',descend)");
+      connector.setIs_public("false");
+      connector.setIncluded_meta(DmInitialize.DM_INCLUDED_META);
+      /**
+       * End simulation
+       */
+
+      Session session = connector.login();
+      TraversalManager qtm = session.getTraversalManager();
       DctmTraversalUtil.runTraversal(qtm, 10);
     } catch (RepositoryLoginException le) {
       System.out.println("Root Cause : " + le.getCause()

@@ -18,6 +18,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.util.Set;
@@ -40,19 +41,24 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   private static final Set<String> EMPTY_SET = Collections.<String>emptySet();
 
-  private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'')  and r_object_id > ''{1}'') OR ( r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
-  private static final String whereBoundedClauseRemove = " and ((time_stamp = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
-  private static final String whereBoundedClauseRemoveDateOnly = " and ( time_stamp > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
+  private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and r_object_id > ''{1}'') OR (r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
+  private static final String whereBoundedClauseRemove = " and ((time_stamp_utc = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR (time_stamp_utc > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
+  private static final String whereBoundedClauseRemoveDateOnly = " and (time_stamp_utc > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
 
   private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+  private final String docbase;
   private final String serverUrl;
   private int batchHint = -1;
-  private ISessionManager sessionManager;
-  private IClientX clientX;
+  private final ISessionManager sessionManager;
+  private final IClientX clientX;
   private TraversalContext traversalContext = null;
-  private final Map<String, IType> superTypeCache;
+
+  private final Map<String, IType> superTypeCache =
+      new HashMap<String, IType>();
+  private final Map<String, List<String>> typeAttributesCache =
+      new HashMap<String, List<String>>();
 
   private final String additionalWhereClause;
   private final boolean isPublic;
@@ -61,26 +67,33 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private final Set<String> excludedMeta;
   private final String rootObjectType;
 
-  // Constructor used by tests.
-  public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-      Set<String> included_meta, ISessionManager sessionMgr)
-      throws RepositoryException {
-    this(clientX, webtopServerUrl, "", true, included_meta, EMPTY_SET,
-        EMPTY_SET, "");
-    setSessionManager(sessionMgr);
+  public DctmTraversalManager(DctmConnector connector,
+      ISessionManager sessionManager) throws RepositoryException {
+    this(connector.getClientX(), connector.getDocbase(),
+        connector.getWebtopDisplayUrl(), connector.getWhereClause(),
+        connector.isPublic(), connector.getRootObjectType(),
+        connector.getIncludedObjectType(), connector.getIncludedMeta(),
+        connector.getExcludedMeta(), sessionManager);
+  }
+  
+  /** Constructor used by tests. */
+  DctmTraversalManager(IClientX clientX, String docbase,
+      String webtopServerUrl, Set<String> included_meta,
+      ISessionManager sessionManager) throws RepositoryException {
+    this(clientX, docbase, webtopServerUrl, "", true, "", EMPTY_SET,
+        included_meta, EMPTY_SET, sessionManager);
   }
 
-  public DctmTraversalManager(IClientX clientX, String webtopServerUrl,
-      String additionalWhereClause, boolean isPublic,
+  private DctmTraversalManager(IClientX clientX, String docbase,
+      String webtopServerUrl, String additionalWhereClause, boolean isPublic,
+      String rootObjectType, Set<String> includedObjectType,
       Set<String> includedMeta, Set<String> excludedMeta,
-      Set<String> includedObjectType, String rootObjectType)
-      throws RepositoryException {
+      ISessionManager sessionManager) throws RepositoryException {
     this.additionalWhereClause = additionalWhereClause;
-    setClientX(clientX);
-    setSessionManager(clientX.getSessionManager());
+    this.clientX = clientX;
+    this.sessionManager = sessionManager;
 
-    this.superTypeCache = new HashMap<String, IType>();
-
+    this.docbase = docbase;
     this.serverUrl = webtopServerUrl;
     this.isPublic = isPublic;
     this.includedObjectType = includedObjectType;
@@ -89,23 +102,19 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     this.rootObjectType = rootObjectType;
   }
 
-  protected void setClientX(IClientX clientX) {
-    this.clientX = clientX;
-  }
-
-  public IClientX getClientX() {
+  IClientX getClientX() {
     return clientX;
   }
 
-  public ISessionManager getSessionManager() {
+  ISessionManager getSessionManager() {
     return sessionManager;
   }
 
-  public void setSessionManager(ISessionManager sessionManager) {
-    this.sessionManager = sessionManager;
+  String getDocbase() {
+    return docbase;
   }
 
-  protected String getServerUrl() {
+  String getServerUrl() {
     return serverUrl;
   }
 
@@ -113,19 +122,27 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     this.traversalContext = traversalContext;
   }
 
-  public TraversalContext getTraversalContext() {
+  TraversalContext getTraversalContext() {
     return traversalContext;
   }
 
-  public Map<String, IType> getSuperTypeCache() {
+  Map<String, IType> getSuperTypeCache() {
     return superTypeCache;
   }
 
-  public Set<String> getIncludedMeta() {
+  Map<String, List<String>> getTypeAttributesCache() {
+    return typeAttributesCache;
+  }
+
+  boolean isPublic() {
+    return isPublic;
+  }
+
+  Set<String> getIncludedMeta() {
     return includedMeta;
   }
 
-  public Set<String> getExcludedMeta() {
+  Set<String> getExcludedMeta() {
     return excludedMeta;
   }
 
@@ -187,14 +204,12 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
    * @return DocumentList of traversal results.
    * @throws RepositoryException
    */
-  protected DocumentList execQuery(Checkpoint checkpoint)
+  private DocumentList execQuery(Checkpoint checkpoint)
       throws RepositoryException {
-    sessionManager.setServerUrl(serverUrl);
     ICollection collecToAdd = null;
     ICollection collecToDel = null;
 
-    ISession sessAdd = null;
-    ISession sessDel = null;
+    ISession session = null;
 
     IQuery query = buildAddQuery(checkpoint);
     IQuery queryDocToDel = buildDelQuery(checkpoint);
@@ -202,51 +217,48 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     DocumentList documentList = null;
 
     try {
-      if (query != null) {
-        sessAdd = sessionManager.getSession(sessionManager.getDocbaseName());
-        sessionManager.setSessionAdd(sessAdd);
-        collecToAdd = query.execute(sessAdd, IQuery.EXECUTE_READ_QUERY);
-        logger.fine("execution of the query returns a collection of documents"
-                    + " to add");
-      }
+      session = sessionManager.getSession(docbase);
 
-      if (queryDocToDel != null) {
-        sessDel = sessionManager.getSession(sessionManager.getDocbaseName());
-        sessionManager.setSessionDel(sessDel);
-        collecToDel = queryDocToDel.execute(sessDel, IQuery.EXECUTE_READ_QUERY);
-        logger.fine("execution of the query returns a collection of documents"
-                    + " to delete");
-      }
+      collecToAdd = query.execute(session, IQuery.EXECUTE_READ_QUERY);
+      logger.fine("execution of the query returns a collection of documents"
+          + " to add");
+
+      collecToDel = queryDocToDel.execute(session, IQuery.EXECUTE_READ_QUERY);
+      logger.fine("execution of the query returns a collection of documents"
+          + " to delete");
 
       if ((collecToAdd != null && collecToAdd.hasNext()) ||
           (collecToDel != null && collecToDel.hasNext())) {
-        documentList =
-            new DctmDocumentList(this, collecToAdd, collecToDel, checkpoint);
+        documentList = new DctmDocumentList(this, session, collecToAdd,
+            collecToDel, checkpoint);
       }
     } finally {
-      // No documents to add or delete.   Return a null DocumentList,
-      // but close the collections first!
+      // No documents to add or delete. Return a null DocumentList,
+      // but close the collections and release the session first.
       if (documentList == null) {
-        if (collecToAdd != null) {
-          try {
-            collecToAdd.close();
-            logger.fine("collection of documents to add closed");
-            sessionManager.releaseSessionAdd();
-            logger.fine("collection session released");
-          } catch (RepositoryException e) {
-            logger.severe("Error while closing the collection of documents"
-                          + " to add: " + e);
+        try {
+          if (collecToAdd != null) {
+            try {
+              collecToAdd.close();
+              logger.fine("collection of documents to add closed");
+            } catch (RepositoryException e) {
+              logger.severe("Error while closing the collection of documents"
+                  + " to add: " + e);
+            }
           }
-        }
-        if (collecToDel != null) {
-          try {
-            collecToDel.close();
-            logger.fine("collection of documents to delete closed");
-            sessionManager.releaseSessionDel();
+          if (collecToDel != null) {
+            try {
+              collecToDel.close();
+              logger.fine("collection of documents to delete closed");
+            } catch (RepositoryException e) {
+              logger.severe("Error while closing the collection of documents"
+                  + " to delete: " + e);
+            }
+          }
+        } finally {
+          if (session != null) {
+            sessionManager.release(session);
             logger.fine("collection session released");
-          } catch (RepositoryException e) {
-            logger.severe("Error while closing the collection of documents"
-                          + " to delete: " + e);
           }
         }
       }
@@ -280,7 +292,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
     if (batchHint > 0) {
       queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
-    logger.fine("queryToAdd completed : " + queryStr.toString());
+    logger.fine("queryToAdd completed: " + queryStr.toString());
     return makeQuery(queryStr.toString());
   }
 
@@ -303,7 +315,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
       query.append("1=1 ");
     }
     if (additionalWhereClause != null && additionalWhereClause.length() > 0) {
-      logger.fine("adding the additionalWhereClause to the query : "
+      logger.fine("adding the additionalWhereClause to the query: "
                   + additionalWhereClause);
       query.append(" and (").append(additionalWhereClause).append(")");
     }
@@ -311,9 +323,9 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
 
   protected IQuery buildDelQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder(
-        "select r_object_id, chronicle_id, audited_obj_id, time_stamp "
+        "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc "
         + "from dm_audittrail "
-        + "where (event_name='dm_destroy' or event_name='dm_prune') ");
+        + "where (event_name='dm_destroy' or event_name='dm_prune')");
     if (checkpoint.deleteDate != null) {
       Object[] arguments = { dateFormat.format(checkpoint.deleteDate),
                              checkpoint.deleteId };
@@ -321,15 +333,11 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
           arguments));
     }
-    queryStr.append(" order by time_stamp,r_object_id");
+    queryStr.append(" order by time_stamp_utc,r_object_id");
     if (batchHint > 0) {
       queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
-    logger.info("queryToDel.toString()" + queryStr.toString());
+    logger.info("queryToDel completed: " + queryStr.toString());
     return makeQuery(queryStr.toString());
-  }
-
-  public boolean isPublic() {
-    return isPublic;
   }
 }

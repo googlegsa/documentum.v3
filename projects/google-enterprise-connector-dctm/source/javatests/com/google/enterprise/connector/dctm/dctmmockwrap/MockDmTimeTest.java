@@ -69,11 +69,11 @@ public class MockDmTimeTest extends TestCase {
     Date date = time.getDate();
     long timeLong = DmInitialize.DM_ID2_TIMESTAMP;
     Date propDateVal = new Date(timeLong);
-    assertEquals(date, propDateVal);
+    assertEquals(propDateVal, date);
   }
 
   public void testGetFormattedDate() {
     String dateString = ((MockDmTime) time).getFormattedDate();
-    assertEquals(dateString, DmInitialize.DM_ID2_TIMESTRING);
+    assertEquals(DmInitialize.DM_ID2_TIMESTRING, dateString);
   }
 }

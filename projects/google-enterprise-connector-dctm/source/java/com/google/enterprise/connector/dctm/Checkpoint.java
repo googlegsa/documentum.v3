@@ -17,6 +17,7 @@ package com.google.enterprise.connector.dctm;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.json.JSONException;
@@ -33,11 +34,38 @@ class Checkpoint {
   private static final Logger LOGGER =
       Logger.getLogger(Checkpoint.class.getName());
 
-  /** The JSON object serialization keys. */
+  /** The JSON insertion ID, based on dm_sysobject.r_object_id. */
   private static final String INS_ID = "uuid";
+
+  /** The JSON insertion timestamp, based on dm_sysobject.r_modify_date. */
   private static final String INS_DATE = "lastModified";
+
+  /** The JSON deletion ID, based on dm_audittrail.r_object_id. */
   private static final String DEL_ID = "uuidToRemove";
-  private static final String DEL_DATE = "lastRemoveDate";
+
+  /** The JSON deletion timestamp, based on dm_audittrail.time_stamp_utc. */
+  private static final String DEL_DATE = "lastRemoved";
+
+  /** The old JSON deletion timestamp, based on dm_audittrail.time_stamp. */
+  private static final String DEL_DATE_OLD = "lastRemoveDate";
+
+  /**
+   * The offset for migrating deletion timestamps from time_stamp to
+   * time_stamp_utc, where time_stamp + time_stamp_offset =
+   * time_stamp_utc.
+   *
+   * The actual offset between time_stamp and time_stamp_utc is
+   * somewhere between -14 hours (UTC+1400) and +10 hours (UTC-1000),
+   * and it might be zero in the case of Documentum 6 with
+   * dm_docbase_config.r_normal_tz = 0. Rather than computing the
+   * correct offset, we are just offsetting the given time_stamp value
+   * to be before any possible time_stamp_utc value. For correctness,
+   * we could just subtract the largest positive UTC offset (+1400 in
+   * Kiribati), but we're going back a full day to avoid trouble. In
+   * the worst case, this will redo about 34 hours of deletions (for
+   * the largest negative UTC offset of -1000 running Documentum 5).
+   */
+  private static final long TIME_STAMP_OFFSET = -24 * 60 * 60 * 1000L;
 
   /** The formatter used for the Date portions of checkpoints. */
   private final SimpleDateFormat dateFormat =
@@ -52,7 +80,11 @@ class Checkpoint {
   /** r_object_id of the last item deleted. */
   public String deleteId;
 
-  /** dm_audittrail timestamp of the last item deleted. */
+  /**
+   * dm_audittrail time_stamp_utc of the last item deleted. Note that
+   * the stored date is UTC, but the value of this field may not be,
+   * due to the way DQL handles time zones.
+   */
   public Date deleteDate;
 
   /**
@@ -92,6 +124,18 @@ class Checkpoint {
       }
       if ((value = getJsonValue(jo, DEL_DATE)) != null) {
         deleteDate = dateFormat.parse(value);
+      } else if ((value = getJsonValue(jo, DEL_DATE_OLD)) != null) {
+        // TODO: This migration will be repeated until the checkpoint
+        // is actually returned to the connector manager and
+        // persisted. We could force that to happen on the next call
+        // to resumeTraversal by returning an empty DocumentList
+        // instead of null.
+        Date oldStyle = dateFormat.parse(value);
+        deleteDate = new Date(oldStyle.getTime() + TIME_STAMP_OFFSET);
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.info("Migrating from time_stamp to time_stamp_utc: "
+              + oldStyle + " becomes " + deleteDate);
+        }
       }
       oldInsertId = insertId;
       oldInsertDate = insertDate;
@@ -141,7 +185,7 @@ class Checkpoint {
   /**
    * Sets the Deleted Item's portion of the checkpoint.
    *
-   * @param date the dm_audittrail time_stamp of the last item deleted.
+   * @param date the dm_audittrail time_stamp_utc of the last item deleted.
    * @param objectId the r_object_id of the last item deleted.
    */
   public void setDeleteCheckpoint(Date date, String objectId) {

@@ -32,16 +32,7 @@ import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmSessionManager implements ISessionManager {
-  IDfSessionManager dfSessionManager;
-
-  IDfSession DfSessionDel;
-  IDfSession DfSessionAdd;
-  IDfSession DfSessionAuto;
-  IDfSession DfSessionConfig;
-
-  private String docbaseName;
-
-  private String serverUrl;
+  private final IDfSessionManager dfSessionManager;
 
   private static Logger logger = Logger.getLogger(DmSessionManager.class
       .getName());
@@ -50,73 +41,28 @@ public class DmSessionManager implements ISessionManager {
     this.dfSessionManager = DfSessionManager;
   }
 
-  public void setSessionDel(ISession sess) {
-    this.DfSessionDel = ((DmSession) sess).getDfSession();
-    logger.finest("setSessionDel");
-  }
-
-  public void setSessionAdd(ISession sess) {
-    this.DfSessionAdd = ((DmSession) sess).getDfSession();
-    logger.finest("setSessionAdd");
-  }
-
-  public void setSessionAuto(ISession sess) {
-    this.DfSessionAuto = ((DmSession) sess).getDfSession();
-    logger.finest("setSessionAuto");
-  }
-
-  public void setSessionConfig(ISession sess) {
-    this.DfSessionConfig = ((DmSession) sess).getDfSession();
-    logger.finest("setSessionSessionConfig");
-  }
-
-  public void releaseSessionAdd() {
-    logger.finest("before session released");
-    this.dfSessionManager.release(this.DfSessionAdd);
-    logger.finest("after session released");
-  }
-
-  public void releaseSessionDel() {
-    logger.finest("before session released");
-    this.dfSessionManager.release(this.DfSessionDel);
-    logger.finest("after session released");
-  }
-
-  public void releaseSessionAuto() {
-    logger.finest("before session released");
-    this.dfSessionManager.release(this.DfSessionAuto);
-    logger.finest("after session released");
-  }
-
-  public void releaseSessionConfig() {
-    logger.finest("before session released");
-    this.dfSessionManager.release(this.DfSessionConfig);
-    logger.finest("after session released");
-  }
-
   public ISession getSession(String docbase) throws RepositoryLoginException,
       RepositoryException {
-    IDfSession DfSession = null;
+    IDfSession dfSession = null;
     try {
-      DfSession = dfSessionManager.getSession(docbase);
+      dfSession = dfSessionManager.getSession(docbase);
       if (logger.isLoggable(Level.FINER)) {
         IDfLoginInfo idfLoginInfo = dfSessionManager.getIdentity(docbase);
-        logger.finer("Session for user: " + idfLoginInfo.getUser());
+        logger.finer("Session for user: " + idfLoginInfo.getUser()
+            + ": " + dfSession + " (id=" + dfSession.getSessionId() + ')');
       }
-    } catch (DfIdentityException iE) {
-      RepositoryLoginException le = new RepositoryLoginException(iE);
-      throw le;
-    } catch (DfAuthenticationException iE) {
-      RepositoryLoginException le = new RepositoryLoginException(iE);
-      throw le;
-    } catch (DfPrincipalException iE) {
-      RepositoryLoginException le = new RepositoryLoginException(iE);
-      throw le;
-    } catch (DfServiceException iE) {
-      RepositoryException re = new RepositoryException(iE);
-      throw re;
+    } catch (DfIdentityException e) {
+      throw new RepositoryLoginException(e);
+    } catch (DfAuthenticationException e) {
+      throw new RepositoryLoginException(e);
+    } catch (DfPrincipalException e) {
+      throw new RepositoryLoginException(e);
+    } catch (DfServiceException e) {
+      throw new RepositoryException(e);
+    } catch (DfException e) {
+      throw new RepositoryException(e);
     }
-    return new DmSession(DfSession);
+    return new DmSession(dfSession);
   }
 
   public void setIdentity(String docbase, ILoginInfo identity)
@@ -129,9 +75,8 @@ public class DmSessionManager implements ISessionManager {
     IDfLoginInfo idfLoginInfo = dctmLoginInfo.getIdfLoginInfo();
     try {
       dfSessionManager.setIdentity(docbase, idfLoginInfo);
-    } catch (DfServiceException iE) {
-      RepositoryLoginException le = new RepositoryLoginException(iE);
-      throw le;
+    } catch (DfServiceException e) {
+      throw new RepositoryLoginException(e);
     }
   }
 
@@ -142,53 +87,38 @@ public class DmSessionManager implements ISessionManager {
 
   public ISession newSession(String docbase) throws RepositoryLoginException,
       RepositoryException {
-    IDfSession idfSession = null;
+    IDfSession dfSession = null;
     try {
-      idfSession = dfSessionManager.newSession(docbase);
-    } catch (DfIdentityException iE) {
-      throw new RepositoryLoginException(iE);
-    } catch (DfAuthenticationException iE) {
-      throw new RepositoryLoginException(iE);
-    } catch (DfPrincipalException iE) {
-      throw new RepositoryLoginException(iE);
-    } catch (DfServiceException iE) {
-      throw new RepositoryException(iE);
-    } catch (NoClassDefFoundError iE) {
-      throw new RepositoryException(iE);
+      dfSession = dfSessionManager.newSession(docbase);
+    } catch (DfIdentityException e) {
+      throw new RepositoryLoginException(e);
+    } catch (DfAuthenticationException e) {
+      throw new RepositoryLoginException(e);
+    } catch (DfPrincipalException e) {
+      throw new RepositoryLoginException(e);
+    } catch (DfServiceException e) {
+      throw new RepositoryException(e);
+    } catch (NoClassDefFoundError e) {
+      throw new RepositoryException(e);
     }
-    return new DmSession(idfSession);
+    return new DmSession(dfSession);
   }
 
   public void release(ISession session) {
-    logger.finest("before session released");
-    this.dfSessionManager.release(((DmSession) session).getDfSession());
+    IDfSession dfSession = ((DmSession) session).getDfSession();
+    logger.finest("before session released: " + dfSession);
+    dfSessionManager.release(dfSession);
     logger.finest("after session released");
   }
 
-  public IDfSessionManager getDfSessionManager() {
+  IDfSessionManager getDfSessionManager() {
     return dfSessionManager;
-  }
-
-  public void setServerUrl(String serverUrl) {
-    this.serverUrl = serverUrl;
-  }
-
-  public String getDocbaseName() {
-    return docbaseName;
-  }
-
-  public void setDocbaseName(String docbaseName) {
-    this.docbaseName = docbaseName;
-  }
-
-  public String getServerUrl() {
-    return serverUrl;
   }
 
   public boolean authenticate(String docbaseName) {
     boolean authent = false;
     try {
-      this.dfSessionManager.authenticate(docbaseName);
+      dfSessionManager.authenticate(docbaseName);
       authent = true;
     } catch (DfException e) {
       logger.finer(e.getMessage());
@@ -198,10 +128,6 @@ public class DmSessionManager implements ISessionManager {
   }
 
   public void clearIdentity(String docbase) {
-    this.dfSessionManager.clearIdentity(docbase);
-  }
-
-  public IDfSessionManager getSessionManager() {
-    return this.dfSessionManager;
+    dfSessionManager.clearIdentity(docbase);
   }
 }

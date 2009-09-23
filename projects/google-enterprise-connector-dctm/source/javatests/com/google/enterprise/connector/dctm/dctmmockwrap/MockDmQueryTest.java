@@ -75,9 +75,9 @@ public class MockDmQueryTest extends TestCase {
     query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
     ICollection collec = null;
     try {
-      collec = query.execute(sessionManager, IQuery.READ_QUERY);
+      collec = query.execute(sess7, IQuery.READ_QUERY);
     } catch (RepositoryException e) {
-      // TODO: Why is this exception ignored?
+      fail(e.getMessage());
     }
     assertNotNull(collec);
   }

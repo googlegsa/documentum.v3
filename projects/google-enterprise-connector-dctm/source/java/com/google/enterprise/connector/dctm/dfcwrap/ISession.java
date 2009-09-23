@@ -18,14 +18,19 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface ISession {
-  public ISysObject getObject(IId objectId) throws RepositoryDocumentException;
+  String getDocbaseName() throws RepositoryException;
 
-  public String getLoginTicketForUser(String username)
+  ISysObject getObject(IId objectId) throws RepositoryDocumentException;
+
+  String getLoginTicketForUser(String username)
       throws RepositoryException;
 
-  public IType getType(String typeName) throws RepositoryException;
+  String getLoginTicketEx(String username, String scope, int timeout,
+      boolean singleUse, String serverName) throws RepositoryException;
 
-  public ISessionManager getSessionManager() throws RepositoryException;
+  IType getType(String typeName) throws RepositoryException;
 
-  public boolean isConnected();
+  ISessionManager getSessionManager() throws RepositoryException;
+
+  boolean isConnected();
 }

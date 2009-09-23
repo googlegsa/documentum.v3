@@ -46,9 +46,7 @@ public class DmLoginInfoTest extends TestCase {
     String user = DmInitialize.DM_LOGIN_OK1;
     String docbase = DmInitialize.DM_DOCBASE;
     loginInfo.setUser(user);
-    sessionManager.setDocbaseName(docbase);
     sessionManager.setIdentity(docbase, loginInfo);
-    dctmClientX.setSessionManager(sessionManager);
     Assert.assertEquals(DmInitialize.DM_LOGIN_OK1, loginInfo.getUser());
   }
 
@@ -56,9 +54,7 @@ public class DmLoginInfoTest extends TestCase {
     String password = DmInitialize.DM_PWD_OK1;
     String docbase = DmInitialize.DM_DOCBASE;
     loginInfo.setPassword(password);
-    sessionManager.setDocbaseName(docbase);
     sessionManager.setIdentity(docbase, loginInfo);
-    dctmClientX.setSessionManager(sessionManager);
     Assert.assertEquals(DmInitialize.DM_PWD_OK1, loginInfo.getPassword());
   }
 }

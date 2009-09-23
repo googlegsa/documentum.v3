@@ -100,41 +100,24 @@ public class MockDmClientTest extends TestCase {
           .newSession("MockRepositoryEventLog7.txt");
       assertTrue(sess instanceof MockDmSession);
       assertNotNull(sess);
-
     } catch (RepositoryException e) {
       assertEquals(true, false);
     }
   }
 
-  public void testGetSessionAndGetAndSetDocbaseName() {
+  public void testGetSession() {
     try {
       IClientX dctmClientX = new MockDmClient();
-      IClient localClient = null;
-      localClient = dctmClientX.getLocalClient();
+      IClient localClient = dctmClientX.getLocalClient();
       ISessionManager sessionManager = localClient.newSessionManager();
       ILoginInfo ili = new MockDmLoginInfo();
       ili.setUser("mark");
       ili.setPassword("mark");
       sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
-      ISession sess7 = sessionManager
+      ISession sess = sessionManager
           .getSession("MockRepositoryEventLog7.txt");
-      assertNotNull(sess7);
-      assertTrue(sess7 instanceof MockDmSession);
-      String checkName = sessionManager.getDocbaseName();
-      assertEquals(checkName, "MockRepositoryEventLog7.txt");
-
-      sessionManager.setIdentity("MockRepositoryEventLog2.txt", ili);
-      ISession sess2 = sessionManager
-          .getSession("MockRepositoryEventLog2.txt");
-      assertNotNull(sess2);
-      assertTrue(sess2 instanceof MockDmSession);
-      checkName = sessionManager.getDocbaseName();
-      assertEquals(checkName, "MockRepositoryEventLog2.txt");
-
-      // Change the current docbase name
-      sessionManager.setDocbaseName("MockRepositoryEventLog7.txt");
-      checkName = sessionManager.getDocbaseName();
-      assertEquals(checkName, "MockRepositoryEventLog7.txt");
+      assertNotNull(sess);
+      assertTrue(sess instanceof MockDmSession);
     } catch (RepositoryException e) {
       assertTrue(false);
     }
@@ -199,45 +182,6 @@ public class MockDmClientTest extends TestCase {
       pwd = ili2.getPassword();
       Assert.assertEquals(user, "mark");
       Assert.assertEquals(pwd, "mark");
-    } catch (RepositoryException e) {
-      // TODO: Why is this exception ignored?
-    }
-  }
-
-  public void testGetSession() {
-    IClientX dctmClientX = new MockDmClient();
-    IClient localClient = null;
-    ISession session = null;
-    try {
-      localClient = dctmClientX.getLocalClient();
-      ISessionManager sessionManager = localClient.newSessionManager();
-      ILoginInfo ili = new MockDmLoginInfo();
-      ili.setUser("mark");
-      ili.setPassword("mark");
-      sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
-      session = sessionManager.getSession("MockRepositoryEventLog7.txt");
-      Assert.assertNotNull(session);
-      Assert.assertTrue(session instanceof MockDmSession);
-    } catch (RepositoryException e) {
-      // TODO: Why is this exception ignored?
-    }
-  }
-
-  public void testGetDocBaseName() {
-    IClientX dctmClientX = new MockDmClient();
-    IClient localClient = null;
-
-    String docbase = "";
-    try {
-      localClient = dctmClientX.getLocalClient();
-      ISessionManager sessionManager = localClient.newSessionManager();
-      ILoginInfo ili = new MockDmLoginInfo();
-      ili.setUser("mark");
-      ili.setPassword("mark");
-      sessionManager.setIdentity("MockRepositoryEventLog7.txt", ili);
-      sessionManager.getSession("MockRepositoryEventLog7.txt");
-      docbase = sessionManager.getDocbaseName();
-      Assert.assertEquals("MockRepositoryEventLog7.txt", docbase);
     } catch (RepositoryException e) {
       // TODO: Why is this exception ignored?
     }

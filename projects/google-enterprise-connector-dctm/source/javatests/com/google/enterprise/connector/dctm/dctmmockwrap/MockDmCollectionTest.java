@@ -96,7 +96,7 @@ public class MockDmCollectionTest extends TestCase {
     IQuery query = null;
     query = localClient.getQuery();
     query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-    ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
+    ICollection collec = query.execute(sess7, IQuery.READ_QUERY);
     if (collec.next()) {
       IValue val = collec.getValue("r_object_id");
       Assert.assertTrue(val instanceof MockDmValue);
@@ -108,7 +108,7 @@ public class MockDmCollectionTest extends TestCase {
     String rep = "";
     query = localClient.getQuery();
     query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-    ICollection collec = query.execute(sessionManager, IQuery.READ_QUERY);
+    ICollection collec = query.execute(sess7, IQuery.READ_QUERY);
     if (collec.next()) {
       rep = collec.getString("jcr:uuid");
       Assert.assertEquals(rep, DmInitialize.DM_ID1);

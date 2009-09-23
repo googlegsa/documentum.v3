@@ -200,7 +200,7 @@ public class DctmConnectorType implements ConnectorType {
     }
 
     return new ConfigureResponse("",
-        makeValidatedForm(null, resource, null, null));
+        makeValidatedForm(null, resource, null));
   }
 
   public ConfigureResponse validateConfig(Map<String, String> configData,
@@ -217,7 +217,6 @@ public class DctmConnectorType implements ConnectorType {
 
       ISession sess = null;
       ISessionManager sessMag = null;
-      String whereClause = null;
       boolean isCoreConfigValid = false;
       try {
         sessMag = getSessionManager(configData);
@@ -238,13 +237,13 @@ public class DctmConnectorType implements ConnectorType {
         if (configData.get(ADVANCEDCONF).equals("on")
             && configData.get(ACTIONUPDATE).equals("redisplay")) {
           logger.config("Redisplay the configuation form");
-          String form = makeValidatedForm(configData, resource, sessMag, sess);
+          String form = makeValidatedForm(configData, resource, sess);
           return new ConfigureResponse("", form);
         }
 
         if (configData.get(WHERECLAUSE) != null
             && !configData.get(WHERECLAUSE).equals("")) {
-          whereClause = checkWhereClause(configData, sessMag);
+          String whereClause = checkWhereClause(configData, sess);
           configData.put(WHERECLAUSE, whereClause);
           logger.config("where_clause is now " + whereClause);
         }
@@ -261,10 +260,10 @@ public class DctmConnectorType implements ConnectorType {
         }
 
         // Return the config form with an error message.
-        return createErrorMessage(configData, e, resource, sessMag, sess);
+        return createErrorMessage(configData, e, resource, sess);
       } finally {
         if (sess != null) {
-          sessMag.releaseSessionConfig();
+          sessMag.release(sess);
           logger.fine("Release sessionConfig");
         }
       }
@@ -272,9 +271,6 @@ public class DctmConnectorType implements ConnectorType {
       // There's no need to persist action_update.
       configData.remove(ACTIONUPDATE);
 
-      if (logger.isLoggable(Level.FINE)) {
-        logger.fine("sess before return null: " + sess);
-      }
       return null;
     } else {
       if (!missing.equals(DISPLAYURL)) {
@@ -287,7 +283,7 @@ public class DctmConnectorType implements ConnectorType {
 
       // Return the config form with an error message indicating the
       // name of the missing parameter.
-      String form = makeValidatedForm(configData, resource, null, null);
+      String form = makeValidatedForm(configData, resource, null);
       return new ConfigureResponse(resource.getString(missing + "_error"),
           form);
     }
@@ -332,12 +328,12 @@ public class DctmConnectorType implements ConnectorType {
       ResourceBundle resource = getResources(language);
 
       result = new ConfigureResponse("",
-          makeValidatedForm(configMap, resource, sessMag, sess));
+          makeValidatedForm(configMap, resource, sess));
     } catch (RepositoryException e1) {
       logger.log(Level.WARNING, "Error building the configuration form", e1);
     } finally {
       if (sess != null) {
-        sessMag.releaseSessionConfig();
+        sessMag.release(sess);
         logger.fine("Release sessionConfig");
       }
     }
@@ -387,8 +383,7 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private ConfigureResponse createErrorMessage(Map<String, String> configData,
-      RepositoryException e, ResourceBundle resource, ISessionManager sessMag,
-      ISession sess) {
+      RepositoryException e, ResourceBundle resource, ISession sess) {
     String form;
     String message = e.getMessage();
     String extractErrorMessage = null;
@@ -407,12 +402,13 @@ public class DctmConnectorType implements ConnectorType {
     }
     logger.warning(bundleMessage);
 
-    form = makeValidatedForm(configData, resource, sessMag, sess);
+    form = makeValidatedForm(configData, resource, sess);
     return new ConfigureResponse(bundleMessage, form);
   }
 
   private String checkWhereClause(Map<String, String> configData,
-      ISessionManager sessMag) throws RepositoryException {
+      ISession sess) throws RepositoryException {
+    String docbase = configData.get(DOCBASENAME);
     String whereClause = DqlUtils.stripLeadingAnd(configData.get(WHERECLAUSE));
     String rootType = configData.get(ROOT_OBJECT_TYPE);
     String includedTypes = configData.get(INCLUDED_OBJECT_TYPE);
@@ -429,7 +425,7 @@ public class DctmConnectorType implements ConnectorType {
 
     IQuery query = cl.getQuery();
     query.setDQL(dql.toString());
-    ICollection collec = query.execute(sessMag, IQuery.EXECUTE_READ_QUERY);
+    ICollection collec = query.execute(sess, IQuery.EXECUTE_READ_QUERY);
     try {
       if (!collec.next()) {
         throw new RepositoryException("[additionalTooRestrictive]");
@@ -499,7 +495,7 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private String makeValidatedForm(Map<String, String> configMap,
-      ResourceBundle resource, ISessionManager sessMag, ISession sess) {
+      ResourceBundle resource, ISession sess) {
     logger.fine("in makeValidatedForm");
     StringBuilder buf = new StringBuilder();
 
@@ -543,14 +539,17 @@ public class DctmConnectorType implements ConnectorType {
 
     // Get the properties from the config map, if one is present, or
     // set some defaults.
+    String docbase;
     String rootType;
     String advConf;
     if (configMap != null) {
+      docbase = configMap.get(DOCBASENAME);
       rootType = configMap.get(ROOT_OBJECT_TYPE).trim();
       logger.config("rootType from configmap: " + rootType);
       advConf = configMap.get(ADVANCEDCONF);
       logger.config("advConf from configmap: " + advConf);
     } else {
+      docbase = null; // We should not need this.
       rootType = rootObjectType;
       logger.config("root_object_type: " + rootType);
       advConf = "";
@@ -580,7 +579,7 @@ public class DctmConnectorType implements ConnectorType {
             appendStartTableRow(buf, resource.getString(AVAILABLE_OBJECT_TYPE),
                 resource.getString(key));
 
-            SortedSet<String> allTypes = getListOfTypes(rootType, sessMag);
+            SortedSet<String> allTypes = getListOfTypes(rootType, sess);
 
             // Properties are displayed according to the values stored
             // in the .properties file.
@@ -630,7 +629,7 @@ public class DctmConnectorType implements ConnectorType {
               appendOption(buf, type, type, type.equals(rootType));
             }
             SortedSet<String> documentTypes = getListOfTypes("dm_document",
-                sessMag);
+                sess);
             documentTypes.remove("dm_document");
             for (String type : documentTypes) {
               logger.config("Available object type: " + type);
@@ -710,7 +709,6 @@ public class DctmConnectorType implements ConnectorType {
     logger.config("after setIdentity for login: " + logMap.get(LOGIN));
     loginInfo.setPassword(logMap.get(PASSWORD_KEY));
     sessMag.setIdentity(logMap.get(DOCBASENAME), loginInfo);
-    sessMag.setDocbaseName(logMap.get(DOCBASENAME));
     logger.config("after setIdentity for docbase: " + logMap.get(DOCBASENAME));
     return sessMag;
   }
@@ -720,16 +718,12 @@ public class DctmConnectorType implements ConnectorType {
     logger.config("login is " + logMap.get(LOGIN));
     logger.config("docbase is " + logMap.get(DOCBASENAME));
 
-    ISession sess = sessMag.getSession(logMap.get(DOCBASENAME));
-    sessMag.setSessionConfig(sess);
-    return sess;
+    return sessMag.getSession(logMap.get(DOCBASENAME));
   }
 
-  private SortedSet<String> getListOfTypes(String rootType,
-      ISessionManager sessMag) {
+  private SortedSet<String> getListOfTypes(String rootType, ISession sess) {
     SortedSet<String> types = new TreeSet<String>();
     try {
-      logger.config("docbase of sessMag is " + sessMag.getDocbaseName());
       IQuery que = cl.getQuery();
       String queryString =
           "select r_type_name from dmi_type_info where any r_supertype = '"
@@ -737,10 +731,7 @@ public class DctmConnectorType implements ConnectorType {
       logger.config("queryString: " + queryString);
       que.setDQL(queryString);
 
-      boolean auth = sessMag.authenticate(sessMag.getDocbaseName());
-      logger.config("AUTH IS " + auth);
-
-      ICollection collec = que.execute(sessMag, IQuery.EXECUTE_READ_QUERY);
+      ICollection collec = que.execute(sess, IQuery.EXECUTE_READ_QUERY);
       while (collec.next()) {
         types.add(collec.getString("r_type_name"));
       }
