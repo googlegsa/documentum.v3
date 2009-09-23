@@ -102,8 +102,8 @@ public class DctmMockDocumentListTest extends TestCase {
 
     checkPoint = propertyMapList.checkpoint();
     assertTrue(checkPoint,
-        checkPoint.startsWith("{\"uuid\":\"doc26\""));
+        checkPoint.indexOf("\"uuid\":\"doc26\"") != -1);
     assertTrue(checkPoint,
-        checkPoint.endsWith("\"lastModified\":\"" + lastModified + "\"}"));
+        checkPoint.indexOf("\"lastModified\":\"" + lastModified + "\"") != -1);
   }
 }

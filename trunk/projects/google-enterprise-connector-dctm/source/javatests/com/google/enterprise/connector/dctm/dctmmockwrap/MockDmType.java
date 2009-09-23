@@ -16,16 +16,23 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IType;
+import com.google.enterprise.connector.spi.RepositoryDocumentException;
 
 public class MockDmType implements IType {
-  String type;
+  private final String type;
+  private final MockDmObject prototype;
 
   public MockDmType(String type) {
-    this.type = type;
+    this(type, null);
   }
 
-  public int getTypeAttrCount() {
-    return 0;
+  public MockDmType(String type, MockDmObject prototype) {
+    this.type = type;
+    this.prototype = prototype;
+  }
+
+  public int getTypeAttrCount() throws RepositoryDocumentException {
+    return (prototype == null) ? 0 : prototype.getAttrCount();
   }
 
   public IType getSuperType() {
@@ -36,8 +43,8 @@ public class MockDmType implements IType {
     }
   }
 
-  public IAttr getTypeAttr(int attrIndex) {
-    return null;
+  public IAttr getTypeAttr(int attrIndex) throws RepositoryDocumentException {
+    return (prototype == null) ? null : prototype.getAttr(attrIndex);
   }
 
   public String getDescription() {
