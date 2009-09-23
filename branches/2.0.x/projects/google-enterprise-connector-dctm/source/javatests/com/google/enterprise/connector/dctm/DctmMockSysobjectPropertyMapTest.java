@@ -57,10 +57,9 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
     loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
-    sessionManager.setDocbaseName(DmInitialize.DM_DOCBASE);
     traversalManager = new DctmTraversalManager(dctmClientX,
-        DmInitialize.DM_WEBTOP_SERVER_URL, DmInitialize.included_meta,
-        sessionManager);
+        DmInitialize.DM_DOCBASE, DmInitialize.DM_WEBTOP_SERVER_URL,
+        DmInitialize.included_meta, sessionManager);
 
     try {
       session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
@@ -82,10 +81,14 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     object = session.getObject(id);
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(traversalManager,
-        DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD, null);
+        session, DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD,
+        null);
 
     Set<String> names = dctmSpm.getPropertyNames();
-    assertEquals(3, names.size());
+    assertEquals(5, names.size());
+    for (String name : names) {
+      assertTrue(name, name.startsWith("google:"));
+    }
   }
 
   public void testFindProperty() throws RepositoryException {
@@ -99,7 +102,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     object = session.getObject(id);
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-        traversalManager, DmInitialize.DM_ID1, null, lastModifDate,
+        traversalManager, session,  DmInitialize.DM_ID1, null, lastModifDate,
         ActionType.ADD, null);
 
     Property property = dctmSpm.findProperty("google:docid");

@@ -54,8 +54,7 @@ public class MockDmObject implements ISysObject {
     ByteArrayInputStream contentStream = null;
     int avail = 0;
     try {
-      contentStream = (ByteArrayInputStream) mockDocument
-          .getContentStream();
+      contentStream = (ByteArrayInputStream) mockDocument.getContentStream();
       avail = contentStream.available();
     } catch (FileNotFoundException e) {
       // TODO: Why is this exception ignored?
@@ -66,8 +65,7 @@ public class MockDmObject implements ISysObject {
   public ByteArrayInputStream getContent() throws RepositoryDocumentException {
     ByteArrayInputStream contentStream = null;
     try {
-      contentStream = (ByteArrayInputStream) mockDocument
-          .getContentStream();
+      contentStream = (ByteArrayInputStream) mockDocument.getContentStream();
     } catch (FileNotFoundException e) {
       // TODO: Why is this exception ignored?
     }
@@ -124,8 +122,7 @@ public class MockDmObject implements ISysObject {
   }
 
   public int getInt(String name) throws RepositoryDocumentException {
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
+    MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     MockJcrValue propVal = new MockJcrValue(pm);
     int propIntVal = 0;
     try {
@@ -141,8 +138,7 @@ public class MockDmObject implements ISysObject {
     if (name.equals("r_modify_date")) {
       name = "google:lastmodify";
     }
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
+    MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     long time = 0;
     if (pm == null) {
       MockRepositoryDateTime dateTime = mockDocument.getTimeStamp();
@@ -161,21 +157,22 @@ public class MockDmObject implements ISysObject {
   }
 
   public IType getType() throws RepositoryDocumentException {
+    String propType = "MockType";
     MockRepositoryProperty pm = mockDocument.getProplist()
         .getProperty("r_object_type");
-    MockJcrValue propVal = new MockJcrValue(pm);
-    String propType = null;
-    try {
-      propType = propVal.getString();
-    } catch (IllegalStateException e) {
-      // TODO: Why is this exception ignored?
+    if (pm != null) {
+      MockJcrValue propVal = new MockJcrValue(pm);
+      try {
+        propType = propVal.getString();
+      } catch (IllegalStateException e) {
+        // TODO: Why is this exception ignored?
+      }
     }
-    return (propType == null)? null :  new MockDmType(propType);
+    return new MockDmType(propType, this);
   }
 
   public double getDouble(String name) throws RepositoryDocumentException {
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
+    MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     MockJcrValue propVal = new MockJcrValue(pm);
     double propDblVal = 0;
     try {
@@ -187,8 +184,7 @@ public class MockDmObject implements ISysObject {
   }
 
   public boolean getBoolean(String name) throws RepositoryDocumentException {
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
+    MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     MockJcrValue propVal = new MockJcrValue(pm);
     boolean propBlVal = true;
     try {
@@ -209,8 +205,7 @@ public class MockDmObject implements ISysObject {
   }
 
   public int getAttrDataType(String name) throws RepositoryDocumentException {
-    MockRepositoryProperty pm = mockDocument.getProplist()
-        .getProperty(name);
+    MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     MockJcrValue propVal = new MockJcrValue(pm);
     return propVal.getType();
   }

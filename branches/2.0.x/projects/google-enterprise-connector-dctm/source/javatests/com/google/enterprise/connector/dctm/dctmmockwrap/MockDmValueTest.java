@@ -61,7 +61,7 @@ public class MockDmValueTest extends TestCase {
     sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     query = localClient.getQuery();
     query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
-    collec = query.execute(sessionManager, IQuery.READ_QUERY);
+    collec = query.execute(sess7, IQuery.READ_QUERY);
     collec.next();
   }
 

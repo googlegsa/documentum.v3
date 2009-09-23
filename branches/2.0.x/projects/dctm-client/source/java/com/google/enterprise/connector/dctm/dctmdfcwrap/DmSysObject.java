@@ -197,7 +197,7 @@ public class DmSysObject implements ISysObject {
     DmSessionManager dmSessionManager = (DmSessionManager) sessionManager;
     try {
       this.idfSysObject.setSessionManager(dmSessionManager
-          .getSessionManager());
+          .getDfSessionManager());
     } catch (DfException e) {
       throw new RepositoryDocumentException(e);
     }

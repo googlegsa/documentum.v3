@@ -23,13 +23,5 @@ public interface IClientX {
 
   ILoginInfo getLoginInfo();
 
-  void setClient(IClient client);
-
-  IClient getClient();
-
-  void setSessionManager(ISessionManager sessionMag);
-
-  public ISessionManager getSessionManager();
-
-  public IQuery getQuery();
+  IQuery getQuery();
 }

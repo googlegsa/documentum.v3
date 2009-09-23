@@ -16,13 +16,10 @@ package com.google.enterprise.connector.dctm;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
-import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
@@ -33,84 +30,84 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class DctmMockAuthorizationManagerTest extends TestCase {
-  public final void testAuthorizeDocids() throws RepositoryException {
+  private AuthorizationManager authorizationManager;
 
-    AuthorizationManager authorizationManager;
-    authorizationManager = null;
-    Connector connector = new DctmConnector();
-
-    ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
-    ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
-    ((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
-    ((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
-    ((DctmConnector) connector)
-        .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-    ((DctmConnector) connector).setIs_public("false");
-    Session sess = (DctmSession) connector.login();
-    authorizationManager = (DctmAuthorizationManager) sess
-        .getAuthorizationManager();
+  protected void setUp() throws RepositoryException {
+    DctmConnector connector = new DctmConnector();
+    connector.setLogin(DmInitialize.DM_LOGIN_OK1);
+    connector.setPassword(DmInitialize.DM_PWD_OK1);
+    connector.setDocbase(DmInitialize.DM_DOCBASE);
+    connector.setClientX(DmInitialize.DM_CLIENTX);
+    connector.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+    connector.setIs_public("false");
+    Session sess = connector.login();
+    authorizationManager = sess.getAuthorizationManager();
     assertNotNull(authorizationManager);
+  }
 
-    {
-      String username = DmInitialize.DM_LOGIN_OK2;
-
+  public final void testOk2() throws RepositoryException {
       Map<String, Boolean> expectedResults = new HashMap<String, Boolean>();
       expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID2, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID5, Boolean.FALSE);
-      assertNotNull((DctmAuthorizationManager) authorizationManager);
-      assertNotNull(expectedResults);
-      assertNotNull(username);
-      testAuthorization((DctmAuthorizationManager) authorizationManager,
-          expectedResults, username);
+      testAuthorization(expectedResults, DmInitialize.DM_LOGIN_OK2);
     }
 
-    {
-      String username = DmInitialize.DM_LOGIN_OK3;
+  public final void testOk2Domain() throws RepositoryException {
+      Map<String, Boolean> expectedResults = new HashMap<String, Boolean>();
+      expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_ID2, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_ID5, Boolean.FALSE);
+      testAuthorization(expectedResults, DmInitialize.DM_LOGIN_OK2_DOMAIN);
+    }
 
+  public final void testOk2DnsDomain() throws RepositoryException {
+      Map<String, Boolean> expectedResults = new HashMap<String, Boolean>();
+      expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_ID2, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
+      expectedResults.put(DmInitialize.DM_ID5, Boolean.FALSE);
+      testAuthorization(expectedResults, DmInitialize.DM_LOGIN_OK2_DNS_DOMAIN);
+    }
+
+  public final void testOk3() throws RepositoryException {
       Map<String, Boolean> expectedResults = new HashMap<String, Boolean>();
       expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID2, Boolean.FALSE);
       expectedResults.put(DmInitialize.DM_ID3, Boolean.FALSE);
       expectedResults.put(DmInitialize.DM_ID4, Boolean.FALSE);
       expectedResults.put(DmInitialize.DM_ID5, Boolean.FALSE);
-      testAuthorization((DctmAuthorizationManager) authorizationManager,
-          expectedResults, username);
+      testAuthorization(expectedResults, DmInitialize.DM_LOGIN_OK3);
     }
 
-    {
-      String username = DmInitialize.DM_LOGIN_OK1;
-
+  public final void testOk1() throws RepositoryException {
       Map<String, Boolean> expectedResults = new HashMap<String, Boolean>();
       expectedResults.put(DmInitialize.DM_ID1, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID2, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID3, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID4, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_ID5, Boolean.TRUE);
-
-      testAuthorization((DctmAuthorizationManager) authorizationManager,
-          expectedResults, username);
-    }
+      testAuthorization(expectedResults, DmInitialize.DM_LOGIN_OK1);
   }
 
-  private void testAuthorization(DctmAuthorizationManager authorizationManager,
-      Map<String, Boolean> expectedResults, String username)
-      throws RepositoryException {
-    List<String> docids = new LinkedList<String>(expectedResults.keySet());
-
-    assertNotNull(docids);
+  private void testAuthorization(Map<String, Boolean> expectedResults,
+      String username) throws RepositoryException {
     Collection<AuthorizationResponse> list =
-        authorizationManager.authorizeDocids(docids,
+        authorizationManager.authorizeDocids(expectedResults.keySet(),
             new SimpleAuthenticationIdentity(username, null));
     assertNotNull(list);
+    assertEquals(expectedResults.size(), list.size());
     for (AuthorizationResponse pm : list) {
       String uuid = pm.getDocid();
       boolean ok = pm.isValid();
       Boolean expected = expectedResults.get(uuid);
-      Assert.assertEquals(username + " access to " + uuid, expected
-          .booleanValue(), ok);
+      Assert.assertEquals(username + " access to " + uuid,
+          expected.booleanValue(), ok);
     }
   }
 }
