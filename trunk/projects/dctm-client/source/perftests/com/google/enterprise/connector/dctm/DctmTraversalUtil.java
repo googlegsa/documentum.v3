@@ -55,14 +55,17 @@ public class DctmTraversalUtil {
 
     DocPusher push = null;
     try {
-      push = new DocPusher(
-          new GsaFeedConnection("8.6.49.36", 19900));
+      push = new DocPusher(new GsaFeedConnection(
+          // "8.6.49.36"
+          // "swp-gsa-demo"
+          "gogol.vizdom.com"                                                 
+          , 19900), "dctm");
+
     } catch (MalformedURLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    // DocPusher push = new DocPusher(new GsaFeedConnection("swp-gsa-demo",
-    // 19900));
+
     int counter = 0;
 
     while (true) {
@@ -76,9 +79,7 @@ public class DctmTraversalUtil {
           System.out.println("counter == batchhint !!!!");
           // this test program only takes batchHint results from each
           // resultSet. The real connector manager may take fewer -
-          // for
-          // example, if it receives a shutdown request
-
+          // for example, if it receives a shutdown request
           break;
         }
         Iterator iteri = pm.getPropertyNames().iterator();
@@ -90,7 +91,7 @@ public class DctmTraversalUtil {
         System.out.println("counter " + counter + " " + k);
         System.out.println(pm.findProperty(
             SpiConstants.PROPNAME_DISPLAYURL).nextValue());
-        push.take(pm, "dctm");
+        push.take(pm);
 
       }
       String checkpoint = "";
