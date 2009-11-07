@@ -39,6 +39,7 @@ import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
+import com.google.enterprise.connector.spi.SkippedDocumentException;
 import com.google.enterprise.connector.spi.SimpleProperty;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.SpiConstants.ActionType;
@@ -284,32 +285,48 @@ public class DctmSysobjectDocument implements Document {
     // Don't send content that is too big or too small.
     long contentSize = object.getContentSize();
     TraversalContext traversalContext = traversalManager.getTraversalContext();
-    long maxContentSize = (traversalContext != null) ? traversalContext.maxDocumentSize() : MAX_CONTENT_SIZE;
-    if (contentSize <= 0) {
-      if (logging) {
-        logger.fine("this object has no content");
-      }
-      return false;
-    }
-    if (contentSize > maxContentSize) {
-      if (logging) {
-        logger.fine("content is too large: " + contentSize);
-      }
-      return false;
-    }
+
     // Don't send content whose mimetype is not supported.
     IFormat format = object.getFormat();
     String mimetype = format.getMIMEType();
     if (traversalContext != null) {
-      if (traversalContext.mimeTypeSupportLevel(mimetype) <= 0) {
+      int supportLevel = traversalContext.mimeTypeSupportLevel(mimetype);
+      if (supportLevel < 0) {
+        if (logging) {
+          logger.fine("excluded content format: " + format.getName());
+        }
+        throw new SkippedDocumentException("Excluded by content type: "
+                                           + mimetype);
+      }
+      if (supportLevel == 0) {
         if (logging) {
           logger.fine("unindexable content format: " + format.getName());
         }
         return false;
       }
-    } else if (!format.canIndex()) {
+      if (contentSize > traversalContext.maxDocumentSize()) {
+        if (logging) {
+          logger.fine("content is too large: " + contentSize);
+        }
+        return false;
+      }
+    } else {
+      if (!format.canIndex()) {
+        if (logging) {
+          logger.fine("unindexable content format: " + format.getName());
+        }
+        return false;
+      }
+      if (contentSize > MAX_CONTENT_SIZE) {
+        if (logging) {
+          logger.fine("content is too large: " + contentSize);
+        }
+        return false;
+      }
+    }
+    if (contentSize <= 0) {
       if (logging) {
-        logger.fine("unindexable content format: " + format.getName());
+        logger.fine("this object has no content");
       }
       return false;
     }
