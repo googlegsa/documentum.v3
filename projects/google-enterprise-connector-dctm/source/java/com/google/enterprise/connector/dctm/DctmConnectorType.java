@@ -141,6 +141,10 @@ public class DctmConnectorType implements ConnectorType {
 
   private static final String ID = "id";
 
+  private String clientXclassName;
+
+  private UrlValidator urlValidator;
+
   private List<String> configKeys = null;
 
   private String includedObjectType = null;
@@ -149,7 +153,22 @@ public class DctmConnectorType implements ConnectorType {
 
   private String rootObjectType = null;
 
-  private IClientX cl = null;
+  public DctmConnectorType() {
+  }
+
+  public void setClientX(String className) {
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine("ClientX: " + className);
+    }
+    clientXclassName = className;
+  }
+
+  public void setUrlValidator(UrlValidator urlValidator) {
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine("URL validator: " + urlValidator.getClass().getName());
+    }
+    this.urlValidator = urlValidator;
+  }
 
   /**
    * Set the keys that are required for configuration. One of the overloadings
@@ -160,8 +179,8 @@ public class DctmConnectorType implements ConnectorType {
    */
   public void setConfigKeys(List<String> configKeys) {
     logger.fine("setConfigKeys List");
-    if (this.configKeys != null) {
-      throw new IllegalStateException();
+    if (configKeys == null) {
+      throw new IllegalArgumentException();
     }
     this.configKeys = configKeys;
   }
@@ -195,18 +214,21 @@ public class DctmConnectorType implements ConnectorType {
 
   public ConfigureResponse getConfigForm(Locale language) {
     ResourceBundle resource = getResources(language);
-    if (configKeys == null) {
-      throw new IllegalStateException();
+    try {
+      IClientX cl = getClientX();
+      return new ConfigureResponse("",
+          makeValidatedForm(null, resource, cl, null));
+    } catch (RepositoryException e) {
+      // If we can't connect to DFC at all, return just an error message.
+      logger.log(Level.SEVERE,
+          "Error while building the configuration form", e);
+      return createErrorResponse(e, resource, ErrorStyle.GET_CONFIG_FORM);
     }
-
-    return new ConfigureResponse("",
-        makeValidatedForm(null, resource, null));
   }
 
   public ConfigureResponse validateConfig(Map<String, String> configData,
       Locale language, ConnectorFactory connectorFactory) {
     logger.config("CONFIG DATA is " + getMaskedMap(configData));
-
     ResourceBundle resource = getResources(language);
 
     String missing = validateCoreConfig(configData);
@@ -218,8 +240,10 @@ public class DctmConnectorType implements ConnectorType {
       ISession sess = null;
       ISessionManager sessMag = null;
       boolean isCoreConfigValid = false;
+      IClientX cl = null;
       try {
-        sessMag = getSessionManager(configData);
+        cl = getClientX();
+        sessMag = getSessionManager(cl, configData);
 
         ILoginInfo myinfo = sessMag.getIdentity(configData.get(DOCBASENAME));
         String user = myinfo.getUser();
@@ -237,13 +261,13 @@ public class DctmConnectorType implements ConnectorType {
         if (configData.get(ADVANCEDCONF).equals("on")
             && configData.get(ACTIONUPDATE).equals("redisplay")) {
           logger.config("Redisplay the configuation form");
-          String form = makeValidatedForm(configData, resource, sess);
+          String form = makeValidatedForm(configData, resource, cl, sess);
           return new ConfigureResponse("", form);
         }
 
         if (configData.get(WHERECLAUSE) != null
             && !configData.get(WHERECLAUSE).equals("")) {
-          String whereClause = checkWhereClause(configData, sess);
+          String whereClause = checkWhereClause(configData, cl, sess);
           configData.put(WHERECLAUSE, whereClause);
           logger.config("where_clause is now " + whereClause);
         }
@@ -259,8 +283,14 @@ public class DctmConnectorType implements ConnectorType {
           logger.config("ADVANCEDCONF reset to off");
         }
 
+        if (cl == null) {
+          // If we can't connect to DFC at all, return just an error message.
+          return createErrorResponse(e, resource, ErrorStyle.VALIDATE_CONFIG);
+        }
+
         // Return the config form with an error message.
-        return createErrorMessage(configData, e, resource, sess);
+        return createErrorResponse(configData, e, resource, cl, sess,
+            ErrorStyle.VALIDATE_CONFIG);
       } finally {
         if (sess != null) {
           sessMag.release(sess);
@@ -283,7 +313,13 @@ public class DctmConnectorType implements ConnectorType {
 
       // Return the config form with an error message indicating the
       // name of the missing parameter.
-      String form = makeValidatedForm(configData, resource, null);
+      String form;
+      try {
+        IClientX cl = getClientX();
+        form = makeValidatedForm(configData, resource, cl, null);
+      } catch (RepositoryException e) {
+        form = "";
+      }
       return new ConfigureResponse(resource.getString(missing + "_error"),
           form);
     }
@@ -292,12 +328,17 @@ public class DctmConnectorType implements ConnectorType {
   public ConfigureResponse getPopulatedConfigForm(
       Map<String, String> configMap, Locale language)  {
     logger.fine("getPopulatedConfigForm");
+    ResourceBundle resource = getResources(language);
     ConfigureResponse result = null;
 
+    // TODO: We only need the session in makeValidatedForm, and only if
+    // the advanced config is turned on.
+    IClientX cl = null;
     ISessionManager sessMag = null;
     ISession sess = null;
     try {
-      sessMag = getSessionManager(configMap);
+      cl = getClientX();
+      sessMag = getSessionManager(cl, configMap);
       sess = getSession(configMap, sessMag);
 
       for (String key : configKeys) {
@@ -325,12 +366,24 @@ public class DctmConnectorType implements ConnectorType {
         logger.config("Before spring process: " + getMaskedMap(configMap));
       }
 
-      ResourceBundle resource = getResources(language);
-
       result = new ConfigureResponse("",
-          makeValidatedForm(configMap, resource, sess));
-    } catch (RepositoryException e1) {
-      logger.log(Level.WARNING, "Error building the configuration form", e1);
+          makeValidatedForm(configMap, resource, cl, sess));
+    } catch (RepositoryException e) {
+      logger.log(Level.WARNING, "Error building the configuration form", e);
+
+      if (cl == null) {
+        // If we can't connect to DFC at all, return just an error message.
+        return createErrorResponse(e, resource, ErrorStyle.GET_CONFIG_FORM);
+      }
+
+      // TODO: Do we want to turn off the advanced config here, like
+      // we do in validateConfig? The equivalent to !isCoreConfigValid
+      // is sess == null, and if sess == null then advanced config is
+      // effectively turned off, so we don't have to do anything here.
+
+      // Return the config form with an error message.
+      return createErrorResponse(configMap, e, resource, cl, sess,
+          ErrorStyle.GET_CONFIG_FORM);
     } finally {
       if (sess != null) {
         sessMag.release(sess);
@@ -348,7 +401,8 @@ public class DctmConnectorType implements ConnectorType {
    * @return the <code>ResourceBundle</code>
    * @throws MissingResourceException if the bundle can't be found
    */
-  private ResourceBundle getResources(Locale language)
+  /* This method has package access for unit testing. */
+  ResourceBundle getResources(Locale language)
       throws MissingResourceException {
     return ResourceBundle.getBundle("DctmConnectorResources", language);
   }
@@ -382,18 +436,63 @@ public class DctmConnectorType implements ConnectorType {
     return copy;
   }
 
-  private ConfigureResponse createErrorMessage(Map<String, String> configData,
-      RepositoryException e, ResourceBundle resource, ISession sess) {
+  /**
+   * Configuration options to workaround bug bug 1628781. Until GSA 6.2,
+   * only validateConfig displayed the message from the ConfigureResponse,
+   * so we need to push the message into the form when appropriate.
+   */
+  private enum ErrorStyle { GET_CONFIG_FORM, VALIDATE_CONFIG };
+
+  private ConfigureResponse createErrorResponse(Map<String, String> configData,
+      RepositoryException e, ResourceBundle resource, IClientX cl,
+      ISession sess, ErrorStyle style) {
+    String bundleMessage = getErrorMessage(e, resource);
     String form;
+    try {
+      form = makeValidatedForm(configData, resource, cl, sess);
+    } catch (RepositoryException ignored) {
+      logger.log(Level.SEVERE, "Error creating error response form", ignored);
+      form = "";
+    }
+    return getConfigureResponse(bundleMessage, form, style);
+  }
+
+  private ConfigureResponse createErrorResponse(RepositoryException e,
+      ResourceBundle resource, ErrorStyle style) {
+    String bundleMessage = getErrorMessage(e, resource);
+    String form = "";
+    return getConfigureResponse(bundleMessage, form, style);
+  }
+
+  /**
+   * Gets a {@code ConfigureResponse}. Bug 1628781 prevents the GSA
+   * from the displaying the message returned by {@code getConfigForm}
+   * or {@code getPopulatedConfigForm}, so we push the message into
+   * the form snippet but outside of a table row, for roughly similar
+   * rendering in the browser.
+   */
+  private ConfigureResponse getConfigureResponse(String bundleMessage,
+      String form, ErrorStyle style) {
+    if (style == ErrorStyle.GET_CONFIG_FORM) {
+        form = "<font color='red'>" + bundleMessage + "</font><br />\n"
+            + form;
+        bundleMessage = "";
+    }
+    return new ConfigureResponse(bundleMessage, form);
+  }
+
+  private String getErrorMessage(RepositoryException e,
+      ResourceBundle resource) {
     String message = e.getMessage();
-    String extractErrorMessage = null;
-    String bundleMessage = null;
+    String extractErrorMessage;
     if (message.indexOf("[") != -1) {
       extractErrorMessage = message.substring(message.indexOf("[") + 1,
           message.indexOf("]"));
     } else {
+      // XXX: How safe is assuming that we have cause here?
       extractErrorMessage = e.getCause().getClass().getName();
     }
+    String bundleMessage;
     try {
       bundleMessage = resource.getString(extractErrorMessage);
     } catch (MissingResourceException mre) {
@@ -401,13 +500,11 @@ public class DctmConnectorType implements ConnectorType {
           + e.getMessage();
     }
     logger.warning(bundleMessage);
-
-    form = makeValidatedForm(configData, resource, sess);
-    return new ConfigureResponse(bundleMessage, form);
+    return bundleMessage;
   }
 
   private String checkWhereClause(Map<String, String> configData,
-      ISession sess) throws RepositoryException {
+      IClientX cl, ISession sess) throws RepositoryException {
     String docbase = configData.get(DOCBASENAME);
     String whereClause = DqlUtils.stripLeadingAnd(configData.get(WHERECLAUSE));
     String rootType = configData.get(ROOT_OBJECT_TYPE);
@@ -439,14 +536,13 @@ public class DctmConnectorType implements ConnectorType {
     return whereClause;
   }
 
-  private void testWebtopUrl(String url)
-      throws RepositoryException {
+  private void testWebtopUrl(String url) throws RepositoryException {
     if (url == null || url.length() == 0) {
       throw new RepositoryException("[webtop_display_url_error]");
     }
     logger.config("test connection to the webtop server: " + url);
     try {
-      new UrlValidator().validate(url);
+      urlValidator.validate(url);
     } catch (UrlValidatorException e) {
       throw new RepositoryException(
           "[status] Http request returned a " + e.getStatusCode()
@@ -495,8 +591,8 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   private String makeValidatedForm(Map<String, String> configMap,
-      ResourceBundle resource, ISession sess) {
-    logger.fine("in makeValidatedForm");
+      ResourceBundle resource, IClientX cl, ISession sess)
+      throws RepositoryException {
     StringBuilder buf = new StringBuilder();
 
     // JavaScript functions used to sync the select lists with the
@@ -539,172 +635,154 @@ public class DctmConnectorType implements ConnectorType {
 
     // Get the properties from the config map, if one is present, or
     // set some defaults.
-    String docbase;
     String rootType;
     String advConf;
     if (configMap != null) {
-      docbase = configMap.get(DOCBASENAME);
       rootType = configMap.get(ROOT_OBJECT_TYPE).trim();
       logger.config("rootType from configmap: " + rootType);
       advConf = configMap.get(ADVANCEDCONF);
       logger.config("advConf from configmap: " + advConf);
     } else {
-      docbase = null; // We should not need this.
       rootType = rootObjectType;
       logger.config("root_object_type: " + rootType);
       advConf = "";
     }
 
-    try {
-      for (String key : configKeys) {
-        ///logger.config("key is " + key);
-        String value = "";
-        if (configMap != null) {
-          value = configMap.get(key);
-          ///logger.config("key " + key + " is " + value);
-        }
-
-        if (key.equals(ISPUBLIC)) {
-          if (value != null && value.equals("on")) {
-            appendCheckBox(buf, key, resource.getString(key), value, resource);
-          }
-        } else if (key.equals(DOCBASENAME)) {
-          logger.fine("docbase droplist");
-          appendStartRow(buf, resource.getString(key), isRequired(key));
-          appendDropDownListAttribute(buf, TYPE, value);
-          appendEndRow(buf);
-        } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
-          if (sess != null && advConf.equals("on")) {
-            appendStartTable(buf);
-            appendStartTableRow(buf, resource.getString(AVAILABLE_OBJECT_TYPE),
-                resource.getString(key));
-
-            SortedSet<String> allTypes = getListOfTypes(rootType, sess);
-
-            // Properties are displayed according to the values stored
-            // in the .properties file.
-            appendSelectMultipleIncludeTypes(buf, rootType, allTypes,
-                configMap);
-          } else {
-            // Properties are displayed according to the default
-            // values stored in the connectorType.xml file.
-            appendSelectMultipleIncludeTypes(buf, configMap);
-          }
-        } else if (key.equals(INCLUDED_META)) {
-          // If the form is not displayed for the first time
-          // (modification) and the advanced conf checkbox is checked.
-          if (sess != null && advConf.equals("on")) {
-            appendStartTableRow(buf, resource.getString(AVAILABLE_META),
-                resource.getString(key));
-
-            // Properties are displayed according to the values stored
-            // in the .properties file.
-            appendSelectMultipleIncludeMetadatas(buf, configMap, sess);
-
-            appendEndTable(buf);
-          } else {
-            // Properties are displayed according to the default
-            // values stored in the connectorType.xml file.
-            appendSelectMultipleIncludeMetadatas(buf, configMap);
-          }
-          buf.append("</tbody>");
-        } else if (key.equals(ADVANCEDCONF)) {
-          logger.fine("advanced config: " + advConf);
-          appendCheckBox(buf, ADVANCEDCONF,
-              "<b>" + resource.getString(key) + "</b>", value, resource);
-        } else if (key.equals(ROOT_OBJECT_TYPE)) {
-          logger.fine("makeValidatedForm - rootObjectType");
-          if (sess != null && advConf.equals("on")) {
-            appendStartRow(buf, resource.getString(key), isRequired(key));
-            buf.append(SELECT_START);
-            appendAttribute(buf, NAME, ROOT_OBJECT_TYPE);
-            buf.append(" onchange=\"");
-            buf.append("document.getElementById('action_update').value='redisplay';");
-            buf.append("document.body.style.cursor='wait';");
-            buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
-            buf.append("\">\n");
-            String[] baseTypes = { "dm_sysobject", "dm_document", };
-            for (String type : baseTypes) {
-              logger.config("Available object type: " + type);
-              appendOption(buf, type, type, type.equals(rootType));
-            }
-            SortedSet<String> documentTypes = getListOfTypes("dm_document",
-                sess);
-            documentTypes.remove("dm_document");
-            for (String type : documentTypes) {
-              logger.config("Available object type: " + type);
-              appendOption(buf, type, type, type.equals(rootType));
-            }
-            buf.append(SELECT_END);
-            appendEndRow(buf);
-          } else {
-            appendHiddenInput(buf, key, rootType);
-          }
-        } else if (key.equals(WHERECLAUSE)) {
-          logger.fine("where clause");
-          appendStartTextareaRow(buf, resource.getString(key));
-          appendTextarea(buf, WHERECLAUSE, value);
-        } else if (key.equals(ACTIONUPDATE)) {
-          appendHiddenInput(buf, key, key, "");
-        } else {
-          logger.fine("makeValidatedForm - input - " + key);
-          appendStartRow(buf, resource.getString(key), isRequired(key));
-          buf.append(OPEN_ELEMENT);
-          buf.append(INPUT);
-          if (key.equals(PASSWORD_KEY)) {
-            appendAttribute(buf, TYPE, PASSWORD);
-          } else {
-            appendAttribute(buf, TYPE, TEXT);
-          }
-          appendAttribute(buf, VALUE, value);
-          appendAttribute(buf, NAME, key);
-          appendAttribute(buf, ID, key);
-          buf.append(CLOSE_ELEMENT);
-          appendEndRow(buf);
-        }
+    for (String key : configKeys) {
+      ///logger.config("key is " + key);
+      String value = "";
+      if (configMap != null) {
+        value = configMap.get(key);
+        ///logger.config("key " + key + " is " + value);
       }
-    } catch (RepositoryException e1) {
-      logger.log(Level.WARNING, "Error building the configuration form", e1);
+
+      if (key.equals(ISPUBLIC)) {
+        if (value != null && value.equals("on")) {
+          appendCheckBox(buf, key, resource.getString(key), value, resource);
+        }
+      } else if (key.equals(DOCBASENAME)) {
+        logger.fine("docbase droplist");
+        appendStartRow(buf, resource.getString(key), isRequired(key));
+        appendDropDownListAttribute(buf, value, cl);
+        appendEndRow(buf);
+      } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
+        if (sess != null && advConf.equals("on")) {
+          appendStartTable(buf);
+          appendStartTableRow(buf, resource.getString(AVAILABLE_OBJECT_TYPE),
+              resource.getString(key));
+
+          SortedSet<String> allTypes = getListOfTypes(rootType, cl, sess);
+
+          // Properties are displayed according to the values stored
+          // in the .properties file.
+          appendSelectMultipleIncludeTypes(buf, rootType, allTypes,
+              configMap);
+        } else {
+          // Properties are displayed according to the default
+          // values stored in the connectorType.xml file.
+          appendSelectMultipleIncludeTypes(buf, configMap);
+        }
+      } else if (key.equals(INCLUDED_META)) {
+        // If the form is not displayed for the first time
+        // (modification) and the advanced conf checkbox is checked.
+        if (sess != null && advConf.equals("on")) {
+          appendStartTableRow(buf, resource.getString(AVAILABLE_META),
+              resource.getString(key));
+
+          // Properties are displayed according to the values stored
+          // in the .properties file.
+          appendSelectMultipleIncludeMetadatas(buf, configMap, sess);
+
+          appendEndTable(buf);
+        } else {
+          // Properties are displayed according to the default
+          // values stored in the connectorType.xml file.
+          appendSelectMultipleIncludeMetadatas(buf, configMap);
+        }
+        buf.append("</tbody>");
+      } else if (key.equals(ADVANCEDCONF)) {
+        logger.fine("advanced config: " + advConf);
+        appendCheckBox(buf, ADVANCEDCONF,
+            "<b>" + resource.getString(key) + "</b>", value, resource);
+      } else if (key.equals(ROOT_OBJECT_TYPE)) {
+        logger.fine("makeValidatedForm - rootObjectType");
+        if (sess != null && advConf.equals("on")) {
+          appendStartRow(buf, resource.getString(key), isRequired(key));
+          buf.append(SELECT_START);
+          appendAttribute(buf, NAME, ROOT_OBJECT_TYPE);
+          buf.append(" onchange=\"");
+          buf.append("document.getElementById('action_update').value='redisplay';");
+          buf.append("document.body.style.cursor='wait';");
+          buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
+          buf.append("\">\n");
+          String[] baseTypes = { "dm_sysobject", "dm_document", };
+          for (String type : baseTypes) {
+            logger.config("Available object type: " + type);
+            appendOption(buf, type, type, type.equals(rootType));
+          }
+          SortedSet<String> documentTypes = getListOfTypes("dm_document",
+              cl, sess);
+          documentTypes.remove("dm_document");
+          for (String type : documentTypes) {
+            logger.config("Available object type: " + type);
+            appendOption(buf, type, type, type.equals(rootType));
+          }
+          buf.append(SELECT_END);
+          appendEndRow(buf);
+        } else {
+          appendHiddenInput(buf, key, rootType);
+        }
+      } else if (key.equals(WHERECLAUSE)) {
+        logger.fine("where clause");
+        appendStartTextareaRow(buf, resource.getString(key));
+        appendTextarea(buf, WHERECLAUSE, value);
+      } else if (key.equals(ACTIONUPDATE)) {
+        appendHiddenInput(buf, key, key, "");
+      } else {
+        logger.fine("makeValidatedForm - input - " + key);
+        appendStartRow(buf, resource.getString(key), isRequired(key));
+        buf.append(OPEN_ELEMENT);
+        buf.append(INPUT);
+        if (key.equals(PASSWORD_KEY)) {
+          appendAttribute(buf, TYPE, PASSWORD);
+        } else {
+          appendAttribute(buf, TYPE, TEXT);
+        }
+        appendAttribute(buf, VALUE, value);
+        appendAttribute(buf, NAME, key);
+        appendAttribute(buf, ID, key);
+        buf.append(CLOSE_ELEMENT);
+        appendEndRow(buf);
+      }
     }
 
     return buf.toString();
   }
 
-  private ISessionManager getSessionManager(Map<String, String> logMap)
-      throws RepositoryException {
-    ILoginInfo loginInfo;
+  private IClientX getClientX() throws RepositoryException {
+    IClientX cl;
     try {
-      cl = (IClientX) Class.forName(
-          "com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX")
-          .newInstance();
+      cl = (IClientX) Class.forName(clientXclassName).newInstance();
     } catch (InstantiationException e) {
-      logger.log(
-          Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
-    } catch (IllegalAccessException e) {
-      logger.log(
-          Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
-    } catch (ClassNotFoundException e) {
-      logger.log(
-          Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
-    } catch (NoClassDefFoundError e) {
-      logger.log(
-          Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
+      Throwable cause = e.getCause();
+      if (cause instanceof RepositoryException)
+        throw (RepositoryException) cause;
+      else
+        throw new RepositoryException(e);
+    } catch (Throwable e) {
+      throw new RepositoryException(e);
     }
+    return cl;
+  }
 
+  private ISessionManager getSessionManager(IClientX cl,
+      Map<String, String> logMap) throws RepositoryException {
     IClient client = cl.getLocalClient();
     ISessionManager sessMag = client.newSessionManager();
     sessMag.clearIdentity(logMap.get(DOCBASENAME));
     logger.config("after clearIdentity for docbase: "
         + logMap.get(DOCBASENAME));
-    loginInfo = cl.getLoginInfo();
+    ILoginInfo loginInfo = cl.getLoginInfo();
     loginInfo.setUser(logMap.get(LOGIN));
     logger.config("after setIdentity for login: " + logMap.get(LOGIN));
     loginInfo.setPassword(logMap.get(PASSWORD_KEY));
@@ -713,15 +791,16 @@ public class DctmConnectorType implements ConnectorType {
     return sessMag;
   }
 
-  private ISession getSession(Map<String, String> logMap, ISessionManager sessMag)
-      throws RepositoryException {
+  private ISession getSession(Map<String, String> logMap,
+      ISessionManager sessMag) throws RepositoryException {
     logger.config("login is " + logMap.get(LOGIN));
     logger.config("docbase is " + logMap.get(DOCBASENAME));
 
     return sessMag.getSession(logMap.get(DOCBASENAME));
   }
 
-  private SortedSet<String> getListOfTypes(String rootType, ISession sess) {
+  private SortedSet<String> getListOfTypes(String rootType, IClientX cl,
+      ISession sess) {
     SortedSet<String> types = new TreeSet<String>();
     try {
       IQuery que = cl.getQuery();
@@ -752,7 +831,7 @@ public class DctmConnectorType implements ConnectorType {
 
   private void appendSelectMultipleIncludeTypes(StringBuilder buf,
       String rootType, SortedSet<String> allTypes,
-      Map<String, String> configMap) throws RepositoryException {
+      Map<String, String> configMap) {
     logger.fine("in SelectMultipleIncludeTypes with collection parameter");
     String stTypes = configMap.get(INCLUDED_OBJECT_TYPE);
     String[] typeList = stTypes.split(",");
@@ -1179,7 +1258,7 @@ public class DctmConnectorType implements ConnectorType {
 
   private void appendOption(StringBuilder buf, String value, String text,
       boolean isSelected) {
-    buf.append("<option ");
+    buf.append("<option");
     appendAttribute(buf, "value", value);
     if (isSelected) {
       buf.append(SELECTED);
@@ -1189,59 +1268,21 @@ public class DctmConnectorType implements ConnectorType {
     buf.append("</option>\n");
   }
 
-  private void appendDropDownListAttribute(StringBuilder buf, String type2,
-      String value) {
-    IClientX cl = null;
-    try {
-      cl = (IClientX) Class.forName(
-          "com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX")
-          .newInstance();
-    } catch (InstantiationException e) {
-      logger.log(Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
-    } catch (IllegalAccessException e) {
-      logger.log(Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
-    } catch (ClassNotFoundException e) {
-      logger.log(Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
-    } catch (NoClassDefFoundError e) {
-      logger.log(Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
+  private void appendDropDownListAttribute(StringBuilder buf, String value,
+      IClientX cl) throws RepositoryException {
+    IClient client = cl.getLocalClient();
+    IDocbaseMap docbases = client.getDocbaseMap();
+
+    buf.append(SELECT_START);
+    appendAttribute(buf, NAME, DOCBASENAME);
+    buf.append(">\n");
+
+    for (int i = 0, n = docbases.getDocbaseCount(); i < n; i++) {
+      String docbase = docbases.getDocbaseName(i);
+      appendOption(buf, docbase, docbase, n == 1 || docbase.equals(value));
     }
 
-    try {
-      IClient client = cl.getLocalClient();
-      IDocbaseMap mapOfDocbasesName = client.getDocbaseMap();
-      if (!(mapOfDocbasesName.getDocbaseCount() > 0)) {
-        appendAttribute(buf, type2, value);
-      } else {
-        buf.append(SELECT_START);
-        appendAttribute(buf, NAME, DOCBASENAME);
-        buf.append(">\n");
-
-        for (int i = 0; i < mapOfDocbasesName.getDocbaseCount(); i++) {
-          buf.append("\t<option");
-          if (value != null
-              && mapOfDocbasesName.getDocbaseName(i).equals(value)) {
-            buf.append(SELECTED);
-          }
-          appendAttribute(buf, VALUE, mapOfDocbasesName.getDocbaseName(i));
-          buf.append(">");
-          buf.append(mapOfDocbasesName.getDocbaseName(i));
-          buf.append("</option>\n");
-        }
-        buf.append(SELECT_END);
-      }
-    } catch (RepositoryException e) {
-      logger.log(Level.SEVERE,
-          "error while building the configuration form. The docbase will be added manually. ",
-          e);
-    }
+    buf.append(SELECT_END);
   }
 
   private void appendStartRow(StringBuilder buf, String key,
