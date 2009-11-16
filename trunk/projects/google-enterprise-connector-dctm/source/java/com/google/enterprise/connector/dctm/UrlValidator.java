@@ -170,7 +170,7 @@ class UrlValidator {
    * unit tested. A return value of 0 is arbitrary and unused by the
    * tests.
    */
-  public final int validate(String urlString)
+  public int validate(String urlString)
       throws GeneralSecurityException, IOException, UrlValidatorException {
     if (urlString == null || urlString.trim().length() == 0)
       return 0;

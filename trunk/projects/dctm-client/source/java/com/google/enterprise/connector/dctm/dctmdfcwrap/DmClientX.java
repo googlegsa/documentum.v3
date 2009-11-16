@@ -41,6 +41,13 @@ public class DmClientX implements IClientX {
       return new DmClient(idfClientX.getLocalClient());
     } catch (DfException e) {
       throw new RepositoryException(e);
+    } catch (Error e) {
+      // DFC 5.3 sometimes throws exceptions wrapped in an Error here.
+      Throwable cause = e.getCause();
+      if (cause != null)
+        throw new RepositoryException(cause);
+      else
+        throw e;
     }
   }
 

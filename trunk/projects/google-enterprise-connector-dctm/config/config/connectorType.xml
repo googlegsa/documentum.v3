@@ -19,8 +19,14 @@
         <value>included_meta</value>
       </list>
     </property>
+    <property name="clientX" 
+        value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX"/>
+    <property name="urlValidator" ref="UrlValidator"/>
     <property name="root_object_type" value="dm_sysobject"/>
     <property name="included_object_type" value="dm_document"/>
     <property name="included_meta" value="object_name,r_object_type,title,subject,keywords,authors,r_creation_date,r_modify_date,r_content_size,a_content_type"/>
   </bean>
+
+  <bean id="UrlValidator" 
+      class="com.google.enterprise.connector.dctm.UrlValidator"/>
 </beans>

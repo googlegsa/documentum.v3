@@ -72,7 +72,10 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
     }
   }
 
-  public IClient getLocalClient() {
+  /**
+   * @throws RepositoryException if a subclass throws it
+   */
+  public IClient getLocalClient() throws RepositoryException {
     return this;
   }
 
@@ -213,7 +216,10 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
     return new MockDmId(id);
   }
 
+  /**
+   * @throws RepositoryException if a subclass throws it
+   */
   public IDocbaseMap getDocbaseMap() throws RepositoryException {
-    return null;
+    return new MockDmDocbaseMap();
   }
 }
