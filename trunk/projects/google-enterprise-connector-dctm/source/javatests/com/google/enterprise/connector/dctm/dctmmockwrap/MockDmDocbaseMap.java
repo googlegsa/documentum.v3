@@ -18,13 +18,31 @@ import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmDocbaseMap implements IDocbaseMap {
+  private final int count;
+
+  /** Constructs a map with a single entry, {@link DmInitialize#DM_DOCBASE}. */
+  public MockDmDocbaseMap() {
+    this(1);
+  }
+
+  /**
+   * Constructs a map with the given number of entries. The first
+   * entry is {@link DmInitialize#DM_DOCBASE}, and the remaining
+   * entries are invalid fillers.
+   */
+  public MockDmDocbaseMap(int count) {
+    this.count = count;
+  }
+
   public int getDocbaseCount() throws RepositoryException {
-    return 1;
+    return count;
   }
 
   public String getDocbaseName(int i) throws RepositoryException {
     if (i == 0) {
       return DmInitialize.DM_DOCBASE;
+    } else if (i < count) {
+      return "docbase_" + String.valueOf(i);
     } else {
       throw new RepositoryException(
           new RuntimeException("Invalid docbase map index."));

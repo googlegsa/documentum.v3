@@ -16,6 +16,7 @@ package com.google.enterprise.connector.dctm;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -145,13 +146,13 @@ public class DctmConnectorType implements ConnectorType {
 
   private UrlValidator urlValidator;
 
-  private List<String> configKeys = null;
+  private List<String> configKeys;
 
-  private String includedObjectType = null;
+  private String includedObjectType;
 
-  private String includedMeta = null;
+  private String includedMeta;
 
-  private String rootObjectType = null;
+  private String rootObjectType;
 
   public DctmConnectorType() {
   }
@@ -331,8 +332,9 @@ public class DctmConnectorType implements ConnectorType {
     ResourceBundle resource = getResources(language);
     ConfigureResponse result = null;
 
-    // TODO: We only need the session in makeValidatedForm, and only if
-    // the advanced config is turned on.
+    // We use the session here to validate the username, password, and
+    // docbase. We will also need it later in makeValidatedForm if the
+    // advanced config is turned on.
     IClientX cl = null;
     ISessionManager sessMag = null;
     ISession sess = null;
@@ -663,7 +665,7 @@ public class DctmConnectorType implements ConnectorType {
       } else if (key.equals(DOCBASENAME)) {
         logger.fine("docbase droplist");
         appendStartRow(buf, resource.getString(key), isRequired(key));
-        appendDropDownListAttribute(buf, value, cl);
+        appendDropDownListAttribute(buf, value, resource, cl);
         appendEndRow(buf);
       } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
         if (sess != null && advConf.equals("on")) {
@@ -1268,18 +1270,38 @@ public class DctmConnectorType implements ConnectorType {
     buf.append("</option>\n");
   }
 
-  private void appendDropDownListAttribute(StringBuilder buf, String value,
-      IClientX cl) throws RepositoryException {
+  /* This method has package access for unit testing. */
+  void appendDropDownListAttribute(StringBuilder buf, String value,
+      ResourceBundle resource, IClientX cl) throws RepositoryException {
     IClient client = cl.getLocalClient();
-    IDocbaseMap docbases = client.getDocbaseMap();
+    IDocbaseMap docbaseMap = client.getDocbaseMap();
+    int count = docbaseMap.getDocbaseCount();
+
+    ArrayList<String> docbases = new ArrayList<String>(count);
+    for (int i = 0; i < count; i++) {
+      docbases.add(docbaseMap.getDocbaseName(i));
+    }
 
     buf.append(SELECT_START);
     appendAttribute(buf, NAME, DOCBASENAME);
     buf.append(">\n");
 
-    for (int i = 0, n = docbases.getDocbaseCount(); i < n; i++) {
-      String docbase = docbases.getDocbaseName(i);
-      appendOption(buf, docbase, docbase, n == 1 || docbase.equals(value));
+    // If there are zero or more one docbase available and none
+    // selected, then add an empty to the top of the list as the
+    // selected option so that users must make an explicit choice.
+    // Otherwise, if there is a configured docbase but it does not
+    // appear in the list, add the configured docbase along with a
+    // message to the top of the list as the selected option.
+    if ("".equals(value) && count != 1) {
+      appendOption(buf, "", "", true);
+    } else if (!"".equals(value) && !docbases.contains(value)) {
+      String label = value + " (" + resource.getString("docbase_error") + ")";
+      appendOption(buf, value, label, true);
+      count++; // Hack to avoid selecting the wrong docbase below.
+    }
+
+    for (String docbase : docbases) {
+      appendOption(buf, docbase, docbase, count == 1 || docbase.equals(value));
     }
 
     buf.append(SELECT_END);
