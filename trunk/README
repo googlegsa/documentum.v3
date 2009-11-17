@@ -1,28 +1,28 @@
-Welcome to the Google Enterprise Connector for EMC Documentum Content Server!
+Welcome to the Google Search Appliance Connector for Documentum!
 
-The Google Enterprise connector framework enables Google search
+The Google Search Appliance connector framework enables Google search
 appliances to search and serve documents stored in non-Web
-repositories, such as enterprise content management systems.  
-An enterprise content management (ECM) system provides a central
+repositories, such as enterprise content management systems. An
+enterprise content management (ECM) system provides a central
 repository for large numbers of documents.
 
-This EMC Documentum Content Server Connector provides access to
+This connector for EMC Documentum Content Server provides access to
 documents and document meta-data stored in the Documentum Content
 Server developed by the EMC Corporation.
 
-The EMC Documentum Content Server Connector communicates with the
-Content Server using the Java language Documentum Foundation Classes
-(DFC) library. To properly build this connector you will need access
-to the set of DFC Java classes. DFC is a commercial product offered by
-the EMC Corporation and is not included in this distribution.
+The connector communicates with the Documentum Content Server using
+the Java language Documentum Foundation Classes (DFC) library. To
+properly build this connector you will need access to the set of DFC
+Java classes. DFC is a commercial product offered by the EMC
+Corporation and is not included in this distribution.
 
 
 Documentation Links
 
-    * Documentation for the Google Enterprise Connectors
+    * Documentation for the Google Search Appliance Connectors
       http://code.google.com/apis/searchappliance/documentation/connectors/index.html
 
-    * Google Enterprise Connector for EMC Documentum Content Server
+    * Google Search Appliance Connector for Documentum
       http://code.google.com/p/google-enterprise-connector-dctm/
 
     * Documentum Foundation Classes
