@@ -152,18 +152,8 @@
       <fileset dir="${classes-client}"/>
       <fileset dir="${classes-core}"/>
       <manifest>
-      <!-- Manifest files are limited to 72 byte
-           line lengths. Embedding a newline in the
-           string doesn't fix it, since Ant doesn't
-           consider newlines special in its
-           line-break calculation, and the result
-           ends up spread across 3 lines. So, pad
-           with spaces. This forces the line wrap to
-           occur inter-word, and also left aligns
-           the two-line title.
-      -->
       <attribute name="Implementation-Title"
-                 value="Google Enterprise Connector for                                      EMC Documentum Content Server" />
+                 value="Google Search Appliance Connector for Documentum" />
       <attribute name="Implementation-Version"
                  value="${version} (build ${svnversion}  ${TODAY})"/>
       <attribute name="Implementation-Vendor" value="Google Inc."/>
