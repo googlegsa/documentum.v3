@@ -5,11 +5,43 @@
 
 Connector performance can be dramatically improved by adding database indexes. This page describes the types of indexes that can improve performance, and how to decide what to index.
 
-= Details =
-
-We recommend analyzing the connector query performance, and then iteratively adding an index and remeasuring performance until query performance is acceptable. Usually the dm_sysobject queries are fast enough, and the dm_audittrail queries are not.
+We recommend analyzing the connector query performance, and then iteratively adding an index and remeasuring performance until query performance is acceptable. Usually the dm_sysobject queries are fast enough, and the dm_audittrail queries are more likely to be slow.
 
 In general, the index over the fewest attributes that solves the problem is preferred, because indexes over multiple columns are slower for insertions. For the best overall system performance, you should choose the attribute(s) with the highest specificity and limit the index to those. Highest specificity here means the attribute whose use in the query restricts the results the most. 
+
+= Queries =
+
+The dm_sysobject query looks like this:
+
+{{{
+select i_chronicle_id, r_object_id, r_modify_date 
+from dm_sysobject 
+where (r_object_type='dm_document') 
+    and ((r_modify_date = date('2010-01-06 07:02:36','yyyy-mm-dd hh:mi:ss') 
+            and r_object_id > '09...') 
+        OR (r_modify_date > date('2010-01-06 07:02:36','yyyy-mm-dd hh:mi:ss'))) 
+order by r_modify_date,r_object_id 
+ENABLE (return_top 100)
+}}}
+
+The date, object ID, and return_top values will vary at runtime. The root object type (dm_sysobject here) and included object types (dm_document here) will vary depending on your connector configuration.
+
+The dm_audittrail query looks like this:
+
+{{{
+select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc
+from dm_audittrail
+where (event_name='dm_destroy' or event_name='dm_prune')
+    and ((time_stamp_utc = date('2009-12-16 10:09:00',''yyyy-mm-dd hh:mi:ss'') 
+            and (r_object_id > '5f...')) 
+        OR (time_stamp_utc > date('2009-12-16 10:09:00',''yyyy-mm-dd hh:mi:ss'')))
+order by time_stamp_utc,r_object_id
+ENABLE (return_top 100)
+}}}
+
+The date and return_top values will vary at runtime, but the event_name values are constant.
+
+= Details =
 
 For the dm_audittrail, it depends on the age of entries that are kept in the audit trail, and the types of events that are audited. Neither the event_name or time_stamp attributes are indexed by default. On small scale experiments, indexing either of them improved performance by at least a factor of ten. If you have an old docbase with a very large audit trail, you might try time_stamp first, or if you have a more recent, archival docbase with lots of activity but relatively few deletions, you might try event_name first.
 {{{
