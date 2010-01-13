@@ -43,9 +43,9 @@ The date and return_top values will vary at runtime, but the event_name values a
 
 = Details =
 
-For the dm_audittrail, it depends on the age of entries that are kept in the audit trail, and the types of events that are audited. Neither the event_name or time_stamp attributes are indexed by default. On small scale experiments, indexing either of them improved performance by at least a factor of ten. If you have an old docbase with a very large audit trail, you might try time_stamp first, or if you have a more recent, archival docbase with lots of activity but relatively few deletions, you might try event_name first.
+For the dm_audittrail, it depends on the age of entries that are kept in the audit trail, and the types of events that are audited. The time_stamp_utc attribute is indexed by default, but the event_name attribute is not. In small scale experiments, an index on either of them improves performance by at least a factor of ten. If you have an old docbase with a very large audit trail, the existing index on time_stamp_utc might be enough, but if you have a more recent, archival docbase with lots of activity but relatively few deletions, you might try adding an index for event_name.
 {{{
-EXECUTE make_index WITH type_name='dm_audittrail', attribute='time_stamp';
+EXECUTE make_index WITH type_name='dm_audittrail', attribute='event_name';
 }}}
 
 If query analysis shows that the dm_sysobject query needs to run faster, the attribute with the highest specificity is almost certainly r_modify_date:
@@ -55,17 +55,21 @@ EXECUTE make_index WITH type_name='dm_sysobject', attribute='r_modify_date';
 
 = Optimal Indexes =
 
-*Note:* These indexes may slow down other Documentum applications unnecessarily. There are given here for completeness, in case they are useful in some difficult database optimizations. These indexes provided the best performance and lowest optimizer costs during testing, but in most cases a smaller index will provide almost the same practical benefits. For example, the i_has_folder, i_is_deleted, and r_object_type attributes of dm_sysobject are generally of low specificity, and the index shown here has a lower optimizer cost, but did not provide a measurable improvement in query performance over the simpler index shown above.
+*Note:* These indexes shown in this section may slow down other Documentum applications unnecessarily. They are given here for completeness, in case they are useful in some difficult database optimizations. These indexes provided the best performance and lowest optimizer costs during testing, but in most cases a smaller index will provide almost the same practical benefits. For example, the i_has_folder, i_is_deleted, and r_object_type attributes of dm_sysobject are generally of low specificity, and the index shown here has a lower optimizer cost, but did not provide a measurable improvement in query performance over the simpler index shown above.
 
-In general, the order the attributes in the make_index function matters, and should match their appearance in the SQL queries.
+In general, the order of the attributes in the make_index function matters, and should match their appearance in the SQL queries.
 
 {{{
 EXECUTE make_index WITH type_name='dm_sysobject', attribute='i_has_folder',
     attribute='i_is_deleted', attribute='r_object_type', attribute='r_modify_date';
 
-EXECUTE make_index WITH type_name='dm_audittrail', attribute='event_name', attribute='time_stamp';
+EXECUTE make_index WITH type_name='dm_audittrail', attribute='event_name', attribute='time_stamp_utc';
 }}}
 
-= Additional WHERE clause =
+= Additional WHERE Clause =
 
 If you add conditions to the WHERE clause of the dm_sysobject query, or modify the root object type, then you may need to alter your indexes as well. For example, you might introduce a highly restrictive condition on an attribute not listed here. If you edit the *Advanced Configuration* section of the connector configuration page in the Admin Console, you may need to reanalyze your database queries.
+
+= Older Connector Versions =
+
+In version 2.0 or earlier, the dm_audittrail.time_stamp attribute was used in place of time_stamp_utc. The time_stamp attribute is not indexed by default. Starting with version 2.0.2, the time_stamp_utc attribute is used instead, for better performance.
