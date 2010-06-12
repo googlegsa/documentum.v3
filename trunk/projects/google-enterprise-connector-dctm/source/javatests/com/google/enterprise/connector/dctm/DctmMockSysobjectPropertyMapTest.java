@@ -28,6 +28,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.SpiConstants.ActionType;
 import com.google.enterprise.connector.spi.Value;
 
@@ -35,32 +36,28 @@ import junit.framework.TestCase;
 
 public class DctmMockSysobjectPropertyMapTest extends TestCase {
   IClientX dctmClientX = null;
-
   IClient localClient = null;
-
   ISessionManager sessionManager = null;
-
   DctmTraversalManager traversalManager = null;
+  DctmSysobjectDocument document = null;
 
+  private static final String PROPNAME_FEEDTYPE = "google:feedtype";
   public void setUp() throws Exception {
     super.setUp();
 
     dctmClientX = new MockDmClient();
-
     localClient = dctmClientX.getLocalClient();
-
     sessionManager = localClient.newSessionManager();
-
-    ISession session = null;
-
     ILoginInfo loginInfo = dctmClientX.getLoginInfo();
     loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
     loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
+
     traversalManager = new DctmTraversalManager(dctmClientX,
         DmInitialize.DM_DOCBASE, DmInitialize.DM_WEBTOP_SERVER_URL,
         DmInitialize.included_meta, sessionManager);
 
+    ISession session = null;
     try {
       session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
     } finally {
@@ -68,23 +65,17 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
         sessionManager.release(session);
       }
     }
+
+    session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+    IId id = dctmClientX.getId(DmInitialize.DM_ID1);
+    ISysObject object = session.getObject(id);
+    ITime lastModifDate = object.getTime("r_modify_date");
+    document = new DctmSysobjectDocument(traversalManager, session,
+        DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD, null);
   }
 
   public void testGetPropertyNames() throws RepositoryException {
-    ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-    IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-
-    ISysObject object = session.getObject(id);
-
-    ITime lastModifDate = object.getTime("r_modify_date");
-
-    object = session.getObject(id);
-
-    DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(traversalManager,
-        session, DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD,
-        null);
-
-    Set<String> names = dctmSpm.getPropertyNames();
+    Set<String> names = document.getPropertyNames();
     assertEquals(5, names.size());
     for (String name : names) {
       assertTrue(name, name.startsWith("google:"));
@@ -92,23 +83,61 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
   }
 
   public void testFindProperty() throws RepositoryException {
-    ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-    IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-
-    ISysObject object = session.getObject(id);
-
-    ITime lastModifDate = object.getTime("r_modify_date");
-
-    object = session.getObject(id);
-
-    DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
-        traversalManager, session,  DmInitialize.DM_ID1, null, lastModifDate,
-        ActionType.ADD, null);
-
-    Property property = dctmSpm.findProperty("google:docid");
+    Property property = document.findProperty(SpiConstants.PROPNAME_DOCID);
     assertNotNull(property);
     Value value = property.nextValue();
     assertNotNull(value);
     assertEquals(DmInitialize.DM_ID1, value.toString());
+  }
+
+  /**
+   * Tests that all of the SPI property name constants match our
+   * PROPNAME_REGEXP.
+   */
+  public void testPropnameRegexp() throws IllegalAccessException {
+    Class c = SpiConstants.class;
+    java.lang.reflect.Field[] fields = c.getFields();
+    for (java.lang.reflect.Field field : fields) {
+      String name = field.getName();
+      if (name.startsWith("PROPNAME")) {
+        String value = (String) field.get(null);
+        assertTrue(name + " = " + value,
+            value.matches(DctmSysobjectDocument.PROPNAME_REGEXP));
+      }
+    }
+  }
+
+  /**
+   * Tests that the unsupported SPI properties are ignored, and only
+   * handled once per property name.
+   */
+  public void testIgnoredSpiProperties() throws RepositoryException {
+    Property property;
+
+    assertTrue(document.UNSUPPORTED_PROPNAMES.toString(),
+        document.UNSUPPORTED_PROPNAMES.isEmpty());
+
+    property = document.findProperty(SpiConstants.PROPNAME_DOCID);
+    assertNotNull(SpiConstants.PROPNAME_DOCID, property);
+
+    assertTrue(document.UNSUPPORTED_PROPNAMES.toString(),
+        document.UNSUPPORTED_PROPNAMES.isEmpty());
+
+    // Retrieve these twice to ensure that the set doesn't grow.
+    for (int i = 0; i < 2; i++) {
+      property = document.findProperty(SpiConstants.PROPNAME_SEARCHURL);
+      assertNull(SpiConstants.PROPNAME_SEARCHURL, property);
+      property = document.findProperty(SpiConstants.PROPNAME_FEEDTYPE);
+      assertNull(SpiConstants.PROPNAME_FEEDTYPE, property);
+
+      assertEquals(document.UNSUPPORTED_PROPNAMES.toString(),
+          2, document.UNSUPPORTED_PROPNAMES.size());
+      assertTrue(document.UNSUPPORTED_PROPNAMES.toString(),
+          document.UNSUPPORTED_PROPNAMES.contains(
+              SpiConstants.PROPNAME_SEARCHURL));
+      assertTrue(document.UNSUPPORTED_PROPNAMES.toString(),
+          document.UNSUPPORTED_PROPNAMES.contains(
+              SpiConstants.PROPNAME_FEEDTYPE));
+    }
   }
 }
