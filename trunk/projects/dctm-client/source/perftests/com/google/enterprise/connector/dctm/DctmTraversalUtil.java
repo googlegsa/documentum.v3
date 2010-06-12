@@ -28,6 +28,8 @@ import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import com.google.enterprise.connector.traversal.FileSizeLimitInfo;
+
 public class DctmTraversalUtil {
   public static void runTraversal(TraversalManager queryTraversalManager,
       int batchHint) throws RepositoryException, PushException, FeedException {
@@ -59,7 +61,7 @@ public class DctmTraversalUtil {
           // "8.6.49.36"
           // "swp-gsa-demo"
           "gogol.vizdom.com"                                                 
-          , 19900), "dctm");
+          , 19900), "dctm", new FileSizeLimitInfo());
 
     } catch (MalformedURLException e) {
       // TODO Auto-generated catch block
