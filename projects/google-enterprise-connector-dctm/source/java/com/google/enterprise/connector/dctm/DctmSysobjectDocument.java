@@ -52,7 +52,22 @@ public class DctmSysobjectDocument implements Document {
 
   /** The maximum content size that will be allowed. */
   private static final long MAX_CONTENT_SIZE = 30L * 1024 * 1024;
+
   private static final String OBJECT_ID_NAME = "r_object_id";
+
+  /** A regexp that matches the defined SPI property names. */
+  /*
+   * Package access for the unit tests.
+   * TODO: This could be added to SpiConstants.
+   */
+  static final String PROPNAME_REGEXP = "google:.+";
+
+  /**
+   * A record of logged requests for unsupported SPI properties so we
+   * don't spam the logs.
+   */
+  /* Package access for the unit tests. */
+  static Set<String> UNSUPPORTED_PROPNAMES = new HashSet<String>();
 
   private final DctmTraversalManager traversalManager;
   private final ISession session;
@@ -122,6 +137,9 @@ public class DctmSysobjectDocument implements Document {
 
   public Property findProperty(String name) throws RepositoryDocumentException,
       RepositoryLoginException, RepositoryException {
+    if (name == null || name.length() == 0)
+      return null;
+
     LinkedList<Value> values = new LinkedList<Value>();
 
     logger.fine("In findProperty; name: " + name);
@@ -177,10 +195,15 @@ public class DctmSysobjectDocument implements Document {
           logger.warning("RepositoryDocumentException thrown : " + e
                          + " on getting property : " + name);
         }
-      } else if (OBJECT_ID_NAME.equals(name)) {
-        values.add(Value.getStringValue(docId));
       } else if (SpiConstants.PROPNAME_TITLE.equals(name)) {
         values.add(Value.getStringValue(object.getObjectName()));
+      } else if (name.matches(PROPNAME_REGEXP)) {
+        if (UNSUPPORTED_PROPNAMES.add(name)) {
+          logger.finest("Ignoring unsupported SPI property " + name);
+        }
+        return null;
+      } else if (OBJECT_ID_NAME.equals(name)) {
+        values.add(Value.getStringValue(docId));
       } else if (name.equals("r_object_type")) {
         // Retrieves object type and its super type(s).
         for (IType value = object.getType(); value != null; value = getSuperType(value)) {
