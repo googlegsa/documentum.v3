@@ -17,6 +17,7 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 import java.util.HashMap;
 
 import javax.jcr.Credentials;
+import javax.jcr.LoginException;
 import javax.jcr.SimpleCredentials;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
@@ -201,11 +202,15 @@ public class MockDmClient implements IClientX, IClient, ISessionManager {
           + db);
     }
 
-    MockJcrSession sess = (MockJcrSession) repo.login(creds);
-    if (sess != null) {
-      return new MockDmSession(this, repo, sess, db);
-    } else {
-      return null;
+    try {
+      MockJcrSession sess = (MockJcrSession) repo.login(creds);
+      if (sess != null) {
+        return new MockDmSession(this, repo, sess, db);
+      } else {
+        return null;
+      }
+    } catch (LoginException e) {
+      throw new RepositoryException(e);
     }
   }
 

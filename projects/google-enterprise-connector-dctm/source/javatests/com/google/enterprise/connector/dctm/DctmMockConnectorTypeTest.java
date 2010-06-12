@@ -91,8 +91,8 @@ public class DctmMockConnectorTypeTest extends TestCase {
     emptyMap.put("docbase", "");
 
     validMap = new HashMap<String, String>(emptyMap);
-    validMap.put("login", "dummy");
-    validMap.put("Password", "dummy");
+    validMap.put("login", DmInitialize.DM_LOGIN_OK1);
+    validMap.put("Password", DmInitialize.DM_PWD_OK1);
     validMap.put("docbase", DmInitialize.DM_DOCBASE);
     validMap.put("webtop_display_url", "http://www.google.com/");
   }
