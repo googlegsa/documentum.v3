@@ -29,18 +29,19 @@ public class DmTime implements ITime {
   }
 
   public Date getDate() {
-    Date date = null;
-    date = idfTime.getDate();
-    return date;
+    return idfTime.getDate();
   }
 
   public String asString(String pattern) {
-    String st = null;
-    st = idfTime.asString(pattern);
-    return st;
+    return idfTime.asString(pattern);
   }
 
   public String getTime_pattern44() {
     return time_pattern44;
+  }
+
+  @Override
+  public String toString() {
+    return idfTime.toString();
   }
 }
