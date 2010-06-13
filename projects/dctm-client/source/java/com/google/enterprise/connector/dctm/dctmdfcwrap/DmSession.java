@@ -77,7 +77,7 @@ public class DmSession implements ISession {
     DmId dctmId = (DmId) objectId;
     IDfId idfId = dctmId.getidfId();
 
-    IDfSysObject idfSysObject = null;
+    IDfSysObject idfSysObject;
     try {
       idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
     } catch (DfException de) {
@@ -92,7 +92,7 @@ public class DmSession implements ISession {
 
   public String getLoginTicketForUser(String username)
       throws RepositoryException {
-    String ticket = null;
+    String ticket;
     try {
       ticket = idfSession.getLoginTicketForUser(username);
     } catch (DfException de) {
@@ -131,7 +131,7 @@ public class DmSession implements ISession {
   }
 
   DmDocument newObject() throws RepositoryException {
-    IDfDocument document = null;
+    IDfDocument document;
     try {
       document = (IDfDocument) idfSession.newObject("dm_document");
     } catch (DfException de) {
@@ -141,9 +141,9 @@ public class DmSession implements ISession {
   }
 
   public IType getType(String typeName) throws RepositoryException {
-    IDfType idfType = null;
+    IDfType idfType;
     try {
-      idfType = (IDfType) idfSession.getType(typeName);
+      idfType = idfSession.getType(typeName);
     } catch (DfException de) {
       throw new RepositoryException(de);
     }

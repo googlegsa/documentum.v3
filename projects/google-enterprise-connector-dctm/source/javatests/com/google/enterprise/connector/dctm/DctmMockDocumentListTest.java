@@ -32,22 +32,18 @@ public class DctmMockDocumentListTest extends TestCase {
 
   DctmSession dctmSession = null;
 
-  DctmConnector connector = null;
-
   public void setUp() throws Exception {
     super.setUp();
 
-    connector = new DctmConnector();
-    ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
-    ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
-    ((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
-    ((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
-    ((DctmConnector) connector)
-        .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-    ((DctmConnector) connector).setIs_public("false");
-    ((DctmConnector) connector)
-        .setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
-    ((DctmConnector) connector).setIncluded_meta(DmInitialize.DM_INCLUDED_META);
+    DctmConnector connector = new DctmConnector();
+    connector.setLogin(DmInitialize.DM_LOGIN_OK1);
+    connector.setPassword(DmInitialize.DM_PWD_OK1);
+    connector.setDocbase(DmInitialize.DM_DOCBASE);
+    connector.setClientX(DmInitialize.DM_CLIENTX);
+    connector.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+    connector.setIs_public("false");
+    connector.setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
+    connector.setIncluded_meta(DmInitialize.DM_INCLUDED_META);
     dctmSession = (DctmSession) connector.login();
 
     qtm = (DctmTraversalManager) dctmSession.getTraversalManager();

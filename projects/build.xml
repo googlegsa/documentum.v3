@@ -4,9 +4,12 @@
 
   <!-- ========================= PROPERTIES ========================= -->
   <property file="version.properties" />
+  <property file="${user.home}/google-enterprise-connector-dctm.properties"/>
 
   <property name="COMPILE_DEBUG_FLAG" value="true" />
   <property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
+  <property name="COMPILE_TARGET" value="1.5" />
+  <property name="COMPILE_BOOTCLASSPATH" value="${build.bootclasspath}" />
 
   <!-- Define Directories. -->
   <property name="dist" location="dist" />
@@ -62,9 +65,11 @@
   <target name="compile-client" depends="compile-core">
     <javac srcdir="${src-client}" destdir="${classes-client}"
            debug="${COMPILE_DEBUG_FLAG}"
-           debuglevel="${COMPILE_DEBUG_LEVEL}">
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
       <!-- DFC JAR Class-Path references are not available. -->
       <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${spi.jarfile}" />
         <pathelement location="${dfc.jarfile}" />
@@ -77,8 +82,10 @@
   <target name="compile-tests" depends="compile-core">
     <javac srcdir="${src-tests}" destdir="${classes-tests}"
            debug="${COMPILE_DEBUG_FLAG}"
-           debuglevel="${COMPILE_DEBUG_LEVEL}">
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
       <compilerarg line="-Xlint -Xlint:-serial"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${spi.jarfile}" />
         <pathelement location="${cm.jarfile}" />
@@ -94,8 +101,10 @@
   <target name="compile-core" depends="init">
     <javac srcdir="${src-core}" destdir="${classes-core}"
            debug="${COMPILE_DEBUG_FLAG}"
-           debuglevel="${COMPILE_DEBUG_LEVEL}">
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
       <compilerarg line="-Xlint -Xlint:-serial"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${spi.jarfile}" />
         <pathelement location="${json.jarfile}" />

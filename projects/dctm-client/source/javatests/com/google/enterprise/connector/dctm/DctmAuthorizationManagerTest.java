@@ -97,7 +97,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
     for (AuthorizationResponse pm : list) {
       String uuid = pm.getDocid();
       boolean ok = pm.isValid();
-      Boolean expected = (Boolean) expectedResults.get(uuid);
+      Boolean expected = expectedResults.get(uuid);
       Assert.assertNotNull(expected);
       Assert.assertEquals(username + " access to " + uuid,
           expected.booleanValue(), ok);
