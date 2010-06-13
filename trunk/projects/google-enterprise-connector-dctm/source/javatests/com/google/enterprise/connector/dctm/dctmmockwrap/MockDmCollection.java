@@ -111,7 +111,7 @@ public class MockDmCollection implements ICollection {
       MockDmClient mockDm = new MockDmClient();
       ISession session = null;
       try {
-        session = (ISession) mockDm.getSession(mockDm.getDocbaseName());
+        session = mockDm.getSession(mockDm.getDocbaseName());
       } catch (RepositoryException e) {
         e.printStackTrace();
       }
