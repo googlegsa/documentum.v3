@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Google Inc.
+// Copyright 2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.spi.ConfigureResponse;
 import com.google.enterprise.connector.spi.ConnectorType;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.util.UrlValidator;
 
 import junit.framework.TestCase;
 
@@ -158,7 +159,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
 
   public void testGcfClassNotFound() {
     type.setClientX("invalid.Class");
-    
+
     ConfigureResponse response = type.getConfigForm(Locale.US);
     assertIsFormError(response, "invalid.Class", "");
   }
@@ -199,7 +200,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
 
   private void testGcfThrows(MockDmClientThrows client) {
     type.setClientX(client.getClass().getName());
-    
+
     ConfigureResponse response = type.getConfigForm(Locale.US);
     assertIsFormError(response, client.getMessage(), "");
   }
@@ -256,7 +257,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
 
   public void testVcClassNotFound() {
     type.setClientX("invalid.Class");
-    
+
     ConfigureResponse response =
         type.validateConfig(validMap, Locale.US, null);
     assertIsError(response, "invalid.Class", "");
@@ -270,7 +271,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
   private void testVcThrows(MockDmClientThrows client,
       Map<String, String> configMap, String message) {
     type.setClientX(client.getClass().getName());
-    
+
     ConfigureResponse response =
         type.validateConfig(configMap, Locale.US, null);
     assertIsError(response, message, "");
@@ -301,7 +302,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
 
   public void testGpcfClassNotFound() {
     type.setClientX("invalid.Class");
-    
+
     ConfigureResponse response =
         type.getPopulatedConfigForm(validMap, Locale.US);
     assertIsFormError(response, "invalid.Class", "");
@@ -310,7 +311,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
   private void testGpcfThrows(MockDmClientThrows client,
       Map<String, String> configMap) {
     type.setClientX(client.getClass().getName());
-    
+
     ConfigureResponse response =
         type.getPopulatedConfigForm(configMap, Locale.US);
     assertIsFormError(response, client.getMessage(), "");
@@ -327,7 +328,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
   public void testGpcfGetSessionThrows() {
     ConfigureResponse response =
         type.getPopulatedConfigForm(emptyMap, Locale.US);
-    assertIsFormError(response, resources.getString("DEFAULT_ERROR_MESSAGE"), 
+    assertIsFormError(response, resources.getString("DEFAULT_ERROR_MESSAGE"),
         type.getConfigForm(Locale.US).getFormSnippet());
   }
 
@@ -473,7 +474,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
 
     ConfigureResponse response =
         type.getPopulatedConfigForm(validMap, Locale.US);
-    assertIsFormError(response, resources.getString("DEFAULT_ERROR_MESSAGE"), 
+    assertIsFormError(response, resources.getString("DEFAULT_ERROR_MESSAGE"),
         modifiedForm);
   }
 }
