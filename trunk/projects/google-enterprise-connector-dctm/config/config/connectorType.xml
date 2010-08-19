@@ -28,5 +28,5 @@
   </bean>
 
   <bean id="UrlValidator" 
-      class="com.google.enterprise.connector.dctm.UrlValidator"/>
+      class="com.google.enterprise.connector.util.UrlValidator"/>
 </beans>
