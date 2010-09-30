@@ -16,6 +16,7 @@ package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmDocbaseMap;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
 
 public class DctmMockConnectorTypeTest extends TestCase {
   private static final String CLIENT_X_CLASS_NAME =
-      "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
+      "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX";
   private static final UrlValidator URL_VALIDATOR = new MockUrlValidator();
   private static final String[] CONFIG_KEYS = {
     "login", "Password", "docbase", "webtop_display_url", "is_public",
@@ -168,11 +169,11 @@ public class DctmMockConnectorTypeTest extends TestCase {
    * Base class for a ClientX implementation that throws exceptions
    * for testing the error handling.
    */
-  private static abstract class MockDmClientThrows extends MockDmClient {
+  private static abstract class MockDmClientXThrows extends MockDmClientX {
     protected abstract String getMessage();
   }
 
-  static class GetLocalClientThrows extends MockDmClientThrows {
+  static class GetLocalClientThrows extends MockDmClientXThrows {
     @Override
     protected String getMessage() {
       return "mimicking getLocalClient failure";
@@ -185,20 +186,25 @@ public class DctmMockConnectorTypeTest extends TestCase {
     }
   }
 
-  static class GetDocbaseMapThrows extends MockDmClientThrows {
+  static class GetDocbaseMapThrows extends MockDmClientXThrows {
     @Override
     protected String getMessage() {
       return "mimicking getDocbaseMap failure";
     }
 
     @Override
-    public IDocbaseMap getDocbaseMap() throws RepositoryException {
-      throw new RepositoryException(
-          new RuntimeException(getMessage()));
+    public IClient getLocalClient() {
+      return new MockDmClient() {
+        @Override
+        public IDocbaseMap getDocbaseMap() throws RepositoryException {
+          throw new RepositoryException(
+              new RuntimeException(getMessage()));
+        }
+      };
     }
   }
 
-  private void testGcfThrows(MockDmClientThrows client) {
+  private void testGcfThrows(MockDmClientXThrows client) {
     type.setClientX(client.getClass().getName());
 
     ConfigureResponse response = type.getConfigForm(Locale.US);
@@ -263,12 +269,12 @@ public class DctmMockConnectorTypeTest extends TestCase {
     assertIsError(response, "invalid.Class", "");
   }
 
-  private void testVcThrows(MockDmClientThrows client,
+  private void testVcThrows(MockDmClientXThrows client,
       Map<String, String> configMap) {
     testVcThrows(client, configMap, client.getMessage());
   }
 
-  private void testVcThrows(MockDmClientThrows client,
+  private void testVcThrows(MockDmClientXThrows client,
       Map<String, String> configMap, String message) {
     type.setClientX(client.getClass().getName());
 
@@ -308,7 +314,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
     assertIsFormError(response, "invalid.Class", "");
   }
 
-  private void testGpcfThrows(MockDmClientThrows client,
+  private void testGpcfThrows(MockDmClientXThrows client,
       Map<String, String> configMap) {
     type.setClientX(client.getClass().getName());
 
@@ -332,16 +338,21 @@ public class DctmMockConnectorTypeTest extends TestCase {
         type.getConfigForm(Locale.US).getFormSnippet());
   }
 
-  static class MultipleDocbases extends MockDmClient {
+  static class MultipleDocbasesClientX extends MockDmClientX {
     final int count;
 
-    MultipleDocbases(int count) {
+    MultipleDocbasesClientX(int count) {
       this.count = count;
     }
 
     @Override
-    public IDocbaseMap getDocbaseMap() throws RepositoryException {
-      return new MockDmDocbaseMap(count);
+    public IClient getLocalClient() {
+      return new MockDmClient() {
+        @Override
+        public IDocbaseMap getDocbaseMap() throws RepositoryException {
+          return new MockDmDocbaseMap(count);
+        }
+      };
     }
   }
 
@@ -356,7 +367,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
   private void testAddla(int count, String value, int options,
       String selected) {
     StringBuilder buf = new StringBuilder();
-    MockDmClient clientX = new MultipleDocbases(count);
+    MockDmClientX clientX = new MultipleDocbasesClientX(count);
     try {
       type.appendDropDownListAttribute(buf, value, resources, clientX);
     } catch (RepositoryException e) {

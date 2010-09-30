@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2007 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,8 +38,7 @@ public class MockDmSessionTest extends TestCase {
 
   public void setUp() throws Exception {
     super.setUp();
-    dctmClientX = new MockDmClient();
-    localClient = null;
+    dctmClientX = new MockDmClientX();
     localClient = dctmClientX.getLocalClient();
     sessionManager = localClient.newSessionManager();
     ILoginInfo ili = new MockDmLoginInfo();
@@ -84,7 +83,7 @@ public class MockDmSessionTest extends TestCase {
           .getBoolean("google:ispublic");
       assertEquals(idString, DmInitialize.DM_ID2_IS_PUBLIC);
     } catch (RepositoryException e) {
-      // TODO: Why is this exception ignored?
+      fail();
     }
   }
 }
