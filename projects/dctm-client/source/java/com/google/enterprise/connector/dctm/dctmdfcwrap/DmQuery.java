@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,12 +20,10 @@ import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfQuery;
-import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class DmQuery implements IQuery {
@@ -60,7 +58,7 @@ public class DmQuery implements IQuery {
 
     logger.info("value of IdfQuery " + idfQuery.getDQL());
 
-    IDfCollection dfCollection = null;
+    IDfCollection dfCollection;
     try {
       dfCollection = idfQuery.execute(idfSession, queryType);
     } catch (DfException de) {

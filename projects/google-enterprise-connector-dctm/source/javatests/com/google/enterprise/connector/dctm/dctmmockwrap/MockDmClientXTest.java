@@ -14,33 +14,37 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import com.google.enterprise.connector.dctm.dfcwrap.IClient;
-import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class MockDmClient implements IClient {
-  public MockDmClient() {
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+public class MockDmClientXTest extends TestCase {
+  private IClientX dctmClientX;
+
+  protected void setUp() {
+    dctmClientX = new MockDmClientX();
   }
 
-  public ISessionManager newSessionManager() {
-    return new MockDmSessionManager();
+  public void testGetLoginInfo() {
+    ILoginInfo loginInfo = dctmClientX.getLoginInfo();
+
+    Assert.assertTrue(loginInfo instanceof MockDmLoginInfo);
+
+    loginInfo.setUser("max");
+    loginInfo.setPassword("foo");
+
+    Assert.assertEquals("max", loginInfo.getUser());
+    Assert.assertEquals("foo", loginInfo.getPassword());
   }
 
-  /**
-   * Factory method for an IDfQuery object. Constructs an new query object to
-   * use for sending DQL queries to Documentum servers.
-   */
-  public IQuery getQuery() {
-    return new MockDmQuery();
-  }
-
-  /**
-   * @throws RepositoryException if a subclass throws it
-   */
-  public IDocbaseMap getDocbaseMap() throws RepositoryException {
-    return new MockDmDocbaseMap();
+  public void testGetQuery() {
+    IQuery query = dctmClientX.getQuery();
+    assertNotNull(query);
+    Assert.assertTrue(query instanceof MockDmQuery);
   }
 }

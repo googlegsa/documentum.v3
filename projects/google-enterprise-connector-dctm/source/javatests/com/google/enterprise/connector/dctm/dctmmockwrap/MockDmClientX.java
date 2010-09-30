@@ -15,18 +15,32 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
-import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class MockDmClient implements IClient {
-  public MockDmClient() {
+public class MockDmClientX implements IClientX {
+  private IClient localClient = new MockDmClient();
+
+  public MockDmClientX() {
   }
 
-  public ISessionManager newSessionManager() {
-    return new MockDmSessionManager();
+  /**
+   * @throws RepositoryException if a subclass throws it
+   */
+  public IClient getLocalClient() throws RepositoryException {
+    return localClient;
+  }
+
+  /**
+   * Factory method for an IDfLoginInfo object. Constructs a new empty object
+   * to set with login details prior to connecting to Documentum servers.
+   */
+  public ILoginInfo getLoginInfo() {
+    return new MockDmLoginInfo();
   }
 
   /**
@@ -38,9 +52,9 @@ public class MockDmClient implements IClient {
   }
 
   /**
-   * @throws RepositoryException if a subclass throws it
+   * Never called for mock
    */
-  public IDocbaseMap getDocbaseMap() throws RepositoryException {
-    return new MockDmDocbaseMap();
+  public IId getId(String id) {
+    return new MockDmId(id);
   }
 }
