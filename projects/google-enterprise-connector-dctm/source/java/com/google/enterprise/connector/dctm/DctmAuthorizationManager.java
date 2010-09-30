@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
   private final ISessionManager sessionManager;
 
   private final String docbase;
-  
+
   private static Logger logger =
       Logger.getLogger(DctmAuthorizationManager.class.getName());
 
@@ -62,11 +62,12 @@ public class DctmAuthorizationManager implements AuthorizationManager {
     IQuery query = buildQuery(docids);
 
     List<AuthorizationResponse> authorized;
-    ISession sessionUser = getSessionUser(username);
+    ISessionManager sessionManagerUser = getSessionManagerUser(username);
+    ISession sessionUser = sessionManagerUser.getSession(docbase);
     try {
       authorized = getAuthorizedDocids(docids, query, sessionUser);
     } finally {
-      sessionUser.getSessionManager().release(sessionUser);
+      sessionManagerUser.release(sessionUser);
       logger.finest("user session released");
     }
     return authorized;
@@ -74,19 +75,22 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
   private String getCanonicalUsername(AuthenticationIdentity identity) {
     String username = identity.getUsername();
-    logger.fine("username: " + username);
+    if (logger.isLoggable(Level.FINE))
+      logger.fine("username: " + username);
 
     /// Makes the connector handle the patterns username@domain,
     /// domain\\username and username.
     int index = username.indexOf('@');
     if (index != -1) {
       username = username.substring(0, index);
-      logger.fine("username contains @ and is now: " + username);
+      if (logger.isLoggable(Level.FINE))
+        logger.fine("username contains @ and is now: " + username);
     }
     index = username.indexOf('\\');
     if (index != -1) {
       username = username.substring(index + 1);
-      logger.fine("username contains \\ and is now: " + username);
+      if (logger.isLoggable(Level.FINE))
+        logger.fine("username contains \\ and is now: " + username);
     }
 
     return username;
@@ -103,44 +107,47 @@ public class DctmAuthorizationManager implements AuthorizationManager {
     queryString.setCharAt(queryString.length() - 1, ')');
 
     IQuery query = clientX.getQuery();
-    logger.fine("dql: " + queryString);
+    if (logger.isLoggable(Level.FINE))
+      logger.fine("dql: " + queryString);
     query.setDQL(queryString.toString());
     return query;
   }
 
   /**
-   * Gets a session for the given user. The caller owns the session.
+   * Gets a session manager for the given user.
    *
    * @param username a user name
-   * @return a session for the given user
+   * @return a session manager for the given user
    */
-  private ISession getSessionUser(String username) throws RepositoryException {
+  private ISessionManager getSessionManagerUser(String username)
+      throws RepositoryException {
     // Login tickets fail for superusers if restrict_su_ticket_login
     // is set to T in the server config object. This code at least
     // allows the configured superuser to perform searches.
-    ISession sessionUser;
+    ISessionManager sessionManagerUser;
     String currentUsername = sessionManager.getIdentity(docbase).getUser();
-    ISession session = sessionManager.getSession(docbase);
     if (username.equals(currentUsername)) {
-      sessionUser = session;
+      if (logger.isLoggable(Level.FINE))
+        logger.fine("Using current session manager for " + username);
+      sessionManagerUser = sessionManager;
     } else {
+      if (logger.isLoggable(Level.FINE))
+        logger.fine("Creating new session manager for " + username);
       String ticket;
+      ISession session = sessionManager.getSession(docbase);
       try {
         ticket = session.getLoginTicketEx(username, "docbase", 0, false, null);
       } finally {
         sessionManager.release(session);
       }
 
-      ISessionManager sessionManagerUser =
-          clientX.getLocalClient().newSessionManager();
+      sessionManagerUser = clientX.getLocalClient().newSessionManager();
       ILoginInfo loginInfo = clientX.getLoginInfo();
       loginInfo.setUser(username);
       loginInfo.setPassword(ticket);
       sessionManagerUser.setIdentity(docbase, loginInfo);
-
-      sessionUser = sessionManagerUser.getSession(docbase);
     }
-    return sessionUser;
+    return sessionManagerUser;
   }
 
   private List<AuthorizationResponse> getAuthorizedDocids(
