@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2007 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,8 +27,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
@@ -58,9 +60,16 @@ public class DctmSysobjectDocument implements Document {
   /** A regexp that matches the defined SPI property names. */
   /*
    * Package access for the unit tests.
-   * TODO: This could be added to SpiConstants.
+   * TODO: Remove in favor of SpiConstants.RESERVED_PROPNAME_PREFIX in CM 3.0.
    */
   static final String PROPNAME_REGEXP = "google:.+";
+
+  /**
+   * Identifies an optional, multi-valued property that specifies the
+   * folder path of the document.
+   */
+  /* TODO: Remove in favor of SpiConstants.PROPNAME_FOLDER in CM 3.0. */
+  private static final String PROPNAME_FOLDER = "google:folder";
 
   /**
    * A record of logged requests for unsupported SPI properties so we
@@ -130,7 +139,7 @@ public class DctmSysobjectDocument implements Document {
     try {
       return !session.isConnected();
     } catch (Exception e) {
-      logger.warning("Lost connectivity to server : " + e);
+      logger.warning("Lost connectivity to server: " + e);
       return true;
     }
   }
@@ -142,7 +151,8 @@ public class DctmSysobjectDocument implements Document {
 
     LinkedList<Value> values = new LinkedList<Value>();
 
-    logger.fine("In findProperty; name: " + name);
+    if (logger.isLoggable(Level.FINEST))
+      logger.finest("In findProperty; name: " + name);
 
     if (ActionType.ADD.equals(action)) {
       fetch();
@@ -161,19 +171,54 @@ public class DctmSysobjectDocument implements Document {
           // fine, but the google:mimetype property will not be reset
           // to "text/plain" in that case.
           logger.warning("RepositoryDocumentException thrown: " + e
-                         + " on getting property : " + name);
+                         + " on getting property: " + name);
         }
       } else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
         String displayUrl = traversalManager.getServerUrl() + docId;
         values.add(Value.getStringValue(displayUrl));
+      } else if (PROPNAME_FOLDER.equals(name)) {
+        // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
+        int count = object.getValueCount("i_folder_id");
+        if (count == 0)
+          return null;
+
+        // We have already done a fetch of this object, so we read
+        // i_folder_id directly rather than doing a subquery or join
+        // on the object ID.
+        StringBuilder dql = new StringBuilder();
+        dql.append("select r_folder_path from dm_folder ");
+        dql.append("where r_folder_path is not null and r_object_id in (");
+        for (int i = 0; i < count; i++) {
+          dql.append('\'');
+          dql.append(object.getRepeatingValue("i_folder_id", i).asString());
+          dql.append("',");
+        }
+        dql.setCharAt(dql.length() - 1, ')');
+        dql.append(" ENABLE (row_based)");
+
+        IQuery query = traversalManager.getClientX().getQuery();
+        query.setDQL(dql.toString());
+        try {
+          ICollection collec = query.execute(session, IQuery.READ_QUERY);
+          try {
+            while (collec.next()) {
+              values.add(
+                  Value.getStringValue(collec.getString("r_folder_path")));
+            }
+          } finally {
+            collec.close();
+          }
+        } catch (RepositoryDocumentException e) {
+          logger.warning("RepositoryDocumentException thrown: " + e
+              + " on getting property: " + name);
+        }
       } else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
         try {
           values.add(Value.getStringValue(object.getACLDomain() + " "
                                           + object.getACLName()));
         } catch (RepositoryDocumentException e) {
-          // TODO Auto-generated catch block
-          logger.warning("RepositoryDocumentException thrown : " + e
-                         + " on getting property : " + name);
+          logger.warning("RepositoryDocumentException thrown: " + e
+                         + " on getting property: " + name);
         }
       } else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
         values.add(Value.getBooleanValue(traversalManager.isPublic()));
@@ -185,15 +230,14 @@ public class DctmSysobjectDocument implements Document {
         try {
           IFormat dctmForm = object.getFormat();
           String mimetype = dctmForm.getMIMEType();
-          logger.fine("mimetype of the document " + versionId + " : " + mimetype);
+          logger.fine("mimetype of the document " + versionId + ": " + mimetype);
           // Modification in order to index empty documents.
           if (canIndex(false)) {
             values.add(Value.getStringValue(mimetype));
           }
         } catch (RepositoryDocumentException e) {
-          // TODO Auto-generated catch block
-          logger.warning("RepositoryDocumentException thrown : " + e
-                         + " on getting property : " + name);
+          logger.warning("RepositoryDocumentException thrown: " + e
+                         + " on getting property: " + name);
         }
       } else if (SpiConstants.PROPNAME_TITLE.equals(name)) {
         values.add(Value.getStringValue(object.getObjectName()));
@@ -250,9 +294,8 @@ public class DctmSysobjectDocument implements Document {
                   throw new AssertionError(String.valueOf(attr.getDataType()));
               }
             } catch (Exception e) {
-              logger.warning("error getting the value of index "
-                  + i +" of the attribute " + name);
-              logger.warning("exception " + e);
+              logger.log(Level.WARNING, "error getting the value of index "
+                  + i + " of the attribute " + name, e);
             }
           }
         } else {
@@ -418,6 +461,8 @@ public class DctmSysobjectDocument implements Document {
       fetch();
       properties = new HashSet<String>();
       properties.add(SpiConstants.PROPNAME_DISPLAYURL);
+      // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
+      properties.add(PROPNAME_FOLDER);
       properties.add(SpiConstants.PROPNAME_ISPUBLIC);
       properties.add(SpiConstants.PROPNAME_LASTMODIFIED);
       properties.add(SpiConstants.PROPNAME_MIMETYPE);

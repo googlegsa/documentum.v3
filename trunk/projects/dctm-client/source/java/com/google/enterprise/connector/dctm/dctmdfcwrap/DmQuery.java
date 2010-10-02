@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.util.logging.Logger;
-
 import com.documentum.fc.client.DfQuery;
 import com.documentum.fc.client.IDfCollection;
 import com.documentum.fc.client.IDfSession;
@@ -26,14 +24,14 @@ import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class DmQuery implements IQuery {
+  private static final Logger logger =
+      Logger.getLogger(DmQuery.class.getName());
+
   private final IDfQuery idfQuery;
-
-  private static Logger logger = null;
-
-  static {
-    logger = Logger.getLogger(DmQuery.class.getName());
-  }
 
   public DmQuery(IDfQuery idfQuery) {
     this.idfQuery = idfQuery;
@@ -56,7 +54,8 @@ public class DmQuery implements IQuery {
     DmSession dmSession = (DmSession) session;
     IDfSession idfSession = dmSession.getDfSession();
 
-    logger.info("value of IdfQuery " + idfQuery.getDQL());
+    if (logger.isLoggable(Level.FINEST))
+      logger.finest("value of IdfQuery " + idfQuery.getDQL());
 
     IDfCollection dfCollection;
     try {
