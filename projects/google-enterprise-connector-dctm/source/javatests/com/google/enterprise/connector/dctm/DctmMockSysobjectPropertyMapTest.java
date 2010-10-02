@@ -76,7 +76,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 
   public void testGetPropertyNames() throws RepositoryException {
     Set<String> names = document.getPropertyNames();
-    assertEquals(5, names.size());
+    assertEquals(6, names.size());
     for (String name : names) {
       assertTrue(name, name.startsWith("google:"));
     }
@@ -94,6 +94,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
    * Tests that all of the SPI property name constants match our
    * PROPNAME_REGEXP.
    */
+  /* TODO: Remove this test for 3.0. */
   public void testPropnameRegexp() throws IllegalAccessException {
     Class c = SpiConstants.class;
     java.lang.reflect.Field[] fields = c.getFields();
