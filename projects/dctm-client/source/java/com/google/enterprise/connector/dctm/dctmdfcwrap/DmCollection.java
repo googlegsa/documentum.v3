@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.util.logging.Logger;
-
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
@@ -26,6 +24,9 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfTime;
 import com.documentum.fc.common.IDfValue;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DmCollection implements ICollection {
   IDfCollection idfCollection;
@@ -52,7 +53,8 @@ public class DmCollection implements ICollection {
     IDfValue dfValue = null;
     try {
       dfValue = idfCollection.getValue(attrName);
-      logger.finest("getting the value of attribute " + attrName);
+      if (logger.isLoggable(Level.FINEST))
+        logger.finest("getting the value of attribute " + attrName);
     } catch (DfException e) {
       RepositoryException re = new RepositoryException(e);
       throw re;
@@ -89,14 +91,16 @@ public class DmCollection implements ICollection {
 
     try {
       rep = idfCollection.next();
-      logger.finest("collection.next() returns " + rep);
+      if (logger.isLoggable(Level.FINEST))
+        logger.finest("collection.next() returns " + rep);
     } catch (DfException e) {
       e.printStackTrace();
       throw new RepositoryException(e);
     }
     if (rep)
       numberOfRows++;
-    logger.finest("number Of Rows is " + numberOfRows);
+    if (logger.isLoggable(Level.FINEST))
+      logger.finest("number Of Rows is " + numberOfRows);
     return rep;
   }
 
@@ -105,7 +109,8 @@ public class DmCollection implements ICollection {
       throw new IllegalStateException("Cannot access current row after hasNext()");
     }
     try {
-      logger.finest("column value is " + idfCollection.getString(colName));
+      if (logger.isLoggable(Level.FINEST))
+        logger.finest("column value is " + idfCollection.getString(colName));
       return idfCollection.getString(colName);
     } catch (DfException e) {
       throw new RepositoryException(e);
@@ -115,7 +120,8 @@ public class DmCollection implements ICollection {
   public ITime getTime(String colName) throws RepositoryException {
     IDfTime dfTime = null;
     try {
-      logger.finest("column value is " + idfCollection.getTime(colName));
+      if (logger.isLoggable(Level.FINEST))
+        logger.finest("column value is " + idfCollection.getTime(colName));
       dfTime = idfCollection.getTime(colName);
     } catch (DfException e) {
       throw new RepositoryException(e);
@@ -124,7 +130,8 @@ public class DmCollection implements ICollection {
   }
 
   public void close() throws RepositoryException {
-    logger.info(numberOfRows + " documents have been processed");
+    if (logger.isLoggable(Level.FINEST))
+      logger.finest(numberOfRows + " rows have been processed");
     try {
       didPeek = false;
       idfCollection.close();
@@ -140,10 +147,8 @@ public class DmCollection implements ICollection {
   }
 
   public ISession getSession() {
-    IDfSession dfSession = null;
-    dfSession = idfCollection.getSession();
     logger.finest("getting the session from the collection");
-    return new DmSession(dfSession);
+    return new DmSession(idfCollection.getSession());
   }
 
   protected void finalize() throws RepositoryException {
