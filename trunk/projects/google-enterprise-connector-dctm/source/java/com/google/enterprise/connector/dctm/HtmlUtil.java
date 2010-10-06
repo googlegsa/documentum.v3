@@ -80,7 +80,7 @@ class HtmlUtil {
 
   public static final String ID = "id";
 
-  public static void appendInput(StringBuilder buf, String key, String value,
+  public static void appendInput(StringBuilder buf, String name, String value,
       boolean isPassword) {
     buf.append(OPEN_ELEMENT);
     buf.append(INPUT);
@@ -90,19 +90,19 @@ class HtmlUtil {
       appendAttribute(buf, TYPE, TEXT);
     }
     appendAttribute(buf, VALUE, value);
-    appendAttribute(buf, NAME, key);
-    appendAttribute(buf, ID, key);
+    appendAttribute(buf, NAME, name);
+    appendAttribute(buf, ID, name);
     buf.append(CLOSE_ELEMENT);
   }
 
-  public static void appendCheckbox(StringBuilder buf, String key,
+  public static void appendCheckbox(StringBuilder buf, String name,
       boolean isOn, String onClick) {
     buf.append(OPEN_ELEMENT);
     buf.append(INPUT);
     appendAttribute(buf, TYPE, CHECKBOX);
     appendAttribute(buf, VALUE, "on"); // Also the browsers default value.
-    appendAttribute(buf, NAME, key);
-    appendAttribute(buf, ID, key);
+    appendAttribute(buf, NAME, name);
+    appendAttribute(buf, ID, name);
 
     if (onClick != null) {
       appendAttribute(buf, "onclick", onClick);
@@ -114,9 +114,9 @@ class HtmlUtil {
     buf.append(CLOSE_ELEMENT);
   }
 
-  public static void appendLabel(StringBuilder buf, String key, String label) {
+  public static void appendLabel(StringBuilder buf, String name, String label) {
     buf.append("<label");
-    appendAttribute(buf, "for", key);
+    appendAttribute(buf, "for", name);
     buf.append(">");
     buf.append(label);
     buf.append("</label>");
