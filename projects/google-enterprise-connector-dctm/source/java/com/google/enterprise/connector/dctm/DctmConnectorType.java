@@ -599,7 +599,7 @@ public class DctmConnectorType implements ConnectorType {
 
       if (key.equals(ISPUBLIC)) {
         if (value != null && value.equals("on")) {
-          appendCheckBox(buf, key, resource.getString(key), value, resource);
+          appendCheckboxRow(buf, key, resource.getString(key), value, resource);
         }
       } else if (key.equals(DOCBASENAME)) {
         logger.fine("docbase droplist");
@@ -643,7 +643,7 @@ public class DctmConnectorType implements ConnectorType {
         buf.append("</tbody>");
       } else if (key.equals(ADVANCEDCONF)) {
         logger.fine("advanced config: " + advConf);
-        appendCheckBox(buf, ADVANCEDCONF,
+        appendCheckboxRow(buf, ADVANCEDCONF,
             "<b>" + resource.getString(key) + "</b>", value, resource);
       } else if (key.equals(ROOT_OBJECT_TYPE)) {
         logger.fine("makeValidatedForm - rootObjectType");
@@ -1109,7 +1109,7 @@ public class DctmConnectorType implements ConnectorType {
     appendHiddenInput(buf, "CM_included_meta", "included_meta", stMeta);
   }
 
-  private void appendCheckBox(StringBuilder buf, String key, String label,
+  private void appendCheckboxRow(StringBuilder buf, String key, String label,
       String value, ResourceBundle resource) {
     boolean isAdvanced = key.equals(ADVANCEDCONF);
     boolean isOn = value != null && value.equals("on");
@@ -1124,28 +1124,26 @@ public class DctmConnectorType implements ConnectorType {
     String onClick;
     if (isAdvanced) {
       logger.config("advanced conf set to " + value);
-      StringBuilder tempBuf = buf;
-      buf = new StringBuilder();
-      buf.append("if(document.getElementById('more').style.display == 'none'){");
-      buf.append("if((document.getElementById('login').value != '')")
+      StringBuilder jsBuf = new StringBuilder();
+      jsBuf.append("if(document.getElementById('more').style.display == 'none'){");
+      jsBuf.append("if((document.getElementById('login').value != '')")
           .append("&&(document.getElementById('Password').value != '')){");
       if (isOn) {
-        buf.append("document.getElementById('more').style.display='';");
+        jsBuf.append("document.getElementById('more').style.display='';");
       } else {
-        buf.append("document.getElementById('action_update').value='redisplay';");
-        buf.append("document.body.style.cursor='wait';");
-        buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
+        jsBuf.append("document.getElementById('action_update').value='redisplay';");
+        jsBuf.append("document.body.style.cursor='wait';");
+        jsBuf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
       }
-      buf.append("}else{");
-      buf.append("alert('")
+      jsBuf.append("}else{");
+      jsBuf.append("alert('")
           .append(resource.getString("advanced_configuration_error"))
           .append("');this.checked=false;");
-      buf.append("}");
-      buf.append("}else{");
-      buf.append("document.getElementById('more').style.display='none';");
-      buf.append("}");
-      onClick = buf.toString();
-      buf = tempBuf;
+      jsBuf.append("}");
+      jsBuf.append("}else{");
+      jsBuf.append("document.getElementById('more').style.display='none';");
+      jsBuf.append("}");
+      onClick = jsBuf.toString();
     } else {
       onClick = null;
     }
