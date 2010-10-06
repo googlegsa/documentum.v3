@@ -29,6 +29,7 @@ import com.google.enterprise.connector.util.UrlValidator;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -367,9 +368,13 @@ public class DctmMockConnectorTypeTest extends TestCase {
   private void testAddla(int count, String value, int options,
       String selected) {
     StringBuilder buf = new StringBuilder();
+    // TODO: With the extraction of getDocbases, we could dispense
+    // with calling that method and with using MultipleDocbasesClient,
+    // which percolates onward.
     MockDmClientX clientX = new MultipleDocbasesClientX(count);
     try {
-      type.appendDropDownListAttribute(buf, value, resources, clientX);
+      List<String> docbases = type.getDocbases(clientX);
+      type.appendDropDownListAttribute(buf, value, resources, docbases);
     } catch (RepositoryException e) {
       fail(e.toString());
     }

@@ -534,6 +534,58 @@ public class DctmConnectorType implements ConnectorType {
   private String makeValidatedForm(Map<String, String> configMap,
       ResourceBundle resource, IClientX cl, ISession sess)
       throws RepositoryException {
+    // Get the properties from the config map, if one is present, or
+    // set some defaults.
+    String rootType;
+    String advConf;
+    if (configMap != null) {
+      rootType = configMap.get(ROOT_OBJECT_TYPE).trim();
+      logger.config("rootType from configmap: " + rootType);
+      advConf = configMap.get(ADVANCEDCONF);
+      logger.config("advConf from configmap: " + advConf);
+    } else {
+      rootType = rootObjectType;
+      logger.config("root_object_type: " + rootType);
+      advConf = "";
+    }
+
+    List<String> docbases = getDocbases(cl);
+
+    boolean isAdvancedOn = sess != null && advConf.equals("on");
+    SortedSet<String> allTypes;
+    Map<String, Set<String>> metasByTypes;
+    HashSet<String> existingProperties;
+    Set<String> includedProperties;
+    SortedSet<String> documentTypes;
+    if (isAdvancedOn) {
+      allTypes = getListOfTypes(rootType, cl, sess);
+
+      metasByTypes = new TreeMap<String, Set<String>>();
+      existingProperties = new HashSet<String>();
+      includedProperties = getIncludedProperties(configMap);
+      fillProperties(configMap, sess, metasByTypes, existingProperties);
+
+      documentTypes = getListOfTypes("dm_document", cl, sess);
+      documentTypes.remove("dm_document");
+    } else {
+      allTypes = null;
+      metasByTypes = null;
+      existingProperties = null;
+      includedProperties = null;
+      documentTypes = null;
+    }
+
+    return renderFormSnippet(configMap, resource, rootType, docbases,
+        isAdvancedOn, allTypes, metasByTypes, existingProperties,
+        includedProperties, documentTypes);
+  }
+
+  private String renderFormSnippet(Map<String, String> configMap,
+      ResourceBundle resource, String rootType, List<String> docbases,
+      boolean isAdvancedOn, SortedSet<String> allTypes,
+      Map<String, Set<String>> metasByTypes,
+      HashSet<String> existingProperties, Set<String> includedProperties,
+      SortedSet<String> documentTypes) {
     StringBuilder buf = new StringBuilder();
 
     // JavaScript functions used to sync the select lists with the
@@ -574,21 +626,6 @@ public class DctmConnectorType implements ConnectorType {
     buf.append(SCRIPT_END);
     appendEndRow(buf);
 
-    // Get the properties from the config map, if one is present, or
-    // set some defaults.
-    String rootType;
-    String advConf;
-    if (configMap != null) {
-      rootType = configMap.get(ROOT_OBJECT_TYPE).trim();
-      logger.config("rootType from configmap: " + rootType);
-      advConf = configMap.get(ADVANCEDCONF);
-      logger.config("advConf from configmap: " + advConf);
-    } else {
-      rootType = rootObjectType;
-      logger.config("root_object_type: " + rootType);
-      advConf = "";
-    }
-
     for (String key : configKeys) {
       ///logger.config("key is " + key);
       String value = "";
@@ -604,15 +641,13 @@ public class DctmConnectorType implements ConnectorType {
       } else if (key.equals(DOCBASENAME)) {
         logger.fine("docbase droplist");
         appendStartRow(buf, resource.getString(key), isRequired(key));
-        appendDropDownListAttribute(buf, value, resource, cl);
+        appendDropDownListAttribute(buf, value, resource, docbases);
         appendEndRow(buf);
       } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
-        if (sess != null && advConf.equals("on")) {
+        if (isAdvancedOn) {
           appendStartTable(buf);
           appendStartTableRow(buf, resource.getString(AVAILABLE_OBJECT_TYPE),
               resource.getString(key));
-
-          SortedSet<String> allTypes = getListOfTypes(rootType, cl, sess);
 
           // Properties are displayed according to the values stored
           // in the .properties file.
@@ -626,13 +661,14 @@ public class DctmConnectorType implements ConnectorType {
       } else if (key.equals(INCLUDED_META)) {
         // If the form is not displayed for the first time
         // (modification) and the advanced conf checkbox is checked.
-        if (sess != null && advConf.equals("on")) {
+        if (isAdvancedOn) {
           appendStartTableRow(buf, resource.getString(AVAILABLE_META),
               resource.getString(key));
 
           // Properties are displayed according to the values stored
           // in the .properties file.
-          appendSelectMultipleIncludeMetadatas(buf, configMap, sess);
+          appendSelectMultipleIncludeMetadatas(buf, metasByTypes,
+              existingProperties, includedProperties);
 
           appendEndTable(buf);
         } else {
@@ -642,12 +678,11 @@ public class DctmConnectorType implements ConnectorType {
         }
         buf.append("</tbody>");
       } else if (key.equals(ADVANCEDCONF)) {
-        logger.fine("advanced config: " + advConf);
         appendCheckboxRow(buf, ADVANCEDCONF,
             "<b>" + resource.getString(key) + "</b>", value, resource);
       } else if (key.equals(ROOT_OBJECT_TYPE)) {
         logger.fine("makeValidatedForm - rootObjectType");
-        if (sess != null && advConf.equals("on")) {
+        if (isAdvancedOn) {
           appendStartRow(buf, resource.getString(key), isRequired(key));
           buf.append(SELECT_START);
           appendAttribute(buf, NAME, ROOT_OBJECT_TYPE);
@@ -661,9 +696,6 @@ public class DctmConnectorType implements ConnectorType {
             logger.config("Available object type: " + type);
             appendOption(buf, type, type, type.equals(rootType));
           }
-          SortedSet<String> documentTypes = getListOfTypes("dm_document",
-              cl, sess);
-          documentTypes.remove("dm_document");
           for (String type : documentTypes) {
             logger.config("Available object type: " + type);
             appendOption(buf, type, type, type.equals(rootType));
@@ -922,27 +954,21 @@ public class DctmConnectorType implements ConnectorType {
         stTypes);
   }
 
-  private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
-      Map<String, String> configMap, ISession sess)
-      throws RepositoryException {
-    logger.fine("in appendSelectMultipleIncludeMetadatas properties");
-
-    logger.config("string type: " + configMap.get(INCLUDED_OBJECT_TYPE));
-    String[] typeList = configMap.get(INCLUDED_OBJECT_TYPE).split(",");
-
-    Map<String, Set<String>> metasByTypes =
-        new TreeMap<String, Set<String>>();
-    HashSet<String> existingProperties = new HashSet<String>();
-
+  private Set<String> getIncludedProperties(Map<String, String> configMap) {
     logger.config("string meta: " + configMap.get(INCLUDED_META));
     String stMeta = configMap.get(INCLUDED_META);
     String[] metaList = stMeta.split(",");
-
     Set<String> includedProperties = new TreeSet<String>();
     for (String property : metaList) {
       includedProperties.add(property.trim());
     }
+    return includedProperties;
+  }
 
+  private void fillProperties(Map<String, String> configMap,
+      ISession sess, Map<String, Set<String>> metasByTypes,
+      HashSet<String> existingProperties)
+      throws RepositoryException {
     IType dmsysType = sess.getType("dm_sysobject");
     HashSet<String> hashDmSysMeta = new HashSet<String>();
     for (int j = 0; j < dmsysType.getTypeAttrCount(); j++) {
@@ -954,6 +980,8 @@ public class DctmConnectorType implements ConnectorType {
     }
 
     // Loop of the selected types list.
+    logger.config("string type: " + configMap.get(INCLUDED_OBJECT_TYPE));
+    String[] typeList = configMap.get(INCLUDED_OBJECT_TYPE).split(",");
     for (String stType : typeList) {
       IType mytype = sess.getType(stType);
       logger.config("stType is " + stType);
@@ -1040,6 +1068,12 @@ public class DctmConnectorType implements ConnectorType {
         metasByTypes.put(data, tempTypes);
       }
     }
+  }
+
+  private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
+      Map<String, Set<String>> metasByTypes,
+      HashSet<String> existingProperties, Set<String> includedProperties) {
+    logger.fine("in appendSelectMultipleIncludeMetadatas properties");
 
     // Creation of the select list of the available properties
     // (properties of the selected types) with the names of the
@@ -1091,7 +1125,7 @@ public class DctmConnectorType implements ConnectorType {
         appendOption(buf, data, data);
       }
     }
-    stMeta = buffer.substring(0, buffer.length() - 1);
+    String stMeta = buffer.substring(0, buffer.length() - 1);
     buf.append(SELECT_END);
 
     appendEndRow(buf);
@@ -1163,17 +1197,20 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   /* This method has package access for unit testing. */
-  void appendDropDownListAttribute(StringBuilder buf, String value,
-      ResourceBundle resource, IClientX cl) throws RepositoryException {
+  List<String> getDocbases(IClientX cl) throws RepositoryException {
     IClient client = cl.getLocalClient();
     IDocbaseMap docbaseMap = client.getDocbaseMap();
     int count = docbaseMap.getDocbaseCount();
-
     ArrayList<String> docbases = new ArrayList<String>(count);
     for (int i = 0; i < count; i++) {
       docbases.add(docbaseMap.getDocbaseName(i));
     }
+    return docbases;
+  }
 
+  /* This method has package access for unit testing. */
+  void appendDropDownListAttribute(StringBuilder buf, String value,
+      ResourceBundle resource, List<String> docbases) {
     buf.append(SELECT_START);
     appendAttribute(buf, NAME, DOCBASENAME);
     buf.append(">\n");
@@ -1184,6 +1221,7 @@ public class DctmConnectorType implements ConnectorType {
     // Otherwise, if there is a configured docbase but it does not
     // appear in the list, add the configured docbase along with a
     // message to the top of the list as the selected option.
+    int count = docbases.size();
     if ("".equals(value) && count != 1) {
       appendOption(buf, "", "", true);
     } else if (!"".equals(value) && !docbases.contains(value)) {
