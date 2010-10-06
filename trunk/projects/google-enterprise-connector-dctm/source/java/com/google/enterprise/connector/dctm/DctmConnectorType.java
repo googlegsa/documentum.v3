@@ -33,6 +33,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.google.enterprise.connector.dctm.HtmlUtil.*;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -53,62 +54,6 @@ import com.google.enterprise.connector.util.UrlValidatorException;
 public class DctmConnectorType implements ConnectorType {
   private static final Logger logger =
       Logger.getLogger(DctmConnectorType.class.getName());
-
-  private static final String HIDDEN = "hidden";
-
-  private static final String VALUE = "value";
-
-  private static final String NAME = "name";
-
-  private static final String TEXT = "text";
-
-  private static final String TYPE = "type";
-
-  private static final String INPUT = "input";
-
-  private static final String CLOSE_ELEMENT = "/>";
-
-  private static final String OPEN_ELEMENT = "<";
-
-  private static final String TR_END = "</tr>\r\n";
-
-  private static final String TD_END = "</td>\r\n";
-
-  private static final String TD_START = "<td>";
-
-  private static final String TD_START_LABEL =
-      "<td style='white-space: nowrap'>";
-
-  private static final String TD_START_TEXTAREA =
-      "<td style='white-space: nowrap; vertical-align: top; padding-top: 2px'>";
-
-  private static final String TD_START_PADDING =
-      "<td style='white-space: nowrap; padding-top: 1ex'>\r\n";
-
-  private static final String TD_START_COLSPAN = "<td colspan='2'>";
-
-  private static final String TD_START_CENTER =
-      "<td style='text-align: center'>";
-
-  private static final String TR_START = "<tr>\r\n";
-
-  private static final String TR_START_HIDDEN =
-      "<tr style='display: none'>\r\n";
-
-  private static final String SELECT_START = "<select";
-
-  private static final String SELECT_END = "</select>\r\n";
-
-  private static final String SELECTED = " selected='selected'";
-
-  private static final String TEXTAREA_START = "<textarea";
-
-  private static final String TEXTAREA_END = "</textarea>\r\n";
-
-  private static final String SCRIPT_START =
-      "<script type=\"text/javascript\"><![CDATA[\n";
-
-  private static final String SCRIPT_END = "]]></script>\n";
 
   private static final String ISPUBLIC = "is_public";
 
@@ -134,15 +79,7 @@ public class DctmConnectorType implements ConnectorType {
 
   private static final String LOGIN = "login";
 
-  private static final String PASSWORD = "password";
-
   private static final String PASSWORD_KEY = "Password";
-
-  private static final String CHECKBOX = "checkbox";
-
-  private static final String CHECKED = " checked='checked'";
-
-  private static final String ID = "id";
 
   private String clientXclassName;
 
@@ -745,17 +682,7 @@ public class DctmConnectorType implements ConnectorType {
       } else {
         logger.fine("makeValidatedForm - input - " + key);
         appendStartRow(buf, resource.getString(key), isRequired(key));
-        buf.append(OPEN_ELEMENT);
-        buf.append(INPUT);
-        if (key.equals(PASSWORD_KEY)) {
-          appendAttribute(buf, TYPE, PASSWORD);
-        } else {
-          appendAttribute(buf, TYPE, TEXT);
-        }
-        appendAttribute(buf, VALUE, value);
-        appendAttribute(buf, NAME, key);
-        appendAttribute(buf, ID, key);
-        buf.append(CLOSE_ELEMENT);
+        appendInput(buf, key, value, key.equals(PASSWORD_KEY));
         appendEndRow(buf);
       }
     }
@@ -1193,19 +1120,15 @@ public class DctmConnectorType implements ConnectorType {
     } else {
       buf.append(TD_START_COLSPAN);
     }
-    buf.append(OPEN_ELEMENT);
-    buf.append(INPUT);
-    appendAttribute(buf, TYPE, CHECKBOX);
-    appendAttribute(buf, VALUE, "on"); // Also the browsers default value.
-    appendAttribute(buf, NAME, key);
-    appendAttribute(buf, ID, key);
 
+    String onClick;
     if (isAdvanced) {
       logger.config("advanced conf set to " + value);
-      buf.append(" onclick=\"");
+      StringBuilder tempBuf = buf;
+      buf = new StringBuilder();
       buf.append("if(document.getElementById('more').style.display == 'none'){");
       buf.append("if((document.getElementById('login').value != '')")
-          .append("&amp;&amp;(document.getElementById('Password').value != '')){");
+          .append("&&(document.getElementById('Password').value != '')){");
       if (isOn) {
         buf.append("document.getElementById('more').style.display='';");
       } else {
@@ -1220,19 +1143,15 @@ public class DctmConnectorType implements ConnectorType {
       buf.append("}");
       buf.append("}else{");
       buf.append("document.getElementById('more').style.display='none';");
-      buf.append("}\"");
+      buf.append("}");
+      onClick = buf.toString();
+      buf = tempBuf;
+    } else {
+      onClick = null;
     }
 
-    if (isOn) {
-      buf.append(CHECKED);
-    }
-    buf.append(CLOSE_ELEMENT);
-
-    buf.append("<label");
-    appendAttribute(buf, "for", key);
-    buf.append(">");
-    buf.append(label);
-    buf.append("</label>");
+    appendCheckbox(buf, key, isOn, onClick);
+    appendLabel(buf, key, label);
 
     appendEndRow(buf);
 
@@ -1243,33 +1162,6 @@ public class DctmConnectorType implements ConnectorType {
         buf.append("<tbody id=\"more\" style=\"display: none\">");
       }
     }
-  }
-
-  private void appendTextarea(StringBuilder buf, String name, String value) {
-    buf.append(TEXTAREA_START);
-    appendAttribute(buf, NAME, name);
-    appendAttribute(buf, "rows", "10");
-    appendAttribute(buf, "cols", "50");
-    buf.append(">");
-    escapeAndAppend(buf, value);
-    buf.append(TEXTAREA_END);
-    appendEndRow(buf);
-  }
-
-  private void appendOption(StringBuilder buf, String value, String text) {
-    appendOption(buf, value, text, false);
-  }
-
-  private void appendOption(StringBuilder buf, String value, String text,
-      boolean isSelected) {
-    buf.append("<option");
-    appendAttribute(buf, "value", value);
-    if (isSelected) {
-      buf.append(SELECTED);
-    }
-    buf.append(">");
-    buf.append(text);
-    buf.append("</option>\n");
   }
 
   /* This method has package access for unit testing. */
@@ -1307,137 +1199,5 @@ public class DctmConnectorType implements ConnectorType {
     }
 
     buf.append(SELECT_END);
-  }
-
-  private void appendStartRow(StringBuilder buf, String key,
-      boolean isRequired) {
-    buf.append(TR_START);
-    buf.append(TD_START_LABEL);
-    buf.append(key);
-    if (isRequired) {
-      buf.append("<span style='color: red; font-weight: bold; ")
-          .append("margin: auto 0.3em;\'>*</span>");
-    }
-    buf.append(TD_END);
-    buf.append(TD_START);
-  }
-
-  private void appendStartTextareaRow(StringBuilder buf, String key) {
-    buf.append(TR_START);
-    buf.append(TD_START_TEXTAREA);
-    buf.append(key);
-    buf.append(TD_END);
-    buf.append(TD_START);
-  }
-
-  private void appendStartHiddenRow(StringBuilder buf) {
-    buf.append(TR_START_HIDDEN);
-    buf.append(TD_START);
-    buf.append(TD_END);
-    buf.append(TD_START);
-  }
-
-  private void appendStartTable(StringBuilder buf) {
-    buf.append(TR_START);
-    buf.append(TD_START_COLSPAN);
-    buf.append("<table style=\"width: 100%; border-collapse: collapse\">");
-  }
-
-  private void appendStartTableRow(StringBuilder buf, String leftKey,
-      String rightKey) {
-    buf.append(TR_START);
-    buf.append(TD_START_PADDING);
-    buf.append(leftKey);
-    buf.append(TD_END);
-    buf.append(TD_START);
-    buf.append("&nbsp;");
-    buf.append(TD_END);
-    buf.append(TD_START_PADDING);
-    buf.append(rightKey);
-    buf.append(TD_END);
-    buf.append(TR_END);
-    buf.append(TR_START);
-    buf.append(TD_START);
-  }
-
-  private void appendEndTable(StringBuilder buf) {
-    buf.append("</table>");
-    appendEndRow(buf);
-  }
-
-  private void appendEndRow(StringBuilder buf) {
-    buf.append(TD_END);
-    buf.append(TR_END);
-  }
-
-  private void appendHiddenInput(StringBuilder buf, String name, String value) {
-    appendHiddenInput(buf, null, name, value);
-  }
-
-  private void appendHiddenInput(StringBuilder buf, String id, String name,
-      String value) {
-    appendStartHiddenRow(buf);
-    buf.append("<input type=\"hidden\"");
-    if (id != null) {
-      appendAttribute(buf, ID, id);
-    }
-    appendAttribute(buf, "name", name);
-    appendAttribute(buf, "value", value);
-    buf.append(" />");
-    appendEndRow(buf);
-  }
-
-  private void appendSelectStart(StringBuilder buf, String name) {
-    appendSelectStart(buf, null, name);
-  }
-
-  private void appendSelectStart(StringBuilder buf, String id, String name) {
-    buf.append(SELECT_START);
-    appendAttribute(buf, NAME, name);
-    if (id != null) {
-      appendAttribute(buf, ID, id);
-    }
-    buf.append(" style=\"width:100%\" multiple='multiple' size=\"10\">\n");
-  }
-
-  private void appendAttribute(StringBuilder buf, String attrName,
-      String attrValue) {
-    buf.append(" ");
-    buf.append(attrName);
-    buf.append("=\"");
-    escapeAndAppend(buf, attrValue);
-    buf.append("\"");
-    if (attrName == TYPE && (attrValue == TEXT || attrValue == PASSWORD)) {
-      buf.append(" size=\"50\"");
-    }
-  }
-
-  /* Copied from com.google.enterprise.connector.otex.LivelinkConnectorType. */
-  private void escapeAndAppend(StringBuilder buffer, String data) {
-    for (int i = 0; i < data.length(); i++) {
-      switch (data.charAt(i)) {
-        case '\'': buffer.append("&apos;"); break;
-        case '"': buffer.append("&quot;"); break;
-        case '&': buffer.append("&amp;"); break;
-        case '<': buffer.append("&lt;"); break;
-        case '>': buffer.append("&gt;"); break;
-        default: buffer.append(data.charAt(i));
-      }
-    }
-  }
-
-  private void appendStartOnclickButton(StringBuilder buf, String label) {
-    buf.append("<input");
-    appendAttribute(buf, "type", "button");
-    appendAttribute(buf, "value", label);
-    buf.append(" onclick=\"");
-  }
-
-  private void appendEndOnclickButton(StringBuilder buf) {
-    // Putting whitepace between the close input tag and the br tag
-    // causes a misalignment in Chrome. The extra break doesn't seem
-    // to cause vertical alignment issues in Chrome, Safari, Firefox,
-    // or IE.
-    buf.append("\"></input><br />\n");
   }
 }
