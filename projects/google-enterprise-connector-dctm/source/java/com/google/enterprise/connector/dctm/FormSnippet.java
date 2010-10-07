@@ -31,37 +31,58 @@ class FormSnippet {
   private static final Logger logger =
       Logger.getLogger(FormSnippet.class.getName());
 
-  public static final String ISPUBLIC = "is_public";
+  public static final String LOGIN = "login";
 
-  public static final String WHERECLAUSE = "where_clause";
-
-  public static final String ADVANCEDCONF = "advanced_configuration";
-
-  public static final String ACTIONUPDATE = "action_update";
+  public static final String PASSWORD_KEY = "Password";
 
   public static final String DOCBASENAME = "docbase";
 
   public static final String DISPLAYURL = "webtop_display_url";
 
-  public static final String AVAILABLE_META = "available_meta";
+  public static final String ISPUBLIC = "is_public";
 
-  public static final String INCLUDED_META = "included_meta";
+  public static final String ADVANCEDCONF = "advanced_configuration";
+
+  public static final String ACTIONUPDATE = "action_update";
+
+  public static final String WHERECLAUSE = "where_clause";
+
+  public static final String ROOT_OBJECT_TYPE = "root_object_type";
 
   public static final String AVAILABLE_OBJECT_TYPE = "available_object_type";
 
   public static final String INCLUDED_OBJECT_TYPE = "included_object_type";
 
-  public static final String ROOT_OBJECT_TYPE = "root_object_type";
+  public static final String AVAILABLE_META = "available_meta";
 
-  public static final String LOGIN = "login";
-
-  public static final String PASSWORD_KEY = "Password";
+  public static final String INCLUDED_META = "included_meta";
 
   private List<String> configKeys;
 
   private String includedObjectType;
 
   private String includedMeta;
+
+  /**
+   * Checks whether the given key is a core field needed to open the
+   * advanced configuration.
+   *
+   * @param key the property name
+   */
+  public static boolean isCoreConfig(String key) {
+    return key.equals(LOGIN) || key.equals(PASSWORD_KEY)
+        || key.equals(DOCBASENAME);
+  }
+
+  /**
+   * Checks whether the given key is a required field.
+   *
+   * @param key the property name
+   */
+  public static boolean isRequired(String key) {
+    return key.equals(LOGIN) || key.equals(PASSWORD_KEY)
+        || key.equals(DOCBASENAME) || key.equals(DISPLAYURL);
+  }
 
   public FormSnippet() {
   }
@@ -87,27 +108,6 @@ class FormSnippet {
   public void setIncluded_object_type(String includedObjectType) {
     this.includedObjectType = includedObjectType;
     logger.config("included_object_type set to " + includedObjectType);
-  }
-
-  /**
-   * Checks whether the given key is a core field needed to open the
-   * advanced configuration.
-   *
-   * @param key the property name
-   */
-  public static boolean isCoreConfig(String key) {
-    return key.equals(LOGIN) || key.equals(PASSWORD_KEY)
-        || key.equals(DOCBASENAME);
-  }
-
-  /**
-   * Checks whether the given key is a required field.
-   *
-   * @param key the property name
-   */
-  public static boolean isRequired(String key) {
-    return key.equals(LOGIN) || key.equals(PASSWORD_KEY)
-        || key.equals(DOCBASENAME) || key.equals(DISPLAYURL);
   }
 
   public String render(Map<String, String> configMap,
@@ -164,15 +164,50 @@ class FormSnippet {
         ///logger.config("key " + key + " is " + value);
       }
 
-      if (key.equals(ISPUBLIC)) {
-        if (value != null && value.equals("on")) {
-          appendCheckboxRow(buf, key, resource.getString(key), value, resource);
-        }
-      } else if (key.equals(DOCBASENAME)) {
+      // LOGIN, PASSWORD_KEY, and DISPLAYURL are handled in the else block.
+      if (key.equals(DOCBASENAME)) {
         logger.fine("docbase droplist");
         appendStartRow(buf, resource.getString(key), isRequired(key));
         appendDropDownListAttribute(buf, value, resource, docbases);
         appendEndRow(buf);
+      } else if (key.equals(ISPUBLIC)) {
+        if (value != null && value.equals("on")) {
+          appendCheckboxRow(buf, key, resource.getString(key), value, resource);
+        }
+      } else if (key.equals(ADVANCEDCONF)) {
+        appendCheckboxRow(buf, ADVANCEDCONF,
+            "<b>" + resource.getString(key) + "</b>", value, resource);
+      } else if (key.equals(ACTIONUPDATE)) {
+        appendHiddenInput(buf, key, key, "");
+      } else if (key.equals(ROOT_OBJECT_TYPE)) {
+        logger.fine("makeValidatedForm - rootObjectType");
+        if (isAdvancedOn) {
+          appendStartRow(buf, resource.getString(key), isRequired(key));
+          buf.append(SELECT_START);
+          appendAttribute(buf, NAME, ROOT_OBJECT_TYPE);
+          buf.append(" onchange=\"");
+          buf.append("document.getElementById('action_update').value='redisplay';");
+          buf.append("document.body.style.cursor='wait';");
+          buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
+          buf.append("\">\n");
+          String[] baseTypes = { "dm_sysobject", "dm_document", };
+          for (String type : baseTypes) {
+            logger.config("Available object type: " + type);
+            appendOption(buf, type, type, type.equals(rootType));
+          }
+          for (String type : documentTypes) {
+            logger.config("Available object type: " + type);
+            appendOption(buf, type, type, type.equals(rootType));
+          }
+          buf.append(SELECT_END);
+          appendEndRow(buf);
+        } else {
+          appendHiddenInput(buf, key, rootType);
+        }
+      } else if (key.equals(WHERECLAUSE)) {
+        logger.fine("where clause");
+        appendStartTextareaRow(buf, resource.getString(key));
+        appendTextarea(buf, WHERECLAUSE, value);
       } else if (key.equals(INCLUDED_OBJECT_TYPE)) {
         if (isAdvancedOn) {
           appendStartTable(buf);
@@ -207,40 +242,6 @@ class FormSnippet {
           appendSelectMultipleIncludeMetadatas(buf, configMap);
         }
         buf.append("</tbody>");
-      } else if (key.equals(ADVANCEDCONF)) {
-        appendCheckboxRow(buf, ADVANCEDCONF,
-            "<b>" + resource.getString(key) + "</b>", value, resource);
-      } else if (key.equals(ROOT_OBJECT_TYPE)) {
-        logger.fine("makeValidatedForm - rootObjectType");
-        if (isAdvancedOn) {
-          appendStartRow(buf, resource.getString(key), isRequired(key));
-          buf.append(SELECT_START);
-          appendAttribute(buf, NAME, ROOT_OBJECT_TYPE);
-          buf.append(" onchange=\"");
-          buf.append("document.getElementById('action_update').value='redisplay';");
-          buf.append("document.body.style.cursor='wait';");
-          buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
-          buf.append("\">\n");
-          String[] baseTypes = { "dm_sysobject", "dm_document", };
-          for (String type : baseTypes) {
-            logger.config("Available object type: " + type);
-            appendOption(buf, type, type, type.equals(rootType));
-          }
-          for (String type : documentTypes) {
-            logger.config("Available object type: " + type);
-            appendOption(buf, type, type, type.equals(rootType));
-          }
-          buf.append(SELECT_END);
-          appendEndRow(buf);
-        } else {
-          appendHiddenInput(buf, key, rootType);
-        }
-      } else if (key.equals(WHERECLAUSE)) {
-        logger.fine("where clause");
-        appendStartTextareaRow(buf, resource.getString(key));
-        appendTextarea(buf, WHERECLAUSE, value);
-      } else if (key.equals(ACTIONUPDATE)) {
-        appendHiddenInput(buf, key, key, "");
       } else {
         logger.fine("makeValidatedForm - input - " + key);
         appendStartRow(buf, resource.getString(key), isRequired(key));
@@ -250,6 +251,88 @@ class FormSnippet {
     }
 
     return buf.toString();
+  }
+
+  /* This method has package access for unit testing. */
+  void appendDropDownListAttribute(StringBuilder buf, String value,
+      ResourceBundle resource, List<String> docbases) {
+    buf.append(SELECT_START);
+    appendAttribute(buf, NAME, DOCBASENAME);
+    buf.append(">\n");
+
+    // If there are zero or more one docbase available and none
+    // selected, then add an empty to the top of the list as the
+    // selected option so that users must make an explicit choice.
+    // Otherwise, if there is a configured docbase but it does not
+    // appear in the list, add the configured docbase along with a
+    // message to the top of the list as the selected option.
+    int count = docbases.size();
+    if ("".equals(value) && count != 1) {
+      appendOption(buf, "", "", true);
+    } else if (!"".equals(value) && !docbases.contains(value)) {
+      String label = value + " (" + resource.getString("docbase_error") + ")";
+      appendOption(buf, value, label, true);
+      count++; // Hack to avoid selecting the wrong docbase below.
+    }
+
+    for (String docbase : docbases) {
+      appendOption(buf, docbase, docbase, count == 1 || docbase.equals(value));
+    }
+
+    buf.append(SELECT_END);
+  }
+
+  private void appendCheckboxRow(StringBuilder buf, String key, String label,
+      String value, ResourceBundle resource) {
+    boolean isAdvanced = key.equals(ADVANCEDCONF);
+    boolean isOn = value != null && value.equals("on");
+
+    buf.append(TR_START);
+    if (isAdvanced) {
+      buf.append("<td colspan='2' style='padding-top: 3ex'>");
+    } else {
+      buf.append(TD_START_COLSPAN);
+    }
+
+    String onClick;
+    if (isAdvanced) {
+      logger.config("advanced conf set to " + value);
+      StringBuilder jsBuf = new StringBuilder();
+      jsBuf.append("if(document.getElementById('more').style.display == 'none'){");
+      jsBuf.append("if((document.getElementById('login').value != '')")
+          .append("&&(document.getElementById('Password').value != '')){");
+      if (isOn) {
+        jsBuf.append("document.getElementById('more').style.display='';");
+      } else {
+        jsBuf.append("document.getElementById('action_update').value='redisplay';");
+        jsBuf.append("document.body.style.cursor='wait';");
+        jsBuf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
+      }
+      jsBuf.append("}else{");
+      jsBuf.append("alert('")
+          .append(resource.getString("advanced_configuration_error"))
+          .append("');this.checked=false;");
+      jsBuf.append("}");
+      jsBuf.append("}else{");
+      jsBuf.append("document.getElementById('more').style.display='none';");
+      jsBuf.append("}");
+      onClick = jsBuf.toString();
+    } else {
+      onClick = null;
+    }
+
+    appendCheckbox(buf, key, isOn, onClick);
+    appendLabel(buf, key, label);
+
+    appendEndRow(buf);
+
+    if (isAdvanced) {
+      if (isOn) {
+        buf.append("<tbody id=\"more\">");
+      } else {
+        buf.append("<tbody id=\"more\" style=\"display: none\">");
+      }
+    }
   }
 
   private void appendSelectMultipleIncludeTypes(StringBuilder buf,
@@ -485,87 +568,5 @@ class FormSnippet {
         configMap.get(INCLUDED_META) : includedMeta;
 
     appendHiddenInput(buf, "CM_included_meta", "included_meta", stMeta);
-  }
-
-  private void appendCheckboxRow(StringBuilder buf, String key, String label,
-      String value, ResourceBundle resource) {
-    boolean isAdvanced = key.equals(ADVANCEDCONF);
-    boolean isOn = value != null && value.equals("on");
-
-    buf.append(TR_START);
-    if (isAdvanced) {
-      buf.append("<td colspan='2' style='padding-top: 3ex'>");
-    } else {
-      buf.append(TD_START_COLSPAN);
-    }
-
-    String onClick;
-    if (isAdvanced) {
-      logger.config("advanced conf set to " + value);
-      StringBuilder jsBuf = new StringBuilder();
-      jsBuf.append("if(document.getElementById('more').style.display == 'none'){");
-      jsBuf.append("if((document.getElementById('login').value != '')")
-          .append("&&(document.getElementById('Password').value != '')){");
-      if (isOn) {
-        jsBuf.append("document.getElementById('more').style.display='';");
-      } else {
-        jsBuf.append("document.getElementById('action_update').value='redisplay';");
-        jsBuf.append("document.body.style.cursor='wait';");
-        jsBuf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
-      }
-      jsBuf.append("}else{");
-      jsBuf.append("alert('")
-          .append(resource.getString("advanced_configuration_error"))
-          .append("');this.checked=false;");
-      jsBuf.append("}");
-      jsBuf.append("}else{");
-      jsBuf.append("document.getElementById('more').style.display='none';");
-      jsBuf.append("}");
-      onClick = jsBuf.toString();
-    } else {
-      onClick = null;
-    }
-
-    appendCheckbox(buf, key, isOn, onClick);
-    appendLabel(buf, key, label);
-
-    appendEndRow(buf);
-
-    if (isAdvanced) {
-      if (isOn) {
-        buf.append("<tbody id=\"more\">");
-      } else {
-        buf.append("<tbody id=\"more\" style=\"display: none\">");
-      }
-    }
-  }
-
-  /* This method has package access for unit testing. */
-  void appendDropDownListAttribute(StringBuilder buf, String value,
-      ResourceBundle resource, List<String> docbases) {
-    buf.append(SELECT_START);
-    appendAttribute(buf, NAME, DOCBASENAME);
-    buf.append(">\n");
-
-    // If there are zero or more one docbase available and none
-    // selected, then add an empty to the top of the list as the
-    // selected option so that users must make an explicit choice.
-    // Otherwise, if there is a configured docbase but it does not
-    // appear in the list, add the configured docbase along with a
-    // message to the top of the list as the selected option.
-    int count = docbases.size();
-    if ("".equals(value) && count != 1) {
-      appendOption(buf, "", "", true);
-    } else if (!"".equals(value) && !docbases.contains(value)) {
-      String label = value + " (" + resource.getString("docbase_error") + ")";
-      appendOption(buf, value, label, true);
-      count++; // Hack to avoid selecting the wrong docbase below.
-    }
-
-    for (String docbase : docbases) {
-      appendOption(buf, docbase, docbase, count == 1 || docbase.equals(value));
-    }
-
-    buf.append(SELECT_END);
   }
 }

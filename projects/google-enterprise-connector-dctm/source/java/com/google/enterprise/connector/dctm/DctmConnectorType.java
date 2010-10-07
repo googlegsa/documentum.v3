@@ -240,7 +240,7 @@ public class DctmConnectorType implements ConnectorType {
   }
 
   public ConfigureResponse getPopulatedConfigForm(
-      Map<String, String> configMap, Locale language)  {
+      Map<String, String> configMap, Locale language) {
     logger.fine("getPopulatedConfigForm");
     ResourceBundle resource = getResources(language);
     ConfigureResponse result = null;
