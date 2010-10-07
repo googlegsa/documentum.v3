@@ -59,8 +59,7 @@ public class FormSnippetTest extends TestCase {
       for (int i = 0; i < docbaseMap.getDocbaseCount(); i++) {
         docbases.add(docbaseMap.getDocbaseName(i));
       }
-      FormSnippet snippet = new FormSnippet();
-      snippet.appendDropDownListAttribute(buf, value, resources, docbases);
+      FormSnippet.appendDropDownListAttribute(buf, value, resources, docbases);
     } catch (RepositoryException e) {
       fail(e.toString());
     }

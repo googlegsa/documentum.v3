@@ -57,12 +57,6 @@ class FormSnippet {
 
   public static final String INCLUDED_META = "included_meta";
 
-  private List<String> configKeys;
-
-  private String includedObjectType;
-
-  private String includedMeta;
-
   /**
    * Checks whether the given key is a core field needed to open the
    * advanced configuration.
@@ -84,7 +78,47 @@ class FormSnippet {
         || key.equals(DOCBASENAME) || key.equals(DISPLAYURL);
   }
 
-  public FormSnippet() {
+  private final Map<String, String> configMap;
+  private final ResourceBundle resource;
+  private final String rootType;
+  private final List<String> docbases;
+  private final boolean isAdvancedOn;
+  private final SortedSet<String> allTypes;
+  private final Map<String, Set<String>> metasByTypes;
+  private final Set<String> existingProperties;
+  private final Set<String> includedProperties;
+  private final SortedSet<String> documentTypes;
+
+  private List<String> configKeys;
+
+  private String includedObjectType;
+
+  private String includedMeta;
+
+  public FormSnippet(Map<String, String> configMap,
+      ResourceBundle resource, String rootType, List<String> docbases,
+      boolean isAdvancedOn, SortedSet<String> allTypes,
+      Map<String, Set<String>> metasByTypes,
+      Set<String> existingProperties, Set<String> includedProperties,
+      SortedSet<String> documentTypes) {
+    if (isAdvancedOn) {
+      assert allTypes != null;
+      assert metasByTypes != null;
+      assert existingProperties != null;
+      assert includedProperties != null;
+      assert documentTypes != null;
+    }
+
+    this.configMap = configMap;
+    this.resource = resource;
+    this.rootType = rootType;
+    this.docbases = docbases;
+    this.isAdvancedOn = isAdvancedOn;
+    this.allTypes = allTypes;
+    this.metasByTypes = metasByTypes;
+    this.existingProperties = existingProperties;
+    this.includedProperties = includedProperties;
+    this.documentTypes = documentTypes;
   }
 
   /**
@@ -110,12 +144,7 @@ class FormSnippet {
     logger.config("included_object_type set to " + includedObjectType);
   }
 
-  public String render(Map<String, String> configMap,
-      ResourceBundle resource, String rootType, List<String> docbases,
-      boolean isAdvancedOn, SortedSet<String> allTypes,
-      Map<String, Set<String>> metasByTypes,
-      Set<String> existingProperties, Set<String> includedProperties,
-      SortedSet<String> documentTypes) {
+  public String render() {
     StringBuilder buf = new StringBuilder();
 
     // JavaScript functions used to sync the select lists with the
@@ -253,8 +282,8 @@ class FormSnippet {
     return buf.toString();
   }
 
-  /* This method has package access for unit testing. */
-  void appendDropDownListAttribute(StringBuilder buf, String value,
+  /* This method is static and has package access for unit testing. */
+  static void appendDropDownListAttribute(StringBuilder buf, String value,
       ResourceBundle resource, List<String> docbases) {
     buf.append(SELECT_START);
     appendAttribute(buf, NAME, DOCBASENAME);
