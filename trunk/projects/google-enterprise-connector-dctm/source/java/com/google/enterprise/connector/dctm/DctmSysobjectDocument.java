@@ -15,7 +15,9 @@
 package com.google.enterprise.connector.dctm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -54,7 +56,8 @@ public class DctmSysobjectDocument implements Document {
   /** The maximum content size that will be allowed. */
   private static final long MAX_CONTENT_SIZE = 30L * 1024 * 1024;
 
-  private static final String OBJECT_ID_NAME = "r_object_id";
+  /* @VisibleForTesting */
+  static final String OBJECT_ID_NAME = "r_object_id";
 
   /** A regexp that matches the defined SPI property names. */
   /*
@@ -68,7 +71,22 @@ public class DctmSysobjectDocument implements Document {
    * folder path of the document.
    */
   /* TODO: Remove in favor of SpiConstants.PROPNAME_FOLDER in CM 3.0. */
-  private static final String PROPNAME_FOLDER = "google:folder";
+  /* @VisibleForTesting */
+  static final String PROPNAME_FOLDER = "google:folder";
+
+  /**
+   * Optional properties from Documentum that are not truly attributes.
+   * Values include "r_object_id" and "google:folder".
+   */
+  public static final Set<String> EXTENDED_PROPERTIES;
+
+  static {
+    // TODO: Use ImmutableSet.of(OBJECT_ID_NAME, SpiConstants.PROPNAME_FOLDER)
+    // in 3.0.
+    String[] properties = { OBJECT_ID_NAME, PROPNAME_FOLDER };
+    EXTENDED_PROPERTIES = Collections.unmodifiableSet(
+        new HashSet<String>(Arrays.asList(properties)));
+  }
 
   /**
    * A record of logged requests for unsupported SPI properties so we
@@ -518,20 +536,12 @@ public class DctmSysobjectDocument implements Document {
       Set<String> excludedMeta = traversalManager.getExcludedMeta();
       try {
         for (int i = 0; i < count; i++) {
-          IAttr curAttr = type.getTypeAttr(i);
-          String name = curAttr.getName();
-          if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
-              !excludedMeta.contains(name)) {
-            typeAttributes.add(name);
-            if (logger.isLoggable(Level.FINEST)) {
-              logger.finest("attribute " + name + " added to the properties");
-            }
-          } else {
-            if (logger.isLoggable(Level.FINEST)) {
-              logger.finest("attribute " + name
-                  + " excluded from the properties");
-            }
-          }
+          String name = type.getTypeAttrNameAt(i);
+          addIfIncluded(typeAttributes, name, includedMeta, excludedMeta);
+        }
+
+        for (String name : EXTENDED_PROPERTIES) {
+          addIfIncluded(typeAttributes, name, includedMeta, excludedMeta);
         }
       } catch (RepositoryDocumentException e) {
         logger.log(Level.WARNING, "Error fetching property names", e);
@@ -542,14 +552,28 @@ public class DctmSysobjectDocument implements Document {
     }
   }
 
+  public void addIfIncluded(List<String> typeAttributes, String name,
+      Set<String> includedMeta, Set<String> excludedMeta) {
+    if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
+        !excludedMeta.contains(name)) {
+      typeAttributes.add(name);
+      if (logger.isLoggable(Level.FINEST)) {
+        logger.finest("attribute " + name + " added to the properties");
+      }
+    } else {
+      if (logger.isLoggable(Level.FINEST)) {
+        logger.finest("attribute " + name
+            + " excluded from the properties");
+      }
+    }
+  }
+
   public Set<String> getPropertyNames() throws RepositoryException {
     Set<String> properties;
     if (ActionType.ADD.equals(action)) {
       fetch();
       properties = new HashSet<String>();
       properties.add(SpiConstants.PROPNAME_DISPLAYURL);
-      // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
-      properties.add(PROPNAME_FOLDER);
       properties.add(SpiConstants.PROPNAME_ISPUBLIC);
       properties.add(SpiConstants.PROPNAME_LASTMODIFIED);
       properties.add(SpiConstants.PROPNAME_MIMETYPE);

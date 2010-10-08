@@ -76,7 +76,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 
   public void testGetPropertyNames() throws RepositoryException {
     Set<String> names = document.getPropertyNames();
-    assertEquals(6, names.size());
+    assertEquals(5, names.size());
     for (String name : names) {
       assertTrue(name, name.startsWith("google:"));
     }
