@@ -37,6 +37,8 @@ public interface IType {
 
   IAttr getTypeAttr(int attrIndex) throws RepositoryException;
 
+  String getTypeAttrNameAt(int attrIndex) throws RepositoryException;
+
   String getDescription() throws RepositoryException;
 
   boolean isSubTypeOf(String type) throws RepositoryException;

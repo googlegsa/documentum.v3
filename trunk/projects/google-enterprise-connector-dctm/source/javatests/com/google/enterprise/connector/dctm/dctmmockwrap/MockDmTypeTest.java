@@ -71,7 +71,7 @@ public class MockDmTypeTest extends TestCase {
     assertNull(souper);
     int attrCount = type.getTypeAttrCount();
     assertEquals(1, attrCount);
-    assertEquals("dm_sysobject_attr", type.getTypeAttr(0).getName());
+    assertEquals("dm_sysobject_attr", type.getTypeAttrNameAt(0));
   }
 
   public void testAttributes() throws RepositoryException {
@@ -88,7 +88,7 @@ public class MockDmTypeTest extends TestCase {
     Set<String> actual = new HashSet<String>();
     Set<String> actualShared = new HashSet<String>();
     for (int i = 0; i < attrCount; i++) {
-      String attrName = type.getTypeAttr(i).getName();
+      String attrName = type.getTypeAttrNameAt(i);
       assertTrue(attrName, attrName.endsWith("attr"));
       if (attrName.endsWith("_attr")) {
         actual.add(attrName.substring(0, attrName.length() - "_attr".length()));

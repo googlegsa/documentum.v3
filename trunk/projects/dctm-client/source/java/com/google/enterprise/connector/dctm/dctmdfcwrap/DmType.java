@@ -83,6 +83,14 @@ public class DmType implements IType {
     return new DmAttr(idfAttr);
   }
 
+  public String getTypeAttrNameAt(int attrIndex) throws RepositoryException {
+    try {
+      return idfType.getTypeAttrNameAt(attrIndex);
+    } catch (DfException de) {
+      throw new RepositoryException(de);
+    }
+  }
+
   public String getDescription() throws RepositoryException {
     String desc = "";
     try {

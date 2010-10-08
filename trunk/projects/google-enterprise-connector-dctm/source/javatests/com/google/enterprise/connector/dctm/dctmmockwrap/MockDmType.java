@@ -83,6 +83,11 @@ public class MockDmType implements IType {
         ? attributes.get(attrIndex) : prototype.getAttr(attrIndex);
   }
 
+  public String getTypeAttrNameAt(int attrIndex)
+      throws RepositoryDocumentException {
+    return getTypeAttr(attrIndex).getName();
+  }
+
   public String getDescription() {
     return typeName + "Description";
   }
