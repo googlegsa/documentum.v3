@@ -15,6 +15,7 @@
 package com.google.enterprise.connector.dctm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -173,9 +174,8 @@ public class FormSnippetBuilder {
     IType type = sess.getType("dm_sysobject");
     HashSet<String> attributes = new HashSet<String>();
     for (int j = 0; j < type.getTypeAttrCount(); j++) {
-      IAttr attr = type.getTypeAttr(j);
-      String attrName = attr.getName();
-      logger.config("attrName " + attrName + " is metadata of dm_sysobject");
+      String attrName = type.getTypeAttrNameAt(j);
+      logger.config("dm_sysobject attribute: " + attrName);
       attributes.add(attrName);
     }
     return attributes;
@@ -207,7 +207,7 @@ public class FormSnippetBuilder {
       // Loop of the properties of each selected type.
    ATTRIBUTES:
       for (int i = 0; i < type.getTypeAttrCount(); i++) {
-        String attrName = type.getTypeAttr(i).getName();
+        String attrName = type.getTypeAttrNameAt(i);
         logger.config("Attribute name " + i + ": " + attrName);
 
         Set<String> baseTypes = new HashSet<String>();
@@ -244,6 +244,11 @@ public class FormSnippetBuilder {
         propertiesMap.put(attrName, baseTypes);
       }
     }
+
+    for (String name : DctmSysobjectDocument.EXTENDED_PROPERTIES) {
+      propertiesMap.put(name, Collections.singleton("dm_sysobject"));
+    }
+    
     return propertiesMap;
   }
 
