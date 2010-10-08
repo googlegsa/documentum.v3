@@ -32,6 +32,10 @@ class HtmlUtil {
 
   public static final String OPEN_ELEMENT = "<";
 
+  public static final String TBODY_START = "<tbody";
+
+  public static final String TBODY_END = "</tbody>\r\n";
+
   public static final String TR_END = "</tr>\r\n";
 
   public static final String TD_END = "</td>\r\n";
@@ -183,6 +187,20 @@ class HtmlUtil {
     buf.append(TR_START);
     buf.append(TD_START_COLSPAN);
     buf.append("<table style=\"width: 100%; border-collapse: collapse\">");
+  }
+
+  public static void appendStartTbody(StringBuilder buf, String id,
+      String display) {
+    buf.append(TBODY_START);
+    appendAttribute(buf, ID, id);
+    if (display != null) {
+      appendAttribute(buf, "style", "display: " + display);
+    }
+    buf.append(">\r\n");
+  }
+
+  public static void appendEndTbody(StringBuilder buf) {
+    buf.append(TBODY_END);
   }
 
   public static void appendStartTableRow(StringBuilder buf, String leftKey,
