@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2007 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,17 +18,28 @@ import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.mock.MockRepositoryProperty;
 
 public class MockDmAttr implements IAttr {
-  private MockRepositoryProperty mockProp;
+  private final String name;
+  private final int dataType;
 
   public MockDmAttr(MockRepositoryProperty mockProp) {
-    this.mockProp = mockProp;
+    this.name = mockProp.getName();
+    this.dataType = getDataType(mockProp);
+  }
+
+  public MockDmAttr(String name) {
+    this.name = name;
+    this.dataType = IAttr.DM_UNDEFINED; // Does not matter.
   }
 
   public String getName() {
-    return mockProp.getName();
+    return name;
   }
 
   public int getDataType() {
+    return dataType;
+  }
+
+  private int getDataType(MockRepositoryProperty mockProp) {
     String type = mockProp.getType().toString();
     if (type.equals("string")) {
       return IAttr.DM_STRING;

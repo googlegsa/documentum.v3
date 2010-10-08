@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,6 +40,14 @@ public class MockDmSession implements ISession {
     this.sessionFileNameSuffix = dbFileName;
   }
 
+  /**
+   * Constructs a session that cannot do much. It must, however,
+   * support {@link #getType}.
+   */
+  public MockDmSession() {
+    this(null, null, null, null);
+  }
+
   MockRepositoryDocumentStore getStore() {
     return mockRep.getRepo().getStore();
   }
@@ -76,8 +84,7 @@ public class MockDmSession implements ISession {
   }
 
   public IType getType(String typeName) throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    return new MockDmType(typeName);
   }
 
   public ISessionManager getSessionManager() throws RepositoryException {
@@ -85,6 +92,6 @@ public class MockDmSession implements ISession {
   }
 
   public boolean isConnected() {
-    return true;
+    return sessMgr != null;
   }
 }

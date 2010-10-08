@@ -84,8 +84,7 @@ class FormSnippet {
   private final List<String> docbases;
   private final boolean isAdvancedOn;
   private final SortedSet<String> allTypes;
-  private final Map<String, Set<String>> metasByTypes;
-  private final Set<String> existingProperties;
+  private final Map<String, Set<String>> propertiesMap;
   private final Set<String> includedProperties;
   private final SortedSet<String> documentTypes;
 
@@ -97,14 +96,12 @@ class FormSnippet {
 
   public FormSnippet(Map<String, String> configMap,
       ResourceBundle resource, String rootType, List<String> docbases,
-      boolean isAdvancedOn, SortedSet<String> allTypes,
-      Map<String, Set<String>> metasByTypes,
-      Set<String> existingProperties, Set<String> includedProperties,
-      SortedSet<String> documentTypes) {
+      boolean isAdvancedOn, SortedSet<String> documentTypes,
+      SortedSet<String> allTypes, Map<String, Set<String>> propertiesMap,
+      Set<String> includedProperties) {
     if (isAdvancedOn) {
       assert allTypes != null;
-      assert metasByTypes != null;
-      assert existingProperties != null;
+      assert propertiesMap != null;
       assert includedProperties != null;
       assert documentTypes != null;
     }
@@ -115,8 +112,7 @@ class FormSnippet {
     this.docbases = docbases;
     this.isAdvancedOn = isAdvancedOn;
     this.allTypes = allTypes;
-    this.metasByTypes = metasByTypes;
-    this.existingProperties = existingProperties;
+    this.propertiesMap = propertiesMap;
     this.includedProperties = includedProperties;
     this.documentTypes = documentTypes;
   }
@@ -261,8 +257,8 @@ class FormSnippet {
 
           // Properties are displayed according to the values stored
           // in the .properties file.
-          appendSelectMultipleIncludeMetadatas(buf, metasByTypes,
-              existingProperties, includedProperties);
+          appendSelectMultipleIncludeMetadatas(buf, propertiesMap,
+              includedProperties);
 
           appendEndTable(buf);
         } else {
@@ -527,29 +523,27 @@ class FormSnippet {
   }
 
   private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
-      Map<String, Set<String>> metasByTypes,
-      Set<String> existingProperties, Set<String> includedProperties) {
+      Map<String, Set<String>> propertiesMap, Set<String> includedProperties) {
     logger.fine("in appendSelectMultipleIncludeMetadatas properties");
 
     // Creation of the select list of the available properties
     // (properties of the selected types) with the names of the
     // types it belongs to.
     appendSelectStart(buf, "included_meta_toinclude");
-    Set<String> dataSet = metasByTypes.keySet();
-    for (String data : dataSet) {
-      ///logger.config("appendSelectMultipleIncludeMetadatas type is " + type);
-      Set<String> types = metasByTypes.get(data);
-      if (!includedProperties.contains(data)) {
+    Set<String> propertyNames = propertiesMap.keySet();
+    for (String propertyName : propertyNames) {
+      if (!includedProperties.contains(propertyName)) {
         buf.append("<option value=\"");
-        buf.append(data);
+        buf.append(propertyName);
         buf.append("\" title=\"");
-        for (String stType : types) {
-          buf.append(stType);
+        Set<String> types = propertiesMap.get(propertyName);
+        for (String typeName : types) {
+          buf.append(typeName);
           buf.append(", ");
         }
         buf.delete(buf.length() - 2, buf.length());
         buf.append("\">");
-        buf.append(data);
+        buf.append(propertyName);
         buf.append("</option>\n");
       }
     }
@@ -575,10 +569,10 @@ class FormSnippet {
     // so rebuild the string.
     appendSelectStart(buf, "CM_included_meta_bis", "included_meta_bis");
     StringBuilder buffer = new StringBuilder();
-    for (String data : includedProperties) {
-      if (existingProperties.contains(data)) {
-        buffer.append(data).append(',');
-        appendOption(buf, data, data);
+    for (String propertyName : includedProperties) {
+      if (propertiesMap.containsKey(propertyName)) {
+        buffer.append(propertyName).append(',');
+        appendOption(buf, propertyName, propertyName);
       }
     }
     String stMeta = buffer.substring(0, buffer.length() - 1);

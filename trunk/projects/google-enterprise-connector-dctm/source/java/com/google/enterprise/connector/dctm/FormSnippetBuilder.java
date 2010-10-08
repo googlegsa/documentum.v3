@@ -101,32 +101,27 @@ public class FormSnippetBuilder {
     List<String> docbases = getDocbases(cl);
 
     boolean isAdvancedOn = sess != null && advConf.equals("on");
-    SortedSet<String> allTypes;
-    Map<String, Set<String>> metasByTypes;
-    HashSet<String> existingProperties;
-    Set<String> includedProperties;
     SortedSet<String> documentTypes;
+    SortedSet<String> allTypes;
+    Map<String, Set<String>> propertiesMap;
+    Set<String> includedProperties;
     if (isAdvancedOn) {
-      allTypes = getListOfTypes(rootType, cl, sess);
-
-      metasByTypes = new TreeMap<String, Set<String>>();
-      existingProperties = new HashSet<String>();
-      includedProperties = getIncludedProperties(configMap);
-      fillProperties(configMap, sess, metasByTypes, existingProperties);
-
       documentTypes = getListOfTypes("dm_document", cl, sess);
       documentTypes.remove("dm_document");
+      allTypes = getListOfTypes(rootType, cl, sess);
+      propertiesMap =
+          getPropertiesMap(configMap.get(INCLUDED_OBJECT_TYPE), sess);
+      includedProperties = getIncludedProperties(configMap.get(INCLUDED_META));
     } else {
-      allTypes = null;
-      metasByTypes = null;
-      existingProperties = null;
-      includedProperties = null;
       documentTypes = null;
+      allTypes = null;
+      propertiesMap = null;
+      includedProperties = null;
     }
 
     FormSnippet snippet = new FormSnippet(configMap, resource, rootType,
-        docbases, isAdvancedOn, allTypes, metasByTypes, existingProperties,
-        includedProperties, documentTypes);
+        docbases, isAdvancedOn, documentTypes, allTypes, propertiesMap,
+        includedProperties);
     snippet.setConfigKeys(configKeys);
     snippet.setIncluded_object_type(includedObjectType);
     snippet.setIncluded_meta(includedMeta);
@@ -163,10 +158,9 @@ public class FormSnippetBuilder {
     return types;
   }
 
-  private Set<String> getIncludedProperties(Map<String, String> configMap) {
-    logger.config("string meta: " + configMap.get(INCLUDED_META));
-    String stMeta = configMap.get(INCLUDED_META);
-    String[] metaList = stMeta.split(",");
+  private Set<String> getIncludedProperties(String includedMeta) {
+    logger.config("string meta: " + includedMeta);
+    String[] metaList = includedMeta.split(",");
     Set<String> includedProperties = new TreeSet<String>();
     for (String property : metaList) {
       includedProperties.add(property.trim());
@@ -174,109 +168,83 @@ public class FormSnippetBuilder {
     return includedProperties;
   }
 
-  private void fillProperties(Map<String, String> configMap,
-      ISession sess, Map<String, Set<String>> metasByTypes,
-      HashSet<String> existingProperties)
+  private Set<String> getSysObjectAttributes(ISession sess)
       throws RepositoryException {
-    IType dmsysType = sess.getType("dm_sysobject");
-    HashSet<String> hashDmSysMeta = new HashSet<String>();
-    for (int j = 0; j < dmsysType.getTypeAttrCount(); j++) {
-      IAttr dmsysattr = dmsysType.getTypeAttr(j);
-      String dmsysattrname = dmsysattr.getName();
-      logger.config("dmsysattrname " + dmsysattrname
-          + " is metadata of dm_sysobject");
-      hashDmSysMeta.add(dmsysattrname);
+    IType type = sess.getType("dm_sysobject");
+    HashSet<String> attributes = new HashSet<String>();
+    for (int j = 0; j < type.getTypeAttrCount(); j++) {
+      IAttr attr = type.getTypeAttr(j);
+      String attrName = attr.getName();
+      logger.config("attrName " + attrName + " is metadata of dm_sysobject");
+      attributes.add(attrName);
     }
+    return attributes;
+  }
+
+  /**
+   * Gets a map from all of the properties in the included object
+   * types to the set of included base types that each appears in.
+   *
+   * @param configMap
+   * @param sess the DFC session
+   */
+  /* @VisibleForTesting */
+  Map<String, Set<String>> getPropertiesMap(String includedObjectType,
+      ISession sess) throws RepositoryException {
+    Map<String, Set<String>> propertiesMap =
+        new TreeMap<String, Set<String>>();
+
+    Set<String> sysObjectAttrs = getSysObjectAttributes(sess);
 
     // Loop of the selected types list.
-    logger.config("string type: " + configMap.get(INCLUDED_OBJECT_TYPE));
-    String[] typeList = configMap.get(INCLUDED_OBJECT_TYPE).split(",");
-    for (String stType : typeList) {
-      IType mytype = sess.getType(stType);
-      logger.config("stType is " + stType);
+    logger.config("Included object types: " + includedObjectType);
+    String[] typeList = includedObjectType.split(",");
+    for (String typeName : typeList) {
+      IType type = sess.getType(typeName);
+      logger.config("Type name: " + typeName + "; attribute count: "
+          + type.getTypeAttrCount());
+
       // Loop of the properties of each selected type.
-      for (int i = 0; i < mytype.getTypeAttrCount(); i++) {
-        logger.config("Property count: " + mytype.getTypeAttrCount());
-        HashSet<String> tempTypes = new HashSet<String>();
-        IAttr attr = mytype.getTypeAttr(i);
-        ///logger.config("attr is " + attr.toString());
-        String data = attr.getName();
-        logger.config("attr is " + data + " - attr of the type " + stType);
-        if (!existingProperties.contains(data)) {
-          existingProperties.add(data);
-        }
-        if (hashDmSysMeta.contains(data)) {
-          // If the property is a dm_sysobject one, dm_sysobject is
-          // added to the temporary types hashset.
-          tempTypes.add("dm_sysobject");
-          logger.config("attr " + data + " is a dm_sysobject attribute");
-        } else if (!metasByTypes.containsKey(data)) {
-          // If the property is not already present in the list of
-          // available properties : the type is added to the
-          // temporary types hashset.
-          tempTypes.add(stType);
-          logger.config("attr " + data
-              + " is a new attribute for the metas list");
+   ATTRIBUTES:
+      for (int i = 0; i < type.getTypeAttrCount(); i++) {
+        String attrName = type.getTypeAttr(i).getName();
+        logger.config("Attribute name " + i + ": " + attrName);
+
+        Set<String> baseTypes = new HashSet<String>();
+        if (sysObjectAttrs.contains(attrName)) {
+          baseTypes.add("dm_sysobject");
+        } else if (!propertiesMap.containsKey(attrName)) {
+          baseTypes.add(typeName);
         } else {
-          // If the property is not already present in the list of
-          // available properties.
-          logger.config("attr " + data
-              + " is not a new attribute for the metas list");
-          Set<String> hashTypes = metasByTypes.get(data);
-          // Loop of the hashset of types whom the property can
-          // belong to (among the selected types).
-          for (String stCurrentType : hashTypes) {
-            logger.config("the type " + stCurrentType
-                + " is already known to have the meta " + data);
-            IType currentType = sess.getType(stCurrentType);
-            if (stCurrentType.equals("dm_sysobject")) {
-              // If the selected type is dm_sysobject : dm_sysobject
-              // is added to the temporary types hashset.
-              logger.config(stCurrentType + " is " + stCurrentType);
-              tempTypes.add(stCurrentType);
-            } else if (currentType.getSuperType().getName().equals(stType)) {
-              // If the selected type is the supertype of one type
-              // whom the property can belong to : the selected type
-              // is added to the temporary types hashset.
-              logger.config(stType + " is supertype of " + stCurrentType);
-              tempTypes.add(stType);
-              logger.config("so supertype " + stType + " is added");
-            } else if (mytype.isSubTypeOf(stCurrentType)) {
-              // If the selected type is the subtype of one type
-              // whom the property can belong to : the type whom the
-              // property can belong to is added to the temporary
-              // types hashset.
-              logger.config(stType + " is  subtype of " + stCurrentType);
-              tempTypes.add(stCurrentType);
-              logger.config(" so supertype " + stCurrentType + " is added");
-            } else if (stType.equals(stCurrentType)) {
-              // If the selected type is one of the types whom the
-              // property can belong to : the type whom the property
-              // can belong to is added to the temporary types
-              // hashset.
-              logger.config(stType + " is " + stCurrentType);
-              tempTypes.add(stCurrentType);
-              logger.config(" so type " + stCurrentType + " is added");
+          Set<String> currentTypes = propertiesMap.get(attrName);
+          logger.config(attrName + " previously found in types: "
+              + currentTypes);
+
+          // Loop of the types we have already found for this attribute.
+          for (String currentTypeName : currentTypes) {
+            IType currentType = sess.getType(currentTypeName);
+            if (currentType.isSubTypeOf(typeName)) {
+              logger.config(typeName + " is supertype of " + currentTypeName);
+              baseTypes.add(typeName);
+            } else if (type.isSubTypeOf(currentTypeName)) {
+              // We don't need typeName for this attribute, so skip to
+              // the next attribute.
+              logger.config(typeName + " is subtype of " + currentTypeName);
+              continue ATTRIBUTES;
             } else {
-              // If the selected type and one of the types whom the
-              // property can belong to don't have any hierarchical
-              // link : the type whom the property can belong to and
-              // the selected type are added to the temporary types
-              // hashset.
-              logger.config("type " + stCurrentType
-                  + " is just another type with the attribute " + data);
-              tempTypes.add(stType);
-              tempTypes.add(stCurrentType);
-              logger.config("so type " + stType + " is added and type "
-                  + stCurrentType + " is also added");
+              logger.config(typeName + " is unrelated to " + currentTypeName);
+              baseTypes.add(typeName);
+              baseTypes.add(currentTypeName);
             }
           }
         }
 
-        logger.fine("adding tempTypes to metasByTypes hashMap");
-        metasByTypes.put(data, tempTypes);
+        logger.fine("Adding to properties map for attribute " + attrName + ": "
+            + baseTypes);
+        propertiesMap.put(attrName, baseTypes);
       }
     }
+    return propertiesMap;
   }
 
   private List<String> getDocbases(IClientX cl) throws RepositoryException {
