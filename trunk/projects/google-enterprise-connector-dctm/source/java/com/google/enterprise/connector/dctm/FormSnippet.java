@@ -16,7 +16,6 @@ package com.google.enterprise.connector.dctm;
 
 import static com.google.enterprise.connector.dctm.HtmlUtil.*;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -207,6 +206,8 @@ class FormSnippet {
       } else if (key.equals(ROOT_OBJECT_TYPE)) {
         logger.fine("makeValidatedForm - rootObjectType");
         if (isAdvancedOn) {
+          appendStartTbody(buf, "more", null);
+
           appendStartRow(buf, resource.getString(key), isRequired(key));
           buf.append(SELECT_START);
           appendAttribute(buf, NAME, ROOT_OBJECT_TYPE);
@@ -221,12 +222,14 @@ class FormSnippet {
             appendOption(buf, type, type, type.equals(rootType));
           }
           for (String type : documentTypes) {
-            logger.config("Available object type: " + type);
+            logger.config("Available root object type: " + type);
             appendOption(buf, type, type, type.equals(rootType));
           }
           buf.append(SELECT_END);
           appendEndRow(buf);
         } else {
+          appendStartTbody(buf, "more", "none");
+
           appendHiddenInput(buf, key, rootType);
         }
       } else if (key.equals(WHERECLAUSE)) {
@@ -239,14 +242,10 @@ class FormSnippet {
           appendStartTableRow(buf, resource.getString(AVAILABLE_OBJECT_TYPE),
               resource.getString(key));
 
-          // Properties are displayed according to the values stored
-          // in the .properties file.
           appendSelectMultipleIncludeTypes(buf, rootType, allTypes,
               configMap);
         } else {
-          // Properties are displayed according to the default
-          // values stored in the connectorType.xml file.
-          appendSelectMultipleIncludeTypes(buf, configMap);
+          appendHiddenIncludeTypes(buf, configMap);
         }
       } else if (key.equals(INCLUDED_META)) {
         // If the form is not displayed for the first time
@@ -255,18 +254,15 @@ class FormSnippet {
           appendStartTableRow(buf, resource.getString(AVAILABLE_META),
               resource.getString(key));
 
-          // Properties are displayed according to the values stored
-          // in the .properties file.
           appendSelectMultipleIncludeMetadatas(buf, propertiesMap,
               includedProperties);
 
           appendEndTable(buf);
         } else {
-          // Properties are displayed according to the default
-          // values stored in the connectorType.xml file.
-          appendSelectMultipleIncludeMetadatas(buf, configMap);
+          appendHiddenIncludeMetadatas(buf, configMap);
         }
-        buf.append("</tbody>");
+
+        appendEndTbody(buf);
       } else {
         logger.fine("makeValidatedForm - input - " + key);
         appendStartRow(buf, resource.getString(key), isRequired(key));
@@ -350,14 +346,6 @@ class FormSnippet {
     appendLabel(buf, key, label);
 
     appendEndRow(buf);
-
-    if (isAdvanced) {
-      if (isOn) {
-        buf.append("<tbody id=\"more\">");
-      } else {
-        buf.append("<tbody id=\"more\" style=\"display: none\">");
-      }
-    }
   }
 
   private void appendSelectMultipleIncludeTypes(StringBuilder buf,
@@ -509,14 +497,12 @@ class FormSnippet {
         stTypes);
   }
 
-  private void appendSelectMultipleIncludeTypes(StringBuilder buf,
+  private void appendHiddenIncludeTypes(StringBuilder buf,
       Map<String, String> configMap) {
-    logger.fine("in appendSelectMultipleIncludeTypes");
-
     String stTypes = (configMap != null) ?
         configMap.get(INCLUDED_OBJECT_TYPE) : includedObjectType;
     if (logger.isLoggable(Level.FINE)) {
-      logger.fine("String included_object_type: " + stTypes);
+      logger.fine("included_object_type: " + stTypes);
     }
     appendHiddenInput(buf, "CM_included_object_type", "included_object_type",
         stTypes);
@@ -583,13 +569,13 @@ class FormSnippet {
     appendHiddenInput(buf, "CM_included_meta", "included_meta", stMeta);
   }
 
-  private void appendSelectMultipleIncludeMetadatas(StringBuilder buf,
+  private void appendHiddenIncludeMetadatas(StringBuilder buf,
       Map<String, String> configMap) {
-    logger.fine("in appendSelectMultipleIncludeMetadatas defaults");
-
     String stMeta = (configMap != null) ?
         configMap.get(INCLUDED_META) : includedMeta;
-
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine("included_meta: " + stMeta);
+    }
     appendHiddenInput(buf, "CM_included_meta", "included_meta", stMeta);
   }
 }
