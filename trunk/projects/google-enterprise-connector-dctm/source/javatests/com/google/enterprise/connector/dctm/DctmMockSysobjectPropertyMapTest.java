@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.Set;
-
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
@@ -34,12 +32,17 @@ import com.google.enterprise.connector.spi.Value;
 
 import junit.framework.TestCase;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class DctmMockSysobjectPropertyMapTest extends TestCase {
   IClientX dctmClientX = null;
   IClient localClient = null;
   ISessionManager sessionManager = null;
+  ISession session;
   DctmTraversalManager traversalManager = null;
   DctmSysobjectDocument document = null;
+  ITime lastModifDate;
 
   private static final String PROPNAME_FEEDTYPE = "google:feedtype";
   public void setUp() throws Exception {
@@ -57,7 +60,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
         DmInitialize.DM_DOCBASE, DmInitialize.DM_WEBTOP_SERVER_URL,
         DmInitialize.included_meta, sessionManager);
 
-    ISession session = null;
+    session = null;
     try {
       session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
     } finally {
@@ -69,12 +72,21 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     IId id = dctmClientX.getId(DmInitialize.DM_ID1);
     ISysObject object = session.getObject(id);
-    ITime lastModifDate = object.getTime("r_modify_date");
+    lastModifDate = object.getTime("r_modify_date");
     document = new DctmSysobjectDocument(traversalManager, session,
         DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD, null);
   }
 
-  public void testGetPropertyNames() throws RepositoryException {
+  private DctmSysobjectDocument getDocument(Set<String> includedMeta)
+      throws RepositoryException {
+    DctmTraversalManager traversalManager = new DctmTraversalManager(
+        dctmClientX, DmInitialize.DM_DOCBASE,
+        DmInitialize.DM_WEBTOP_SERVER_URL, includedMeta, sessionManager);
+    return new DctmSysobjectDocument(traversalManager, session,
+        DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD, null);
+  }
+
+  public void testGetPropertyNames_empty() throws RepositoryException {
     Set<String> names = document.getPropertyNames();
     assertEquals(5, names.size());
     for (String name : names) {
@@ -82,8 +94,55 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     }
   }
 
-  public void testFindProperty() throws RepositoryException {
+  public void testGetPropertyNames_folder() throws RepositoryException {
+    // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
+    document = getDocument(
+        Collections.singleton(DctmSysobjectDocument.PROPNAME_FOLDER));
+    Set<String> names = document.getPropertyNames();
+    assertEquals(6, names.size());
+    for (String name : names) {
+      assertTrue(name, name.startsWith("google:"));
+    }
+  }
+
+  public void testGetPropertyNames_objectId() throws RepositoryException {
+    document = getDocument(
+        Collections.singleton(DctmSysobjectDocument.OBJECT_ID_NAME));
+    Set<String> names = document.getPropertyNames();
+    assertEquals(6, names.size());
+    for (String name : names) {
+      assertTrue(name,
+          name.startsWith("google:") || name.equals("r_object_id"));
+    }
+  }
+
+  public void testFindProperty_docid() throws RepositoryException {
     Property property = document.findProperty(SpiConstants.PROPNAME_DOCID);
+    assertNotNull(property);
+    Value value = property.nextValue();
+    assertNotNull(value);
+    assertEquals(DmInitialize.DM_ID1, value.toString());
+  }
+
+  public void testFindProperty_folder() throws RepositoryException {
+    // This does not work because the mock implementation does not
+    // support retrieving r_folder path from the parent folders, but
+    // it does check that findProperty does not return null.
+    Property property;
+    try {
+      // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
+      property = document.findProperty(DctmSysobjectDocument.PROPNAME_FOLDER);
+    } catch (Exception e) {
+      return;
+    }
+    assertNotNull(property);
+    Value value = property.nextValue();
+    assertNotNull(value);
+  }
+
+  public void testFindProperty_objectId() throws RepositoryException {
+    Property property =
+        document.findProperty(DctmSysobjectDocument.OBJECT_ID_NAME);
     assertNotNull(property);
     Value value = property.nextValue();
     assertNotNull(value);
