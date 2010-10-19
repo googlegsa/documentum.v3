@@ -16,6 +16,10 @@ package com.google.enterprise.connector.dctm;
 
 import static com.google.enterprise.connector.dctm.HtmlUtil.*;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +85,7 @@ class FormSnippet {
   private final ResourceBundle resource;
   private final String rootType;
   private final List<String> docbases;
-  private final boolean isAdvancedOn;
+  private boolean isAdvancedOn;
   private final SortedSet<String> allTypes;
   private final Map<String, Set<String>> propertiesMap;
   private final Set<String> includedProperties;
@@ -116,6 +120,25 @@ class FormSnippet {
     this.documentTypes = documentTypes;
   }
 
+  /** Constructor for the tests. */
+  FormSnippet(ResourceBundle resource, List<String> docbases,
+      boolean isAdvancedOn) {
+    this.configMap = null;
+    this.resource = resource;
+    this.rootType = null;
+    this.docbases = docbases;
+    this.isAdvancedOn = isAdvancedOn;
+    this.allTypes = null;
+    this.propertiesMap = null;
+    this.includedProperties = null;
+    this.documentTypes = null;
+  }
+
+  /** Gets {@code isAdvancedOn} field for the tests. */
+  boolean isAdvancedOn() {
+    return isAdvancedOn;
+  }
+
   /**
    * Set the keys that are required for configuration.
    *
@@ -142,43 +165,8 @@ class FormSnippet {
   public String render() {
     StringBuilder buf = new StringBuilder();
 
-    // JavaScript functions used to sync the select lists with the
-    // hidden fields.
-    appendStartHiddenRow(buf);
-    buf.append(SCRIPT_START);
-    buf.append("function insertIncludeMetas() { \n");
-    buf.append("var txtIncludeMetas = document.getElementById('CM_included_meta');\n");
-    buf.append("var selectedArray = new Array();\n");
-    buf.append("var selObj = document.getElementById('CM_included_meta_bis');\n");
-
-    buf.append("var i;\n");
-    buf.append("var count = 0;\n");
-    buf.append("for (i=0; i<selObj.options.length; i++) {\n");
-    buf.append("selectedArray[count] = selObj.options[i].value;\n");
-    buf.append("count++;\n");
-    buf.append("}\n");
-    buf.append("txtIncludeMetas.value = selectedArray;\n");
-    buf.append("}\n");
-
-    buf.append("function insertIncludeTypes() { \n");
-    ///buf.append("alert('includeTypes');");
-    ///buf.append("alert(document.getElementById('CM_included_object_type'));\n");
-    buf.append("var txtIncludeTypes = document.getElementById('CM_included_object_type');\n");
-    buf.append("var selectedArray = new Array();\n");
-    buf.append("var selObj = document.getElementById('CM_included_object_type_bis');\n");
-
-    buf.append("var i;\n");
-    buf.append("var count = 0;\n");
-    buf.append("for (i=0; i<selObj.options.length; i++) {\n");
-
-    buf.append("selectedArray[count] = selObj.options[i].value;\n");
-    buf.append("count++;\n");
-
-    buf.append("}\n");
-    buf.append("txtIncludeTypes.value = selectedArray;\n");
-    buf.append("}\n");
-    buf.append(SCRIPT_END);
-    appendEndRow(buf);
+    // JavaScript functions for Advanced Configuration.
+    appendJavaScript(buf);
 
     for (String key : configKeys) {
       ///logger.config("key is " + key);
@@ -192,7 +180,7 @@ class FormSnippet {
       if (key.equals(DOCBASENAME)) {
         logger.fine("docbase droplist");
         appendStartRow(buf, resource.getString(key), isRequired(key));
-        appendDropDownListAttribute(buf, value, resource, docbases);
+        appendDropDownListAttribute(buf, value);
         appendEndRow(buf);
       } else if (key.equals(ISPUBLIC)) {
         if (value != null && value.equals("on")) {
@@ -212,9 +200,7 @@ class FormSnippet {
           buf.append(SELECT_START);
           appendAttribute(buf, NAME, ROOT_OBJECT_TYPE);
           buf.append(" onchange=\"");
-          buf.append("document.getElementById('action_update').value='redisplay';");
-          buf.append("document.body.style.cursor='wait';");
-          buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
+          buf.append("redisplayFormSnippet();");
           buf.append("\">\n");
           String[] baseTypes = { "dm_sysobject", "dm_document", };
           for (String type : baseTypes) {
@@ -274,9 +260,57 @@ class FormSnippet {
     return buf.toString();
   }
 
-  /* This method is static and has package access for unit testing. */
-  static void appendDropDownListAttribute(StringBuilder buf, String value,
-      ResourceBundle resource, List<String> docbases) {
+  /** Writes the JavaScript functions. */
+  /* @VisibleForTesting */
+  void appendJavaScript(StringBuilder buf) {
+    appendStartHiddenRow(buf);
+    buf.append(SCRIPT_START);
+    String[] messages = {
+      "advanced_configuration_error",
+      "included_object_type_error",
+      "included_meta_error"
+    };
+    for (String message : messages) {
+      buf.append("var ")
+          .append(message)
+          .append(" = '")
+          .append(resource.getString(message))
+          .append("';\n");
+    }
+
+    // TODO: Cache the JavaScript file, perhaps in SoftReference.
+    // TODO: We should throw RepositoryException here and let
+    // DctmConnectorType handle that generically.
+    boolean isError = false;
+    InputStream in = FormSnippet.class.getResourceAsStream("FormSnippet.js");
+    if (in == null) {
+      isError = true;
+    } else {
+      Reader reader = new InputStreamReader(in);
+      int count;
+      char[] buffer = new char[4096];
+      try {
+        try {
+          while ((count = reader.read(buffer)) != -1) {
+            buf.append(buffer, 0, count);
+          }
+        } finally {
+          reader.close();
+        }
+      } catch (IOException e) {
+        isError = true;
+      }        
+    }
+    buf.append(SCRIPT_END);
+    appendEndRow(buf);
+    if (isError) {
+      buf.append(resource.getString("javascript_error"));
+      isAdvancedOn = false;
+    }
+  }
+
+  /* @VisibleForTesting */
+  void appendDropDownListAttribute(StringBuilder buf, String value) {
     buf.append(SELECT_START);
     appendAttribute(buf, NAME, DOCBASENAME);
     buf.append(">\n");
@@ -318,26 +352,7 @@ class FormSnippet {
     String onClick;
     if (isAdvanced) {
       logger.config("advanced conf set to " + value);
-      StringBuilder jsBuf = new StringBuilder();
-      jsBuf.append("if(document.getElementById('more').style.display == 'none'){");
-      jsBuf.append("if((document.getElementById('login').value != '')")
-          .append("&&(document.getElementById('Password').value != '')){");
-      if (isOn) {
-        jsBuf.append("document.getElementById('more').style.display='';");
-      } else {
-        jsBuf.append("document.getElementById('action_update').value='redisplay';");
-        jsBuf.append("document.body.style.cursor='wait';");
-        jsBuf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
-      }
-      jsBuf.append("}else{");
-      jsBuf.append("alert('")
-          .append(resource.getString("advanced_configuration_error"))
-          .append("');this.checked=false;");
-      jsBuf.append("}");
-      jsBuf.append("}else{");
-      jsBuf.append("document.getElementById('more').style.display='none';");
-      jsBuf.append("}");
-      onClick = jsBuf.toString();
+      onClick = "clickAdvancedConfiguration(this, " + isOn + ");";
     } else {
       onClick = null;
     }
@@ -360,74 +375,15 @@ class FormSnippet {
       includedTypes.add(stType.trim());
     }
 
-    // JavaScript functions used to pass an item from a select list to
-    // another one.
-    // TODO: Two ways to improve this code, if it needs to run faster,
-    // would be to make sure the selected items are processed in order,
-    // and search the toList from the previous insertion point, and to
-    // use a binary search.
-    buf.append(SCRIPT_START);
-    buf.append("var selOptions = new Array();\n");
-    buf.append("function swap(listFrom, listTo) {");
-    buf.append("fromList=document.getElementsByName(listFrom)[0];");
-    buf.append("toList = document.getElementsByName(listTo)[0];");
-    buf.append("var i;");
-    buf.append("var count = 0;");
-    ///buf.append("alert(fromList.options.length);");
-    buf.append("for(i=0;i<fromList.options.length;i++){");
-    buf.append("if (fromList.options[i].selected) {");
-    buf.append("count++;");
-    buf.append("}");
-    buf.append("}");
     // TODO: Allow an empty included_object_type value, implying all
     // subtypes of the root_object_type. This fails in retrieving the
     // available properties, so that needs to be patched up.
-    buf.append("if ((count == fromList.options.length)")
-        .append("&&(listFrom=='CM_included_object_type_bis')){");
-    buf.append("alert('You need to select at least one object type');");
-    buf.append("return false;");
-    buf.append("}");
-    // END TODO
-    buf.append("if ((count == fromList.options.length)")
-        .append("&&(listFrom=='CM_included_meta_bis')){");
-    buf.append("alert('You need to select at least one property');");
-    buf.append("return false;");
-    buf.append("}");
-    buf.append("while (fromList.selectedIndex != -1) {");
-    buf.append("addOption(toList,fromList.options[fromList.selectedIndex]); ");
-    buf.append("fromList.options[fromList.selectedIndex] = null;");
-    buf.append("}");
-    buf.append("}\n");
-
-    // Insert the moved option in alphabetic order.
-    buf.append("function addOption(list, option){");
-    buf.append(  "var beforeOption = null;");
-    buf.append(  "for (var i = 0; i < list.length; i++) {");
-    buf.append(    "if (option.value < list.options[i].value) {");
-    buf.append(      "beforeOption = list.options[i];");
-    buf.append(      "break;");
-    buf.append(    "}");
-    buf.append(  "}");
-    buf.append(  "var newOption = document.createElement('option'); ");
-    buf.append(  "newOption.value = option.value;");
-    buf.append(  "newOption.appendChild(document.createTextNode(option.value));");
-    buf.append(  "if (beforeOption == null) {");
-    buf.append(    "list.appendChild(newOption);");
-    buf.append(  "} else {");
-    buf.append(    "list.insertBefore(newOption, beforeOption);");
-    buf.append(  "}");
-    // Workaround IE7 bug where the width shrinks on each insert.
-    buf.append(  "list.style.width='';");
-    buf.append(  "list.style.width='100%';");
-    buf.append("}\n");
-
-    buf.append("function selectAll(select){");
-    buf.append("for (var i = 0; i < document.getElementById(select).length; i++)");
-    buf.append("{");
-    buf.append("document.getElementById(select).options[i].selected = true;");
-    buf.append("}");
-    buf.append("}\n");
-    buf.append(SCRIPT_END);
+    // Also, we could allow an empty included_meta value, but in that
+    // case I think it intuitively implies that no properties will be
+    // indexed, whereas it logically implies that all properties will
+    // be indexed. I think the best thing is to insert an optgroup or
+    // something indicating that that an empty included object type
+    // list implies all subtypes of the root object type.
 
     // Remove any included types not in the full list. If the complete
     // list is removed, add back the root object type.
@@ -462,18 +418,17 @@ class FormSnippet {
     buf.append(TD_START_CENTER);
 
     appendStartOnclickButton(buf, " > ");
-    buf.append("swap('CM_included_object_type_toinclude','CM_included_object_type_bis');");
-    buf.append("insertIncludeTypes();insertIncludeMetas();");
-    buf.append("document.getElementById('action_update').value='redisplay';");
-    buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
-    buf.append("document.body.style.cursor='wait';");
+    buf.append("swap('CM_included_object_type_toinclude', ")
+        .append("'CM_included_object_type_bis', null, ")
+        .append("'CM_included_object_type_bis', 'CM_included_object_type', ")
+        .append("true);");
     appendEndOnclickButton(buf);
     appendStartOnclickButton(buf, " < ");
-    buf.append("swap('CM_included_object_type_bis','CM_included_object_type_toinclude');");
-    buf.append("insertIncludeTypes();insertIncludeMetas();");
-    buf.append("document.getElementById('action_update').value='redisplay';");
-    buf.append("document.getElementsByTagName('input')[document.getElementsByTagName('input').length-1].click();");
-    buf.append("document.body.style.cursor='wait';");
+    buf.append("swap('CM_included_object_type_bis', ")
+        .append("'CM_included_object_type_toinclude', ")
+        .append("included_object_type_error")
+        .append(", 'CM_included_object_type_bis', 'CM_included_object_type', ")
+        .append("true);");
     appendEndOnclickButton(buf);
 
     buf.append(TD_END);
@@ -539,12 +494,13 @@ class FormSnippet {
     buf.append(TD_START_CENTER);
 
     appendStartOnclickButton(buf, " > ");
-    buf.append("swap('CM_included_meta_toinclude','CM_included_meta_bis');");
-    buf.append("insertIncludeMetas();insertIncludeTypes();");
+    buf.append("swap('CM_included_meta_toinclude','CM_included_meta_bis', ")
+        .append("null, 'CM_included_meta_bis', 'CM_included_meta');");
     appendEndOnclickButton(buf);
     appendStartOnclickButton(buf, " < ");
-    buf.append("swap('CM_included_meta_bis','CM_included_meta_toinclude');");
-    buf.append("insertIncludeMetas();insertIncludeTypes();");
+    buf.append("swap('CM_included_meta_bis','CM_included_meta_toinclude', ")
+        .append("included_meta_error, 'CM_included_meta_bis', ")
+        .append("'CM_included_meta');");
     appendEndOnclickButton(buf);
 
     buf.append(TD_END);

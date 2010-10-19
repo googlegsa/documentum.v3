@@ -41,6 +41,23 @@ public class FormSnippetTest extends TestCase {
   }
 
   /**
+   * Tests the {@code appendJavaScript} method. When run in the tests,
+   * it will always fail to find the FormSnippet.js file, so this is
+   * currently only a test of that error handling.
+   */
+  public void testJavaScript() {
+    // docbases = null, isAdvancedOn = true
+    FormSnippet snippet = new FormSnippet(resources, null, true);
+    StringBuilder buf = new StringBuilder();
+
+    assertTrue(snippet.isAdvancedOn());
+    snippet.appendJavaScript(buf);
+    assertFalse(snippet.isAdvancedOn());
+    assertTrue(buf.toString(),
+        buf.toString().endsWith(resources.getString("javascript_error")));
+  }
+
+  /**
    * Tests the {@code appendDropDownListAttribute} method.
    *
    * @param count the number of docbases to return
@@ -59,7 +76,9 @@ public class FormSnippetTest extends TestCase {
       for (int i = 0; i < docbaseMap.getDocbaseCount(); i++) {
         docbases.add(docbaseMap.getDocbaseName(i));
       }
-      FormSnippet.appendDropDownListAttribute(buf, value, resources, docbases);
+      FormSnippet snippet = new FormSnippet(resources, docbases, true);
+
+      snippet.appendDropDownListAttribute(buf, value);
     } catch (RepositoryException e) {
       fail(e.toString());
     }
