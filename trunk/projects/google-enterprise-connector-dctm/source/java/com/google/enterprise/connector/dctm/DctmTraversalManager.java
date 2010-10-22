@@ -14,15 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.Map;
-import java.util.Set;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
@@ -35,7 +26,17 @@ import com.google.enterprise.connector.spi.TraversalContext;
 import com.google.enterprise.connector.spi.TraversalContextAware;
 import com.google.enterprise.connector.spi.TraversalManager;
 
-public class DctmTraversalManager implements TraversalManager, TraversalContextAware {
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+
+public class DctmTraversalManager
+    implements TraversalManager, TraversalContextAware {
   private static final Logger logger =
       Logger.getLogger(DctmTraversalManager.class.getName());
 
@@ -286,9 +287,10 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   protected IQuery buildAddQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder();
     baseQueryString(queryStr);
-    if (checkpoint.insertId != null && checkpoint.insertDate != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.insertDate),
-                             checkpoint.insertId };
+    if (checkpoint.getInsertId() != null
+        && checkpoint.getInsertDate() != null) {
+      Object[] arguments = { dateFormat.format(checkpoint.getInsertDate()),
+                             checkpoint.getInsertId() };
       queryStr.append(MessageFormat.format(whereBoundedClause, arguments));
     }
     queryStr.append(" order by r_modify_date,r_object_id");
@@ -329,9 +331,9 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
         "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc "
         + "from dm_audittrail "
         + "where (event_name='dm_destroy' or event_name='dm_prune')");
-    if (checkpoint.deleteDate != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.deleteDate),
-                             checkpoint.deleteId };
+    if (checkpoint.getDeleteDate() != null) {
+      Object[] arguments = { dateFormat.format(checkpoint.getDeleteDate()),
+                             checkpoint.getDeleteId() };
       queryStr.append(MessageFormat.format(
           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
           arguments));
