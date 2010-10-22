@@ -39,6 +39,9 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private static final Logger logger =
       Logger.getLogger(DctmTraversalManager.class.getName());
 
+  private static final List<String> EMPTY_LIST =
+      Collections.<String>emptyList();
+
   private static final Set<String> EMPTY_SET = Collections.<String>emptySet();
 
   private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and r_object_id > ''{1}'') OR (r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
@@ -60,7 +63,7 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
   private final Map<String, List<String>> typeAttributesCache =
       new HashMap<String, List<String>>();
 
-  private final String additionalWhereClause;
+  private final List<String> additionalWhereClause;
   private final boolean isPublic;
   private final Set<String> includedObjectType;
   private final Set<String> includedMeta;
@@ -75,18 +78,18 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
         connector.getIncludedObjectType(), connector.getIncludedMeta(),
         connector.getExcludedMeta(), sessionManager);
   }
-  
+
   /** Constructor used by tests. */
   DctmTraversalManager(IClientX clientX, String docbase,
       String webtopServerUrl, Set<String> included_meta,
       ISessionManager sessionManager) throws RepositoryException {
-    this(clientX, docbase, webtopServerUrl, "", true, "", EMPTY_SET,
+    this(clientX, docbase, webtopServerUrl, EMPTY_LIST, true, "", EMPTY_SET,
         included_meta, EMPTY_SET, sessionManager);
   }
 
   private DctmTraversalManager(IClientX clientX, String docbase,
-      String webtopServerUrl, String additionalWhereClause, boolean isPublic,
-      String rootObjectType, Set<String> includedObjectType,
+      String webtopServerUrl, List<String> additionalWhereClause,
+      boolean isPublic, String rootObjectType, Set<String> includedObjectType,
       Set<String> includedMeta, Set<String> excludedMeta,
       ISessionManager sessionManager) throws RepositoryException {
     this.additionalWhereClause = additionalWhereClause;
@@ -314,10 +317,10 @@ public class DctmTraversalManager implements TraversalManager, TraversalContextA
       // FIXME: Append the WHERE text only when needed.
       query.append("1=1 ");
     }
-    if (additionalWhereClause != null && additionalWhereClause.length() > 0) {
+    if (!additionalWhereClause.isEmpty()) {
       logger.fine("adding the additionalWhereClause to the query: "
                   + additionalWhereClause);
-      query.append(" and (").append(additionalWhereClause).append(")");
+      query.append(" and (").append(additionalWhereClause.get(0)).append(")");
     }
   }
 

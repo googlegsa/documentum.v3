@@ -17,14 +17,20 @@ package com.google.enterprise.connector.dctm;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
+import com.google.enterprise.connector.spi.Connector;
+import com.google.enterprise.connector.spi.ConnectorFactory;
 import com.google.enterprise.connector.spi.ConfigureResponse;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.SimpleConnectorFactory;
 import com.google.enterprise.connector.util.UrlValidator;
 
 import junit.framework.TestCase;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -216,8 +222,8 @@ public class DctmMockConnectorTypeTest extends TestCase {
   }
 
   public void testVc() {
-    ConfigureResponse response =
-        type.validateConfig(validMap, Locale.US, null);
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        new SimpleConnectorFactory(new DctmConnector()));
     assertNull(response);
   }
 
@@ -286,6 +292,137 @@ public class DctmMockConnectorTypeTest extends TestCase {
   public void testVcMissingGetLocalClientThrows() {
     testVcThrows(new GetLocalClientThrows(), emptyMap,
         resources.getString("login_error"));
+  }
+
+  /*
+   * Even though we may implement everything in ConnectorFactory here,
+   * by extending SimpleConnectorFactory we are safe against future
+   * extensions of the interface.
+   */
+  private static class WhereClauseFactory extends SimpleConnectorFactory {
+    private final boolean ignoreMap;
+    private final String[] xmlWhere;
+
+    WhereClauseFactory(boolean ignoreMap, String... whereClause) {
+      this.ignoreMap = ignoreMap;
+      this.xmlWhere = whereClause;
+    }
+
+    public Connector makeConnector(Map<String, String> configMap) {
+      List<String> whereClause = new ArrayList<String>();
+      String mapWhere = configMap.get("where_clause");
+      if (mapWhere != null && mapWhere.length() > 0 && !ignoreMap)
+        whereClause.add(mapWhere);
+      Collections.addAll(whereClause, xmlWhere);
+      DctmConnector connector = new DctmConnector();
+      connector.setWhere_clause(whereClause);
+      return connector;
+    }
+  }
+
+  /** Tests a basic where clause that returns results. */
+  public void testVcWhereClause_results() {
+    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
+    ConnectorFactory connectorFactory = new WhereClauseFactory(false);
+
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        connectorFactory);
+    if (response != null)
+      fail(response.getMessage());
+  }
+
+  /** Tests a where clause that returns no results. */
+  public void testVcWhereClause_noresults() {
+    validMap.put("where_clause", MockDmQuery.FALSE_WHERE_CLAUSE);
+    ConnectorFactory connectorFactory = new WhereClauseFactory(false);
+    String expected = resources.getString("additionalTooRestrictive");
+
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        connectorFactory);
+    assertNotNull(response);
+    assertEquals(expected, response.getMessage());
+  }
+
+  /** Tests that multiple entries are valid. */
+  public void testVcWhereClause_list() {
+    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
+    ConnectorFactory connectorFactory =
+        new WhereClauseFactory(false, MockDmQuery.TRUE_WHERE_CLAUSE);
+
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        connectorFactory);
+    if (response != null)
+      fail(response.getMessage());
+  }
+
+  /** Tests that an XML entry that returns no results leads to an error. */
+  public void testVcWhereClause_listnoresults() {
+    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
+    ConnectorFactory connectorFactory =
+        new WhereClauseFactory(false, MockDmQuery.FALSE_WHERE_CLAUSE);
+    String expected = resources.getString("additionalTooRestrictive");
+
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        connectorFactory);
+    assertNotNull(response);
+    assertEquals(expected, response.getMessage());
+  }
+
+  /** Tests that ignoring a non-empty map entry leads to an error. */
+  public void testVcWhereClause_ignoremap() {
+    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
+    ConnectorFactory connectorFactory =
+        new WhereClauseFactory(true, MockDmQuery.ALT_TRUE_WHERE_CLAUSE);
+    String expected = resources.getString("whereClauseNotUsed");
+
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        connectorFactory);
+    assertNotNull(response);
+    assertEquals(expected, response.getMessage());
+  }
+
+  /**
+   * Tests that an ignored map entry and an XML entry that returns no
+   * results leads to an error. It's not important which error.
+   */
+  public void testVcWhereClause_ignoremapnoresults() {
+    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
+    ConnectorFactory connectorFactory =
+        new WhereClauseFactory(true, MockDmQuery.FALSE_WHERE_CLAUSE);
+    List<String> expected = new ArrayList<String>();
+    Collections.addAll(expected, resources.getString("whereClauseNotUsed"),
+        resources.getString("additionalTooRestrictive"));
+
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        connectorFactory);
+    assertNotNull(response);
+    assertTrue(response.getMessage(), expected.contains(response.getMessage()));
+  }
+
+  /** Tests that an empty map entry can be safely ignored. */
+  public void testVcWhereClause_ignoremapempty() {
+    ConnectorFactory connectorFactory =
+        new WhereClauseFactory(true, MockDmQuery.TRUE_WHERE_CLAUSE);
+
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        connectorFactory);
+    if (response != null)
+      fail(response.getMessage());
+  }
+
+  /**
+   * Tests that an empty map entry with an XML entry that returns no
+   * results leads to an error.
+  */
+  public void testVcWhereClause_emptynoresults() {
+    ConnectorFactory connectorFactory =
+        new WhereClauseFactory(true, MockDmQuery.FALSE_WHERE_CLAUSE);
+    String expected = resources.getString("additionalTooRestrictive");
+
+    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
+        connectorFactory);
+    assertNotNull(response);
+    assertEquals(expected, response.getMessage());
   }
 
   public void testGpcf() {

@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 
 package com.google.enterprise.connector.dctm;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +40,7 @@ public class DctmConnector implements Connector {
 
   private String webtopDisplayUrl;
 
-  private String whereClause;
+  private final List<String> whereClause = new ArrayList<String>();
 
   private String isPublic;
 
@@ -129,8 +131,17 @@ public class DctmConnector implements Connector {
     return webtopDisplayUrl;
   }
 
-  public void setWhere_clause(String additionalWhereClause) {
-    this.whereClause = DqlUtils.stripLeadingAnd(additionalWhereClause);
+  /*
+   * Spring supports converting single values to a list, which handles
+   * backward compatibility.
+   */
+  public void setWhere_clause(List<String> additionalWhereClause) {
+    for (String raw : additionalWhereClause) {
+      String clean = DqlUtils.stripLeadingAnd(raw);
+      if (clean.length() > 0) {
+        whereClause.add(clean);
+      }
+    }
     if (logger.isLoggable(Level.FINE)
         && !whereClause.equals(additionalWhereClause)) {
       logger.log(Level.FINE, "where_clause was " + additionalWhereClause);
@@ -138,7 +149,7 @@ public class DctmConnector implements Connector {
     logger.log(Level.CONFIG, "where_clause set to " + whereClause);
   }
 
-  String getWhereClause() {
+  List<String> getWhereClause() {
     return whereClause;
   }
 
@@ -215,10 +226,11 @@ public class DctmConnector implements Connector {
   }
 
   /**
-   * Converts a comma-separated string into a set of strings.
+   * Converts a comma-separated string into a set of trimmed strings.
    *
    * @param csv a comma-separated string
-   * @return a set of strings
+   * @return a set of strings, each of which is trimmed of leading and
+   * trailing whitespace
    */
   private Set<String> csvToSet(String csv) {
     String[] values = csv.split(",");
