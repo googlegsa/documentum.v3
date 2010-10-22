@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2007 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
+
+import java.util.Collections;
 
 public class DctmTraversalUtilCall {
   public static void main(String[] args) {
@@ -50,7 +52,8 @@ public class DctmTraversalUtilCall {
       connector.setWebtop_display_url(
           "http://swp-vm-wt:8080/webtop/drl/objectId/");
       connector.setClientX(clientX);
-      connector.setWhere_clause("and folder('/test_docs',descend)");
+      connector.setWhere_clause(
+          Collections.singletonList("and folder('/test_docs',descend)"));
       connector.setIs_public("false");
       connector.setIncluded_meta(DmInitialize.DM_INCLUDED_META);
       /**

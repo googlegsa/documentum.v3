@@ -170,12 +170,7 @@ public class DctmConnectorType implements ConnectorType {
           return new ConfigureResponse("", form);
         }
 
-        if (configData.get(WHERECLAUSE) != null
-            && !configData.get(WHERECLAUSE).equals("")) {
-          String whereClause = checkWhereClause(configData, cl, sess);
-          configData.put(WHERECLAUSE, whereClause);
-          logger.config("where_clause is now " + whereClause);
-        }
+        checkWhereClause(configData, cl, sess, connectorFactory);
       } catch (RepositoryException e) {
         logger.log(Level.SEVERE,
             "RepositoryException thrown in validateConfig: ", e);
@@ -409,13 +404,33 @@ public class DctmConnectorType implements ConnectorType {
     return bundleMessage;
   }
 
-  private String checkWhereClause(Map<String, String> configData,
-      IClientX cl, ISession sess) throws RepositoryException {
-    String docbase = configData.get(DOCBASENAME);
+  private void checkWhereClause(Map<String, String> configData,
+      IClientX cl, ISession sess, ConnectorFactory connectorFactory)
+      throws RepositoryException {
     String whereClause = DqlUtils.stripLeadingAnd(configData.get(WHERECLAUSE));
     String rootType = configData.get(ROOT_OBJECT_TYPE);
     String includedTypes = configData.get(INCLUDED_OBJECT_TYPE);
+    IQuery query = cl.getQuery();
 
+    DctmConnector connector =
+        (DctmConnector) connectorFactory.makeConnector(configData);
+    List<String> whereClauses = connector.getWhereClause();
+    boolean isFound = (whereClause == null || whereClause.length() == 0);
+    for (String candidate : whereClauses) {
+      testWhereClause(query, sess, rootType, includedTypes, candidate);
+      isFound = isFound || candidate.equals(whereClause);
+    }
+
+    if (!isFound) {
+      throw new RepositoryException("[whereClauseNotUsed]");
+    }
+
+    if (whereClause != null)
+      configData.put(WHERECLAUSE, whereClause);
+  }
+
+  private void testWhereClause(IQuery query, ISession sess, String rootType,
+      String includedTypes, String whereClause) throws RepositoryException {
     StringBuilder dql = new StringBuilder();
     dql.append("select r_object_id from ");
     dql.append(rootType);
@@ -426,20 +441,19 @@ public class DctmConnectorType implements ConnectorType {
     dql.append(whereClause);
     dql.append(") ENABLE (return_top 1)");
 
-    IQuery query = cl.getQuery();
     query.setDQL(dql.toString());
     ICollection collec = query.execute(sess, IQuery.EXECUTE_READ_QUERY);
     try {
       if (!collec.next()) {
-        throw new RepositoryException("[additionalTooRestrictive]");
+        // TODO: The query is in the logs, but no indication of which
+        // WHERE clause failed appears in the ConfigureResponse.
+        throw new RepositoryException("[additionalTooRestrictive] " + dql);
       }
     } finally {
       if (collec.getState() != ICollection.DF_CLOSED_STATE) {
         collec.close();
       }
     }
-
-    return whereClause;
   }
 
   private void testWebtopUrl(String url) throws RepositoryException {
