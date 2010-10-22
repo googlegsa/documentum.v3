@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2009 Google Inc.
+// Copyright 2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,20 +72,20 @@ class Checkpoint {
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   /** r_object_id of the last item inserted. */
-  public String insertId;
+  private String insertId;
 
   /** r_modify_date of the last item inserted. */
-  public Date insertDate;
+  private Date insertDate;
 
   /** r_object_id of the last item deleted. */
-  public String deleteId;
+  private String deleteId;
 
   /**
    * dm_audittrail time_stamp_utc of the last item deleted. Note that
    * the stored date is UTC, but the value of this field may not be,
    * due to the way DQL handles time zones.
    */
-  public Date deleteDate;
+  private Date deleteDate;
 
   /**
    * Backup versions of the insert and delete checkpoints,
@@ -122,6 +122,7 @@ class Checkpoint {
       if ((value = getJsonValue(jo, INS_DATE)) != null) {
         insertDate = dateFormat.parse(value);
       }
+
       if ((value = getJsonValue(jo, DEL_DATE)) != null) {
         deleteDate = dateFormat.parse(value);
       } else if ((value = getJsonValue(jo, DEL_DATE_OLD)) != null) {
@@ -137,10 +138,6 @@ class Checkpoint {
               + oldStyle + " becomes " + deleteDate);
         }
       }
-      oldInsertId = insertId;
-      oldInsertDate = insertDate;
-      oldDeleteId = deleteId;
-      oldDeleteDate = deleteDate;
     } catch (JSONException e) {
       LOGGER.severe("Invalid Checkpoint: " + checkpoint);
       throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
@@ -148,6 +145,11 @@ class Checkpoint {
       LOGGER.severe("Invalid Checkpoint: " + checkpoint);
       throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
     }
+
+    oldInsertId = insertId;
+    oldInsertDate = insertDate;
+    oldDeleteId = deleteId;
+    oldDeleteDate = deleteDate;
   }
 
   /**
@@ -163,6 +165,30 @@ class Checkpoint {
       }
     }
     return null;
+  }
+
+  /** r_object_id of the last item inserted. */
+  public String getInsertId() {
+    return insertId;
+  }
+
+  /** r_modify_date of the last item inserted. */
+  public Date getInsertDate() {
+    return insertDate;
+  }
+
+  /** r_object_id of the last item deleted. */
+  public String getDeleteId() {
+    return deleteId;
+  }
+
+  /**
+   * dm_audittrail time_stamp_utc of the last item deleted. Note that
+   * the stored date is UTC, but the value of this field may not be,
+   * due to the way DQL handles time zones.
+   */
+  public Date getDeleteDate() {
+    return deleteDate;
   }
 
   /**
