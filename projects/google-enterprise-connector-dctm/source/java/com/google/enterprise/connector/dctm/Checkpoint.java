@@ -14,16 +14,16 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.enterprise.connector.spi.RepositoryException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.enterprise.connector.spi.RepositoryException;
 
 /**
  * Create and parse the checkpoint strings passed back and forth between
@@ -116,34 +116,32 @@ class Checkpoint {
     LOGGER.fine("Parse Checkpoint: " + checkpoint);
     try {
       JSONObject jo = new JSONObject(checkpoint);
-      insertId = getJsonValue(jo, INS_ID);
-      deleteId = getJsonValue(jo, DEL_ID);
-      String value;
-      if ((value = getJsonValue(jo, INS_DATE)) != null) {
-        insertDate = dateFormat.parse(value);
-      }
+      insertId = getJsonString(jo, INS_ID);
+      insertDate = getJsonDate(jo, INS_DATE);
 
-      if ((value = getJsonValue(jo, DEL_DATE)) != null) {
-        deleteDate = dateFormat.parse(value);
-      } else if ((value = getJsonValue(jo, DEL_DATE_OLD)) != null) {
-        // TODO: This migration will be repeated until the checkpoint
-        // is actually returned to the connector manager and
-        // persisted. We could force that to happen on the next call
-        // to resumeTraversal by returning an empty DocumentList
-        // instead of null.
-        Date oldStyle = dateFormat.parse(value);
-        deleteDate = new Date(oldStyle.getTime() + TIME_STAMP_OFFSET);
-        if (LOGGER.isLoggable(Level.INFO)) {
-          LOGGER.info("Migrating from time_stamp to time_stamp_utc: "
-              + oldStyle + " becomes " + deleteDate);
+      deleteId = getJsonString(jo, DEL_ID);
+      deleteDate = getJsonDate(jo, DEL_DATE);
+      if (deleteDate == null) {
+        Date oldStyle = getJsonDate(jo, DEL_DATE_OLD);
+        if (oldStyle != null) {
+          // TODO: This migration will be repeated until the checkpoint
+          // is actually returned to the connector manager and
+          // persisted. We could force that to happen on the next call
+          // to resumeTraversal by returning an empty DocumentList
+          // instead of null.
+          deleteDate = new Date(oldStyle.getTime() + TIME_STAMP_OFFSET);
+          if (LOGGER.isLoggable(Level.INFO)) {
+            LOGGER.info("Migrating from time_stamp to time_stamp_utc: "
+                + oldStyle + " becomes " + deleteDate);
+          }
         }
       }
     } catch (JSONException e) {
       LOGGER.severe("Invalid Checkpoint: " + checkpoint);
-      throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
+      throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
     } catch (ParseException e) {
       LOGGER.severe("Invalid Checkpoint: " + checkpoint);
-      throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
+      throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
     }
 
     oldInsertId = insertId;
@@ -153,10 +151,10 @@ class Checkpoint {
   }
 
   /**
-   * Fetch the value from a JSON object.  If the value is missing,
-   * null, or empty, return null.
+   * Gets a trimmed string value from a JSON object. If the value is
+   * missing, null, or empty, return null.
    */
-  private static String getJsonValue(JSONObject jo, String key)
+  private static String getJsonString(JSONObject jo, String key)
       throws JSONException {
     if (!jo.isNull(key)) {
       String value = jo.getString(key).trim();
@@ -165,6 +163,16 @@ class Checkpoint {
       }
     }
     return null;
+  }
+
+  /**
+   * Gets a date value from a JSON object. If the value is missing,
+   * null, or empty, return null.
+   */
+  private Date getJsonDate(JSONObject jo, String key)
+      throws JSONException, ParseException {
+    String value = getJsonString(jo, key);
+    return (value == null) ? null : dateFormat.parse(value);
   }
 
   /** r_object_id of the last item inserted. */
@@ -230,8 +238,8 @@ class Checkpoint {
    * (In other words, restore() would result in a different checkpoint.)
    */
   public boolean hasChanged() {
-    return (insertDate != oldInsertDate || insertId != oldInsertId ||
-            deleteDate != oldDeleteDate || deleteId != oldDeleteId);
+    return getInsertDate() != oldInsertDate || getInsertId() != oldInsertId
+        || deleteDate != oldDeleteDate || deleteId != oldDeleteId;
   }
 
   /**
