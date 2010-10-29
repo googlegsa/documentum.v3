@@ -136,10 +136,12 @@ public class DctmConnector implements Connector {
    * backward compatibility.
    */
   public void setWhere_clause(List<String> additionalWhereClause) {
-    for (String raw : additionalWhereClause) {
-      String clean = DqlUtils.stripLeadingAnd(raw);
-      if (clean.length() > 0) {
-        whereClause.add(clean);
+    if (additionalWhereClause != null) {
+      for (String raw : additionalWhereClause) {
+        String clean = DqlUtils.stripLeadingAnd(raw);
+        if (clean.length() > 0) {
+          whereClause.add(clean);
+        }
       }
     }
     if (logger.isLoggable(Level.FINE)
