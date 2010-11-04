@@ -203,7 +203,7 @@ public class DctmSysobjectDocument implements Document {
    *
    * @param name a property name
    * @param values the empty list to add values to
-   * @return true if values were added to the list
+   * @return true if the property exists
    * @throws RepositoryException if an unexpected error occurs
    */
   private boolean findCoreProperty(String name, List<Value> values)
@@ -232,7 +232,7 @@ public class DctmSysobjectDocument implements Document {
    *
    * @param name a property name
    * @param values the empty list to add values to
-   * @return true if values were added to the list
+   * @return true if the property exists
    * @throws RepositoryException if an unexpected error occurs
    */
   /* TODO: Should we unify the RepositoryDocumentException handling? */
@@ -300,7 +300,7 @@ public class DctmSysobjectDocument implements Document {
    *
    * @param name a property name
    * @param values the empty list to add values to
-   * @return true if values were added to the list
+   * @return true if the property exists
    * @throws RepositoryException if an unexpected error occurs
    */
   private boolean findFolderProperty(String name, List<Value> values)
@@ -335,8 +335,10 @@ public class DctmSysobjectDocument implements Document {
       } finally {
         collec.close();
       }
-    } catch (RepositoryDocumentException e) {
-      logger.warning("RepositoryDocumentException thrown: " + e
+    } catch (RepositoryException e) {
+      // Note that we're catching RepositoryException here, because
+      // we're using ICollection and not ISysObject.
+      logger.warning("RepositoryException thrown: " + e
           + " on getting property: " + name);
     }
 
@@ -348,7 +350,7 @@ public class DctmSysobjectDocument implements Document {
    *
    * @param name a attribute name
    * @param values the empty list to add values to
-   * @return true if values were added to the list
+   * @return true if the attribute exists
    * @throws RepositoryException if an unexpected error occurs
    */
   private boolean findDctmAttribute(String name, List<Value> values)
