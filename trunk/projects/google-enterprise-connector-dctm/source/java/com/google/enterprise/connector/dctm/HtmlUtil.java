@@ -267,23 +267,83 @@ class HtmlUtil {
     buf.append(" ");
     buf.append(attrName);
     buf.append("=\"");
-    escapeAndAppend(buf, attrValue);
+    escapeAndAppendAttributeValue(buf, attrValue);
     buf.append("\"");
     if (attrName == TYPE && (attrValue == TEXT || attrValue == PASSWORD)) {
       buf.append(" size=\"50\"");
     }
   }
 
+  /**
+   * Escapes the given attribute value and appends it.
+   *
+   * @see #escapeAndAppend
+   * @see <a href="http://www.w3.org/TR/REC-xml/#syntax"
+   * >http://www.w3.org/TR/REC-xml/#syntax</a>
+   */
+  /* TODO: Replace with XmlUtils or its successor. */
   /* Copied from com.google.enterprise.connector.otex.LivelinkConnectorType. */
-  public static void escapeAndAppend(StringBuilder buffer, String data) {
+  private static void escapeAndAppendAttributeValue(StringBuilder buffer,
+      String data) {
     for (int i = 0; i < data.length(); i++) {
-      switch (data.charAt(i)) {
-        case '\'': buffer.append("&apos;"); break;
-        case '"': buffer.append("&quot;"); break;
-        case '&': buffer.append("&amp;"); break;
-        case '<': buffer.append("&lt;"); break;
-        case '>': buffer.append("&gt;"); break;
-        default: buffer.append(data.charAt(i));
+      char c = data.charAt(i);
+      switch (c) {
+        case '\'':
+          // Preferred over &apos; see http://www.w3.org/TR/xhtml1/#C_16
+          buffer.append("&#39;");
+          break;
+        case '"':
+          buffer.append("&quot;");
+          break;
+        case '&':
+          buffer.append("&amp;");
+          break;
+        case '<':
+          buffer.append("&lt;");
+          break;
+        case '\t':
+        case '\n':
+        case '\r':
+          buffer.append(c);
+          break;
+        default:
+          if (c >= 0x20 && c <= 0xFFFD) {
+            buffer.append(c);
+          }
+          break;
+      }
+    }
+  }
+
+  /**
+   * Escapes the given character data and appends it.
+   *
+   * @see #escapeAndAppendAttributeValue
+   * @see <a href="http://www.w3.org/TR/REC-xml/#syntax"
+   * >http://www.w3.org/TR/REC-xml/#syntax</a>
+   */
+  /* TODO: Replace with XmlUtils (new method) or its successor. */
+  /* Copied from com.google.enterprise.connector.otex.LivelinkConnectorType. */
+  private static void escapeAndAppend(StringBuilder buffer, String data) {
+    for (int i = 0; i < data.length(); i++) {
+      char c = data.charAt(i);
+      switch (c) {
+        case '&':
+          buffer.append("&amp;");
+          break;
+        case '<':
+          buffer.append("&lt;");
+          break;
+        case '\t':
+        case '\n':
+        case '\r':
+          buffer.append(c);
+          break;
+        default:
+          if (c >= 0x20 && c <= 0xFFFD) {
+            buffer.append(c);
+          }
+          break;
       }
     }
   }
