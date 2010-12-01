@@ -16,6 +16,7 @@ package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSession;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.SpiConstants;
 
 import junit.framework.TestCase;
 
@@ -108,8 +109,7 @@ public class FormSnippetBuilderTest extends TestCase {
     expected.put("Grandfoo_attr", setOf("Grandfoo"));
     expected.put("Grand_sharedattr", setOf("Grandfoo"));
     expected.put("dm_sysobject_attr", setOf("dm_sysobject"));
-    // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
-    expected.put(DctmSysobjectDocument.PROPNAME_FOLDER, setOf("dm_sysobject"));
+    expected.put(SpiConstants.PROPNAME_FOLDER, setOf("dm_sysobject"));
     expected.put(DctmSysobjectDocument.OBJECT_ID_NAME, setOf("dm_sysobject"));
     assertEquals(expected, propertiesMap);
   }
@@ -140,8 +140,7 @@ public class FormSnippetBuilderTest extends TestCase {
     expected.put("Grandbar_attr", setOf("Grandbar"));
     expected.put("Grand_sharedattr", setOf("Grandfoo", "Grandbar"));
     expected.put("dm_sysobject_attr", setOf("dm_sysobject"));
-    // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
-    expected.put(DctmSysobjectDocument.PROPNAME_FOLDER, setOf("dm_sysobject"));
+    expected.put(SpiConstants.PROPNAME_FOLDER, setOf("dm_sysobject"));
     expected.put(DctmSysobjectDocument.OBJECT_ID_NAME, setOf("dm_sysobject"));
     assertEquals(expected, propertiesMap);
   }

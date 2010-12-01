@@ -59,21 +59,6 @@ public class DctmSysobjectDocument implements Document {
   /* @VisibleForTesting */
   static final String OBJECT_ID_NAME = "r_object_id";
 
-  /** A regexp that matches the defined SPI property names. */
-  /*
-   * Package access for the unit tests.
-   * TODO: Remove in favor of SpiConstants.RESERVED_PROPNAME_PREFIX in CM 3.0.
-   */
-  static final String PROPNAME_REGEXP = "google:.+";
-
-  /**
-   * Identifies an optional, multi-valued property that specifies the
-   * folder path of the document.
-   */
-  /* TODO: Remove in favor of SpiConstants.PROPNAME_FOLDER in CM 3.0. */
-  /* @VisibleForTesting */
-  static final String PROPNAME_FOLDER = "google:folder";
-
   /**
    * Optional properties from Documentum that are not truly attributes.
    * Values include "r_object_id" and "google:folder".
@@ -83,7 +68,7 @@ public class DctmSysobjectDocument implements Document {
   static {
     // TODO: Use ImmutableSet.of(OBJECT_ID_NAME, SpiConstants.PROPNAME_FOLDER)
     // in 3.0.
-    String[] properties = { OBJECT_ID_NAME, PROPNAME_FOLDER };
+    String[] properties = { OBJECT_ID_NAME, SpiConstants.PROPNAME_FOLDER };
     EXTENDED_PROPERTIES = Collections.unmodifiableSet(
         new HashSet<String>(Arrays.asList(properties)));
   }
@@ -254,8 +239,7 @@ public class DctmSysobjectDocument implements Document {
     } else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
       String displayUrl = traversalManager.getServerUrl() + docId;
       values.add(Value.getStringValue(displayUrl));
-    } else if (PROPNAME_FOLDER.equals(name)) {
-      // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
+    } else if (SpiConstants.PROPNAME_FOLDER.equals(name)) {
       return findFolderProperty(name, values);
     } else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
       try {
@@ -283,7 +267,7 @@ public class DctmSysobjectDocument implements Document {
       }
     } else if (SpiConstants.PROPNAME_TITLE.equals(name)) {
       values.add(Value.getStringValue(object.getObjectName()));
-    } else if (name.matches(PROPNAME_REGEXP)) {
+    } else if (name.startsWith(SpiConstants.RESERVED_PROPNAME_PREFIX)) {
       if (UNSUPPORTED_PROPNAMES.add(name)) {
         logger.finest("Ignoring unsupported SPI property " + name);
       }
