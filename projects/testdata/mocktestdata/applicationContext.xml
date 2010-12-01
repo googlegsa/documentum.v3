@@ -90,6 +90,8 @@
     <property name="changeDetectorTask" ref="ChangeDetectorTask" />
   </bean>
 
+  <bean id="Clock" class="com.google.enterprise.connector.util.SystemClock" />
+
   <bean id="ThreadPool"
         class="com.google.enterprise.connector.instantiator.ThreadPool">
     <constructor-arg index="0" type="int" value="5"/>
