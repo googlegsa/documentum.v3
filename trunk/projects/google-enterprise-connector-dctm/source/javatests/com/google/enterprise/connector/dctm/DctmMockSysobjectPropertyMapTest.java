@@ -95,9 +95,8 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
   }
 
   public void testGetPropertyNames_folder() throws RepositoryException {
-    // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
     document = getDocument(
-        Collections.singleton(DctmSysobjectDocument.PROPNAME_FOLDER));
+        Collections.singleton(SpiConstants.PROPNAME_FOLDER));
     Set<String> names = document.getPropertyNames();
     assertEquals(6, names.size());
     for (String name : names) {
@@ -130,8 +129,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     // it does check that findProperty does not return null.
     Property property;
     try {
-      // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
-      property = document.findProperty(DctmSysobjectDocument.PROPNAME_FOLDER);
+      property = document.findProperty(SpiConstants.PROPNAME_FOLDER);
     } catch (Exception e) {
       return;
     }
@@ -147,24 +145,6 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     Value value = property.nextValue();
     assertNotNull(value);
     assertEquals(DmInitialize.DM_ID1, value.toString());
-  }
-
-  /**
-   * Tests that all of the SPI property name constants match our
-   * PROPNAME_REGEXP.
-   */
-  /* TODO: Remove this test for 3.0. */
-  public void testPropnameRegexp() throws IllegalAccessException {
-    Class c = SpiConstants.class;
-    java.lang.reflect.Field[] fields = c.getFields();
-    for (java.lang.reflect.Field field : fields) {
-      String name = field.getName();
-      if (name.startsWith("PROPNAME")) {
-        String value = (String) field.get(null);
-        assertTrue(name + " = " + value,
-            value.matches(DctmSysobjectDocument.PROPNAME_REGEXP));
-      }
-    }
   }
 
   /**
