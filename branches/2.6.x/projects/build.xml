@@ -161,6 +161,10 @@
       </fileset>
       <fileset dir="${classes-client}"/>
       <fileset dir="${classes-core}"/>
+      <!-- TODO: Compile the JavaScript, presumably using Closure Compiler. -->
+      <fileset dir="${src-core}">
+        <include name="**/*.js"/>
+      </fileset>
       <manifest>
       <attribute name="Implementation-Title"
                  value="Google Search Appliance Connector for Documentum" />
