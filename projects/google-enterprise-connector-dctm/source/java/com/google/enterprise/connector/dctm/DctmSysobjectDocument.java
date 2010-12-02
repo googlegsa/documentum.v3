@@ -15,9 +15,10 @@
 package com.google.enterprise.connector.dctm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,21 +56,22 @@ public class DctmSysobjectDocument implements Document {
   /** The maximum content size that will be allowed. */
   private static final long MAX_CONTENT_SIZE = 30L * 1024 * 1024;
 
-  private static final String OBJECT_ID_NAME = "r_object_id";
-
-  /** A regexp that matches the defined SPI property names. */
-  /*
-   * Package access for the unit tests.
-   * TODO: Remove in favor of SpiConstants.RESERVED_PROPNAME_PREFIX in CM 3.0.
-   */
-  static final String PROPNAME_REGEXP = "google:.+";
+  /* @VisibleForTesting */
+  static final String OBJECT_ID_NAME = "r_object_id";
 
   /**
-   * Identifies an optional, multi-valued property that specifies the
-   * folder path of the document.
+   * Optional properties from Documentum that are not truly attributes.
+   * Values include "r_object_id" and "google:folder".
    */
-  /* TODO: Remove in favor of SpiConstants.PROPNAME_FOLDER in CM 3.0. */
-  private static final String PROPNAME_FOLDER = "google:folder";
+  public static final Set<String> EXTENDED_PROPERTIES;
+
+  static {
+    // TODO: Use ImmutableSet.of(OBJECT_ID_NAME, SpiConstants.PROPNAME_FOLDER)
+    // in 3.0.
+    String[] properties = { OBJECT_ID_NAME, SpiConstants.PROPNAME_FOLDER };
+    EXTENDED_PROPERTIES = Collections.unmodifiableSet(
+        new HashSet<String>(Arrays.asList(properties)));
+  }
 
   /**
    * A record of logged requests for unsupported SPI properties so we
@@ -144,186 +146,273 @@ public class DctmSysobjectDocument implements Document {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This implementation looks up the properties when this method
+   * is called.
+   */
   public Property findProperty(String name) throws RepositoryDocumentException,
       RepositoryLoginException, RepositoryException {
     if (name == null || name.length() == 0)
       return null;
 
-    LinkedList<Value> values = new LinkedList<Value>();
+    List<Value> values = new LinkedList<Value>();
 
     if (logger.isLoggable(Level.FINEST))
       logger.finest("In findProperty; name: " + name);
 
     if (ActionType.ADD.equals(action)) {
       fetch();
-      if (SpiConstants.PROPNAME_ACTION.equals(name)) {
-        values.add(Value.getStringValue(action.toString()));
-      } else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
-        values.add(Value.getStringValue(versionId));
-      } else if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
-        try {
-          if (canIndex(true)) {
-            values.add(Value.getBinaryValue(object.getContent()));
-          }
-        } catch (RepositoryDocumentException e) {
-          // FIXME: In the unlikely event the user only has BROWSE
-          // permission for a document, we'll end up here. That's
-          // fine, but the google:mimetype property will not be reset
-          // to "text/plain" in that case.
-          logger.warning("RepositoryDocumentException thrown: " + e
-                         + " on getting property: " + name);
-        }
-      } else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
-        String displayUrl = traversalManager.getServerUrl() + docId;
-        values.add(Value.getStringValue(displayUrl));
-      } else if (PROPNAME_FOLDER.equals(name)) {
-        // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
-        int count = object.getValueCount("i_folder_id");
-        if (count == 0)
-          return null;
-
-        // We have already done a fetch of this object, so we read
-        // i_folder_id directly rather than doing a subquery or join
-        // on the object ID.
-        StringBuilder dql = new StringBuilder();
-        dql.append("select r_folder_path from dm_folder ");
-        dql.append("where r_folder_path is not null and r_object_id in (");
-        for (int i = 0; i < count; i++) {
-          dql.append('\'');
-          dql.append(object.getRepeatingValue("i_folder_id", i).asString());
-          dql.append("',");
-        }
-        dql.setCharAt(dql.length() - 1, ')');
-        dql.append(" ENABLE (row_based)");
-
-        IQuery query = traversalManager.getClientX().getQuery();
-        query.setDQL(dql.toString());
-        try {
-          ICollection collec = query.execute(session, IQuery.READ_QUERY);
-          try {
-            while (collec.next()) {
-              values.add(
-                  Value.getStringValue(collec.getString("r_folder_path")));
-            }
-          } finally {
-            collec.close();
-          }
-        } catch (RepositoryDocumentException e) {
-          logger.warning("RepositoryDocumentException thrown: " + e
-              + " on getting property: " + name);
-        }
-      } else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
-        try {
-          values.add(Value.getStringValue(object.getACLDomain() + " "
-                                          + object.getACLName()));
-        } catch (RepositoryDocumentException e) {
-          logger.warning("RepositoryDocumentException thrown: " + e
-                         + " on getting property: " + name);
-        }
-      } else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
-        values.add(Value.getBooleanValue(traversalManager.isPublic()));
-      } else if (SpiConstants.PROPNAME_LASTMODIFIED.equals(name)) {
-        if (timeStamp != null) {
-          values.add(Value.getDateValue(getCalendarFromDate(timeStamp.getDate())));
-        }
-      } else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
-        try {
-          IFormat dctmForm = object.getFormat();
-          String mimetype = dctmForm.getMIMEType();
-          logger.fine("mimetype of the document " + versionId + ": " + mimetype);
-          // Modification in order to index empty documents.
-          if (canIndex(false)) {
-            values.add(Value.getStringValue(mimetype));
-          }
-        } catch (RepositoryDocumentException e) {
-          logger.warning("RepositoryDocumentException thrown: " + e
-                         + " on getting property: " + name);
-        }
-      } else if (SpiConstants.PROPNAME_TITLE.equals(name)) {
-        values.add(Value.getStringValue(object.getObjectName()));
-      } else if (name.matches(PROPNAME_REGEXP)) {
-        if (UNSUPPORTED_PROPNAMES.add(name)) {
-          logger.finest("Ignoring unsupported SPI property " + name);
-        }
+      boolean found = findCoreProperty(name, values);
+      if (!found)
+        found = findAddProperty(name, values);
+      if (!found)
         return null;
-      } else if (OBJECT_ID_NAME.equals(name)) {
-        values.add(Value.getStringValue(docId));
-      } else if (name.equals("r_object_type")) {
-        // Retrieves object type and its super type(s).
-        for (IType value = object.getType(); value != null; value = getSuperType(value)) {
-          String typeName = value.getName();
-          values.add(Value.getStringValue(typeName));
-        }
-      } else {
-        // TODO: We could store the data types for each attribute in
-        // the type attributes cache, and save about 2% of the
-        // traversal time here by avoiding the calls to findAttrIndex
-        // and getAttr.
-        int attrIndex = object.findAttrIndex(name);
-        if (attrIndex != -1) {
-          IAttr attr = object.getAttr(attrIndex);
-          for (int i = 0, n = object.getValueCount(name); i < n; i++) {
-            IValue val = object.getRepeatingValue(name, i);
-            try {
-              switch (attr.getDataType()) {
-                case IAttr.DM_BOOLEAN:
-                  values.add(Value.getBooleanValue(val.asBoolean()));
-                  break;
-                case IAttr.DM_DOUBLE:
-                  values.add(Value.getDoubleValue(val.asDouble()));
-                  break;
-                case IAttr.DM_ID:
-                  // TODO: Should we check for null here?
-                  values.add(Value.getStringValue(val.asId().getId()));
-                  break;
-                case IAttr.DM_INTEGER:
-                  values.add(Value.getLongValue(val.asInteger()));
-                  break;
-                case IAttr.DM_STRING:
-                  values.add(Value.getStringValue(val.asString()));
-                  break;
-                case IAttr.DM_TIME:
-                  Date date = val.asTime().getDate();
-                  if (date != null) {
-                    values.add(Value.getDateValue(getCalendarFromDate(date)));
-                  }
-                  break;
-                default:
-                  // TODO: Should this be an exception, or just logged
-                  // directly as a warning?
-                  throw new AssertionError(String.valueOf(attr.getDataType()));
-              }
-            } catch (Exception e) {
-              logger.log(Level.WARNING, "error getting the value of index "
-                  + i + " of the attribute " + name, e);
-            }
-          }
-        } else {
-          // No property by that name found.
-          return null;
-        }
-      }
     } else {
-      if (SpiConstants.PROPNAME_ACTION.equals(name)) {
-        values.add(Value.getStringValue(action.toString()));
-      } else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
-        values.add(Value.getStringValue(versionId));
-      } else if (name.equals(SpiConstants.PROPNAME_LASTMODIFIED)) {
-        if (timeStamp != null) {
-          values.add(Value.getDateValue(getCalendarFromDate(timeStamp.getDate())));
-        }
-      } else if (OBJECT_ID_NAME.equals(name)) {
-        values.add(Value.getStringValue(docId));
-      } else {
-        // No property by that name found.
+      boolean found = findCoreProperty(name, values);
+      if (!found)
         return null;
-      }
     }
 
     if (logger.isLoggable(Level.FINE)) {
       logger.fine("property " + name + " has the values " + values);
     }
-    return new SimpleProperty(values);
+    return values.isEmpty() ? null : new SimpleProperty(values);
+  }
+
+  /**
+   * Adds the values for the named property to the list. The
+   * properties handled by this method are always available, for both
+   * add and delete actions.
+   *
+   * @param name a property name
+   * @param values the empty list to add values to
+   * @return true if the property exists
+   * @throws RepositoryException if an unexpected error occurs
+   */
+  private boolean findCoreProperty(String name, List<Value> values)
+      throws RepositoryException {
+    if (SpiConstants.PROPNAME_ACTION.equals(name)) {
+      values.add(Value.getStringValue(action.toString()));
+    } else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
+      values.add(Value.getStringValue(versionId));
+    } else if (name.equals(SpiConstants.PROPNAME_LASTMODIFIED)) {
+      if (timeStamp == null) {
+        return false;
+      }
+      values.add(Value.getDateValue(
+          getCalendarFromDate(timeStamp.getDate())));
+    } else {
+      // No property by that name found.
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Adds the values for the named property to the list. The
+   * properties handled by this method are available only for the add
+   * action. A fetched SysObject is used to obtain the values.
+   *
+   * @param name a property name
+   * @param values the empty list to add values to
+   * @return true if the property exists
+   * @throws RepositoryException if an unexpected error occurs
+   */
+  /* TODO: Should we unify the RepositoryDocumentException handling? */
+  private boolean findAddProperty(String name, List<Value> values)
+      throws RepositoryException {
+    if (SpiConstants.PROPNAME_CONTENT.equals(name)) {
+      try {
+        if (canIndex(true)) {
+          values.add(Value.getBinaryValue(object.getContent()));
+        }
+      } catch (RepositoryDocumentException e) {
+        // FIXME: In the unlikely event the user only has BROWSE
+        // permission for a document, we'll end up here. That's
+        // fine, but the google:mimetype property will not be reset
+        // to "text/plain" in that case.
+        logger.warning("RepositoryDocumentException thrown: " + e
+            + " on getting property: " + name);
+      }
+    } else if (SpiConstants.PROPNAME_DISPLAYURL.equals(name)) {
+      String displayUrl = traversalManager.getServerUrl() + docId;
+      values.add(Value.getStringValue(displayUrl));
+    } else if (SpiConstants.PROPNAME_FOLDER.equals(name)) {
+      return findFolderProperty(name, values);
+    } else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
+      try {
+        values.add(Value.getStringValue(object.getACLDomain() + " "
+                + object.getACLName()));
+      } catch (RepositoryDocumentException e) {
+        logger.warning("RepositoryDocumentException thrown: " + e
+            + " on getting property: " + name);
+      }
+    } else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
+      values.add(Value.getBooleanValue(traversalManager.isPublic()));
+    } else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {
+      try {
+        IFormat dctmForm = object.getFormat();
+        String mimetype = dctmForm.getMIMEType();
+        logger.fine("mimetype of the document " + versionId + ": " + mimetype);
+        // The GSA will not index empty documents with binary content types,
+        // so omit the content type if the document cannot be indexed.
+        if (canIndex(false)) {
+          values.add(Value.getStringValue(mimetype));
+        }
+      } catch (RepositoryDocumentException e) {
+        logger.warning("RepositoryDocumentException thrown: " + e
+            + " on getting property: " + name);
+      }
+    } else if (SpiConstants.PROPNAME_TITLE.equals(name)) {
+      values.add(Value.getStringValue(object.getObjectName()));
+    } else if (name.startsWith(SpiConstants.RESERVED_PROPNAME_PREFIX)) {
+      if (UNSUPPORTED_PROPNAMES.add(name)) {
+        logger.finest("Ignoring unsupported SPI property " + name);
+      }
+      return false;
+    } else {
+      return findDctmAttribute(name, values);
+    }
+
+    return true;
+  }
+
+  /**
+   * Adds the values for the folder paths to the list.
+   *
+   * @param name a property name
+   * @param values the empty list to add values to
+   * @return true if the property exists
+   * @throws RepositoryException if an unexpected error occurs
+   */
+  private boolean findFolderProperty(String name, List<Value> values)
+      throws RepositoryException {
+    // We have already done a fetch of this object, so we read
+    // i_folder_id directly rather than doing a subquery or join
+    // on the object ID.
+    int count = object.getValueCount("i_folder_id");
+    if (count == 0)
+      return false;
+
+    StringBuilder dql = new StringBuilder();
+    dql.append("select r_folder_path from dm_folder ");
+    dql.append("where r_folder_path is not null and r_object_id in (");
+    for (int i = 0; i < count; i++) {
+      dql.append('\'');
+      dql.append(object.getRepeatingValue("i_folder_id", i).asString());
+      dql.append("',");
+    }
+    dql.setCharAt(dql.length() - 1, ')');
+    dql.append(" ENABLE (row_based)");
+
+    IQuery query = traversalManager.getClientX().getQuery();
+    query.setDQL(dql.toString());
+    try {
+      ICollection collec = query.execute(session, IQuery.READ_QUERY);
+      try {
+        while (collec.next()) {
+          values.add(
+              Value.getStringValue(collec.getString("r_folder_path")));
+        }
+      } finally {
+        collec.close();
+      }
+    } catch (RepositoryException e) {
+      // Note that we're catching RepositoryException here, because
+      // we're using ICollection and not ISysObject.
+      logger.warning("RepositoryException thrown: " + e
+          + " on getting property: " + name);
+    }
+
+    return true;
+  }
+
+  /**
+   * Adds the values for a Documentum attribute to the list.
+   *
+   * @param name a attribute name
+   * @param values the empty list to add values to
+   * @return true if the attribute exists
+   * @throws RepositoryException if an unexpected error occurs
+   */
+  private boolean findDctmAttribute(String name, List<Value> values)
+      throws RepositoryException {
+    if (OBJECT_ID_NAME.equals(name)) {
+      values.add(Value.getStringValue(docId));
+    } else if (name.equals("r_object_type")) {
+      // Retrieves object type and its super type(s).
+      for (IType value = object.getType();
+           value != null;
+           value = getSuperType(value)) {
+        String typeName = value.getName();
+        values.add(Value.getStringValue(typeName));
+      }
+    } else {
+      // TODO: We could store the data types for each attribute in
+      // the type attributes cache, and save about 2% of the
+      // traversal time here by avoiding the calls to findAttrIndex
+      // and getAttr.
+      int attrIndex = object.findAttrIndex(name);
+      if (attrIndex != -1) {
+        IAttr attr = object.getAttr(attrIndex);
+        getDctmAttribute(name, attr.getDataType(), values);
+      } else {
+        // No property by that name found.
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Helper method that values for a Documentum attribute to the list.
+   *
+   * @param name an attribute name
+   * @param dataType the data type of the attribute
+   * @param values the empty list to add values to
+   * @throws RepositoryException if an unexpected error occurs
+   */
+  private void getDctmAttribute(String name, int dataType, List<Value> values)
+      throws RepositoryException {
+    for (int i = 0, n = object.getValueCount(name); i < n; i++) {
+      IValue val = object.getRepeatingValue(name, i);
+      try {
+        switch (dataType) {
+          case IAttr.DM_BOOLEAN:
+            values.add(Value.getBooleanValue(val.asBoolean()));
+            break;
+          case IAttr.DM_DOUBLE:
+            values.add(Value.getDoubleValue(val.asDouble()));
+            break;
+          case IAttr.DM_ID:
+            // TODO: Should we check for null here?
+            values.add(Value.getStringValue(val.asId().getId()));
+            break;
+          case IAttr.DM_INTEGER:
+            values.add(Value.getLongValue(val.asInteger()));
+            break;
+          case IAttr.DM_STRING:
+            values.add(Value.getStringValue(val.asString()));
+            break;
+          case IAttr.DM_TIME:
+            Date date = val.asTime().getDate();
+            if (date != null) {
+              values.add(Value.getDateValue(getCalendarFromDate(date)));
+            }
+            break;
+          default:
+            // TODO: Should this be an exception, or just logged
+            // directly as a warning?
+            throw new AssertionError(String.valueOf(dataType));
+        }
+      } catch (Exception e) {
+        logger.log(Level.WARNING, "error getting the value of index "
+            + i + " of the attribute " + name, e);
+      }
+    }
   }
 
   /**
@@ -339,9 +428,11 @@ public class DctmSysobjectDocument implements Document {
     String typeName = type.getName();
     if (superTypes.containsKey(typeName))
       return superTypes.get(typeName);
-    IType superType = type.getSuperType();
-    superTypes.put(typeName, superType);
-    return superType;
+    else {
+      IType superType = type.getSuperType();
+      superTypes.put(typeName, superType);
+      return superType;
+    }
   }
 
   /**
@@ -431,20 +522,12 @@ public class DctmSysobjectDocument implements Document {
       Set<String> excludedMeta = traversalManager.getExcludedMeta();
       try {
         for (int i = 0; i < count; i++) {
-          IAttr curAttr = type.getTypeAttr(i);
-          String name = curAttr.getName();
-          if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
-              !excludedMeta.contains(name)) {
-            typeAttributes.add(name);
-            if (logger.isLoggable(Level.FINEST)) {
-              logger.finest("attribute " + name + " added to the properties");
-            }
-          } else {
-            if (logger.isLoggable(Level.FINEST)) {
-              logger.finest("attribute " + name
-                  + " excluded from the properties");
-            }
-          }
+          String name = type.getTypeAttrNameAt(i);
+          addIfIncluded(typeAttributes, name, includedMeta, excludedMeta);
+        }
+
+        for (String name : EXTENDED_PROPERTIES) {
+          addIfIncluded(typeAttributes, name, includedMeta, excludedMeta);
         }
       } catch (RepositoryDocumentException e) {
         logger.log(Level.WARNING, "Error fetching property names", e);
@@ -455,14 +538,28 @@ public class DctmSysobjectDocument implements Document {
     }
   }
 
+  public void addIfIncluded(List<String> typeAttributes, String name,
+      Set<String> includedMeta, Set<String> excludedMeta) {
+    if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
+        !excludedMeta.contains(name)) {
+      typeAttributes.add(name);
+      if (logger.isLoggable(Level.FINEST)) {
+        logger.finest("attribute " + name + " added to the properties");
+      }
+    } else {
+      if (logger.isLoggable(Level.FINEST)) {
+        logger.finest("attribute " + name
+            + " excluded from the properties");
+      }
+    }
+  }
+
   public Set<String> getPropertyNames() throws RepositoryException {
-    Set<String> properties = null;
+    Set<String> properties;
     if (ActionType.ADD.equals(action)) {
       fetch();
       properties = new HashSet<String>();
       properties.add(SpiConstants.PROPNAME_DISPLAYURL);
-      // TODO: SpiConstants.PROPNAME_FOLDER in CM 3.0.
-      properties.add(PROPNAME_FOLDER);
       properties.add(SpiConstants.PROPNAME_ISPUBLIC);
       properties.add(SpiConstants.PROPNAME_LASTMODIFIED);
       properties.add(SpiConstants.PROPNAME_MIMETYPE);
@@ -471,11 +568,12 @@ public class DctmSysobjectDocument implements Document {
       List<String> typeAttributes = getTypeAttributes(object.getType());
       properties.addAll(typeAttributes);
     } else {
+      // XXX: This is dead code. The CM never asks for the property
+      // names for delete actions. Does it matter?
       properties = new HashSet<String>();
       properties.add(SpiConstants.PROPNAME_ACTION);
       properties.add(SpiConstants.PROPNAME_DOCID);
       properties.add(SpiConstants.PROPNAME_LASTMODIFIED);
-      properties.add(OBJECT_ID_NAME);
     }
     return properties;
   }

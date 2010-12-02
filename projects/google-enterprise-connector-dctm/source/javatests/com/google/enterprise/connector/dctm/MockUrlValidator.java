@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Google Inc.
+// Copyright 2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // limitations under the License.
 
 package com.google.enterprise.connector.dctm;
+
+import com.google.enterprise.connector.util.UrlValidator;
 
 import java.io.IOException;
 import java.net.URL;
