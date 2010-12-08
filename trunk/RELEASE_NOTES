@@ -11,6 +11,48 @@ current list of known issues and workarounds.
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
 
 
+Release 2.6.6, Dec 7, 2010
+==========================
+
+Introduction
+------------
+This is a maintenance release that improves quality and reliability.
+Users of previous releases are encouraged to upgrade. See the product
+website for a complete description.
+
+Summary of Changes
+------------------
+For the latest details on the changes, see http://code.google.com/p/google-enterprise-connector-dctm/issues/list?can=0&q=label%3AMilestone-Release_2.6.6
+
+  * Fixed issue 54 to allow the r_object_id property to be included on
+    the configuration form and indexed.
+  * Fixed issue 69 to optionally index the location of documents as a
+    property named google:folder. The values are taken from the
+    r_folder_path values of a document's enclosing folders. This
+    property can be included on the configuration form.
+  * Fixed issue 73 to fix DFC_BOF_COULDNT_ADOPT_SESSION errors during
+    authorization. This would lead to authorization failures and
+    documents missing from the search results.
+  * Fixed issue 75 to use &#39; instead of &apos; when escaping single
+    quotes. Previously, when adding or editing a connector instance
+    using Internet Explorer, if the additional where clause included a
+    quoted string and clicking the Save Configuration button returned
+    a configuration error, then Internet Explorer would not resolve
+    the &apos; entity. This would lead to further configuration errors.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.1 through 2.6.0 may be
+used with this version. This version works with Connector Manager
+version 2.6.6. Earlier versions of the Connector Manager
+will not work correctly with this version of the connector. This
+product is designed to function with EMC Documentum Content Server
+versions 5.3, 6.0, and 6.5, including service packs.
+
+Users upgrading from versions prior to 2.4.0 should read the release
+notes for the earlier versions.
+
+
 Release 2.6.0, Jun 14, 2010
 ===========================
 
