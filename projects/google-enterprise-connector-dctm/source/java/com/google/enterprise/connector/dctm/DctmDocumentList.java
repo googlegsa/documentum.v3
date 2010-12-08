@@ -1,4 +1,4 @@
-// Copyright 2007 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -196,8 +196,7 @@ public class DctmDocumentList implements DocumentList {
   public ICollection getCurrentVersion(String chronicleId)
       throws RepositoryException {
     IQuery query = traversalManager.getClientX().getQuery();
-    query.setDQL(traversalManager.buildVersionsQueryString(checkpoint,
-        chronicleId));
+    query.setDQL(traversalManager.buildVersionsQueryString(chronicleId));
     return query.execute(session, IQuery.EXECUTE_READ_QUERY);
   }
 

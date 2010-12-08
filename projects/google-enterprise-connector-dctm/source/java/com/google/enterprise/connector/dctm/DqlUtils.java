@@ -1,4 +1,4 @@
-// Copyright 2009 Google Inc.
+// Copyright (C) 2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ public class DqlUtils {
   private static final Logger logger =
       Logger.getLogger(DqlUtils.class.getName());
 
-  /**
+  /** 
    * Strips a leading "AND" along with possible leading and trailing
    * whitespace from the given string.
    *
@@ -35,8 +35,7 @@ public class DqlUtils {
    */
   public static String stripLeadingAnd(String whereClause) {
     logger.config("check additional where clause: " + whereClause);
-    return (whereClause == null)
-        ? null : whereClause.trim().replaceFirst("(?i)^and\\b\\s*", "");
+    return whereClause.trim().replaceFirst("(?i)^and\\b\\s*", "");
   }
 
   /** Appends a conditional expression restricting r_object_type to

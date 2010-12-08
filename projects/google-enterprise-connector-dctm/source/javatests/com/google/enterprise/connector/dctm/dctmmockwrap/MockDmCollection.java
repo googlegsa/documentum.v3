@@ -1,4 +1,4 @@
-// Copyright 2006 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,14 +108,14 @@ public class MockDmCollection implements ICollection {
   }
 
   public ISession getSession(){
-    MockDmSessionManager mockDm = new MockDmSessionManager();
-    ISession session = null;
-    try {
-      session = mockDm.getSession(mockDm.getDocbaseName());
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-    }
-    return session;
+      MockDmClient mockDm = new MockDmClient();
+      ISession session = null;
+      try {
+        session = mockDm.getSession(mockDm.getDocbaseName());
+      } catch (RepositoryException e) {
+        e.printStackTrace();
+      }
+      return session;
   }
 
   public boolean hasNext() throws RepositoryException {
@@ -137,7 +137,7 @@ public class MockDmCollection implements ICollection {
       throw new RepositoryException(e);
     } catch (javax.jcr.RepositoryException e) {
       throw new RepositoryException(e);
-    }
+    }      
     return new MockDmTime(val.getTime());
   }
 }

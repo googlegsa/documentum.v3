@@ -1,4 +1,4 @@
-// Copyright 2007 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class DmInitialize {
 
   public static final int DM_RETURN_TOP_BOUNDED = 27;
 
-  public static final String DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX";
+  public static final String DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
 
   public static final String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
 

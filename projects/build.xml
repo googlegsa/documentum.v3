@@ -127,7 +127,6 @@
         <pathelement location="${spring.jarfile}" />
         <pathelement location="${commons-logging.jarfile}" />
         <pathelement location="${classes-core}" />
-        <pathelement location="${src-core}" /> <!-- For .js files. -->
         <pathelement location="${classes-tests}" />
         <pathelement location="${config}" />
       </classpath>

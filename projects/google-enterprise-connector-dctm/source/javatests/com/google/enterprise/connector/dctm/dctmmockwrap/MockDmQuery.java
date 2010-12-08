@@ -1,4 +1,4 @@
-// Copyright 2006 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,22 +33,11 @@ import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmQuery implements IQuery {
-  /* FIXME: Should these be in DmInitialize? */
-  public static final String TRUE_WHERE_CLAUSE = "1=1";
-
-  /*
-   * For easier implementation, this should be a superstring of
-   * TRUE_WHERE_CLAUSE.
-   */
-  public static final String ALT_TRUE_WHERE_CLAUSE = "11=11";
-
-  public static final String FALSE_WHERE_CLAUSE = "1=0";
+  private String query;
 
   private static final String XPATH_QUERY_STRING_UNBOUNDED_DEFAULT = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
 
   private static final String XPATH_QUERY_STRING_BOUNDED_DEFAULT = "//*[@jcr:primaryType = 'nt:resource' and @jcr:lastModified >= ''{0}''] order by @jcr:lastModified, @jcr:uuid";
-
-  private String query;
 
   public MockDmQuery() {
     query = "";
@@ -56,8 +45,9 @@ public class MockDmQuery implements IQuery {
 
   public void setDQL(String dqlStatement) {
     String goodQuery = "";
-    if (dqlStatement.indexOf(
-            "select i_chronicle_id, r_object_id, r_modify_date from ") != -1) {
+    if (dqlStatement
+        .indexOf("select i_chronicle_id, r_object_id, r_modify_date from ") != -1) {
+
       if (dqlStatement.indexOf(" r_modify_date > ") != -1) {
         goodQuery = makeBoundedQuery(dqlStatement);
       } else {
@@ -65,7 +55,7 @@ public class MockDmQuery implements IQuery {
       }
       this.query = goodQuery;
     } else {
-      this.query = dqlStatement; // Will be parsed later.
+      this.query = dqlStatement;// Authorize query. Will be parsed later
     }
   }
 
@@ -94,8 +84,7 @@ public class MockDmQuery implements IQuery {
         new Object[] { formattedDate, id });
   }
 
-  public ICollection execute(ISession session, int queryType)
-      throws RepositoryException {
+  public ICollection execute(ISession session, int queryType) throws RepositoryException {
     if (query.equals("") || query.indexOf("dm_audittrail") != -1) {
       return null;
     } else if (query.startsWith(XPATH_QUERY_STRING_UNBOUNDED_DEFAULT
@@ -113,8 +102,6 @@ public class MockDmQuery implements IQuery {
       } catch (javax.jcr.RepositoryException e) {
         throw new RepositoryException(e);
       }
-    } else if (query.indexOf("return_top 1") != -1) { // WHERE clause test...
-      return new MockBooleanCollection(query.indexOf(TRUE_WHERE_CLAUSE) != -1);
     } else { // Authorize query...
       String[] ids = this.query.split("','");
       ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]

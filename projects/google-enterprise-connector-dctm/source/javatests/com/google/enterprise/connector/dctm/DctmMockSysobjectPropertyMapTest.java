@@ -1,4 +1,4 @@
-// Copyright 2007 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
-import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -48,7 +48,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
   public void setUp() throws Exception {
     super.setUp();
 
-    dctmClientX = new MockDmClientX();
+    dctmClientX = new MockDmClient();
     localClient = dctmClientX.getLocalClient();
     sessionManager = localClient.newSessionManager();
     ILoginInfo loginInfo = dctmClientX.getLoginInfo();

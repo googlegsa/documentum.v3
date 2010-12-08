@@ -1,4 +1,4 @@
-// Copyright 2007 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.TestCase;
-
-import java.util.Collections;
 
 public class DctmDocumentListTest extends TestCase {
   IClientX dctmClientX = null;
@@ -65,7 +63,7 @@ public class DctmDocumentListTest extends TestCase {
         + "dm_sysobject where folder('/test_docs/GoogleDemo',descend)");
     ICollection collec = query.execute(session, IQuery.READ_QUERY);
     documentList = new DctmDocumentList(traversalManager, session, collec,
-        collec, new Checkpoint(Collections.<String>emptyList()));
+        collec, new Checkpoint());
   }
 
   public void tearDown() throws RepositoryException {

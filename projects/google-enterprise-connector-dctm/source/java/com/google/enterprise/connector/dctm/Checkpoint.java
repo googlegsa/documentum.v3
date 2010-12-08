@@ -1,4 +1,4 @@
-// Copyright 2009 Google Inc.
+// Copyright (C) 2007-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
 
 package com.google.enterprise.connector.dctm;
 
-import com.google.enterprise.connector.spi.RepositoryException;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.enterprise.connector.spi.RepositoryException;
 
 /**
  * Create and parse the checkpoint strings passed back and forth between
@@ -36,9 +33,6 @@ class Checkpoint {
   /** The logger for this class. */
   private static final Logger LOGGER =
       Logger.getLogger(Checkpoint.class.getName());
-
-  /** The array index for checkpoints supporting multiple where clauses. */
-  private static final String INS_INDEX = "index";
 
   /** The JSON insertion ID, based on dm_sysobject.r_object_id. */
   private static final String INS_ID = "uuid";
@@ -77,33 +71,21 @@ class Checkpoint {
   private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-  /** The index into the insert arrays for this checkpoint. */
-  private int insertIndex;
-
-  /** The starting index into the insert arrays for this checkpoint. */
-  private int startInsertIndex;
-
-  /** The size of the insert index cycle: the number of where clauses. */
-  private final int insertIndexModulus;
-
-  /** The index into the insert arrays for future checkpoints. */
-  private int nextInsertIndex;
-
   /** r_object_id of the last item inserted. */
-  private List<String> insertId;
+  public String insertId;
 
   /** r_modify_date of the last item inserted. */
-  private List<Date> insertDate;
+  public Date insertDate;
 
   /** r_object_id of the last item deleted. */
-  private String deleteId;
+  public String deleteId;
 
   /**
    * dm_audittrail time_stamp_utc of the last item deleted. Note that
    * the stored date is UTC, but the value of this field may not be,
    * due to the way DQL handles time zones.
    */
-  private Date deleteDate;
+  public Date deleteDate;
 
   /**
    * Backup versions of the insert and delete checkpoints,
@@ -118,30 +100,8 @@ class Checkpoint {
   private enum LastAction { NONE, ADD, DELETE }
   private LastAction lastAction = LastAction.NONE;
 
-  private static int incrementModulo(int insertIndex, int size) {
-    return (size > 1) ? (insertIndex + 1) % size : 0;
-  }
-
-  /** Constructs a mutable list containing only the specified object. */
-  private static <T> List<T> mutableList(T value) {
-    List<T> list = new ArrayList<T>(1);
-    list.add(value);
-    return list;
-  }
-
-  /**
-   * Constructor for an empty checkpoint.
-   *
-   * @param whereClause the list of additional where clauses, used to
-   * control the modulus of the insert indexes
-   */
-  Checkpoint(List<String> whereClause) {
-    insertIndex = 0;
-    startInsertIndex = 0;
-    insertId = mutableList(null);
-    insertDate = mutableList(null);
-    insertIndexModulus = whereClause.size();
-    nextInsertIndex = incrementModulo(0, insertIndexModulus);
+  /** Generic Constructor */
+  Checkpoint() {
   }
 
   /**
@@ -149,86 +109,52 @@ class Checkpoint {
    * between the Connector Manager and the Connector in the form of
    * a string.  This parses the checkpoint string.
    *
-   * @param whereClause the list of additional where clauses, used to
-   * control the modulus of the insert indexes
    * @param checkpoint a checkpoint String.
    * @throws RepositoryException if checkpoint is invalid.
    */
-  Checkpoint(List<String> whereClause, String checkpoint)
-      throws RepositoryException {
+  Checkpoint(String checkpoint) throws RepositoryException {
     LOGGER.fine("Parse Checkpoint: " + checkpoint);
     try {
       JSONObject jo = new JSONObject(checkpoint);
-
-      if (jo.has(INS_INDEX)) {
-        insertIndex = jo.getInt(INS_INDEX);
-        JSONArray ids = jo.getJSONArray(INS_ID);
-        JSONArray dates = jo.getJSONArray(INS_DATE);
-        if (ids.length() != dates.length() || insertIndex > ids.length()
-            || insertIndex >= whereClause.size()) {
-          throw new IllegalArgumentException();
-        }
-        insertId = new ArrayList<String>(ids.length());
-        for (int i = 0; i < ids.length(); i++) {
-          insertId.add(getJsonString(ids, i));
-        }
-        insertDate = new ArrayList<Date>(dates.length());
-        for (int i = 0; i < dates.length(); i++) {
-          String value = getJsonString(dates, i);
-          insertDate.add((value == null) ? null : dateFormat.parse(value));
-        }
-        if (insertIndex == insertId.size()) {
-          insertId.add(null);
-          insertDate.add(null);
-        }
-      } else {
-        insertIndex = 0;
-        insertId = mutableList(getJsonString(jo, INS_ID));
-        insertDate = mutableList(getJsonDate(jo, INS_DATE));
+      insertId = getJsonValue(jo, INS_ID);
+      deleteId = getJsonValue(jo, DEL_ID);
+      String value;
+      if ((value = getJsonValue(jo, INS_DATE)) != null) {
+        insertDate = dateFormat.parse(value);
       }
-      startInsertIndex = insertIndex;
-      insertIndexModulus = whereClause.size();
-      nextInsertIndex = incrementModulo(insertIndex, insertIndexModulus);
-
-      deleteId = getJsonString(jo, DEL_ID);
-      deleteDate = getJsonDate(jo, DEL_DATE);
-      if (deleteDate == null) {
-        Date oldStyle = getJsonDate(jo, DEL_DATE_OLD);
-        if (oldStyle != null) {
-          // TODO: This migration will be repeated until the checkpoint
-          // is actually returned to the connector manager and
-          // persisted. We could force that to happen on the next call
-          // to resumeTraversal by returning an empty DocumentList
-          // instead of null.
-          deleteDate = new Date(oldStyle.getTime() + TIME_STAMP_OFFSET);
-          if (LOGGER.isLoggable(Level.INFO)) {
-            LOGGER.info("Migrating from time_stamp to time_stamp_utc: "
-                + oldStyle + " becomes " + deleteDate);
-          }
+      if ((value = getJsonValue(jo, DEL_DATE)) != null) {
+        deleteDate = dateFormat.parse(value);
+      } else if ((value = getJsonValue(jo, DEL_DATE_OLD)) != null) {
+        // TODO: This migration will be repeated until the checkpoint
+        // is actually returned to the connector manager and
+        // persisted. We could force that to happen on the next call
+        // to resumeTraversal by returning an empty DocumentList
+        // instead of null.
+        Date oldStyle = dateFormat.parse(value);
+        deleteDate = new Date(oldStyle.getTime() + TIME_STAMP_OFFSET);
+        if (LOGGER.isLoggable(Level.INFO)) {
+          LOGGER.info("Migrating from time_stamp to time_stamp_utc: "
+              + oldStyle + " becomes " + deleteDate);
         }
       }
-    } catch (IllegalArgumentException e) {
-      LOGGER.severe("Invalid Checkpoint: " + checkpoint);
-      throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
+      oldInsertId = insertId;
+      oldInsertDate = insertDate;
+      oldDeleteId = deleteId;
+      oldDeleteDate = deleteDate;
     } catch (JSONException e) {
       LOGGER.severe("Invalid Checkpoint: " + checkpoint);
-      throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
+      throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
     } catch (ParseException e) {
       LOGGER.severe("Invalid Checkpoint: " + checkpoint);
-      throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
+      throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
     }
-
-    oldInsertId = getInsertId();
-    oldInsertDate = getInsertDate();
-    oldDeleteId = deleteId;
-    oldDeleteDate = deleteDate;
   }
 
   /**
-   * Gets a trimmed string value from a JSON object. If the value is
-   * missing, null, or empty, return null.
+   * Fetch the value from a JSON object.  If the value is missing,
+   * null, or empty, return null.
    */
-  private static String getJsonString(JSONObject jo, String key)
+  private static String getJsonValue(JSONObject jo, String key)
       throws JSONException {
     if (!jo.isNull(key)) {
       String value = jo.getString(key).trim();
@@ -240,60 +166,6 @@ class Checkpoint {
   }
 
   /**
-   * Gets a date value from a JSON object. If the value is missing,
-   * null, or empty, return null.
-   */
-  private Date getJsonDate(JSONObject jo, String key)
-      throws JSONException, ParseException {
-    String value = getJsonString(jo, key);
-    return (value == null) ? null : dateFormat.parse(value);
-  }
-
-  /**
-   * Gets a trimmed string value from a JSON array. If the value is
-   * missing, null, or empty, return null.
-   */
-  private static String getJsonString(JSONArray ja, int index)
-      throws JSONException {
-    if (!ja.isNull(index)) {
-      String value = ja.getString(index).trim();
-      if (value.length() > 0) {
-        return value;
-      }
-    }
-    return null;
-  }
-
-  /** r_object_id of the last item inserted. */
-  public String getInsertId() {
-    return insertId.get(insertIndex);
-  }
-
-  /** r_modify_date of the last item inserted. */
-  public Date getInsertDate() {
-    return insertDate.get(insertIndex);
-  }
-
-  /** Gets the index into the insert arrays. */
-  public int getInsertIndex() {
-    return insertIndex;
-  }
-
-  /** r_object_id of the last item deleted. */
-  public String getDeleteId() {
-    return deleteId;
-  }
-
-  /**
-   * dm_audittrail time_stamp_utc of the last item deleted. Note that
-   * the stored date is UTC, but the value of this field may not be,
-   * due to the way DQL handles time zones.
-   */
-  public Date getDeleteDate() {
-    return deleteDate;
-  }
-
-  /**
    * Set the Inserted Item's portion of the checkpoint.
    *
    * @param date the r_modify_date of the last item inserted.
@@ -301,12 +173,12 @@ class Checkpoint {
    */
   public void setInsertCheckpoint(Date date, String objectId) {
     // Remember previous insert checkpoint as a restore point.
-    oldInsertDate = insertDate.get(insertIndex);
-    oldInsertId = insertId.get(insertIndex);
+    oldInsertDate = insertDate;
+    oldInsertId = insertId;
 
     // Set the new insert checkpoint.
-    insertDate.set(insertIndex, date);
-    insertId.set(insertIndex, objectId);
+    insertDate = date;
+    insertId = objectId;
     lastAction = LastAction.ADD;
   }
 
@@ -332,9 +204,8 @@ class Checkpoint {
    * (In other words, restore() would result in a different checkpoint.)
    */
   public boolean hasChanged() {
-    return nextInsertIndex != insertIndex
-        || getInsertDate() != oldInsertDate || getInsertId() != oldInsertId
-        || deleteDate != oldDeleteDate || deleteId != oldDeleteId;
+    return (insertDate != oldInsertDate || insertId != oldInsertId ||
+            deleteDate != oldDeleteDate || deleteId != oldDeleteId);
   }
 
   /**
@@ -343,41 +214,14 @@ class Checkpoint {
    */
   public void restore() {
     if (lastAction == LastAction.ADD) {
-      insertDate.set(insertIndex, oldInsertDate);
-      insertId.set(insertIndex, oldInsertId);
-    } else if (lastAction == LastAction.DELETE) {
+      insertDate = oldInsertDate;
+      insertId = oldInsertId;
+    }
+    if (lastAction == LastAction.DELETE) {
       deleteDate = oldDeleteDate;
       deleteId = oldDeleteId;
     }
     lastAction = LastAction.NONE;
-  }
-
-  /**
-   * Advance to the next insert index, if there is one. This should
-   * have much the same effect as the following (if it were legal),
-   * but keeping startInsertIndex fixed:
-   * <pre>
-   * this = new Checkpoint(whereClause, asString())
-   * </pre>
-   *
-   * @return true if the checkpoint has advanced back to the starting
-   * insert index, and false if it has not
-   */
-  public boolean advance() {
-    insertIndex = nextInsertIndex;
-    if (insertIndex == insertId.size()) {
-      insertId.add(null);
-      insertDate.add(null);
-    }
-    nextInsertIndex = incrementModulo(insertIndex, insertIndexModulus);
-
-    lastAction = LastAction.NONE;
-    oldInsertId = getInsertId();
-    oldInsertDate = getInsertDate();
-    oldDeleteId = deleteId;
-    oldDeleteDate = deleteDate;
-
-    return insertIndex != startInsertIndex;
   }
 
   /**
@@ -386,26 +230,17 @@ class Checkpoint {
    */
   public String asString() throws RepositoryException {
     // A null checkpoint is OK.
-    // TODO: What if nextInsertIndex == 1?
-    if (insertDate.size() == 1 && getInsertDate() == null && deleteDate == null)
+    if ((insertDate == null) && (deleteDate == null))
       return null;
 
     try {
       JSONObject jo = new JSONObject();
-
-      List<String> dates = new ArrayList<String>(insertDate.size());
-      for (Date date : insertDate) {
-        dates.add((date == null) ? null : dateFormat.format(date));
+      if (insertId != null) {
+        jo.put(INS_ID, insertId);
       }
-      if (insertId.size() > 1 || nextInsertIndex > 0) {
-        jo.put(INS_INDEX, nextInsertIndex);
-        jo.put(INS_ID, new JSONArray(insertId));
-        jo.put(INS_DATE, new JSONArray(dates));
-      } else {
-        jo.put(INS_ID, insertId.get(0));
-        jo.put(INS_DATE, dates.get(0));
+      if (insertDate != null) {
+        jo.put(INS_DATE, dateFormat.format(insertDate));
       }
-
       if (deleteId != null) {
         jo.put(DEL_ID, deleteId);
       }

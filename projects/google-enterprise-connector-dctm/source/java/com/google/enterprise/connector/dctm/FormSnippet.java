@@ -282,7 +282,7 @@ class FormSnippet {
     // TODO: We should throw RepositoryException here and let
     // DctmConnectorType handle that generically.
     boolean isError = false;
-    InputStream in = getJavaScript();
+    InputStream in = FormSnippet.class.getResourceAsStream("FormSnippet.js");
     if (in == null) {
       isError = true;
     } else {
@@ -299,7 +299,7 @@ class FormSnippet {
         }
       } catch (IOException e) {
         isError = true;
-      }
+      }        
     }
     buf.append(SCRIPT_END);
     appendEndRow(buf);
@@ -307,11 +307,6 @@ class FormSnippet {
       buf.append(resource.getString("javascript_error"));
       isAdvancedOn = false;
     }
-  }
-
-  /* @VisibleForTesting */
-  protected InputStream getJavaScript() {
-    return FormSnippet.class.getResourceAsStream("FormSnippet.js");
   }
 
   /* @VisibleForTesting */

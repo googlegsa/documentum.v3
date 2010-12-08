@@ -1,4 +1,4 @@
-// Copyright 2007 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockMockListTest extends TestCase {
   public void testMockMockList() {
-    IClientX dctmClientX = new MockDmClientX();
+    IClientX dctmClientX = new MockDmClient();
     IClient localClient = null;
     try {
       localClient = dctmClientX.getLocalClient();

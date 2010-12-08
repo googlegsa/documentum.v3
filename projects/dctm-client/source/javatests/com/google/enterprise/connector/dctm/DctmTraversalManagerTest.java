@@ -1,4 +1,4 @@
-// Copyright 2007 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,6 +63,21 @@ public class DctmTraversalManagerTest extends TestCase {
       counter++;
     }
     assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
+  }
+
+  public void testExtractDocidFromCheckpoint() throws Exception {
+    Checkpoint checkpoint = new Checkpoint("{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}");
+    String uuid = checkpoint.insertId;
+    assertNotNull(uuid);
+    assertEquals(uuid, "090000018000e100");
+  }
+
+  public void testExtractNativeDateFromCheckpoint() throws Exception {
+    Checkpoint checkpoint = new Checkpoint("{\"uuid\":\"090000018000e100\",\"lastModified\":\"2007-01-02 13:58:10\"}");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String modifDate = dateFormat.format(checkpoint.insertDate);
+    assertNotNull(modifDate);
+    assertEquals(modifDate, "2007-01-02 13:58:10");
   }
 
   public void testResumeTraversal() throws RepositoryException {

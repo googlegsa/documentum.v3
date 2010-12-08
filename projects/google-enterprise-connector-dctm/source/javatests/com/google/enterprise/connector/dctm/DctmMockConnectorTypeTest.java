@@ -16,21 +16,14 @@ package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient;
-import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX;
-import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
-import com.google.enterprise.connector.spi.Connector;
-import com.google.enterprise.connector.spi.ConnectorFactory;
 import com.google.enterprise.connector.spi.ConfigureResponse;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.SimpleConnectorFactory;
 import com.google.enterprise.connector.util.UrlValidator;
 
 import junit.framework.TestCase;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -39,7 +32,7 @@ import java.util.ResourceBundle;
 
 public class DctmMockConnectorTypeTest extends TestCase {
   private static final String CLIENT_X_CLASS_NAME =
-      "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX";
+      "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient";
   private static final UrlValidator URL_VALIDATOR = new MockUrlValidator();
   private static final String[] CONFIG_KEYS = {
     "login", "Password", "docbase", "webtop_display_url", "is_public",
@@ -171,11 +164,11 @@ public class DctmMockConnectorTypeTest extends TestCase {
    * Base class for a ClientX implementation that throws exceptions
    * for testing the error handling.
    */
-  private static abstract class MockDmClientXThrows extends MockDmClientX {
+  private static abstract class MockDmClientThrows extends MockDmClient {
     protected abstract String getMessage();
   }
 
-  static class GetLocalClientThrows extends MockDmClientXThrows {
+  static class GetLocalClientThrows extends MockDmClientThrows {
     @Override
     protected String getMessage() {
       return "mimicking getLocalClient failure";
@@ -188,25 +181,20 @@ public class DctmMockConnectorTypeTest extends TestCase {
     }
   }
 
-  static class GetDocbaseMapThrows extends MockDmClientXThrows {
+  static class GetDocbaseMapThrows extends MockDmClientThrows {
     @Override
     protected String getMessage() {
       return "mimicking getDocbaseMap failure";
     }
 
     @Override
-    public IClient getLocalClient() {
-      return new MockDmClient() {
-        @Override
-        public IDocbaseMap getDocbaseMap() throws RepositoryException {
-          throw new RepositoryException(
-              new RuntimeException(getMessage()));
-        }
-      };
+    public IDocbaseMap getDocbaseMap() throws RepositoryException {
+      throw new RepositoryException(
+          new RuntimeException(getMessage()));
     }
   }
 
-  private void testGcfThrows(MockDmClientXThrows client) {
+  private void testGcfThrows(MockDmClientThrows client) {
     type.setClientX(client.getClass().getName());
 
     ConfigureResponse response = type.getConfigForm(Locale.US);
@@ -222,8 +210,8 @@ public class DctmMockConnectorTypeTest extends TestCase {
   }
 
   public void testVc() {
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        new SimpleConnectorFactory(new DctmConnector()));
+    ConfigureResponse response =
+        type.validateConfig(validMap, Locale.US, null);
     assertNull(response);
   }
 
@@ -271,12 +259,12 @@ public class DctmMockConnectorTypeTest extends TestCase {
     assertIsError(response, "invalid.Class", "");
   }
 
-  private void testVcThrows(MockDmClientXThrows client,
+  private void testVcThrows(MockDmClientThrows client,
       Map<String, String> configMap) {
     testVcThrows(client, configMap, client.getMessage());
   }
 
-  private void testVcThrows(MockDmClientXThrows client,
+  private void testVcThrows(MockDmClientThrows client,
       Map<String, String> configMap, String message) {
     type.setClientX(client.getClass().getName());
 
@@ -292,137 +280,6 @@ public class DctmMockConnectorTypeTest extends TestCase {
   public void testVcMissingGetLocalClientThrows() {
     testVcThrows(new GetLocalClientThrows(), emptyMap,
         resources.getString("login_error"));
-  }
-
-  /*
-   * Even though we may implement everything in ConnectorFactory here,
-   * by extending SimpleConnectorFactory we are safe against future
-   * extensions of the interface.
-   */
-  private static class WhereClauseFactory extends SimpleConnectorFactory {
-    private final boolean ignoreMap;
-    private final String[] xmlWhere;
-
-    WhereClauseFactory(boolean ignoreMap, String... whereClause) {
-      this.ignoreMap = ignoreMap;
-      this.xmlWhere = whereClause;
-    }
-
-    public Connector makeConnector(Map<String, String> configMap) {
-      List<String> whereClause = new ArrayList<String>();
-      String mapWhere = configMap.get("where_clause");
-      if (mapWhere != null && mapWhere.length() > 0 && !ignoreMap)
-        whereClause.add(mapWhere);
-      Collections.addAll(whereClause, xmlWhere);
-      DctmConnector connector = new DctmConnector();
-      connector.setWhere_clause(whereClause);
-      return connector;
-    }
-  }
-
-  /** Tests a basic where clause that returns results. */
-  public void testVcWhereClause_results() {
-    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
-    ConnectorFactory connectorFactory = new WhereClauseFactory(false);
-
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        connectorFactory);
-    if (response != null)
-      fail(response.getMessage());
-  }
-
-  /** Tests a where clause that returns no results. */
-  public void testVcWhereClause_noresults() {
-    validMap.put("where_clause", MockDmQuery.FALSE_WHERE_CLAUSE);
-    ConnectorFactory connectorFactory = new WhereClauseFactory(false);
-    String expected = resources.getString("additionalTooRestrictive");
-
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        connectorFactory);
-    assertNotNull(response);
-    assertEquals(expected, response.getMessage());
-  }
-
-  /** Tests that multiple entries are valid. */
-  public void testVcWhereClause_list() {
-    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
-    ConnectorFactory connectorFactory =
-        new WhereClauseFactory(false, MockDmQuery.TRUE_WHERE_CLAUSE);
-
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        connectorFactory);
-    if (response != null)
-      fail(response.getMessage());
-  }
-
-  /** Tests that an XML entry that returns no results leads to an error. */
-  public void testVcWhereClause_listnoresults() {
-    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
-    ConnectorFactory connectorFactory =
-        new WhereClauseFactory(false, MockDmQuery.FALSE_WHERE_CLAUSE);
-    String expected = resources.getString("additionalTooRestrictive");
-
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        connectorFactory);
-    assertNotNull(response);
-    assertEquals(expected, response.getMessage());
-  }
-
-  /** Tests that ignoring a non-empty map entry leads to an error. */
-  public void testVcWhereClause_ignoremap() {
-    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
-    ConnectorFactory connectorFactory =
-        new WhereClauseFactory(true, MockDmQuery.ALT_TRUE_WHERE_CLAUSE);
-    String expected = resources.getString("whereClauseNotUsed");
-
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        connectorFactory);
-    assertNotNull(response);
-    assertEquals(expected, response.getMessage());
-  }
-
-  /**
-   * Tests that an ignored map entry and an XML entry that returns no
-   * results leads to an error. It's not important which error.
-   */
-  public void testVcWhereClause_ignoremapnoresults() {
-    validMap.put("where_clause", MockDmQuery.TRUE_WHERE_CLAUSE);
-    ConnectorFactory connectorFactory =
-        new WhereClauseFactory(true, MockDmQuery.FALSE_WHERE_CLAUSE);
-    List<String> expected = new ArrayList<String>();
-    Collections.addAll(expected, resources.getString("whereClauseNotUsed"),
-        resources.getString("additionalTooRestrictive"));
-
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        connectorFactory);
-    assertNotNull(response);
-    assertTrue(response.getMessage(), expected.contains(response.getMessage()));
-  }
-
-  /** Tests that an empty map entry can be safely ignored. */
-  public void testVcWhereClause_ignoremapempty() {
-    ConnectorFactory connectorFactory =
-        new WhereClauseFactory(true, MockDmQuery.TRUE_WHERE_CLAUSE);
-
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        connectorFactory);
-    if (response != null)
-      fail(response.getMessage());
-  }
-
-  /**
-   * Tests that an empty map entry with an XML entry that returns no
-   * results leads to an error.
-  */
-  public void testVcWhereClause_emptynoresults() {
-    ConnectorFactory connectorFactory =
-        new WhereClauseFactory(true, MockDmQuery.FALSE_WHERE_CLAUSE);
-    String expected = resources.getString("additionalTooRestrictive");
-
-    ConfigureResponse response = type.validateConfig(validMap, Locale.US,
-        connectorFactory);
-    assertNotNull(response);
-    assertEquals(expected, response.getMessage());
   }
 
   public void testGpcf() {
@@ -447,7 +304,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
     assertIsFormError(response, "invalid.Class", "");
   }
 
-  private void testGpcfThrows(MockDmClientXThrows client,
+  private void testGpcfThrows(MockDmClientThrows client,
       Map<String, String> configMap) {
     type.setClientX(client.getClass().getName());
 

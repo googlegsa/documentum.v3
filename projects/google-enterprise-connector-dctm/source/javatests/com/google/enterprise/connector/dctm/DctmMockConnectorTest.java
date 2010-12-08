@@ -1,4 +1,4 @@
-// Copyright 2007 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,9 +21,6 @@ import com.google.enterprise.connector.spi.TraversalManager;
 
 import junit.framework.TestCase;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class DctmMockConnectorTest extends TestCase {
   public void testLogin() throws RepositoryException {
     DctmConnector connector = new DctmConnector();
@@ -39,15 +36,5 @@ public class DctmMockConnectorTest extends TestCase {
     assertNotNull(qtm);
     assertEquals(DmInitialize.DM_WEBTOP_SERVER_URL,
         ((DctmTraversalManager) qtm).getServerUrl());
-  }
-
-  public void testSetWhere_clause() {
-    DctmConnector connector = new DctmConnector();
-    String[] before = { " and 1=1", "  ", "4 = 5  " };
-    connector.setWhere_clause(Arrays.asList(before));
-    List<String> after = connector.getWhereClause();
-    assertEquals(2, after.size());
-    assertTrue(after.toString(), after.contains("1=1"));
-    assertTrue(after.toString(), after.contains("4 = 5"));
   }
 }

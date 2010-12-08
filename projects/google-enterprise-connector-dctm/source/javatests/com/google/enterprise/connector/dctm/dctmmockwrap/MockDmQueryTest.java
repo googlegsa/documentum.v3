@@ -1,4 +1,4 @@
-// Copyright 2007 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +43,8 @@ public class MockDmQueryTest extends TestCase {
   public void setUp() throws Exception {
     super.setUp();
 
-    dctmClientX = new MockDmClientX();
+    dctmClientX = new MockDmClient();
+    localClient = null;
     localClient = dctmClientX.getLocalClient();
     sessionManager = localClient.newSessionManager();
     ILoginInfo ili = new MockDmLoginInfo();

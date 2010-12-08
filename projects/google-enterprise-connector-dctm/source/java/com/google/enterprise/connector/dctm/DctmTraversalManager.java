@@ -14,35 +14,30 @@
 
 package com.google.enterprise.connector.dctm;
 
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.IType;
-import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.TraversalContext;
 import com.google.enterprise.connector.spi.TraversalContextAware;
 import com.google.enterprise.connector.spi.TraversalManager;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-
-public class DctmTraversalManager
-    implements TraversalManager, TraversalContextAware {
+public class DctmTraversalManager implements TraversalManager, TraversalContextAware {
   private static final Logger logger =
       Logger.getLogger(DctmTraversalManager.class.getName());
-
-  private static final List<String> EMPTY_LIST =
-      Collections.<String>emptyList();
 
   private static final Set<String> EMPTY_SET = Collections.<String>emptySet();
 
@@ -65,7 +60,7 @@ public class DctmTraversalManager
   private final Map<String, List<String>> typeAttributesCache =
       new HashMap<String, List<String>>();
 
-  private final List<String> additionalWhereClause;
+  private final String additionalWhereClause;
   private final boolean isPublic;
   private final Set<String> includedObjectType;
   private final Set<String> includedMeta;
@@ -80,18 +75,18 @@ public class DctmTraversalManager
         connector.getIncludedObjectType(), connector.getIncludedMeta(),
         connector.getExcludedMeta(), sessionManager);
   }
-
+  
   /** Constructor used by tests. */
   DctmTraversalManager(IClientX clientX, String docbase,
       String webtopServerUrl, Set<String> included_meta,
       ISessionManager sessionManager) throws RepositoryException {
-    this(clientX, docbase, webtopServerUrl, EMPTY_LIST, true, "", EMPTY_SET,
+    this(clientX, docbase, webtopServerUrl, "", true, "", EMPTY_SET,
         included_meta, EMPTY_SET, sessionManager);
   }
 
   private DctmTraversalManager(IClientX clientX, String docbase,
-      String webtopServerUrl, List<String> additionalWhereClause,
-      boolean isPublic, String rootObjectType, Set<String> includedObjectType,
+      String webtopServerUrl, String additionalWhereClause, boolean isPublic,
+      String rootObjectType, Set<String> includedObjectType,
       Set<String> includedMeta, Set<String> excludedMeta,
       ISessionManager sessionManager) throws RepositoryException {
     this.additionalWhereClause = additionalWhereClause;
@@ -165,7 +160,7 @@ public class DctmTraversalManager
    */
   public DocumentList startTraversal() throws RepositoryException {
     logger.info("StartTraversal");
-    return getDocumentList(forgeStartCheckpoint());
+    return execQuery(forgeStartCheckpoint());
   }
 
   /**
@@ -184,7 +179,7 @@ public class DctmTraversalManager
   public DocumentList resumeTraversal(String checkPoint)
       throws RepositoryException {
     logger.info("ResumeTraversal from checkpoint: " + checkPoint);
-    return getDocumentList(new Checkpoint(additionalWhereClause, checkPoint));
+    return execQuery(new Checkpoint(checkPoint));
   }
 
   /**
@@ -202,63 +197,6 @@ public class DctmTraversalManager
   }
 
   /**
-   * Gets a document list. This method exists to handle multiple
-   * additional where clauses.
-   *
-   * @param checkpoint the Checkpoint from which to resume traversal.
-   * @return DocumentList of traversal results.
-   * @throws RepositoryException
-   */
-  /* @VisibleForTesting */
-  final DocumentList getDocumentList(Checkpoint checkpoint)
-      throws RepositoryException {
-    // In the case of multiple where clauses, execute them in turn
-    // until one returns results, all of them have been tried,
-    // or time expires.
-    TraversalTimer timer = new TraversalTimer(traversalContext);
-    boolean isMore;
-    do {
-      DocumentList documentList = execQuery(checkpoint);
-      if (documentList != null)
-        return documentList;
-      isMore = checkpoint.advance();
-    } while (isMore && timer.isTicking());
-    return isMore ? new EmptyDocumentList(checkpoint) : null;
-  }
-
-  /** A simple timer to control traversal loops and avoid batch timeouts. */
-  private static class TraversalTimer {
-    private final long endTime;
-
-    public TraversalTimer(TraversalContext traversalContext) {
-      long seconds = (traversalContext != null)
-          ? traversalContext.traversalTimeLimitSeconds() / 2 : 60 * 4;
-      endTime = System.currentTimeMillis() + 1000L * seconds;
-    }
-
-    public boolean isTicking() {
-      return System.currentTimeMillis() < endTime;
-    }
-  }
-
-/** An empty document list that provides a new checkpoint. */
-  private static class EmptyDocumentList implements DocumentList {
-    private final String checkpoint;
-
-    EmptyDocumentList(Checkpoint checkpoint) throws RepositoryException {
-      this.checkpoint = checkpoint.asString();
-    }
-
-    public Document nextDocument() {
-      return null;
-    }
-
-    public String checkpoint() {
-      return checkpoint;
-    }
-  }
-
-  /**
    * Execute queries to retrieve the documents to add to the GSA and the
    * document to remove from the GSA.
    *
@@ -266,31 +204,28 @@ public class DctmTraversalManager
    * @return DocumentList of traversal results.
    * @throws RepositoryException
    */
-  /* @VisibleForTesting */
-  DocumentList execQuery(Checkpoint checkpoint) throws RepositoryException {
+  private DocumentList execQuery(Checkpoint checkpoint)
+      throws RepositoryException {
     ICollection collecToAdd = null;
     ICollection collecToDel = null;
+
     ISession session = null;
+
+    IQuery query = buildAddQuery(checkpoint);
+    IQuery queryDocToDel = buildDelQuery(checkpoint);
 
     DocumentList documentList = null;
 
     try {
       session = sessionManager.getSession(docbase);
 
-      IQuery query = buildAddQuery(checkpoint);
       collecToAdd = query.execute(session, IQuery.EXECUTE_READ_QUERY);
       logger.fine("execution of the query returns a collection of documents"
           + " to add");
 
-      // Only execute the delete query with one of the add queries.
-      // TODO: We could treat the delete query as a peer of the others,
-      // and include it in the sequence.
-      if (checkpoint.getInsertIndex() == 0) {
-        IQuery queryDocToDel = buildDelQuery(checkpoint);
-        collecToDel = queryDocToDel.execute(session, IQuery.EXECUTE_READ_QUERY);
-        logger.fine("execution of the query returns a collection of documents"
-            + " to delete");
-      }
+      collecToDel = queryDocToDel.execute(session, IQuery.EXECUTE_READ_QUERY);
+      logger.fine("execution of the query returns a collection of documents"
+          + " to delete");
 
       if ((collecToAdd != null && collecToAdd.hasNext()) ||
           (collecToDel != null && collecToDel.hasNext())) {
@@ -298,9 +233,9 @@ public class DctmTraversalManager
             collecToDel, checkpoint);
       }
     } finally {
+      // No documents to add or delete. Return a null DocumentList,
+      // but close the collections and release the session first.
       if (documentList == null) {
-        // No documents to add or delete. Return a null DocumentList,
-        // but close the collections and release the session first.
         try {
           if (collecToAdd != null) {
             try {
@@ -333,7 +268,7 @@ public class DctmTraversalManager
   }
 
   protected Checkpoint forgeStartCheckpoint() {
-    Checkpoint checkpoint = new Checkpoint(additionalWhereClause);
+    Checkpoint checkpoint = new Checkpoint();
     // Only consider delete actions that occur from this moment onward.
     checkpoint.setDeleteCheckpoint(new java.util.Date(), null);
     return checkpoint;
@@ -347,11 +282,10 @@ public class DctmTraversalManager
 
   protected IQuery buildAddQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder();
-    baseQueryString(queryStr, checkpoint);
-    if (checkpoint.getInsertId() != null
-        && checkpoint.getInsertDate() != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.getInsertDate()),
-                             checkpoint.getInsertId() };
+    baseQueryString(queryStr);
+    if (checkpoint.insertId != null && checkpoint.insertDate != null) {
+      Object[] arguments = { dateFormat.format(checkpoint.insertDate),
+                             checkpoint.insertId };
       queryStr.append(MessageFormat.format(whereBoundedClause, arguments));
     }
     queryStr.append(" order by r_modify_date,r_object_id");
@@ -362,16 +296,15 @@ public class DctmTraversalManager
     return makeQuery(queryStr.toString());
   }
 
-  public String buildVersionsQueryString(Checkpoint checkpoint,
-      String chronicleId) {
+  public String buildVersionsQueryString(String chronicleId) {
     StringBuilder queryStr = new StringBuilder();
-    baseQueryString(queryStr, checkpoint);
+    baseQueryString(queryStr);
     queryStr.append(" and i_chronicle_id='").append(chronicleId);
     queryStr.append("' order by r_modify_date,r_object_id desc");
     return queryStr.toString();
   }
 
-  protected void baseQueryString(StringBuilder query, Checkpoint checkpoint) {
+  protected void baseQueryString(StringBuilder query) {
     query.append("select i_chronicle_id, r_object_id, r_modify_date from ");
     query.append(rootObjectType);
     query.append(" where ");
@@ -381,12 +314,10 @@ public class DctmTraversalManager
       // FIXME: Append the WHERE text only when needed.
       query.append("1=1 ");
     }
-    int index = checkpoint.getInsertIndex();
-    if (additionalWhereClause.size() > index) {
-      String whereClause = additionalWhereClause.get(index);
+    if (additionalWhereClause != null && additionalWhereClause.length() > 0) {
       logger.fine("adding the additionalWhereClause to the query: "
-          + whereClause);
-      query.append(" and (").append(whereClause).append(")");
+                  + additionalWhereClause);
+      query.append(" and (").append(additionalWhereClause).append(")");
     }
   }
 
@@ -395,9 +326,9 @@ public class DctmTraversalManager
         "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc "
         + "from dm_audittrail "
         + "where (event_name='dm_destroy' or event_name='dm_prune')");
-    if (checkpoint.getDeleteDate() != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.getDeleteDate()),
-                             checkpoint.getDeleteId() };
+    if (checkpoint.deleteDate != null) {
+      Object[] arguments = { dateFormat.format(checkpoint.deleteDate),
+                             checkpoint.deleteId };
       queryStr.append(MessageFormat.format(
           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
           arguments));
