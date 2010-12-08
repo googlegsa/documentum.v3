@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="GoogleDCTM" default="GoogleDCTM" basedir=".">
+
+  <!-- ========================= PROPERTIES ========================= -->
+  <property file="version.properties" />
+  <property file="${user.home}/google-enterprise-connector-dctm.properties"/>
+
+  <property name="COMPILE_DEBUG_FLAG" value="true" />
+  <property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
+  <property name="COMPILE_TARGET" value="1.5" />
+  <property name="COMPILE_BOOTCLASSPATH" value="${build.bootclasspath}" />
+
+  <!-- Define Directories. -->
+  <property name="dist" location="dist" />
+  <property name="config" location="google-enterprise-connector-dctm/config" />
+  <property name="jarfile.dir" location="third_party/lib"/>
+  <property name="dctm_jarfile.dir" location="dctm_third_party/lib"/>
+  <property name="core.dir" location="google-enterprise-connector-dctm"/>
+
+  <property name="build-client" location="dctm-client/build" />
+  <property name="src-client" location="dctm-client/source/java" />
+  <property name="classes-client" location="${build-client}/classes" />
+
+  <property name="build-tests" location="google-enterprise-connector-dctm/build" />
+  <property name="src-tests" location="google-enterprise-connector-dctm/source/javatests" />
+  <property name="classes-tests" location="${build-tests}/testclasses" />
+
+  <property name="build-core" location="google-enterprise-connector-dctm/build" />
+  <property name="src-core" location="google-enterprise-connector-dctm/source/java" />
+  <property name="classes-core" location="${build-core}/classes" />
+  <property name="tests.todir" location="google-enterprise-connector-dctm/tests_outdir" />
+
+  <property name="jar.dir" location="${dist}/jar" />
+  <property name="jarfile" location="${jar.dir}/connector-dctm.jar" />
+
+  <property name="spi.jarfile" location="${jarfile.dir}/connector-spi.jar" />
+  <property name="cm.jarfile" location="${jarfile.dir}/connector.jar" />
+  <property name="tests.jarfile" location="${jarfile.dir}/connector-tests.jar" />
+  <property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
+  <property name="json.jarfile" location="${jarfile.dir}/json.jar" />
+  <property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
+  <property name="junit.jarfile" location="${jarfile.dir}/junit.jar" />
+  <property name="spring.jarfile" value="${jarfile.dir}/spring.jar" />
+  <property name="commons-logging.jarfile" value="${jarfile.dir}/commons-logging.jar" />
+
+  <!-- ============================ TASKS ============================ -->
+  <target name="GoogleDCTM"
+          depends="init,compile-core,compile-client,jar,compile-tests">
+    <ant dir="dctm-client" target="compile-all-tests" />
+  </target>
+
+  <target name="init">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${build-client}" />
+    <mkdir dir="${classes-client}" />
+    <mkdir dir="${build-tests}" />
+    <mkdir dir="${classes-tests}" />
+    <mkdir dir="${build-core}" />
+    <mkdir dir="${classes-core}" />
+    <mkdir dir="${tests.todir}" />
+    <mkdir dir="${jar.dir}" />
+  </target>
+
+  <target name="compile-client" depends="compile-core">
+    <javac srcdir="${src-client}" destdir="${classes-client}"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
+      <!-- DFC JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath>
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${dfc.jarfile}" />
+        <pathelement location="${json.jarfile}" />
+        <pathelement location="${classes-core}" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="compile-tests" depends="compile-core">
+    <javac srcdir="${src-tests}" destdir="${classes-tests}"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
+      <!-- CM JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath>
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${cm.jarfile}" />
+        <pathelement location="${tests.jarfile}" />
+        <pathelement location="${junit.jarfile}" />
+        <pathelement location="${json.jarfile}" />
+        <pathelement location="${jcr.jarfile}" />
+        <pathelement location="${classes-core}" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="compile-core" depends="init">
+    <javac srcdir="${src-core}" destdir="${classes-core}"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
+      <compilerarg line="-Xlint -Xlint:-serial"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath>
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${json.jarfile}" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="run_tests" depends="compile-tests">
+    <property name="test.suite" value="*"/>
+    <junit>
+      <assertions><enable/></assertions>
+      <classpath>
+        <pathelement location="${junit.jarfile}" />
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${cm.jarfile}" />
+        <pathelement location="${tests.jarfile}" />
+        <pathelement location="${jcr.jarfile}" />
+        <pathelement location="${json.jarfile}" />
+        <pathelement location="${spring.jarfile}" />
+        <pathelement location="${commons-logging.jarfile}" />
+        <pathelement location="${classes-core}" />
+        <pathelement location="${classes-tests}" />
+        <pathelement location="${config}" />
+      </classpath>
+      <formatter type="xml" />
+      <batchtest fork="yes" todir="${tests.todir}">
+        <fileset dir="${src-tests}">
+          <include name="**/${test.suite}Test.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+    <junitreport todir="${tests.todir}">
+      <fileset dir="${tests.todir}">
+        <include name ="TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="${tests.todir}"/>
+    </junitreport>
+  </target>
+
+  <target name="jar" description="connector-dctm"
+          depends="compile-core,compile-client">
+    <exec executable="svnversion" spawn="false"
+          failifexecutionfails="false"
+          dir="${basedir}"
+          outputproperty="svnversion">
+      <arg line="."/>
+    </exec>
+    <tstamp />
+    <jar jarfile="${jarfile}">
+      <fileset dir="${config}">
+        <include name="*.properties"/>
+        <include name="config/*.xml"/>
+      </fileset>
+      <fileset dir="${classes-client}"/>
+      <fileset dir="${classes-core}"/>
+      <!-- TODO: Compile the JavaScript, presumably using Closure Compiler. -->
+      <fileset dir="${src-core}">
+        <include name="**/*.js"/>
+      </fileset>
+      <manifest>
+      <attribute name="Implementation-Title"
+                 value="Google Search Appliance Connector for Documentum" />
+      <attribute name="Implementation-Version"
+                 value="${version} (build ${svnversion}  ${TODAY})"/>
+      <attribute name="Implementation-Vendor" value="Google Inc."/>
+      <attribute name="Specification-Title" value="Connector Manager SPI"/>
+      <attribute name="Specification-Version" value="${version.spi}"/>
+      <attribute name="Specification-Vendor" value="Google Inc."/>
+      <attribute name="Main-Class"
+                 value="com.google.enterprise.connector.dctm.DctmMain" />
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="bin-archive" depends="jar">
+    <property name="bin.archive" value="connector-dctm-${version}" />
+    <zip destfile="${dist}/${bin.archive}.zip">
+      <zipfileset dir="${jar.dir}" prefix="${bin.archive}" />
+      <zipfileset dir=".." prefix="${bin.archive}">
+        <include name="README" />
+        <include name="RELEASE_NOTES" />
+      </zipfileset>
+      <zipfileset file="${config}/logging.properties"
+                  prefix="${bin.archive}/Config" />
+      <zipfileset file="${json.jarfile}" prefix="${bin.archive}/Lib" />
+      <zipfileset dir=".." prefix="${bin.archive}/License">
+        <include name="COPYING" />
+        <include name="JSON_License" />
+      </zipfileset>
+    </zip>
+    <tar destfile="${dist}/${bin.archive}.tar.gz" compression="gzip">
+      <zipfileset src="${dist}/${bin.archive}.zip"/>
+    </tar>
+  </target>
+
+  <target name="src-archive" depends="init">
+    <property name="src.archive" value="connector-dctm-${version}-src" />
+
+    <!-- Use 'svn export' to create a clean version of the
+      source tree in the build dir. You can
+      adjust the behaviour of this by
+      setting some properties when invoking
+      ant:
+
+      svn.export.revision - the revision of the tree
+        to pull from svn.
+      svn.export.source - the source of the tree,
+        either a svn repository URL, or a
+        pathname of a working directory tree.
+
+      Note: you cannot specify both
+      svn.export.revision and point
+      svn.export.source at a local working tree.
+    -->
+    <condition property="svn.export.revision.arg"
+               value="-r ${svn.export.revision}" else="" >
+      <isset property="svn.export.revision"/>
+    </condition>
+    <property name="svn.export.source" value=".." />
+    <property name="svn.export.dir" value="${dist}/${src.archive}" />
+
+    <delete dir="${svn.export.dir}" quiet="true" />
+    <exec executable="svn">
+      <arg line="export ${svn.export.revision.arg} ${svn.export.source} ${svn.export.dir}" />
+    </exec>
+
+    <!-- Create .zip and .tar.gz archives of the exported source tree. -->
+    <zip destfile="${dist}/${src.archive}.zip">
+      <zipfileset dir="${svn.export.dir}" prefix="${src.archive}" />
+    </zip>
+    <tar destfile="${dist}/${src.archive}.tar.gz"
+         longfile="gnu" compression="gzip">
+      <zipfileset src="${dist}/${src.archive}.zip"/>
+    </tar>
+    <delete dir="${svn.export.dir}" quiet="true" />
+  </target>
+
+  <target name="clean" description="Deletes all build files.">
+    <delete dir="${build-client}" />
+    <delete dir="${build-core}" />
+    <delete dir="${dist}" />
+    <ant dir="dctm-client" target="clean" />
+  </target>
+
+  <target name="everything" depends="clean,bin-archive,src-archive" />
+
+</project>
