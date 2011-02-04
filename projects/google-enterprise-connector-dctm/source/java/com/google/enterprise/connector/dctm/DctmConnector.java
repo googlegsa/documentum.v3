@@ -80,8 +80,8 @@ public class DctmConnector implements Connector {
     } catch (NoClassDefFoundError e) {
       throw new RepositoryException(e);
     }
-    logger.log(Level.CONFIG, "clientX set to "
-        + this.clientX.getClass().getName());
+    logger.config("clientX set to " + this.clientX.getClass().getName());
+    logger.config("DFC " + this.clientX.getDFCVersion());
   }
 
   IClientX getClientX() {

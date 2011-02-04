@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,6 +54,8 @@ public class DctmSession implements Session {
     logger.fine("Session Manager set the identity for " + connector.getLogin());
 
     ISession session = sessionManager.newSession(docbase);
+    logger.info("DFC " + this.clientX.getDFCVersion()
+        + " connected to Content Server " + session.getServerVersion());
     sessionManager.release(session);
     logger.info("Tested a new session for the docbase " + docbase);
   }

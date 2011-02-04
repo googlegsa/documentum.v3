@@ -157,6 +157,8 @@ public class DctmConnectorType implements ConnectorType {
         sess = getSession(configData, sessMag);
 
         logger.fine("test connection to the repository: " + sess);
+        logger.info("DFC " + cl.getDFCVersion()
+            + " connected to Content Server " + sess.getServerVersion());
         isCoreConfigValid = true;
 
         testWebtopUrl(configData.get(DISPLAYURL));

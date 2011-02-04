@@ -28,6 +28,10 @@ public class MockDmClientX implements IClientX {
   public MockDmClientX() {
   }
 
+  public String getDFCVersion() {
+    return "dctmmockwrap";
+  }
+
   /**
    * @throws RepositoryException if a subclass throws it
    */
