@@ -75,6 +75,10 @@ public class MockDmSession implements ISession {
     return this.sessionFileNameSuffix;
   }
 
+  public String getServerVersion() {
+    return "dctmmockwrap";
+  }
+
   public ISysObject getObject(IId objectId) throws RepositoryDocumentException {
     MockRepositoryDocument mockRepositoryDocument = mockRep.getRepo()
         .getStore().getDocByID(objectId.toString());

@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -65,6 +65,14 @@ public class DmSession implements ISession {
   public String getDocbaseName() throws RepositoryException {
     try {
       return idfSession.getDocbaseName();
+    } catch (DfException de) {
+      throw new RepositoryException(de);
+    }
+  }
+
+  public String getServerVersion() throws RepositoryException {
+    try {
+      return idfSession.getServerVersion();
     } catch (DfException de) {
       throw new RepositoryException(de);
     }
