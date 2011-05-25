@@ -13,23 +13,23 @@
 
   <!-- Define Directories. -->
   <property name="dist" location="dist" />
-  <property name="config" location="google-enterprise-connector-dctm/config" />
+  <property name="config" location="dctm-core/config" />
   <property name="jarfile.dir" location="third_party/lib"/>
   <property name="dctm_jarfile.dir" location="dctm_third_party/lib"/>
-  <property name="core.dir" location="google-enterprise-connector-dctm"/>
+  <property name="core.dir" location="dctm-core"/>
 
   <property name="build-client" location="dctm-client/build" />
   <property name="src-client" location="dctm-client/source/java" />
   <property name="classes-client" location="${build-client}/classes" />
 
-  <property name="build-tests" location="google-enterprise-connector-dctm/build" />
-  <property name="src-tests" location="google-enterprise-connector-dctm/source/javatests" />
+  <property name="build-tests" location="dctm-core/build" />
+  <property name="src-tests" location="dctm-core/source/javatests" />
   <property name="classes-tests" location="${build-tests}/testclasses" />
 
-  <property name="build-core" location="google-enterprise-connector-dctm/build" />
-  <property name="src-core" location="google-enterprise-connector-dctm/source/java" />
+  <property name="build-core" location="dctm-core/build" />
+  <property name="src-core" location="dctm-core/source/java" />
   <property name="classes-core" location="${build-core}/classes" />
-  <property name="tests.todir" location="google-enterprise-connector-dctm/tests_outdir" />
+  <property name="tests.todir" location="dctm-core/tests_outdir" />
 
   <property name="jar.dir" location="${dist}/jar" />
   <property name="jarfile" location="${jar.dir}/connector-dctm.jar" />

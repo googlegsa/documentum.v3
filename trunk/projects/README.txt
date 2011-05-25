@@ -31,6 +31,6 @@ Also, add to the classpath 3 Class folders linked to the folder
 JUNIT TESTS
 To run the unit tests, open the classes 
 •	com.google.enterprise.connector.dctm.DmInitialize in the folder dctm-client/source/javatests
-•	com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize in the folder google-enterprise-connector-dctm/source/javatests
+•	com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize in the folder dctm-core/source/javatests
 to add your environment configuration.
 
