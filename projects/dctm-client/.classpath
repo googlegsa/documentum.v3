@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="/dctm_third_party/lib/dctm.jar"/>
 	<classpathentry kind="lib" path="/dctm_third_party/lib/dfc.jar"/>
 	<classpathentry kind="lib" path="/dctm_third_party/lib/dfcbase.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/google-enterprise-connector-dctm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/dctm-core"/>
 	<classpathentry kind="lib" path="/connector-manager/dist/jarfile/connector_spi.jar" sourcepath="/connector-manager/source/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
 	<classpathentry kind="lib" path="/dctm_third_party/lib/json.jar"/>

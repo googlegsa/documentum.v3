@@ -13,7 +13,7 @@
   <property name="classes" location="${build}/classes" />
   <property name="jarfile.dir" location="../third_party/lib"/>
   <property name="dctm_jarfile.dir" location="../dctm_third_party/lib"/>
-  <property name="core.dir" location="../google-enterprise-connector-dctm"/>
+  <property name="core.dir" location="../dctm-core"/>
         <!-- FIXME: It was just "config", which doesn't work. Is this right? -->
   <property name="config" location="${core.dir}/config" />
 
