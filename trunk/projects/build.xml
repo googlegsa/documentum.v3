@@ -15,7 +15,6 @@
   <property name="dist" location="dist" />
   <property name="config" location="dctm-core/config" />
   <property name="jarfile.dir" location="third_party/lib"/>
-  <property name="dctm_jarfile.dir" location="dctm_third_party/lib"/>
   <property name="core.dir" location="dctm-core"/>
 
   <property name="build-client" location="dctm-client/build" />
@@ -34,15 +33,21 @@
   <property name="jar.dir" location="${dist}/jar" />
   <property name="jarfile" location="${jar.dir}/connector-dctm.jar" />
 
-  <property name="spi.jarfile" location="${jarfile.dir}/connector-spi.jar" />
-  <property name="cm.jarfile" location="${jarfile.dir}/connector.jar" />
-  <property name="tests.jarfile" location="${jarfile.dir}/connector-tests.jar" />
-  <property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
-  <property name="json.jarfile" location="${jarfile.dir}/json.jar" />
+  <property name="connector-manager.dir"
+            location="${build.connector.manager.home}/projects/connector-manager" />
+  <property name="thirdparty.jar.dir"
+            location="${connector-manager.dir}/third-party" />
+  <property name="spi.jar.dir" value="${connector-manager.dir}/dist/jarfile" />
+  <property name="spi.jarfile" value="${spi.jar.dir}/connector-spi.jar" />
+  <property name="connector.jarfile" value="${spi.jar.dir}/connector.jar" />
+  <property name="tests.jarfile" value="${spi.jar.dir}/connector-tests.jar" />
+  <property name="guava.jarfile" location="${thirdparty.jar.dir}/prod/guava-r05.jar" />
+  <property name="json.jarfile" location="${thirdparty.jar.dir}/prod/json.jar" />
+  <property name="junit.jarfile" location="${thirdparty.jar.dir}/tests/junit.jar" />
+  <property name="spring.jarfile" value="${thirdparty.jar.dir}/prod/spring.jar" />
+  <property name="commons-logging.jarfile" value="${thirdparty.jar.dir}/prod/commons-logging.jar" />
+
   <property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
-  <property name="junit.jarfile" location="${jarfile.dir}/junit.jar" />
-  <property name="spring.jarfile" value="${jarfile.dir}/spring.jar" />
-  <property name="commons-logging.jarfile" value="${jarfile.dir}/commons-logging.jar" />
 
   <!-- ============================ TASKS ============================ -->
   <target name="GoogleDCTM"
@@ -52,8 +57,6 @@
 
   <target name="init">
     <mkdir dir="${dist}" />
-    <mkdir dir="${build-client}" />
-    <mkdir dir="${classes-client}" />
     <mkdir dir="${build-tests}" />
     <mkdir dir="${classes-tests}" />
     <mkdir dir="${build-core}" />
@@ -63,24 +66,12 @@
   </target>
 
   <target name="compile-client" depends="compile-core">
-    <javac srcdir="${src-client}" destdir="${classes-client}"
-           debug="${COMPILE_DEBUG_FLAG}"
-           debuglevel="${COMPILE_DEBUG_LEVEL}"
-           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
-      <!-- DFC JAR Class-Path references are not available. -->
-      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
-      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
-      <classpath>
-        <pathelement location="${spi.jarfile}" />
-        <pathelement location="${dfc.jarfile}" />
-        <pathelement location="${json.jarfile}" />
-        <pathelement location="${classes-core}" />
-      </classpath>
-    </javac>
+    <ant dir="dctm-client" target="compile" />
   </target>
 
   <target name="compile-tests" depends="compile-core">
     <javac srcdir="${src-tests}" destdir="${classes-tests}"
+           includeantruntime="false"
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}"
            target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
@@ -89,7 +80,7 @@
       <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${spi.jarfile}" />
-        <pathelement location="${cm.jarfile}" />
+        <pathelement location="${connector.jarfile}" />
         <pathelement location="${tests.jarfile}" />
         <pathelement location="${junit.jarfile}" />
         <pathelement location="${json.jarfile}" />
@@ -101,6 +92,7 @@
 
   <target name="compile-core" depends="init">
     <javac srcdir="${src-core}" destdir="${classes-core}"
+           includeantruntime="false"
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}"
            target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
@@ -120,8 +112,9 @@
       <classpath>
         <pathelement location="${junit.jarfile}" />
         <pathelement location="${spi.jarfile}" />
-        <pathelement location="${cm.jarfile}" />
+        <pathelement location="${connector.jarfile}" />
         <pathelement location="${tests.jarfile}" />
+        <pathelement location="${guava.jarfile}" />
         <pathelement location="${jcr.jarfile}" />
         <pathelement location="${json.jarfile}" />
         <pathelement location="${spring.jarfile}" />
