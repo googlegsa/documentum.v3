@@ -3,6 +3,8 @@
 <project name="connector-dctm-client" default="connector-dctm" basedir=".">
 
   <!-- ========================= PROPERTIES ============================= -->
+  <property file="${user.home}/google-enterprise-connector-dctm.properties"/>
+
   <property name="COMPILE_DEBUG_FLAG" value="true" />
   <property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
 
@@ -29,12 +31,17 @@
   <property name="jarfile.test"  location="${jar.dir}/connector_dctm_test.jar" />
 
   <property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
-  <property name="json.jarfile" location="${jarfile.dir}/json.jar" />
-  <property name="junit.jarfile" location="${jarfile.dir}/junit.jar" />
 
-  <property name="spi.jarfile" location="${jarfile.dir}/connector-spi.jar" />
-  <property name="connector.jarfile" location="${jarfile.dir}/connector.jar" />
-  <property name="tests.jarfile" location="${jarfile.dir}/connector_tests.jar" />
+  <property name="connector-manager.dir"
+            location="${build.connector.manager.home}/projects/connector-manager" />
+  <property name="thirdparty.jar.dir"
+            location="${connector-manager.dir}/third-party" />
+  <property name="spi.jar.dir" value="${connector-manager.dir}/dist/jarfile" />
+  <property name="spi.jarfile" value="${spi.jar.dir}/connector-spi.jar" />
+  <property name="connector.jarfile" value="${spi.jar.dir}/connector.jar" />
+  <property name="tests.jarfile" value="${spi.jar.dir}/connector-tests.jar" />
+  <property name="json.jarfile" location="${thirdparty.jar.dir}/prod/json.jar" />
+  <property name="junit.jarfile" location="${thirdparty.jar.dir}/tests/junit.jar" />
 
   <!-- =========================== TASKS =============================== -->
   <target name="connector-dctm" depends="init,compile,compile-all-tests,jar" />
@@ -51,7 +58,8 @@
   </target>
 
   <target name="compile" depends="init">
-    <javac srcdir="${src}" destdir="${classes}" 
+    <javac srcdir="${src}" destdir="${classes}"
+           includeantruntime="false"
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}">
       <!-- DFC JAR Class-Path references are not available. -->
@@ -66,6 +74,7 @@
 
   <target name="compile_tests" depends="compile">
     <javac srcdir="${tests.src}" destdir="${tests.classes}"
+           includeantruntime="false"
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}">
       <!-- DFC JAR Class-Path references are not available. -->
@@ -84,6 +93,7 @@
 
   <target name="compile_perftests" depends="compile_tests">
     <javac srcdir="${perfstests.src}" destdir="${tests.classes}"
+           includeantruntime="false"
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}">
       <!-- DFC JAR Class-Path references are not available. -->
@@ -102,6 +112,7 @@
 
   <target name="compile_accepttests" depends="compile_tests">
     <javac srcdir="${accepttests.src}" destdir="${tests.classes}"
+           includeantruntime="false"
            debug="${COMPILE_DEBUG_FLAG}"
            debuglevel="${COMPILE_DEBUG_LEVEL}">
       <!-- DFC JAR Class-Path references are not available. -->

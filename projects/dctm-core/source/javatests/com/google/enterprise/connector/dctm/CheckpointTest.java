@@ -153,7 +153,11 @@ public class CheckpointTest extends TestCase {
     Checkpoint output = getCheckpoint(3, input.asString());
     assertEquals(2, output.getInsertIndex());
     assertNull(output.getInsertId(), output.getInsertId());
-    assertEquals("{\"index\":0,\"lastModified\":[null,null,null],\"uuid\":[null,null,null]}", (Object) output.asString());
+
+    String str = output.asString();
+    assertTrue(str, str.contains("\"index\":0"));
+    assertTrue(str, str.contains("\"lastModified\":[null,null,null]"));
+    assertTrue(str, str.contains("\"uuid\":[null,null,null]"));
   }
 
   public void testCheckpoint_elementmissing() throws RepositoryException {
@@ -169,9 +173,11 @@ public class CheckpointTest extends TestCase {
     Checkpoint checkpoint = getCheckpoint(0,
         "{\"uuidToRemove\":\"090000018000e100\","
         + "\"lastRemoveDate\":\"2007-01-02 13:58:10\"}");
-    String expected = "{\"uuidToRemove\":\"090000018000e100\","
-        + "\"lastRemoved\":\"2007-01-01 13:58:10\"}";
-    assertEquals(expected, checkpoint.asString());
+
+    String str = checkpoint.asString();
+    assertTrue(str, str.contains("\"uuidToRemove\":\"090000018000e100\""));
+    assertTrue(str, str.contains("\"lastRemoved\":\"2007-01-01 13:58:10\""));
+    assertFalse(str, str.contains("\"lastRemoveDate\":"));
   }
 
   public void testGetInsertId() throws RepositoryException {
