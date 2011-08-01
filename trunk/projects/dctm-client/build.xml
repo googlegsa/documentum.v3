@@ -7,6 +7,8 @@
 
   <property name="COMPILE_DEBUG_FLAG" value="true" />
   <property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
+  <property name="COMPILE_TARGET" value="1.5" />
+  <property name="COMPILE_BOOTCLASSPATH" value="${build.bootclasspath}" />
 
   <!-- Define Directories. -->
   <property name="build" location="build" />
@@ -61,9 +63,11 @@
     <javac srcdir="${src}" destdir="${classes}"
            includeantruntime="false"
            debug="${COMPILE_DEBUG_FLAG}"
-           debuglevel="${COMPILE_DEBUG_LEVEL}">
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
       <!-- DFC JAR Class-Path references are not available. -->
       <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${spi.jarfile}" />
         <pathelement location="${dfc.jarfile}" />
@@ -79,6 +83,7 @@
            debuglevel="${COMPILE_DEBUG_LEVEL}">
       <!-- DFC JAR Class-Path references are not available. -->
       <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${core.classes}" />
         <pathelement location="${connector.jarfile}" />
@@ -98,6 +103,7 @@
            debuglevel="${COMPILE_DEBUG_LEVEL}">
       <!-- DFC JAR Class-Path references are not available. -->
       <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${tests.classes}" />
         <pathelement location="${core.classes}" />
@@ -117,6 +123,7 @@
            debuglevel="${COMPILE_DEBUG_LEVEL}">
       <!-- DFC JAR Class-Path references are not available. -->
       <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${connector.jarfile}" />
         <pathelement location="${tests.jarfile}" />
