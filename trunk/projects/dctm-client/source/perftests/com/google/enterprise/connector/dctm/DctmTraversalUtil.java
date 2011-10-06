@@ -57,7 +57,7 @@ public class DctmTraversalUtil {
     DocPusher push = null;
     try {
       push = new DocPusher(new GsaFeedConnection(null, "gogol", 19900, -1),
-          "dctm", new FileSizeLimitInfo(), new DocumentFilterChain());
+          "dctm", new FileSizeLimitInfo(), new DocumentFilterChain(), null);
 
     } catch (MalformedURLException e) {
       // TODO Auto-generated catch block
