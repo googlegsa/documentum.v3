@@ -67,6 +67,8 @@
   <property name="coverage.html.dir" value="${reports.dir}/cobertura-html" />
 
   <!-- ============================ TASKS ============================ -->
+  <include file="${connector-manager.dir}/../svnbuild.xml" as="svn"/>
+
   <target name="GoogleDCTM"
           depends="init,compile,jar,compile-tests">
     <ant dir="dctm-client" target="compile-all-tests" />
@@ -160,13 +162,7 @@
   </target>
 
   <target name="jar" description="connector-dctm"
-          depends="compile-core,compile-client">
-    <exec executable="svnversion" spawn="false"
-          failifexecutionfails="false"
-          dir="${basedir}"
-          outputproperty="svnversion">
-      <arg line="."/>
-    </exec>
+          depends="compile-core,compile-client,svn.svn-branch-version">
     <tstamp />
     <jar jarfile="${jarfile}">
       <fileset dir="${config}">
@@ -183,7 +179,7 @@
       <attribute name="Implementation-Title"
                  value="Google Search Appliance Connector for Documentum" />
       <attribute name="Implementation-Version"
-                 value="${version} (build ${svnversion}  ${TODAY})"/>
+                 value="${version} (build ${svn.branch.version} ${TODAY})"/>
       <attribute name="Implementation-Vendor" value="Google Inc."/>
       <attribute name="Specification-Title" value="Connector Manager SPI"/>
       <attribute name="Specification-Version" value="${version.spi}"/>
@@ -195,7 +191,7 @@
   </target>
 
   <target name="bin-archive" depends="jar">
-    <property name="bin.archive" value="connector-dctm-${version}" />
+    <property name="bin.archive" value="connector-dctm-${svn.branch}" />
     <zip destfile="${dist}/${bin.archive}.zip">
       <zipfileset dir="${jar.dir}" prefix="${bin.archive}" />
       <zipfileset dir=".." prefix="${bin.archive}">
@@ -210,13 +206,15 @@
         <include name="JSON_License" />
       </zipfileset>
     </zip>
+    <checksum algorithm="SHA-1" file="${dist}/${bin.archive}.zip" />
     <tar destfile="${dist}/${bin.archive}.tar.gz" compression="gzip">
       <zipfileset src="${dist}/${bin.archive}.zip"/>
     </tar>
+    <checksum algorithm="SHA-1" file="${dist}/${bin.archive}.tar.gz" />
   </target>
 
   <target name="src-archive" depends="init">
-    <property name="src.archive" value="connector-dctm-${version}-src" />
+    <property name="src.archive" value="connector-dctm-${svn.branch}-src" />
 
     <!-- Use 'svn export' to create a clean version of the
       source tree in the build dir. You can
@@ -233,6 +231,7 @@
       Note: you cannot specify both
       svn.export.revision and point
       svn.export.source at a local working tree.
+      TODO: Make this work with svn.branch in src.archive value.
     -->
     <condition property="svn.export.revision.arg"
                value="-r ${svn.export.revision}" else="" >
@@ -250,10 +249,12 @@
     <zip destfile="${dist}/${src.archive}.zip">
       <zipfileset dir="${svn.export.dir}" prefix="${src.archive}" />
     </zip>
+    <checksum algorithm="SHA-1" file="${dist}/${src.archive}.zip" />
     <tar destfile="${dist}/${src.archive}.tar.gz"
          longfile="gnu" compression="gzip">
       <zipfileset src="${dist}/${src.archive}.zip"/>
     </tar>
+    <checksum algorithm="SHA-1" file="${dist}/${src.archive}.tar.gz" />
     <delete dir="${svn.export.dir}" quiet="true" />
   </target>
 
