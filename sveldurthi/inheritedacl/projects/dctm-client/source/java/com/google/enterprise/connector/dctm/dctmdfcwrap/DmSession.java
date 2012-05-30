@@ -14,7 +14,9 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.documentum.fc.client.IDfACL;
 import com.documentum.fc.client.IDfDocument;
+import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.client.IDfSysObject;
@@ -22,6 +24,7 @@ import com.documentum.fc.client.IDfType;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
@@ -78,20 +81,25 @@ public class DmSession implements ISession {
     }
   }
 
-  public ISysObject getObject(IId objectId) throws RepositoryDocumentException {
+  public IPersistentObject getObject(IId objectId) throws RepositoryDocumentException {
     if (!(objectId instanceof DmId)) {
       throw new IllegalArgumentException();
     }
     DmId dctmId = (DmId) objectId;
     IDfId idfId = dctmId.getidfId();
 
-    IDfSysObject idfSysObject;
+    IDfPersistentObject idfPersistentObject;
     try {
-      idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
+      idfPersistentObject = idfSession.getObject(idfId);
+      if(idfPersistentObject instanceof IDfSysObject) {
+        return new DmSysObject((IDfSysObject)idfPersistentObject);
+      } else if(idfPersistentObject instanceof IDfACL) {
+        return new DmACL((IDfACL)idfPersistentObject);
+      }
     } catch (DfException de) {
       throw new RepositoryDocumentException(de);
     }
-    return new DmSysObject(idfSysObject);
+    return null;
   }
 
   IDfSession getDfSession() {

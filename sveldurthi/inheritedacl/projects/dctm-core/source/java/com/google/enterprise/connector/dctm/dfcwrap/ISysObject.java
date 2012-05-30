@@ -18,7 +18,7 @@ import java.io.ByteArrayInputStream;
 
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 
-public interface ISysObject {
+public interface ISysObject extends IPersistentObject{
   String getObjectName() throws RepositoryDocumentException;
 
   long getContentSize() throws RepositoryDocumentException;
@@ -60,4 +60,8 @@ public interface ISysObject {
   int findAttrIndex(String name) throws RepositoryDocumentException;
 
   int getValueCount(String name) throws RepositoryDocumentException;
+
+  IACL getACL() throws RepositoryDocumentException;
+
+  IId getACLId() throws RepositoryDocumentException;
 }

@@ -1,4 +1,4 @@
-// Copyright 2006 Google Inc.
+// Copyright (C) 2006-2009 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,24 +15,25 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
-import com.google.enterprise.connector.spi.RepositoryException;
 
-public interface ISession {
-  String getDocbaseName() throws RepositoryException;
+public interface IACL extends IPersistentObject{
+  int DF_PERMIT_READ = 3;
+  int DF_PERMIT_BROWSE = 2;
+  int DF_PERMIT_NONE = 1;
 
-  String getServerVersion() throws RepositoryException;
+  String getObjectName() throws RepositoryDocumentException;
 
-  IPersistentObject getObject(IId objectId) throws RepositoryDocumentException;
+  int getAccessorCount() throws RepositoryDocumentException;
 
-  String getLoginTicketForUser(String username)
-      throws RepositoryException;
+  String getAccessorName(int index) throws RepositoryDocumentException;
 
-  String getLoginTicketEx(String username, String scope, int timeout,
-      boolean singleUse, String serverName) throws RepositoryException;
+  int getAccessorPermit(int index) throws RepositoryDocumentException;
 
-  IType getType(String typeName) throws RepositoryException;
+  boolean hasPermission(String permissionName, String accessorName)
+      throws RepositoryDocumentException;
 
-  ISessionManager getSessionManager() throws RepositoryException;
+  boolean isGroup(int index) throws RepositoryDocumentException;
 
-  boolean isConnected();
+  String getDomain() throws RepositoryDocumentException;
+
 }

@@ -64,7 +64,7 @@ public class DmSessionTest extends TestCase {
   public void testGetObject() throws RepositoryException, DfException {
     try {
       IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-      ISysObject object = session.getObject(id);
+      ISysObject object = (ISysObject) session.getObject(id);
 
       Assert.assertNotNull(object);
       Assert.assertTrue(object instanceof DmSysObject);

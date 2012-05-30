@@ -22,6 +22,8 @@ import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.client.IDfType;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfAttr;
+import com.google.enterprise.connector.dctm.DctmAcl;
+import com.google.enterprise.connector.dctm.dfcwrap.IACL;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -223,6 +225,22 @@ public class DmSysObject implements ISysObject {
   public int getValueCount(String name) throws RepositoryDocumentException {
     try {
       return idfSysObject.getValueCount(name);
+    } catch (DfException e) {
+      throw new RepositoryDocumentException(e);
+    }
+  }
+
+  public IACL getACL() throws RepositoryDocumentException {
+    try {
+      return new DmACL(idfSysObject.getACL());
+    } catch (DfException e) {
+      throw new RepositoryDocumentException(e);
+    }
+  }
+
+  public IId getACLId() throws RepositoryDocumentException {
+    try {
+      return new DmId(idfSysObject.getACL().getObjectId());
     } catch (DfException e) {
       throw new RepositoryDocumentException(e);
     }

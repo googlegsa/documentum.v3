@@ -49,7 +49,7 @@ public class DmFormatTest extends TestCase {
     try {
       session = sessionManager.newSession(DmInitialize.DM_DOCBASE);
       IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-      ISysObject object = session.getObject(id);
+      ISysObject object = (ISysObject) session.getObject(id);
       dctmForm = (DmFormat) object.getFormat();
     } finally {
       if (session != null) {

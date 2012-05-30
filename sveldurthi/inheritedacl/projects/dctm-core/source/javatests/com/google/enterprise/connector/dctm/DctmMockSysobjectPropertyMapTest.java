@@ -71,7 +71,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 
     session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     lastModifDate = object.getTime("r_modify_date");
     document = new DctmSysobjectDocument(traversalManager, session,
         DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD, null);
