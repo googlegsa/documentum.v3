@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="GoogleDCTM" default="GoogleDCTM" basedir=".">
+<!-- project name="GoogleDCTM" default="GoogleDCTM" basedir="." -->
+<project name="GoogleDCTM" default="compile-copy" basedir=".">
 
   <!-- ========================= PROPERTIES ========================= -->
   <property file="version.properties" />
@@ -86,6 +87,12 @@
     <mkdir dir="${jar.dir}" />
   </target>
 
+  <target name="compile-copy" depends="jar">
+    <copy file="${jarfile}" flatten="true"
+      todir="/Users/sveldurthi/DevTools/tomcat-7022/webapps/connector-manager/WEB-INF/lib" />
+  </target>
+
+
   <target name="compile" depends="compile-core, compile-client" />
 
   <target name="compile-client" depends="compile-core">
@@ -161,8 +168,10 @@
     </junitreport>
   </target>
 
+	<!--          depends="compile-core,compile-client,svn.svn-branch-version" > -->
+	
   <target name="jar" description="connector-dctm"
-          depends="compile-core,compile-client,svn.svn-branch-version">
+          depends="compile-core,compile-client">
     <tstamp />
     <jar jarfile="${jarfile}">
       <fileset dir="${config}">

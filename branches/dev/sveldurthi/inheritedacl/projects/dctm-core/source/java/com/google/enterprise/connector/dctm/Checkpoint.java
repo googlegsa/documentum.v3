@@ -55,6 +55,12 @@ class Checkpoint {
   /** The old JSON deletion timestamp, based on dm_audittrail.time_stamp. */
   private static final String DEL_DATE_OLD = "lastRemoveDate";
 
+  /** The JSON insertion ID, based on dm_acl.r_object_id. */
+  private static final String ACL_ID = "aclid";
+
+  /** The JSON  timestamp, based on dm_acl modify date Srinivas:TBD */
+  private static final String ACL_DATE = "acldate";
+
   /**
    * The offset for migrating deletion timestamps from time_stamp to
    * time_stamp_utc, where time_stamp + time_stamp_offset =
@@ -105,6 +111,12 @@ class Checkpoint {
    */
   private Date deleteDate;
 
+  /** r_object_id of the last acl inserted. */
+  private String aclId;
+
+  /** modify date of the last acl inserted.Srinivas:TBD */
+  private Date aclDate;
+
   /**
    * Backup versions of the insert and delete checkpoints,
    * so that we may restore a checkpoint when attempting to
@@ -114,12 +126,16 @@ class Checkpoint {
   private Date oldInsertDate;
   private String oldDeleteId;
   private Date oldDeleteDate;
+  private String oldAclId;
+  private Date oldAclDate;
 
   private enum LastAction { NONE, ADD, DELETE }
   private LastAction lastAction = LastAction.NONE;
 
   private static int incrementModulo(int insertIndex, int size) {
-    return (size > 1) ? (insertIndex + 1) % size : 0;
+    // return (size > 1) ? (insertIndex + 1) % size : 0;
+    return (insertIndex == -1) ? 0 : 
+      ((size > 1) ? ( (insertIndex + 1 == size) ? -1 : (insertIndex + 1) % size ) : -1);
   }
 
   /** Constructs a mutable list containing only the specified object. */
@@ -137,11 +153,13 @@ class Checkpoint {
    */
   Checkpoint(List<String> whereClause) {
     insertIndex = 0;
-    startInsertIndex = 0;
+    startInsertIndex = -1;
     insertId = mutableList(null);
     insertDate = mutableList(null);
     insertIndexModulus = whereClause.size();
     nextInsertIndex = incrementModulo(0, insertIndexModulus);
+    aclId = null;
+    aclDate = null;
   }
 
   /**
@@ -160,12 +178,15 @@ class Checkpoint {
     try {
       JSONObject jo = new JSONObject(checkpoint);
 
+      aclId = getJsonString(jo, ACL_ID);
+      aclDate = getJsonDate(jo, ACL_DATE);
+
       if (jo.has(INS_INDEX)) {
         insertIndex = jo.getInt(INS_INDEX);
         JSONArray ids = jo.getJSONArray(INS_ID);
         JSONArray dates = jo.getJSONArray(INS_DATE);
         if (ids.length() != dates.length() || insertIndex > ids.length()
-            || insertIndex >= whereClause.size()) {
+            || insertIndex >= whereClause.size()+1) {
           throw new IllegalArgumentException();
         }
         insertId = new ArrayList<String>(ids.length());
@@ -182,7 +203,8 @@ class Checkpoint {
           insertDate.add(null);
         }
       } else {
-        insertIndex = 0;
+        //insertIndex = 0;
+        insertIndex = -1;
         insertId = mutableList(getJsonString(jo, INS_ID));
         insertDate = mutableList(getJsonDate(jo, INS_DATE));
       }
@@ -208,16 +230,18 @@ class Checkpoint {
         }
       }
     } catch (IllegalArgumentException e) {
-      LOGGER.severe("Invalid Checkpoint: " + checkpoint);
+      LOGGER.severe("IllegalArgumentException Invalid Checkpoint: " + checkpoint);
       throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
     } catch (JSONException e) {
-      LOGGER.severe("Invalid Checkpoint: " + checkpoint);
+      LOGGER.severe("JSONException Invalid Checkpoint: " + checkpoint);
       throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
     } catch (ParseException e) {
-      LOGGER.severe("Invalid Checkpoint: " + checkpoint);
+      LOGGER.severe("ParseException Invalid Checkpoint: " + checkpoint);
       throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
     }
 
+    oldAclId = aclId;
+    oldAclDate = aclDate;
     oldInsertId = getInsertId();
     oldInsertDate = getInsertDate();
     oldDeleteId = deleteId;
@@ -264,14 +288,26 @@ class Checkpoint {
     return null;
   }
 
+  /** r_object_id of the last acl inserted. */
+  public String getAclId() {
+    return aclId;
+  }
+
+  /** modify date of the last acl inserted.Srinivas:TBD */
+  public Date getAclDate() {
+    return aclDate;
+  }
+
   /** r_object_id of the last item inserted. */
   public String getInsertId() {
-    return insertId.get(insertIndex);
+    return (insertIndex != -1) ? insertId.get(insertIndex) 
+        : insertId.get(0);
   }
 
   /** r_modify_date of the last item inserted. */
   public Date getInsertDate() {
-    return insertDate.get(insertIndex);
+    return (insertIndex != -1) ? insertDate.get(insertIndex) 
+        : insertDate.get(0);
   }
 
   /** Gets the index into the insert arrays. */
@@ -328,13 +364,30 @@ class Checkpoint {
   }
 
   /**
+   * Sets the Acl Item's portion of the checkpoint.
+   *
+   * @param date the dm_audittrail time_stamp_utc of the last Acl modified Srinivas:TBD.
+   * @param objectId the r_object_id of the last Acl item deleted.
+   */
+  public void setAclCheckpoint(Date date, String objectId) {
+    // Remember the current Acl checkpoint as a restore point. Do we need this? Srinivas:TBD
+    oldAclDate = aclDate;
+    oldAclId = aclId;
+
+    // Set the new Acl checkpoint.
+    aclDate = date;
+    aclId = objectId;
+  }
+
+  /**
    * Returns true if some component of the checkpoint has changed.
    * (In other words, restore() would result in a different checkpoint.)
    */
   public boolean hasChanged() {
     return nextInsertIndex != insertIndex
         || getInsertDate() != oldInsertDate || getInsertId() != oldInsertId
-        || deleteDate != oldDeleteDate || deleteId != oldDeleteId;
+        || deleteDate != oldDeleteDate || deleteId != oldDeleteId
+        | aclId != oldAclId || aclDate != oldAclDate;
   }
 
   /**
@@ -387,17 +440,24 @@ class Checkpoint {
   public String asString() throws RepositoryException {
     // A null checkpoint is OK.
     // TODO: What if nextInsertIndex == 1?
-    if (insertDate.size() == 1 && getInsertDate() == null && deleteDate == null)
+    if (insertDate.size() == 1 && getInsertDate() == null && deleteDate == null && insertIndex != -1)
       return null;
 
     try {
       JSONObject jo = new JSONObject();
 
+      if (aclId != null) {
+        jo.put(ACL_ID, aclId);
+      }
+      if (aclDate != null) {
+        jo.put(ACL_DATE, dateFormat.format(aclDate));
+      }
+
       List<String> dates = new ArrayList<String>(insertDate.size());
       for (Date date : insertDate) {
         dates.add((date == null) ? null : dateFormat.format(date));
       }
-      if (insertId.size() > 1 || nextInsertIndex > 0) {
+      if (insertId.size() > 0 || nextInsertIndex > -1) {
         jo.put(INS_INDEX, nextInsertIndex);
         jo.put(INS_ID, new JSONArray(insertId));
         jo.put(INS_DATE, new JSONArray(dates));

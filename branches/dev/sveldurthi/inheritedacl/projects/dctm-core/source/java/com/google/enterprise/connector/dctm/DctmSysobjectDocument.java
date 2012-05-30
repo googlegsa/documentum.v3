@@ -88,6 +88,7 @@ public class DctmSysobjectDocument implements Document {
   private final ActionType action;
   private final Checkpoint checkpoint;
 
+  //private ISysObject object;
   private ISysObject object;
 
   public DctmSysobjectDocument(DctmTraversalManager traversalManager,
@@ -110,7 +111,7 @@ public class DctmSysobjectDocument implements Document {
     try {
       IId id = traversalManager.getClientX().getId(docId);
 
-      object = session.getObject(id);
+      object = (ISysObject) session.getObject(id);
       if (versionId == null || versionId.length() == 0) {
         versionId = object.getId("i_chronicle_id").getId();
       }
@@ -267,6 +268,8 @@ public class DctmSysobjectDocument implements Document {
       }
     } else if (SpiConstants.PROPNAME_TITLE.equals(name)) {
       values.add(Value.getStringValue(object.getObjectName()));
+    } else if (SpiConstants.PROPNAME_ACLINHERITFROM_DOCID.equals(name)) {
+      values.add(Value.getStringValue(object.getACLId().getId()));
     } else if (name.startsWith(SpiConstants.RESERVED_PROPNAME_PREFIX)) {
       if (UNSUPPORTED_PROPNAMES.add(name)) {
         logger.finest("Ignoring unsupported SPI property " + name);
@@ -564,6 +567,8 @@ public class DctmSysobjectDocument implements Document {
       properties.add(SpiConstants.PROPNAME_LASTMODIFIED);
       properties.add(SpiConstants.PROPNAME_MIMETYPE);
       properties.add(SpiConstants.PROPNAME_TITLE);
+      properties.add(SpiConstants.PROPNAME_ACLINHERITANCETYPE);
+      properties.add(SpiConstants.PROPNAME_ACLINHERITFROM_DOCID);
 
       List<String> typeAttributes = getTypeAttributes(object.getType());
       properties.addAll(typeAttributes);

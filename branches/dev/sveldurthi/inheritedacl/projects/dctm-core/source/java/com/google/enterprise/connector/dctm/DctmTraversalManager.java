@@ -49,6 +49,7 @@ public class DctmTraversalManager
   private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and r_object_id > ''{1}'') OR (r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private static final String whereBoundedClauseRemove = " and ((time_stamp_utc = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR (time_stamp_utc > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private static final String whereBoundedClauseRemoveDateOnly = " and (time_stamp_utc > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
+  private static final String whereClauseAcl = " where r_object_id > ''{0}'' ";
 
   private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -270,6 +271,7 @@ public class DctmTraversalManager
   DocumentList execQuery(Checkpoint checkpoint) throws RepositoryException {
     ICollection collecToAdd = null;
     ICollection collecToDel = null;
+    ICollection collecAclToAdd = null;
     ISession session = null;
 
     DocumentList documentList = null;
@@ -277,25 +279,44 @@ public class DctmTraversalManager
     try {
       session = sessionManager.getSession(docbase);
 
-      IQuery query = buildAddQuery(checkpoint);
-      collecToAdd = query.execute(session, IQuery.EXECUTE_READ_QUERY);
-      logger.fine("execution of the query returns a collection of documents"
-          + " to add");
+      // ACL Code
+      if (checkpoint.getInsertIndex() == -1) {
+        logger.fine("Processing Acls");
+        IQuery queryAclToAdd = buildACLQuery(checkpoint);
+        collecAclToAdd = queryAclToAdd.execute(session,
+            IQuery.EXECUTE_READ_QUERY);
+        logger.fine("execution of the query returns a collection of ACLs"
+            + " to add");
 
-      // Only execute the delete query with one of the add queries.
-      // TODO: We could treat the delete query as a peer of the others,
-      // and include it in the sequence.
-      if (checkpoint.getInsertIndex() == 0) {
-        IQuery queryDocToDel = buildDelQuery(checkpoint);
-        collecToDel = queryDocToDel.execute(session, IQuery.EXECUTE_READ_QUERY);
+        if ((collecAclToAdd != null && collecAclToAdd.hasNext())
+            || (collecToDel != null && collecToDel.hasNext())) {
+          documentList = new DctmAclList(this, session, collecAclToAdd,
+              checkpoint);
+        }
+      } else { // End ACL Code
+        logger.fine("Processing Documents");
+        IQuery query = buildAddQuery(checkpoint);
+        collecToAdd = query.execute(session, IQuery.EXECUTE_READ_QUERY);
         logger.fine("execution of the query returns a collection of documents"
-            + " to delete");
-      }
+            + " to add");
 
-      if ((collecToAdd != null && collecToAdd.hasNext()) ||
-          (collecToDel != null && collecToDel.hasNext())) {
-        documentList = new DctmDocumentList(this, session, collecToAdd,
-            collecToDel, checkpoint);
+        // Only execute the delete query with one of the add queries.
+        // TODO: We could treat the delete query as a peer of the others,
+        // and include it in the sequence.
+        if (checkpoint.getInsertIndex() == 0) {
+          IQuery queryDocToDel = buildDelQuery(checkpoint);
+          collecToDel = queryDocToDel.execute(session,
+              IQuery.EXECUTE_READ_QUERY);
+          logger
+              .fine("execution of the query returns a collection of documents"
+                  + " to delete");
+        }
+
+        if ((collecToAdd != null && collecToAdd.hasNext())
+            || (collecToDel != null && collecToDel.hasNext())) {
+          documentList = new DctmDocumentList(this, session, collecToAdd,
+              collecToDel, checkpoint);
+        }
       }
     } finally {
       if (documentList == null) {
@@ -320,6 +341,15 @@ public class DctmTraversalManager
                   + " to delete: " + e);
             }
           }
+          if (collecAclToAdd != null) {
+            try {
+              collecAclToAdd.close();
+              logger.fine("collection of documents to add closed");
+            } catch (RepositoryException e) {
+              logger.severe("Error while closing the collection of documents"
+                  + " to add: " + e);
+            }
+          }
         } finally {
           if (session != null) {
             sessionManager.release(session);
@@ -328,7 +358,6 @@ public class DctmTraversalManager
         }
       }
     }
-
     return documentList;
   }
 
@@ -407,6 +436,24 @@ public class DctmTraversalManager
       queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
     logger.fine("queryToDel completed: " + queryStr.toString());
+    return makeQuery(queryStr.toString());
+  }
+
+  protected IQuery buildACLQuery(Checkpoint checkpoint) {
+    StringBuilder queryStr = new StringBuilder();
+    queryStr.append("select r_object_id from dm_acl");
+    if (checkpoint.getAclId() != null && !checkpoint.getAclId().isEmpty()) {
+      //Object[] arguments = { dateFormat.format(checkpoint.getInsertDate()),
+      //    checkpoint.getInsertId() };
+      queryStr.append(MessageFormat.format(whereClauseAcl,checkpoint.getAclId()));
+//      queryStr.append(" where r_object_id > ");
+//      queryStr.append(checkpoint.getAclId());
+    }
+    queryStr.append(" order by r_object_id ");
+    if (batchHint > 0) {
+      queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
+    }
+    logger.info("ACL queryToAdd completed: " + queryStr.toString());
     return makeQuery(queryStr.toString());
   }
 }

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 
+import com.google.enterprise.connector.dctm.dfcwrap.IACL;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -250,5 +251,17 @@ public class MockDmObject implements ISysObject {
 
   public int getValueCount(String name) throws RepositoryDocumentException {
     return 1;
+  }
+
+  @Override
+  public IACL getACL() throws RepositoryDocumentException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public IId getACLId() throws RepositoryDocumentException {
+    // TODO Auto-generated method stub
+    return null;
   }
 }
