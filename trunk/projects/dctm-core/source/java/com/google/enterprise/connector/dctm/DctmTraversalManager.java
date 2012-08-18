@@ -26,6 +26,8 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.TraversalContext;
 import com.google.enterprise.connector.spi.TraversalContextAware;
 import com.google.enterprise.connector.spi.TraversalManager;
+import com.google.enterprise.connector.util.EmptyDocumentList;
+import com.google.enterprise.connector.util.TraversalTimer;
 
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -223,39 +225,7 @@ public class DctmTraversalManager
         return documentList;
       isMore = checkpoint.advance();
     } while (isMore && timer.isTicking());
-    return isMore ? new EmptyDocumentList(checkpoint) : null;
-  }
-
-  /** A simple timer to control traversal loops and avoid batch timeouts. */
-  private static class TraversalTimer {
-    private final long endTime;
-
-    public TraversalTimer(TraversalContext traversalContext) {
-      long seconds = (traversalContext != null)
-          ? traversalContext.traversalTimeLimitSeconds() / 2 : 60 * 4;
-      endTime = System.currentTimeMillis() + 1000L * seconds;
-    }
-
-    public boolean isTicking() {
-      return System.currentTimeMillis() < endTime;
-    }
-  }
-
-/** An empty document list that provides a new checkpoint. */
-  private static class EmptyDocumentList implements DocumentList {
-    private final String checkpoint;
-
-    EmptyDocumentList(Checkpoint checkpoint) throws RepositoryException {
-      this.checkpoint = checkpoint.asString();
-    }
-
-    public Document nextDocument() {
-      return null;
-    }
-
-    public String checkpoint() {
-      return checkpoint;
-    }
+    return isMore ? new EmptyDocumentList(checkpoint.asString()) : null;
   }
 
   /**
