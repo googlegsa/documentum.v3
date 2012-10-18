@@ -1,0 +1,6 @@
+# this is a comment
+{"timestamp":"0","type":"save","docid":"users","acl":{type:string, value:[joe,mary,fred,mark,bill,admin]},"google:ispublic":"false"}
+{"timestamp":"10","type":"save","docid":"doc1","content":"now is the time","acl":{type:string, value:[joe,mary]},"google:ispublic":"false"}
+{"timestamp":"20","type":"save","docid":"doc2","content":"now was the time",acl:joe,"google:ispublic":"false"}
+{"timestamp":"20","type":"save","docid":"doc3","content":"oijsdfoihqsdmfijsdiazeiohflsqdhfmazio","google:ispublic":"true"}
+{"timestamp":"60","type":"save","docid":"doc4","name":"doc4","acl":{type:string, value:[fred,mark,bill]},"google:ispublic":"false"}
