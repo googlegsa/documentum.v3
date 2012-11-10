@@ -80,13 +80,8 @@ public class DctmTraversalUtil {
           // for example, if it receives a shutdown request
           break;
         }
-        Iterator iteri = pm.getPropertyNames().iterator();
-        int k = 0;
-        while (iteri.hasNext()) {
-          iteri.next();
-          k++;
-        }
-        System.out.println("counter " + counter + " " + k);
+        int k = pm.getPropertyNames().size();
+        System.out.println("counter " + counter + ",  num properties " + k);
         System.out.println(pm.findProperty(
             SpiConstants.PROPNAME_DISPLAYURL).nextValue());
         push.take(pm, null);
