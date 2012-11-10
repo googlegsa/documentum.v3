@@ -154,14 +154,14 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
   public void testIgnoredSpiProperties() throws RepositoryException {
     Property property;
 
-    assertTrue(document.UNSUPPORTED_PROPNAMES.toString(),
-        document.UNSUPPORTED_PROPNAMES.isEmpty());
+    assertTrue(DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.toString(),
+        DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.isEmpty());
 
     property = document.findProperty(SpiConstants.PROPNAME_DOCID);
     assertNotNull(SpiConstants.PROPNAME_DOCID, property);
 
-    assertTrue(document.UNSUPPORTED_PROPNAMES.toString(),
-        document.UNSUPPORTED_PROPNAMES.isEmpty());
+    assertTrue(DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.toString(),
+        DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.isEmpty());
 
     // Retrieve these twice to ensure that the set doesn't grow.
     for (int i = 0; i < 2; i++) {
@@ -170,13 +170,13 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
       property = document.findProperty(SpiConstants.PROPNAME_FEEDTYPE);
       assertNull(SpiConstants.PROPNAME_FEEDTYPE, property);
 
-      assertEquals(document.UNSUPPORTED_PROPNAMES.toString(),
-          2, document.UNSUPPORTED_PROPNAMES.size());
-      assertTrue(document.UNSUPPORTED_PROPNAMES.toString(),
-          document.UNSUPPORTED_PROPNAMES.contains(
+      assertEquals(DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.toString(),
+          2, DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.size());
+      assertTrue(DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.toString(),
+          DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.contains(
               SpiConstants.PROPNAME_SEARCHURL));
-      assertTrue(document.UNSUPPORTED_PROPNAMES.toString(),
-          document.UNSUPPORTED_PROPNAMES.contains(
+      assertTrue(DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.toString(),
+          DctmSysobjectDocument.UNSUPPORTED_PROPNAMES.contains(
               SpiConstants.PROPNAME_FEEDTYPE));
     }
   }
