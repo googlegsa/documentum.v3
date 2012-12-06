@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -36,6 +36,9 @@ public class DctmAuthorizationManager implements AuthorizationManager {
   private static final String QUERY_STRING =
       "select for read i_chronicle_id from dm_sysobject "
       + "where i_chronicle_id in (";
+
+  @VisibleForTesting
+  static final String QUERY_STRING_OR = ") or i_chronicle_id in (";
 
   private final IClientX clientX;
 
@@ -96,20 +99,39 @@ public class DctmAuthorizationManager implements AuthorizationManager {
     return username;
   }
 
-  private IQuery buildQuery(Collection<String> docidList) {
+  @VisibleForTesting
+  String buildQueryString(Collection<String> docidList) {
     StringBuilder queryString = new StringBuilder();
     queryString.append(QUERY_STRING);
+    int i = 0;
     for (String docid : docidList) {
-      queryString.append("'");
+      queryString.append('\'');
       queryString.append(docid);
-      queryString.append("',");
+      queryString.append('\'');
+
+      // Check for YACC stack overflow: The DQL parser has a stack size of
+      // 500 and each IN entry counts toward that limit. Be conservative
+      // and split the IN conditions after 400 entries. Note the size check
+      // to make sure we're not on the last ID in the list.
+      i++;
+      if (i == 400 && i < docidList.size()) {
+        i = 0;
+        queryString.append(QUERY_STRING_OR);
+      } else {
+        queryString.append(',');
+      }
     }
     queryString.setCharAt(queryString.length() - 1, ')');
+    return queryString.toString();
+  }
+
+  private IQuery buildQuery(Collection<String> docidList) {
+    String queryString = buildQueryString(docidList);
 
     IQuery query = clientX.getQuery();
     if (logger.isLoggable(Level.FINE))
       logger.fine("dql: " + queryString);
-    query.setDQL(queryString.toString());
+    query.setDQL(queryString);
     return query;
   }
 
