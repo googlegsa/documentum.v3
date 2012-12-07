@@ -103,6 +103,7 @@
       <classpath>
         <pathelement location="${spi.jarfile}" />
         <pathelement location="${json.jarfile}" />
+        <pathelement location="${guava.jarfile}" />
       </classpath>
     </javac>
   </target>
