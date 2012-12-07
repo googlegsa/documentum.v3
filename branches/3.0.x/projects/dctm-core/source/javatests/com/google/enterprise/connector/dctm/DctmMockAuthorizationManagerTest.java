@@ -14,20 +14,21 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
-
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DctmMockAuthorizationManagerTest extends TestCase {
   private AuthorizationManager authorizationManager;
@@ -43,6 +44,51 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
     Session sess = connector.login();
     authorizationManager = sess.getAuthorizationManager();
     assertNotNull(authorizationManager);
+  }
+
+  private void testQueryString(int size, boolean containsOr) {
+    List<String> docidList = new ArrayList<String>();
+    for (int i = 0; i < size; i++) {
+      docidList.add("xyzzy" + i);
+    }
+
+    DctmAuthorizationManager out =
+        (DctmAuthorizationManager) authorizationManager;
+    String queryString = out.buildQueryString(docidList);
+
+    assertEquals(queryString, containsOr,
+        queryString.contains(DctmAuthorizationManager.QUERY_STRING_OR));
+
+    // This would happen if QUERY_STRING_OR were appended on the end,
+    // with the last character replaced by by ')'.
+    assertFalse(queryString, queryString.contains(
+        DctmAuthorizationManager.QUERY_STRING_OR.replace('(', ')')));
+
+    // Check for missing or duplicate docids in the query.
+    for (String docid : docidList) {
+      // We need a unique target that is not a substring of any other targets.
+      String target = "'" + docid + "'";
+      int index = queryString.indexOf(target);
+      assertTrue("Missing docid: " + docid, index != -1);
+      assertEquals("Duplicate docid: " + docid,
+          -1, queryString.indexOf(target, index + 1));
+    }
+  }
+
+  public void testQueryString_tooShort() {
+    testQueryString(10, false);
+  }
+
+  public void testQueryString_justRight() {
+    testQueryString(400, false);
+  }
+
+  public void testQueryString_barelyTooLong() {
+    testQueryString(401, true);
+  }
+
+  public void testQueryString_tooLong() {
+    testQueryString(500, true);
   }
 
   public final void testOk2() throws RepositoryException {
