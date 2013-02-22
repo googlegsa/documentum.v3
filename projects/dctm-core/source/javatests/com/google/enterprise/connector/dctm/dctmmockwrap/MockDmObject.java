@@ -211,16 +211,21 @@ public class MockDmObject implements ISysObject {
   }
 
   public int getAttrCount() throws RepositoryDocumentException {
+    MockRepositoryPropertyList Mockpm = mockDocument.getProplist();
     int counter = 0;
-    for (MockRepositoryProperty pm : mockDocument.getProplist()) {
+    for (Iterator mockIt = Mockpm.iterator(); mockIt.hasNext();) {
+      mockIt.next();
       counter++;
     }
     return counter;
   }
 
   public IAttr getAttr(int attrIndex) throws RepositoryDocumentException {
+    MockRepositoryPropertyList Mockpm = mockDocument.getProplist();
+    MockRepositoryProperty pm = null;
     int counter = 0;
-    for (MockRepositoryProperty pm : mockDocument.getProplist()) {
+    for (Iterator mockIt = Mockpm.iterator(); mockIt.hasNext();) {
+      pm = (MockRepositoryProperty) mockIt.next();
       if (counter == attrIndex) {
         return new MockDmAttr(pm);
       }

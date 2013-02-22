@@ -68,7 +68,13 @@ public class DctmSysobjectDocumentTest extends TestCase {
         traversalManager, session, DmInitialize.DM_ID1, null, lastModifDate,
         SpiConstants.ActionType.ADD, null);
 
-    assertEquals(8, dctmSpm.getPropertyNames().size());
+    Iterator iterator = dctmSpm.getPropertyNames().iterator();
+    int counter = 0;
+    while (iterator.hasNext()) {
+      iterator.next();
+      counter++;
+    }
+    assertEquals(8, counter);
   }
 
   public void testFindProperty() throws RepositoryException {

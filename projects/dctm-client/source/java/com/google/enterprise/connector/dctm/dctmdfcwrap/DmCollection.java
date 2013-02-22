@@ -29,9 +29,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DmCollection implements ICollection {
-  private final IDfCollection idfCollection;
+  IDfCollection idfCollection;
 
-  private int numberOfRows = 0;
+  int numberOfRows = 0;
 
   private boolean didPeek = false;
   private boolean peekResult;
@@ -87,22 +87,21 @@ public class DmCollection implements ICollection {
       didPeek = false;
       return peekResult;
     }
+    boolean rep = false;
 
-    boolean isNext;
     try {
-      isNext = idfCollection.next();
+      rep = idfCollection.next();
+      if (logger.isLoggable(Level.FINEST))
+        logger.finest("collection.next() returns " + rep);
     } catch (DfException e) {
+      e.printStackTrace();
       throw new RepositoryException(e);
     }
-    if (isNext) {
+    if (rep)
       numberOfRows++;
-      if (logger.isLoggable(Level.FINEST)) {
-        logger.finest("Collection positioned on row " + numberOfRows);
-      }
-    } else if (logger.isLoggable(Level.FINEST)) {
-      logger.finest("End of collection, number Of Rows is " + numberOfRows);
-    }
-    return isNext;
+    if (logger.isLoggable(Level.FINEST))
+      logger.finest("number Of Rows is " + numberOfRows);
+    return rep;
   }
 
   public String getString(String colName) throws RepositoryException {

@@ -43,14 +43,13 @@ public class DmSession implements ISession {
    * reflection so that we can use it if we happen to be using DFC 6.0
    * or later.
    */
-  // TODO(bmj): This can be removed once we require DFC 6.
   private static final Method getLoginTicketDiagnostics;
 
   static {
     Method m;
     try {
       m = IDfSession.class.getMethod("getLoginTicketDiagnostics",
-          new Class<?>[] { String.class });
+          new Class[] { String.class });
     } catch (NoSuchMethodException e) {
       m = null;
     }
