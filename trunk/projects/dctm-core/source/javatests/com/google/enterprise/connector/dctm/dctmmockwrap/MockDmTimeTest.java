@@ -60,7 +60,7 @@ public class MockDmTimeTest extends TestCase {
     query = localClient.getQuery();
     query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
     id = dctmClientX.getId(DmInitialize.DM_ID2);
-    object = sess7.getObject(id);
+    object = (ISysObject) sess7.getObject(id);
     time = object.getTime("r_modify_date");
   }
 

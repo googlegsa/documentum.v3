@@ -23,6 +23,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
+import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
@@ -64,7 +65,7 @@ public class DmSessionTest extends TestCase {
   public void testGetObject() throws RepositoryException, DfException {
     try {
       IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-      ISysObject object = session.getObject(id);
+      IPersistentObject object = session.getObject(id);
 
       Assert.assertNotNull(object);
       Assert.assertTrue(object instanceof DmSysObject);

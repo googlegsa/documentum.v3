@@ -24,7 +24,8 @@
     <property name="included_meta" value="${included_meta}" />
     <property name="included_object_type" value="${included_object_type}" />
     <property name="root_object_type" value="${root_object_type}"/>
-
+    <property name="googleGlobalNamespace" value="${googleGlobalNamespace}"/>
+    <property name="googleLocalNamespace" value="${googleLocalNamespace}"/>
   </bean>
 
   <bean id="DefaultEncryptedPropertyPlaceholderConfigurator"
@@ -35,6 +36,8 @@
         <prop key="included_object_type">dm_document</prop>
         <prop key="root_object_type">dm_sysobject</prop>
         <prop key="is_public">false</prop>
+        <prop key="googleGlobalNamespace"></prop>
+        <prop key="googleLocalNamespace"></prop>
       </props>
     </property>
   </bean>

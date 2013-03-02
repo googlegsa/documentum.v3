@@ -115,6 +115,13 @@ public class MockDmQuery implements IQuery {
       }
     } else if (query.indexOf("return_top 1") != -1) { // WHERE clause test...
       return new MockBooleanCollection(query.indexOf(TRUE_WHERE_CLAUSE) != -1);
+    } else if (query.indexOf("dm_group") != -1) {
+      String[] ids = {};
+      List<MockRepositoryDocument> emptyResults =
+          new MockMockList(ids, session.getSessionManager(),
+              session.getDocbaseName());
+      QueryResult qr = new MockJcrQueryResult(emptyResults);
+      return new MockDmCollection(qr);
     } else { // Authorize query...
       String[] ids = this.query.split("','");
       ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]

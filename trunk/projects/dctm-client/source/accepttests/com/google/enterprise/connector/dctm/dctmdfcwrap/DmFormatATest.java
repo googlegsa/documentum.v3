@@ -66,7 +66,7 @@ public class DmFormatATest extends TestCase {
   public void testCanIndexExcel() throws DfException, RepositoryException {
     String idString = getAnExistingExcelObjectId(session);
     IId id = dctmClientX.getId(idString);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     IFormat dctmForm = (DmFormat) object.getFormat();
 
     Assert.assertNotNull(dctmForm);
@@ -78,7 +78,7 @@ public class DmFormatATest extends TestCase {
     String idString = getAnExistingAccessObjectId(session);
 
     IId id = dctmClientX.getId(idString);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     IFormat dctmForm = (DmFormat) object.getFormat();
 
     Assert.assertNotNull(dctmForm);
@@ -88,7 +88,7 @@ public class DmFormatATest extends TestCase {
   public void testCanIndexPDF() throws DfException, RepositoryException {
     String idString = getAnExistingPDFObjectId(session);
     IId id = dctmClientX.getId(idString);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     IFormat dctmForm = (DmFormat) object.getFormat();
 
     Assert.assertNotNull(dctmForm);
@@ -98,7 +98,7 @@ public class DmFormatATest extends TestCase {
   public void testGetPDFMIMEType() throws DfException, RepositoryException {
     String idString = getAnExistingPDFObjectId(session);
     IId id = dctmClientX.getId(idString);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     IFormat dctmForm = (DmFormat) object.getFormat();
 
     Assert.assertEquals(dctmForm.getMIMEType(), "application/pdf");
@@ -107,7 +107,7 @@ public class DmFormatATest extends TestCase {
   public void testGetExcelMIMEType() throws DfException, RepositoryException {
     String idString = getAnExistingExcelObjectId(session);
     IId id = dctmClientX.getId(idString);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     IFormat dctmForm = (DmFormat) object.getFormat();
 
     Assert.assertEquals(dctmForm.getMIMEType(), "application/vnd.ms-excel");
@@ -116,7 +116,7 @@ public class DmFormatATest extends TestCase {
   public void testGetWordMIMEType() throws DfException, RepositoryException {
     String idString = getAnExistingWordObjectId(session);
     IId id = dctmClientX.getId(idString);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     IFormat dctmForm = (DmFormat) object.getFormat();
 
     Assert.assertEquals(dctmForm.getMIMEType(), "application/msword");

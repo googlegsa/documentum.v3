@@ -78,7 +78,7 @@ public class DctmSession implements Session {
    * @throws RepositoryException
    */
   public AuthenticationManager getAuthenticationManager() {
-    return new DctmAuthenticationManager(clientX,
+    return new DctmAuthenticationManager(connector, clientX,
         connector.getDocbase());
   }
 

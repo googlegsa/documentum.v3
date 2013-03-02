@@ -116,6 +116,7 @@
     <pathelement location="${junit.jarfile}" />
     <pathelement location="${json.jarfile}" />
     <pathelement location="${jcr.jarfile}" />
+    <pathelement location="${guava.jarfile}" />
   </path>
 
   <target name="compile-tests" depends="compile-core">

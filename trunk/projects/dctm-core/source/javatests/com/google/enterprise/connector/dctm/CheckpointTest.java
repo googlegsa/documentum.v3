@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.common.base.Strings;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.TestCase;
@@ -23,6 +24,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class CheckpointTest extends TestCase {
   /** Gets the current date without milliseconds. */
@@ -64,19 +69,38 @@ public class CheckpointTest extends TestCase {
 
   public void testCheckpoint_noargs() throws RepositoryException {
     Checkpoint empty = getCheckpoint(0);
-    assertNull(empty.toString(), empty.asString());
+    assertTrue(isEmptyCheckpoint(empty.asString()));
   }
 
   public void testCheckpoint_null() throws RepositoryException {
     Checkpoint empty =
         getCheckpoint(0, "{\"uuid\":null,\"lastModified\":null}");
-    assertNull(empty.toString(), empty.asString());
+    assertTrue(isEmptyCheckpoint(empty.asString()));
+  }
+
+  /** A Checkpoint is empty if aclid, uuid and lastModified
+   * are null or empty. */
+  public boolean isEmptyCheckpoint(String checkpoint)
+      throws RepositoryException {
+    try {
+      JSONObject jsonObj = new JSONObject(checkpoint);
+      String aclId =
+          (jsonObj.isNull("aclId")) ? "" : jsonObj.getString("aclid");
+      JSONArray ids = jsonObj.getJSONArray("uuid");
+      String insertId = (ids.isNull(0)) ? "" : ids.getString(0);
+      JSONArray dates = jsonObj.getJSONArray("lastModified");
+      String insertDate = (dates.isNull(0)) ? "" : dates.getString(0);
+      return (Strings.isNullOrEmpty(aclId) && Strings.isNullOrEmpty(insertId) 
+          && Strings.isNullOrEmpty(insertDate));
+    } catch (JSONException e) {
+      throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
+    }
   }
 
   public void testCheckpoint_noindex() throws RepositoryException {
     Checkpoint checkpoint = getCheckpoint(0, "{\"uuid\":\"090000018000e100\","
         + "\"lastModified\":\"2007-01-02 13:58:10\"}");
-    assertEquals(0, checkpoint.getInsertIndex());
+    assertEquals(-1, checkpoint.getInsertIndex());
   }
 
   public void testCheckpoint_index() throws RepositoryException {
@@ -106,23 +130,23 @@ public class CheckpointTest extends TestCase {
   public void testCheckpoint_noindexnext() throws RepositoryException {
     Checkpoint input = getCheckpoint(45, "{\"uuid\":\"090000018000e100\","
         + "\"lastModified\":\"2007-01-02 13:58:10\"}");
-    assertEquals(0, input.getInsertIndex());
+    assertEquals(-1, input.getInsertIndex());
     Checkpoint output = getCheckpoint(45, input.asString());
-    assertEquals(1, output.getInsertIndex());
+    assertEquals(0, output.getInsertIndex());
   }
 
   public void testCheckpoint_emptynoindexnext() throws RepositoryException {
     Checkpoint input = getCheckpoint(0, "{\"uuid\":\"090000018000e100\","
         + "\"lastModified\":\"2007-01-02 13:58:10\"}");
-    assertEquals(0, input.getInsertIndex());
-    Checkpoint output = getCheckpoint(0, input.asString());
+    assertEquals(-1, input.getInsertIndex());
+    Checkpoint output = getCheckpoint(1, input.asString());
     assertEquals(0, output.getInsertIndex());
   }
 
   public void testCheckpoint_singletonnoindexnext() throws RepositoryException {
     Checkpoint input = getCheckpoint(1, "{\"uuid\":\"090000018000e100\","
         + "\"lastModified\":\"2007-01-02 13:58:10\"}");
-    assertEquals(0, input.getInsertIndex());
+    assertEquals(-1, input.getInsertIndex());
     Checkpoint output = getCheckpoint(1, input.asString());
     assertEquals(0, output.getInsertIndex());
   }
@@ -142,7 +166,7 @@ public class CheckpointTest extends TestCase {
         + "\"index\":2}");
     assertEquals(2, input.getInsertIndex());
     Checkpoint output = getCheckpoint(3, input.asString());
-    assertEquals(0, output.getInsertIndex());
+    assertEquals(-1, output.getInsertIndex());
   }
 
   public void testCheckpoint_indexnextnull() throws RepositoryException {
@@ -155,7 +179,7 @@ public class CheckpointTest extends TestCase {
     assertNull(output.getInsertId(), output.getInsertId());
 
     String str = output.asString();
-    assertTrue(str, str.contains("\"index\":0"));
+    assertTrue(str, str.contains("\"index\":-1"));
     assertTrue(str, str.contains("\"lastModified\":[null,null,null]"));
     assertTrue(str, str.contains("\"uuid\":[null,null,null]"));
   }
@@ -180,17 +204,33 @@ public class CheckpointTest extends TestCase {
     assertFalse(str, str.contains("\"lastRemoveDate\":"));
   }
 
-  public void testGetInsertId() throws RepositoryException {
+  public void testGetInsertIdForNull() throws RepositoryException {
     Checkpoint checkpoint = getCheckpoint(0, "{\"uuid\":\"090000018000e100\","
         + "\"lastModified\":\"2007-01-02 13:58:10\"}");
+    String uuid = checkpoint.getInsertId();
+    assertNull(uuid);
+  }
+
+  public void testGetInsertId() throws RepositoryException {
+    Checkpoint checkpoint =
+        getCheckpoint(1, "{\"uuid\":[\"090000018000e100\"],"
+            + "\"lastModified\":[\"2007-01-02 13:58:10\"], \"index\":0}");
     String uuid = checkpoint.getInsertId();
     assertNotNull(uuid);
     assertEquals(uuid, "090000018000e100");
   }
 
-  public void testGetInsertDate() throws RepositoryException {
+  public void testGetInsertDateForNull() throws RepositoryException {
     Checkpoint checkpoint = getCheckpoint(0, "{\"uuid\":\"090000018000e100\","
         + "\"lastModified\":\"2007-01-02 13:58:10\"}");
+    assertNull(checkpoint.getInsertDate());
+    checkpoint.advance();
+  }
+
+  public void testGetInsertDate() throws RepositoryException {
+    Checkpoint checkpoint =
+        getCheckpoint(1, "{\"uuid\":[\"090000018000e100\"],"
+            + "\"lastModified\":[\"2007-01-02 13:58:10\"], \"index\":0}");
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     String modifDate = dateFormat.format(checkpoint.getInsertDate());
     assertNotNull(modifDate);
@@ -198,7 +238,9 @@ public class CheckpointTest extends TestCase {
   }
 
   public void testSetInsertCheckpoint() throws RepositoryException {
-    Checkpoint checkpoint = getCheckpoint(1);
+    Checkpoint checkpoint =
+        getCheckpoint(1, "{\"uuid\":[\"090000018000e100\"],"
+            + "\"lastModified\":[\"2007-01-02 13:58:10\"], \"index\":0}");
     checkpoint.setInsertCheckpoint(NOW, "id");
     assertEquals(NOW, checkpoint.getInsertDate());
     assertEquals("id", checkpoint.getInsertId());
@@ -212,7 +254,9 @@ public class CheckpointTest extends TestCase {
   }
 
   public void testRestore() throws RepositoryException {
-    Checkpoint checkpoint = getCheckpoint(1);
+    Checkpoint checkpoint =
+        getCheckpoint(1, "{\"uuid\":[\"090000018000e100\"],"
+            + "\"lastModified\":[\"2007-01-02 13:58:10\"], \"index\":0}");
     checkpoint.setInsertCheckpoint(NOW, "id");
     checkpoint.setDeleteCheckpoint(NOW, "id");
     String expected = checkpoint.asString();
@@ -258,6 +302,29 @@ public class CheckpointTest extends TestCase {
     assertEquals(input.asString(), output.asString());
   }
 
+  public void testAdvance_three() throws RepositoryException {
+    Checkpoint input = getCheckpoint(0, "{\"uuid\":\"090000018000e100\","
+        + "\"lastModified\":\"2007-01-02 13:58:10\"}");
+    Checkpoint output = getCheckpoint(0, input.asString());
+
+    input.advance();
+    assertEquals(input.asString(), output.asString());
+  }
+
+  public void testAdvance_four() throws RepositoryException {
+    Checkpoint input = getCheckpoint(5,
+        "{\"uuid\":[\"090000018000e100\",\"090000018000e222\"],"
+        + "\"lastModified\":[\"2007-01-02 13:58:10\",\"2008-01-02 13:58:10\"],"
+        + "\"index\":-1,\"aclid\":\"4501081f8000492e\"}");
+
+    assertEquals(-1, input.getInsertIndex());
+    for (int i = -1; i < 5; i++) {
+      assertEquals(i, input.getInsertIndex());
+      input.advance();
+    }
+    assertEquals(-1, input.getInsertIndex());
+  }
+
   public void testAdvance_restore() throws RepositoryException {
     Checkpoint input = getCheckpoint(2,
         "{\"uuid\":[\"090000018000e100\",\"090000018000e222\"],"
@@ -274,7 +341,7 @@ public class CheckpointTest extends TestCase {
   public void testAdvance_wrap() throws RepositoryException {
     Checkpoint checkpoint = getCheckpoint(3);
     boolean more = true;
-    for (int i = 0; i < 3; i++) {
+    for (int i = -1; i < 3; i++) {
       assertTrue(more);
       assertEquals("i = " + i, i, checkpoint.getInsertIndex());
 
@@ -286,14 +353,65 @@ public class CheckpointTest extends TestCase {
       more = checkpoint.advance();
     }
     assertFalse(more);
-    assertEquals(0, checkpoint.getInsertIndex());
+    assertEquals(-1, checkpoint.getInsertIndex());
   }
 
   public void testAsString() throws RepositoryException {
-    Checkpoint input = getCheckpoint(1);
+    Checkpoint input =
+        getCheckpoint(1, "{\"uuid\":[\"090000018000e100\"],"
+            + "\"lastModified\":[\"2007-01-02 13:58:10\"], \"index\":0}");
     input.setInsertCheckpoint(NOW, "id");
     input.setDeleteCheckpoint(NOW, "id");
     Checkpoint output = getCheckpoint(1, input.asString());
+    output.advance();
     assertEquals(input.asString(), output.asString());
+  }
+
+  public void testAsStringWithAcl() throws RepositoryException {
+    Checkpoint input =
+        getCheckpoint(1, "{\"uuid\":[\"090000018000e100\"],"
+            + "\"lastModified\":[\"2007-01-02 13:58:10\"], \"index\":0}");
+    input.setInsertCheckpoint(NOW, "id");
+    input.setDeleteCheckpoint(NOW, "id");
+    input.setAclCheckpoint("aclId");
+    Checkpoint output = getCheckpoint(1, input.asString());
+    output.advance();
+    assertEquals(input.asString(), output.asString());
+  }
+
+  public void testAcl_one() throws RepositoryException {
+    Checkpoint input =
+        getCheckpoint(1, "{\"uuid\":\"090000018000e100\","
+            + "\"lastModified\":\"2007-01-02 13:58:10\"}");
+    Checkpoint output = getCheckpoint(1, input.asString());
+
+    assertEquals(-1, input.getInsertIndex());
+    input.advance();
+    assertEquals(input.asString(), output.asString());
+    assertEquals(0, input.getInsertIndex());
+    assertEquals(null, input.getAclId());
+  }
+
+  public void testAcl_two() throws RepositoryException {
+    Checkpoint input =
+        getCheckpoint(1, "{\"uuid\":\"090000018000e100\","
+            + "\"lastModified\":\"2007-01-02 13:58:10\"}");
+    input.setAclCheckpoint("aclId");
+
+    assertEquals(-1, input.getInsertIndex());
+    assertEquals("aclId", input.getAclId());
+    input.advance();
+    assertEquals(0, input.getInsertIndex());
+  }
+
+  public void testAcl_three() throws RepositoryException {
+    String strChkpt = "{\"uuidToRemove\":\"5f01081f8015d65c\",\"aclid\":"
+        + "\"4501081f80000100\",\"index\":0,\"lastModified\":"
+        + "[\"2012-05-24 16:11:00\"],\"lastRemoved\":\"2012-05-17 12:05:50\""
+        + ",\"uuid\":[\"0901081f800684b0\"]}";
+
+    Checkpoint input = getCheckpoint(0, strChkpt);
+
+    String n = input.getAclId();
   }
 }

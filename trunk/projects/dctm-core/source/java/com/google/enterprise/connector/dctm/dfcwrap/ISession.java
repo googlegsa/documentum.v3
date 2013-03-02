@@ -22,7 +22,7 @@ public interface ISession {
 
   String getServerVersion() throws RepositoryException;
 
-  ISysObject getObject(IId objectId) throws RepositoryDocumentException;
+  IPersistentObject getObject(IId objectId) throws RepositoryDocumentException;
 
   String getLoginTicketForUser(String username)
       throws RepositoryException;
@@ -35,4 +35,10 @@ public interface ISession {
   ISessionManager getSessionManager() throws RepositoryException;
 
   boolean isConnected();
+
+  /*
+   * @since TODO(srinivas)
+   */
+  IPersistentObject getObjectByQualification(String string)
+      throws RepositoryDocumentException;
 }

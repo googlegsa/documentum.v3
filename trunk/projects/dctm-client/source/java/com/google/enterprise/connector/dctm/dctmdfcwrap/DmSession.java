@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,14 +14,19 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
+import com.documentum.fc.client.IDfACL;
 import com.documentum.fc.client.IDfDocument;
+import com.documentum.fc.client.IDfGroup;
+import com.documentum.fc.client.IDfPersistentObject;
 import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.client.IDfType;
+import com.documentum.fc.client.IDfUser;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
@@ -43,7 +48,6 @@ public class DmSession implements ISession {
    * reflection so that we can use it if we happen to be using DFC 6.0
    * or later.
    */
-  // TODO(bmj): This can be removed once we require DFC 6.
   private static final Method getLoginTicketDiagnostics;
 
   static {
@@ -79,20 +83,52 @@ public class DmSession implements ISession {
     }
   }
 
-  public ISysObject getObject(IId objectId) throws RepositoryDocumentException {
+  public IPersistentObject getObject(IId objectId)
+      throws RepositoryDocumentException {
     if (!(objectId instanceof DmId)) {
       throw new IllegalArgumentException();
     }
     DmId dctmId = (DmId) objectId;
     IDfId idfId = dctmId.getidfId();
 
-    IDfSysObject idfSysObject;
+    IDfPersistentObject idfPersistentObject;
     try {
-      idfSysObject = (IDfSysObject) idfSession.getObject(idfId);
+      idfPersistentObject = idfSession.getObject(idfId);
+      if (idfPersistentObject instanceof IDfSysObject) {
+        return new DmSysObject((IDfSysObject) idfPersistentObject);
+      } else if (idfPersistentObject instanceof IDfACL) {
+        return new DmAcl((IDfACL) idfPersistentObject);
+      } else if (idfPersistentObject instanceof IDfUser) {
+        return new DmUser((IDfUser) idfPersistentObject);
+      } else if (idfPersistentObject instanceof IDfGroup) {
+        return new DmGroup((IDfGroup) idfPersistentObject);
+      } else {
+        return new DmPersistentObject(idfPersistentObject);
+      }
     } catch (DfException de) {
       throw new RepositoryDocumentException(de);
     }
-    return new DmSysObject(idfSysObject);
+  }
+
+  public IPersistentObject getObjectByQualification(String qualification)
+      throws RepositoryDocumentException {
+    IDfPersistentObject idfPersistentObject;
+    try {
+      idfPersistentObject = idfSession.getObjectByQualification(qualification);
+      if (idfPersistentObject instanceof IDfSysObject) {
+        return new DmSysObject((IDfSysObject) idfPersistentObject);
+      } else if (idfPersistentObject instanceof IDfACL) {
+        return new DmAcl((IDfACL) idfPersistentObject);
+      } else if (idfPersistentObject instanceof IDfUser) {
+        return new DmUser((IDfUser) idfPersistentObject);
+      } else if (idfPersistentObject instanceof IDfGroup) {
+        return new DmGroup((IDfGroup) idfPersistentObject);
+      } else {
+        return new DmPersistentObject(idfPersistentObject);
+      }
+    } catch (DfException de) {
+      throw new RepositoryDocumentException(de);
+    }
   }
 
   IDfSession getDfSession() {

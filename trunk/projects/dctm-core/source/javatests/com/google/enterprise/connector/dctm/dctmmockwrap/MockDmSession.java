@@ -15,6 +15,7 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
+import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
@@ -97,5 +98,12 @@ public class MockDmSession implements ISession {
 
   public boolean isConnected() {
     return sessMgr != null;
+  }
+
+  @Override
+  public IPersistentObject getObjectByQualification(String string)
+      throws RepositoryDocumentException {
+    // TODO Srinivas Auto-generated method stub
+    return null;
   }
 }
