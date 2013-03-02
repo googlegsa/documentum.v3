@@ -58,7 +58,8 @@ public class DmSysObjectATest extends TestCase {
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, loginInfo);
 
     session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-    object = session.getObject(dctmClientX.getId(DmInitialize.DM_ID1));
+    object =
+        (ISysObject) session.getObject(dctmClientX.getId(DmInitialize.DM_ID1));
     document = CreateNewDocument(session);
   }
 

@@ -58,11 +58,9 @@ public class DctmSysobjectDocumentTest extends TestCase {
     ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     IId id = dctmClientX.getId(DmInitialize.DM_ID1);
 
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
 
     ITime lastModifDate = object.getTime("r_modify_date");
-
-    object = session.getObject(id);
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(
         traversalManager, session, DmInitialize.DM_ID1, null, lastModifDate,
@@ -74,7 +72,7 @@ public class DctmSysobjectDocumentTest extends TestCase {
   public void testFindProperty() throws RepositoryException {
     ISession session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     IId id = dctmClientX.getId(DmInitialize.DM_ID2);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     ITime lastModifDate = object.getTime("r_modify_date");
 
     DctmSysobjectDocument dctmSpm = new DctmSysobjectDocument(

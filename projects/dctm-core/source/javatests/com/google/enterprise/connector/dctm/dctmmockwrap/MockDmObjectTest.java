@@ -63,7 +63,7 @@ public class MockDmObjectTest extends TestCase {
     query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
 
     id = dctmClientX.getId(DmInitialize.DM_ID2);
-    object = sess7.getObject(id);
+    object = (ISysObject) sess7.getObject(id);
   }
 
   public void testGetString() {

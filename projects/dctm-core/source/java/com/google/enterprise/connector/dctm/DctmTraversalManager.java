@@ -51,6 +51,7 @@ public class DctmTraversalManager
   private static final String whereBoundedClause = " and ((r_modify_date = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and r_object_id > ''{1}'') OR (r_modify_date > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private static final String whereBoundedClauseRemove = " and ((time_stamp_utc = date(''{0}'',''yyyy-mm-dd hh:mi:ss'') and (r_object_id > ''{1}'')) OR (time_stamp_utc > date(''{0}'',''yyyy-mm-dd hh:mi:ss'')))";
   private static final String whereBoundedClauseRemoveDateOnly = " and (time_stamp_utc > date(''{0}'',''yyyy-mm-dd hh:mi:ss''))";
+  private static final String whereClauseAcl = " where r_object_id > ''{0}''";
 
   private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -73,6 +74,8 @@ public class DctmTraversalManager
   private final Set<String> includedMeta;
   private final Set<String> excludedMeta;
   private final String rootObjectType;
+  private final String globalNamespace;
+  private final String localNamespace;
 
   public DctmTraversalManager(DctmConnector connector,
       ISessionManager sessionManager) throws RepositoryException {
@@ -80,7 +83,9 @@ public class DctmTraversalManager
         connector.getWebtopDisplayUrl(), connector.getWhereClause(),
         connector.isPublic(), connector.getRootObjectType(),
         connector.getIncludedObjectType(), connector.getIncludedMeta(),
-        connector.getExcludedMeta(), sessionManager);
+        connector.getExcludedMeta(), 
+        connector.getGoogleGlobalNamespace(), 
+        connector.getGoogleLocalNamespace(), sessionManager);
   }
 
   /** Constructor used by tests. */
@@ -88,13 +93,15 @@ public class DctmTraversalManager
       String webtopServerUrl, Set<String> included_meta,
       ISessionManager sessionManager) throws RepositoryException {
     this(clientX, docbase, webtopServerUrl, EMPTY_LIST, true, "", EMPTY_SET,
-        included_meta, EMPTY_SET, sessionManager);
+        included_meta, EMPTY_SET, null, null, sessionManager); 
+    //Srinivas TODO: add global, local name space for tests
   }
 
   private DctmTraversalManager(IClientX clientX, String docbase,
       String webtopServerUrl, List<String> additionalWhereClause,
       boolean isPublic, String rootObjectType, Set<String> includedObjectType,
       Set<String> includedMeta, Set<String> excludedMeta,
+      String globalnamespace, String localnamespace,
       ISessionManager sessionManager) throws RepositoryException {
     this.additionalWhereClause = additionalWhereClause;
     this.clientX = clientX;
@@ -107,6 +114,8 @@ public class DctmTraversalManager
     this.includedMeta = includedMeta;
     this.excludedMeta = excludedMeta;
     this.rootObjectType = rootObjectType;
+    this.globalNamespace = globalnamespace;
+    this.localNamespace = localnamespace;
   }
 
   IClientX getClientX() {
@@ -151,6 +160,14 @@ public class DctmTraversalManager
 
   Set<String> getExcludedMeta() {
     return excludedMeta;
+  }
+
+  public String getGlobalNamespace() {
+    return globalNamespace;
+  }
+
+  public String getLocalNamespace() {
+    return localNamespace;
   }
 
   /**
@@ -238,6 +255,7 @@ public class DctmTraversalManager
    */
   /* @VisibleForTesting */
   DocumentList execQuery(Checkpoint checkpoint) throws RepositoryException {
+    ICollection collecAclToAdd = null;
     ICollection collecToAdd = null;
     ICollection collecToDel = null;
     ISession session = null;
@@ -247,31 +265,56 @@ public class DctmTraversalManager
     try {
       session = sessionManager.getSession(docbase);
 
-      IQuery query = buildAddQuery(checkpoint);
-      collecToAdd = query.execute(session, IQuery.EXECUTE_READ_QUERY);
-      logger.fine("execution of the query returns a collection of documents"
-          + " to add");
+      if (checkpoint.getInsertIndex() == -1) {
+        logger.fine("Processing Acls");
+        IQuery queryAclToAdd = buildACLQuery(checkpoint);
+        collecAclToAdd = queryAclToAdd.execute(session,
+            IQuery.EXECUTE_READ_QUERY);
+        logger.fine("execution of the query returns a collection of ACLs"
+            + " to add");
 
-      // Only execute the delete query with one of the add queries.
-      // TODO: We could treat the delete query as a peer of the others,
-      // and include it in the sequence.
-      if (checkpoint.getInsertIndex() == 0) {
-        IQuery queryDocToDel = buildDelQuery(checkpoint);
-        collecToDel = queryDocToDel.execute(session, IQuery.EXECUTE_READ_QUERY);
+        if ((collecAclToAdd != null && collecAclToAdd.hasNext())) {
+          documentList = new DctmAclList(this, session, collecAclToAdd,
+              checkpoint);
+        }
+      } else {
+        logger.fine("Processing Documents");
+        IQuery query = buildAddQuery(checkpoint);
+        collecToAdd = query.execute(session, IQuery.EXECUTE_READ_QUERY);
         logger.fine("execution of the query returns a collection of documents"
-            + " to delete");
-      }
+            + " to add");
 
-      if ((collecToAdd != null && collecToAdd.hasNext()) ||
-          (collecToDel != null && collecToDel.hasNext())) {
-        documentList = new DctmDocumentList(this, session, collecToAdd,
-            collecToDel, checkpoint);
+        // Only execute the delete query with one of the add queries.
+        // TODO: We could treat the delete query as a peer of the others,
+        // and include it in the sequence.
+        if (checkpoint.getInsertIndex() == 0) {
+          IQuery queryDocToDel = buildDelQuery(checkpoint);
+          collecToDel = queryDocToDel.execute(session,
+              IQuery.EXECUTE_READ_QUERY);
+          logger.fine("execution of the query returns a collection of " +
+              "documents to delete");
+        }
+
+        if ((collecToAdd != null && collecToAdd.hasNext())
+            || (collecToDel != null && collecToDel.hasNext())) {
+          documentList = new DctmDocumentList(this, session, collecToAdd,
+              collecToDel, checkpoint);
+        }
       }
     } finally {
       if (documentList == null) {
         // No documents to add or delete. Return a null DocumentList,
         // but close the collections and release the session first.
         try {
+          if (collecAclToAdd != null) {
+            try {
+              collecAclToAdd.close();
+              logger.fine("collection of documents to add closed");
+            } catch (RepositoryException e) {
+              logger.severe("Error while closing the collection of Acls"
+                  + " to add: " + e);
+            }
+          }
           if (collecToAdd != null) {
             try {
               collecToAdd.close();
@@ -298,7 +341,6 @@ public class DctmTraversalManager
         }
       }
     }
-
     return documentList;
   }
 
@@ -377,6 +419,21 @@ public class DctmTraversalManager
       queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
     logger.fine("queryToDel completed: " + queryStr.toString());
+    return makeQuery(queryStr.toString());
+  }
+
+  protected IQuery buildACLQuery(Checkpoint checkpoint) {
+    StringBuilder queryStr = new StringBuilder();
+    queryStr.append("select r_object_id from dm_acl");
+    if (checkpoint.getAclId() != null && !checkpoint.getAclId().isEmpty()) {
+      queryStr.append(MessageFormat.format(whereClauseAcl,
+          checkpoint.getAclId()));
+    }
+    queryStr.append(" order by r_object_id");
+    if (batchHint > 0) {
+      queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
+    }
+    logger.fine("ACL queryToAdd completed: " + queryStr.toString());
     return makeQuery(queryStr.toString());
   }
 }

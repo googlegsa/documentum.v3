@@ -71,7 +71,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 
     session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     IId id = dctmClientX.getId(DmInitialize.DM_ID1);
-    ISysObject object = session.getObject(id);
+    ISysObject object = (ISysObject) session.getObject(id);
     lastModifDate = object.getTime("r_modify_date");
     document = new DctmSysobjectDocument(traversalManager, session,
         DmInitialize.DM_ID1, null, lastModifDate, ActionType.ADD, null);
@@ -88,7 +88,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
 
   public void testGetPropertyNames_empty() throws RepositoryException {
     Set<String> names = document.getPropertyNames();
-    assertEquals(5, names.size());
+    assertEquals(6, names.size());
     for (String name : names) {
       assertTrue(name, name.startsWith("google:"));
     }
@@ -98,7 +98,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     document = getDocument(
         Collections.singleton(SpiConstants.PROPNAME_FOLDER));
     Set<String> names = document.getPropertyNames();
-    assertEquals(6, names.size());
+    assertEquals(7, names.size());
     for (String name : names) {
       assertTrue(name, name.startsWith("google:"));
     }
@@ -108,7 +108,7 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
     document = getDocument(
         Collections.singleton(DctmSysobjectDocument.OBJECT_ID_NAME));
     Set<String> names = document.getPropertyNames();
-    assertEquals(6, names.size());
+    assertEquals(7, names.size());
     for (String name : names) {
       assertTrue(name,
           name.startsWith("google:") || name.equals("r_object_id"));

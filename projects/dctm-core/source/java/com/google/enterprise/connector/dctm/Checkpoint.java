@@ -55,6 +55,9 @@ class Checkpoint {
   /** The old JSON deletion timestamp, based on dm_audittrail.time_stamp. */
   private static final String DEL_DATE_OLD = "lastRemoveDate";
 
+  /** The JSON insertion ID, based on dm_acl.r_object_id. */
+  private static final String ACL_ID = "aclid";
+
   /**
    * The offset for migrating deletion timestamps from time_stamp to
    * time_stamp_utc, where time_stamp + time_stamp_offset =
@@ -89,6 +92,9 @@ class Checkpoint {
   /** The index into the insert arrays for future checkpoints. */
   private int nextInsertIndex;
 
+  /** r_object_id of the last ACL inserted. */
+  private String aclId;
+
   /** r_object_id of the last item inserted. */
   private List<String> insertId;
 
@@ -106,10 +112,11 @@ class Checkpoint {
   private Date deleteDate;
 
   /**
-   * Backup versions of the insert and delete checkpoints,
+   * Backup versions of the ACL, insert and delete checkpoints,
    * so that we may restore a checkpoint when attempting to
    * retry failed items.
    */
+  private String oldAclId;
   private String oldInsertId;
   private Date oldInsertDate;
   private String oldDeleteId;
@@ -119,7 +126,21 @@ class Checkpoint {
   private LastAction lastAction = LastAction.NONE;
 
   private static int incrementModulo(int insertIndex, int size) {
-    return (size > 1) ? (insertIndex + 1) % size : 0;
+    //TODO(Srinivas) check for (size > 0) is needed only for empty list of
+    // where clause. check and fix the test cases with empty list and 
+    // remove this additional check
+    if (insertIndex == -1) {
+      return 0;
+    } else if (size > 0) {
+      if (insertIndex + 1 == size) {
+        return -1;
+      } else {
+        return (insertIndex + 1) % size;
+      }
+    } else {
+      return -1;
+    }
+
   }
 
   /** Constructs a mutable list containing only the specified object. */
@@ -136,12 +157,13 @@ class Checkpoint {
    * control the modulus of the insert indexes
    */
   Checkpoint(List<String> whereClause) {
-    insertIndex = 0;
-    startInsertIndex = 0;
+    insertIndex = -1;
+    startInsertIndex = -1;
+    aclId = null;
     insertId = mutableList(null);
     insertDate = mutableList(null);
     insertIndexModulus = whereClause.size();
-    nextInsertIndex = incrementModulo(0, insertIndexModulus);
+    nextInsertIndex = incrementModulo(insertIndex, insertIndexModulus);
   }
 
   /**
@@ -160,12 +182,14 @@ class Checkpoint {
     try {
       JSONObject jo = new JSONObject(checkpoint);
 
+      aclId = getJsonString(jo, ACL_ID);
+
       if (jo.has(INS_INDEX)) {
         insertIndex = jo.getInt(INS_INDEX);
         JSONArray ids = jo.getJSONArray(INS_ID);
         JSONArray dates = jo.getJSONArray(INS_DATE);
         if (ids.length() != dates.length() || insertIndex > ids.length()
-            || insertIndex >= whereClause.size()) {
+            || (insertIndex > 0 && insertIndex >= whereClause.size())) {
           throw new IllegalArgumentException();
         }
         insertId = new ArrayList<String>(ids.length());
@@ -181,8 +205,12 @@ class Checkpoint {
           insertId.add(null);
           insertDate.add(null);
         }
+        if (insertIndex > 0 && insertIndex > insertId.size()) {
+          throw new IllegalArgumentException();
+        }
       } else {
-        insertIndex = 0;
+        // process old style id and date which may not be in an array
+        insertIndex = -1;
         insertId = mutableList(getJsonString(jo, INS_ID));
         insertDate = mutableList(getJsonDate(jo, INS_DATE));
       }
@@ -209,7 +237,7 @@ class Checkpoint {
       }
     } catch (IllegalArgumentException e) {
       LOGGER.severe("Invalid Checkpoint: " + checkpoint);
-      throw new RepositoryException("Invalid Checkpoint: " + checkpoint);
+      throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
     } catch (JSONException e) {
       LOGGER.severe("Invalid Checkpoint: " + checkpoint);
       throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
@@ -218,8 +246,11 @@ class Checkpoint {
       throw new RepositoryException("Invalid Checkpoint: " + checkpoint, e);
     }
 
-    oldInsertId = getInsertId();
-    oldInsertDate = getInsertDate();
+    oldAclId = aclId;
+    if (insertIndex != -1) {
+      oldInsertId = getInsertId();
+      oldInsertDate = getInsertDate();
+    }
     oldDeleteId = deleteId;
     oldDeleteDate = deleteDate;
   }
@@ -264,14 +295,27 @@ class Checkpoint {
     return null;
   }
 
+  /** r_object_id of the last ACL inserted. */
+  public String getAclId() {
+    return aclId;
+  }
+
   /** r_object_id of the last item inserted. */
   public String getInsertId() {
-    return insertId.get(insertIndex);
+    if ( insertIndex == -1) { 
+      return null;
+    } else {
+      return insertId.get(insertIndex);
+    }
   }
 
   /** r_modify_date of the last item inserted. */
   public Date getInsertDate() {
-    return insertDate.get(insertIndex);
+    if ( insertIndex == -1) { 
+      return null;
+    } else {
+      return insertDate.get(insertIndex);
+    }
   }
 
   /** Gets the index into the insert arrays. */
@@ -301,12 +345,14 @@ class Checkpoint {
    */
   public void setInsertCheckpoint(Date date, String objectId) {
     // Remember previous insert checkpoint as a restore point.
-    oldInsertDate = insertDate.get(insertIndex);
-    oldInsertId = insertId.get(insertIndex);
+    oldInsertDate = getInsertDate();
+    oldInsertId = getInsertId();
 
     // Set the new insert checkpoint.
-    insertDate.set(insertIndex, date);
-    insertId.set(insertIndex, objectId);
+    if (insertIndex != -1) {
+      insertDate.set(insertIndex, date);
+      insertId.set(insertIndex, objectId);
+    }
     lastAction = LastAction.ADD;
   }
 
@@ -328,13 +374,29 @@ class Checkpoint {
   }
 
   /**
+   * Sets the ACL Item's portion of the checkpoint
+   * 
+   * @param objectId the r_object_id of the last ACL item deleted
+   */
+  public void setAclCheckpoint(String objectId) {
+    // Remember the current ACL checkpoint as a restore point.
+    oldAclId = aclId;
+
+    // Set the new ACL checkpoint.
+    aclId = objectId;
+  }
+
+  /**
    * Returns true if some component of the checkpoint has changed.
    * (In other words, restore() would result in a different checkpoint.)
    */
   public boolean hasChanged() {
     return nextInsertIndex != insertIndex
-        || getInsertDate() != oldInsertDate || getInsertId() != oldInsertId
-        || deleteDate != oldDeleteDate || deleteId != oldDeleteId;
+        || (insertIndex != -1 && ((getInsertDate() != oldInsertDate)
+            || (getInsertId() != oldInsertId)
+            || (deleteDate != oldDeleteDate)
+            || (deleteId != oldDeleteId)))
+        || (insertIndex == -1 && (aclId != oldAclId));
   }
 
   /**
@@ -343,11 +405,19 @@ class Checkpoint {
    */
   public void restore() {
     if (lastAction == LastAction.ADD) {
-      insertDate.set(insertIndex, oldInsertDate);
-      insertId.set(insertIndex, oldInsertId);
+      if (insertIndex == -1) {
+        aclId = oldAclId;
+      } else {
+        insertDate.set(insertIndex, oldInsertDate);
+        insertId.set(insertIndex, oldInsertId);
+      }
     } else if (lastAction == LastAction.DELETE) {
-      deleteDate = oldDeleteDate;
-      deleteId = oldDeleteId;
+      if (insertIndex == -1) {
+        aclId = oldAclId;
+      } else {
+        deleteDate = oldDeleteDate;
+        deleteId = oldDeleteId;
+      }
     }
     lastAction = LastAction.NONE;
   }
@@ -372,8 +442,10 @@ class Checkpoint {
     nextInsertIndex = incrementModulo(insertIndex, insertIndexModulus);
 
     lastAction = LastAction.NONE;
-    oldInsertId = getInsertId();
-    oldInsertDate = getInsertDate();
+    if (insertIndex != -1) {
+      oldInsertId = getInsertId();
+      oldInsertDate = getInsertDate();
+    }
     oldDeleteId = deleteId;
     oldDeleteDate = deleteDate;
 
@@ -385,11 +457,6 @@ class Checkpoint {
    * @throws RepositoryException if error.
    */
   public String asString() throws RepositoryException {
-    // A null checkpoint is OK.
-    // TODO: What if nextInsertIndex == 1?
-    if (insertDate.size() == 1 && getInsertDate() == null && deleteDate == null)
-      return null;
-
     try {
       JSONObject jo = new JSONObject();
 
@@ -397,14 +464,13 @@ class Checkpoint {
       for (Date date : insertDate) {
         dates.add((date == null) ? null : dateFormat.format(date));
       }
-      if (insertId.size() > 1 || nextInsertIndex > 0) {
-        jo.put(INS_INDEX, nextInsertIndex);
-        jo.put(INS_ID, new JSONArray(insertId));
-        jo.put(INS_DATE, new JSONArray(dates));
-      } else {
-        jo.put(INS_ID, insertId.get(0));
-        jo.put(INS_DATE, dates.get(0));
+
+      jo.put(INS_INDEX, nextInsertIndex);
+      if (aclId != null) {
+        jo.put(ACL_ID, aclId);
       }
+      jo.put(INS_ID, new JSONArray(insertId));
+      jo.put(INS_DATE, new JSONArray(dates));
 
       if (deleteId != null) {
         jo.put(DEL_ID, deleteId);

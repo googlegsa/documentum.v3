@@ -22,6 +22,7 @@ import com.documentum.fc.client.IDfSysObject;
 import com.documentum.fc.client.IDfType;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfAttr;
+import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -223,6 +224,25 @@ public class DmSysObject implements ISysObject {
   public int getValueCount(String name) throws RepositoryDocumentException {
     try {
       return idfSysObject.getValueCount(name);
+    } catch (DfException e) {
+      throw new RepositoryDocumentException(e);
+    }
+  }
+
+  public IAcl getAcl() throws RepositoryDocumentException {
+    try {
+      return new DmAcl(idfSysObject.getACL());
+    } catch (DfException e) {
+      throw new RepositoryDocumentException(e);
+    }
+  }
+
+  // TODO(Srinivas): Move this logic to get AclId by using getObjectId to
+  // higher level class. getObjectId() belongs to IDfTypedObject, which we 
+  // don't have an interface/implementation. Maybe add to IPersistentObject
+  public IId getAclId() throws RepositoryDocumentException {
+    try {
+      return new DmId(idfSysObject.getACL().getObjectId());
     } catch (DfException e) {
       throw new RepositoryDocumentException(e);
     }

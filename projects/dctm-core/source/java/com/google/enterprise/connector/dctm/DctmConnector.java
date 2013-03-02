@@ -52,6 +52,10 @@ public class DctmConnector implements Connector {
 
   private String rootObjectType;
 
+  private String globalNamespace;
+
+  private String localNamespace;
+
   public DctmConnector() {
   }
 
@@ -129,6 +133,24 @@ public class DctmConnector implements Connector {
 
   String getWebtopDisplayUrl() {
     return webtopDisplayUrl;
+  }
+
+  public void setGoogleGlobalNamespace(String globalNamespace) {
+    this.globalNamespace = globalNamespace;
+    logger.log(Level.CONFIG, "globalnamespace set to " + globalNamespace);
+  }
+
+  String getGoogleGlobalNamespace() {
+    return globalNamespace;
+  }
+
+  public void setGoogleLocalNamespace(String localNamespace) {
+    this.localNamespace = localNamespace;
+    logger.log(Level.CONFIG, "localnamespace set to " + localNamespace);
+  }
+
+  String getGoogleLocalNamespace() {
+    return localNamespace;
   }
 
   /*

@@ -104,8 +104,11 @@ public class DctmMockTraversalManagerTest extends TestCase {
           throw new RepositoryException(e);
         }
       }
-      return (checkpoint.getInsertId() == null)
-          ? new MockDocumentList() : null;
+      return ((checkpoint.getInsertIndex() == -1 
+                && checkpoint.getAclId() == null)
+             || (checkpoint.getInsertIndex() != -1 
+                && checkpoint.getInsertId() == null))
+             ? new MockDocumentList() : null;
     }
   }
 
@@ -181,23 +184,34 @@ public class DctmMockTraversalManagerTest extends TestCase {
     assertEquals(2, mtm.count);
   }
 
-  /** Tests reaching the end of the traversal. */
-  public void testGetDocumentList_end() throws RepositoryException {
+  /** Test for resuming ACLS traversal. */
+  public void testGetDocumentList_resumeAcls() throws RepositoryException {
     MockTraversalManager mtm = new MockTraversalManager();
     String checkpoint = "{index:0,uuid:['one','another'],"
         + "lastModified=['2010-04-01 00:01:00','2010-10-27 22:55:03']}";
 
     DocumentList documentList = mtm.resumeTraversal(checkpoint);
+    assertNotNull(documentList);
+    assertEquals(3, mtm.count);
+  }
+
+  /** Tests reaching the end of the traversal. */
+  public void testGetDocumentList_end() throws RepositoryException {
+    MockTraversalManager mtm = new MockTraversalManager();
+    String checkpoint = "{index:0,aclid:'id1',uuid:['one','another'],"
+        + "lastModified=['2010-04-01 00:01:00','2010-10-27 22:55:03']}";
+
+    DocumentList documentList = mtm.resumeTraversal(checkpoint);
     assertNull(documentList);
-    assertEquals(2, mtm.count);
+    assertEquals(3, mtm.count);
   }
 
   /** Tests adding a new where clause to the configuration. */
-  public void testGetDocumentList_newWhereClause()
+  public void testGetDocumentList_newAcls()
       throws RepositoryException {
     MockTraversalManager mtm = new MockTraversalManager();
-    String checkpoint = "{uuid:'one',lastModified='2010-04-01 00:01:00'}";
-
+    String checkpoint =
+        "{uuid:['one'],lastModified:['2010-04-01 00:01:00'], index:0}";
     DocumentList documentList = mtm.resumeTraversal(checkpoint);
     assertNotNull(documentList);
     assertEquals(2, mtm.count);

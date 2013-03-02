@@ -78,7 +78,7 @@ public class MockDmSessionTest extends TestCase {
     ISysObject dctmMockRepositoryDocument = null;
     boolean idString = true;
     try {
-      dctmMockRepositoryDocument = sess7.getObject(id);
+      dctmMockRepositoryDocument = (ISysObject) sess7.getObject(id);
       idString = ((MockDmObject) dctmMockRepositoryDocument)
           .getBoolean("google:ispublic");
       assertEquals(idString, DmInitialize.DM_ID2_IS_PUBLIC);
