@@ -118,20 +118,19 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       ISessionManager sessionManager, String username)
       throws RepositoryLoginException, RepositoryException {
     ArrayList<Principal> listGroups = new ArrayList<Principal>();
+    ISession session = sessionManager.getSession(docbase);
     String queryStr =
         "select group_name from dm_group where any i_all_users_names='"
             + username + "'";
     IQuery query = clientX.getQuery();
     query.setDQL(queryStr);
-    ICollection collecGroups =
-        query.execute(sessionManager.getSession(docbase),
-            IQuery.EXECUTE_READ_QUERY);
+    ICollection collecGroups = query.execute(session,
+        IQuery.EXECUTE_READ_QUERY);
     if (collecGroups != null) {
       try {
         while (collecGroups.next()) {
           String groupName = collecGroups.getString("group_name");
-          String groupNamespace =
-              getGroupNamespace(sessionManager.getSession(docbase), groupName);
+          String groupNamespace = getGroupNamespace(session, groupName);
           if (groupNamespace != null) {
             listGroups.add(new Principal(PrincipalType.UNKNOWN, groupNamespace,
                 groupName, CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
@@ -141,11 +140,12 @@ public class DctmAuthenticationManager implements AuthenticationManager {
           }
         }
         // process special group dm_world
-        listGroups.add(new Principal(PrincipalType.UNKNOWN, connector
-            .getGoogleLocalNamespace(), "dm_world",
+        listGroups.add(new Principal(PrincipalType.UNKNOWN,
+            connector.getGoogleLocalNamespace(), "dm_world",
             CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
       } finally {
         collecGroups.close();
+        sessionManager.release(session);
       }
     }
     return listGroups;
@@ -168,6 +168,9 @@ public class DctmAuthenticationManager implements AuthenticationManager {
           LOGGER.fine("global namespace for group " + groupName);
           groupNamespace = globalNamespace;
         }
+      } else {
+        LOGGER.fine("namespace for group is null");
+        return null;
       }
     } catch (RepositoryDocumentException e) {
       LOGGER.fine("Exception in getNameSpace " + e.getMessage());
