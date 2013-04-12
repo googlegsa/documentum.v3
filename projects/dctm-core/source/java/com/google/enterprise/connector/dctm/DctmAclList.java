@@ -29,6 +29,7 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SecureDocument;
 import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.SpiConstants.ActionType;
 import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.SpiConstants.CaseSensitivityType;
 import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
@@ -36,6 +37,7 @@ import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -52,16 +54,21 @@ public class DctmAclList implements DocumentList {
   private ISession session;
 
   private final ICollection collectionAcl;
+  private final ICollection collectionAclToModify;
 
+  private final HashSet<String> aclModifiedIds = new HashSet<String>();
+  
   private final Checkpoint checkpoint;
 
   private final DctmTraversalManager traversalManager;
 
-  public DctmAclList(DctmTraversalManager traversalManager,
-      ISession session, ICollection collAcl, Checkpoint checkpoint) {
+  public DctmAclList(DctmTraversalManager traversalManager, ISession session,
+      ICollection collAcl, ICollection collAclToModify,
+      Checkpoint checkpoint) {
     this.traversalManager = traversalManager;
     this.session = session;
     this.collectionAcl = collAcl;
+    this.collectionAclToModify = collAclToModify;
     this.checkpoint = checkpoint;
   }
 
@@ -76,20 +83,53 @@ public class DctmAclList implements DocumentList {
           logger.fine("Looking through the collection of ACLs to add");
 
           String objId = "";
-          ITime modifyDate = null;
           try {
             objId = collectionAcl.getString("r_object_id");
-            logger.fine("r_object_id is " + objId + ", modifyDate is null");
+            logger.fine("ACL r_object_id is " + objId);
             checkpoint.setAclCheckpoint(objId);
-            retAclDocument = getSecureAclDocument(objId);
-            logger.fine("Creation of a new Acl to add");
+            retAclDocument = getSecureAclDocument(objId, ActionType.ADD);
+            logger.fine("Creation of a new ACL to add");
             retDoc = retAclDocument;
           } catch (RepositoryException e) {
             logger.severe("impossible to get the r_object_id of the document");
             return null;
           }
+        } else if (isOpen(collectionAclToModify)
+            && collectionAclToModify.next()) {
+          logger.fine("Looking through the collection of ACLs to modify");
+          String eventId = "";
+          ITime aclModifyDate = null;
+          eventId = collectionAclToModify.getString("r_object_id");
+          aclModifyDate = collectionAclToModify.getTime("time_stamp_utc");
+          logger.fine("audit event r_object_id is " + eventId
+              + ", modifyDate is " + aclModifyDate.getDate());
+          checkpoint.setAclModifyCheckpoint(aclModifyDate.getDate(), eventId);
+
+          String chronicleId = collectionAclToModify.getString("chronicle_id");
+          if (aclModifiedIds.contains(chronicleId)) {
+            logger.fine("Skipping redundant modify of: "
+                + chronicleId);
+            continue;
+          }
+
+          if (collectionAclToModify.getString("event_name").equalsIgnoreCase(
+              "dm_destroy")) {
+            retAclDocument = getSecureAclDocument(
+                collectionAclToModify.getString("audited_obj_id"),
+                ActionType.DELETE);
+            logger.fine("ACL to delete: "
+                + collectionAclToModify.getString("audited_obj_id"));
+          } else {
+            retAclDocument = getSecureAclDocument(
+                collectionAclToModify.getString("audited_obj_id"),
+                ActionType.ADD);
+            logger.fine("ACL to modify: "
+                + collectionAclToModify.getString("audited_obj_id"));
+          }
+          aclModifiedIds.add(chronicleId);
+          retDoc = retAclDocument;
         } else {
-          logger.fine("End of document list");
+          logger.fine("End of ACL list");
           break;
         }
       }
@@ -150,7 +190,8 @@ public class DctmAclList implements DocumentList {
         String name = iAcl.getAccessorName(i);
         if (iAcl.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
           if (iAcl.isGroup(i)) {
-            groupPrincipals.add(asPrincipalValue(name, getGroupNamespace(name)));
+            groupPrincipals
+                .add(asPrincipalValue(name, getGroupNamespace(name)));
           } else {
             userPrincipals.add(asPrincipalValue(name, getUserNamespace(name)));
           }
@@ -161,24 +202,28 @@ public class DctmAclList implements DocumentList {
       aclValues.put(SpiConstants.PROPNAME_ACLGROUPS, groupPrincipals);
     } catch (RepositoryDocumentException e) {
       logger.log(Level.WARNING, "Error fetching Acl user and group names");
-      throw new RepositoryDocumentException(e);
+      throw e;
     }
   }
 
   /*
    * Creates a secure document using Acl users and groups§
    */
-  private Document getSecureAclDocument(String objId)
+  private Document getSecureAclDocument(String objId, ActionType action)
       throws RepositoryDocumentException {
     Map<String, List<Value>> aclValues = new HashMap<String, List<Value>>();
-    processAcl(objId, aclValues);
 
     aclValues.put(SpiConstants.PROPNAME_DOCID,
         Collections.singletonList(Value.getStringValue(objId)));
-    aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
-        Collections.singletonList(Value.getStringValue(
-            SpiConstants.AclInheritanceType.PARENT_OVERRIDES.toString())));
+    aclValues.put(SpiConstants.PROPNAME_ACTION,
+        Collections.singletonList(Value.getStringValue(action.toString())));
 
+    if (ActionType.ADD.equals(action)) {
+      processAcl(objId, aclValues);
+      aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
+          Collections.singletonList(Value.getStringValue(
+              SpiConstants.AclInheritanceType.PARENT_OVERRIDES.toString())));
+    }
     return SecureDocument.createAcl(aclValues);
   }
 
@@ -283,10 +328,20 @@ public class DctmAclList implements DocumentList {
       if (isOpen(collectionAcl)) {
         try {
           collectionAcl.close();
-          logger.fine("collection of documents to add closed");
+          logger.fine("collection of ACLs to add closed");
         } catch (RepositoryException e) {
-          logger.severe(
-              "Error while closing the collection of documents to add: " + e);
+          logger.warning(
+              "Error while closing the collection of ACLs to add: " + e);
+        }
+      }
+
+      if (isOpen(collectionAclToModify)) {
+        try {
+          collectionAclToModify.close();
+          logger.fine("collection of ACLs to modify closed");
+        } catch (RepositoryException e) {
+          logger.warning(
+              "Error while closing the collection of ACLs to modify: " + e);
         }
       }
     } finally {

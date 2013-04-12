@@ -258,6 +258,7 @@ public class DctmTraversalManager
     ICollection collecAclToAdd = null;
     ICollection collecToAdd = null;
     ICollection collecToDel = null;
+    ICollection collecAclToModify = null;
     ISession session = null;
 
     DocumentList documentList = null;
@@ -273,9 +274,16 @@ public class DctmTraversalManager
         logger.fine("execution of the query returns a collection of ACLs"
             + " to add");
 
-        if ((collecAclToAdd != null && collecAclToAdd.hasNext())) {
+        IQuery queryAclToModify = buildAclModifyQuery(checkpoint);
+        collecAclToModify = queryAclToModify.execute(session,
+            IQuery.EXECUTE_READ_QUERY);
+        logger.fine("execution of the query returns a collection of ACLs"
+            + " to modify");
+
+        if ((collecAclToAdd != null && collecAclToAdd.hasNext())
+            || (collecAclToModify != null && collecAclToModify.hasNext())) {
           documentList = new DctmAclList(this, session, collecAclToAdd,
-              checkpoint);
+              collecAclToModify, checkpoint);
         }
       } else {
         logger.fine("Processing Documents");
@@ -434,6 +442,28 @@ public class DctmTraversalManager
       queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
     }
     logger.fine("ACL queryToAdd completed: " + queryStr.toString());
+    return makeQuery(queryStr.toString());
+  }
+
+  protected IQuery buildAclModifyQuery(Checkpoint checkpoint) {
+    StringBuilder queryStr = new StringBuilder(
+        "select r_object_id, chronicle_id, audited_obj_id, event_name, "
+        + "time_stamp_utc from dm_audittrail_acl "
+        + "where (event_name='dm_save' or event_name='dm_saveasnew' "
+        + "or event_name='dm_destroy')");
+
+    if (checkpoint.getAclModifiedDate() != null) {
+      Object[] arguments = { dateFormat.format(checkpoint.getAclModifiedDate()),
+                             checkpoint.getAclModifyId() };
+      queryStr.append(MessageFormat.format(
+          (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly
+              : whereBoundedClauseRemove, arguments));
+    }
+    queryStr.append(" order by time_stamp_utc, r_object_id, event_name");
+    if (batchHint > 0) {
+      queryStr.append(" ENABLE (return_top ").append(batchHint).append(')');
+    }
+    logger.fine("queryAclModify completed: " + queryStr.toString());
     return makeQuery(queryStr.toString());
   }
 }

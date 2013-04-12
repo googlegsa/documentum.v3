@@ -58,6 +58,13 @@ class Checkpoint {
   /** The JSON insertion ID, based on dm_acl.r_object_id. */
   private static final String ACL_ID = "aclid";
 
+  /** The JSON insertion time stamp, based on 
+   * dm_audittrail_acl.time_stamp_utc. */
+  private static final String ACL_MODIFY_DATE = "aclLastModified";
+
+  /** The JSON deletion ID, based on dm_audittrail_acl.r_object_id. */
+  private static final String ACL_MODIFY_ID = "acluuid";
+
   /**
    * The offset for migrating deletion timestamps from time_stamp to
    * time_stamp_utc, where time_stamp + time_stamp_offset =
@@ -101,8 +108,14 @@ class Checkpoint {
   /** r_modify_date of the last item inserted. */
   private List<Date> insertDate;
 
+  /** dm_audittrail_acl time_stamp_utc of last ACL modification */
+  private Date aclModifyDate;
+
   /** r_object_id of the last item deleted. */
   private String deleteId;
+
+  /** r_object_id of the last ACL modified */
+  private String aclModifyId;
 
   /**
    * dm_audittrail time_stamp_utc of the last item deleted. Note that
@@ -121,6 +134,8 @@ class Checkpoint {
   private Date oldInsertDate;
   private String oldDeleteId;
   private Date oldDeleteDate;
+  private String oldAclModifyId;
+  private Date oldAclModifyDate;
 
   private enum LastAction { NONE, ADD, DELETE }
   private LastAction lastAction = LastAction.NONE;
@@ -183,6 +198,9 @@ class Checkpoint {
       JSONObject jo = new JSONObject(checkpoint);
 
       aclId = getJsonString(jo, ACL_ID);
+      aclModifyId = getJsonString(jo, ACL_MODIFY_ID);
+      String modDate = getJsonString(jo, ACL_MODIFY_DATE);
+      aclModifyDate = (modDate == null) ? null : dateFormat.parse(modDate);
 
       if (jo.has(INS_INDEX)) {
         insertIndex = jo.getInt(INS_INDEX);
@@ -318,6 +336,10 @@ class Checkpoint {
     }
   }
 
+  public Date getAclModifiedDate() {
+    return aclModifyDate;
+  }
+
   /** Gets the index into the insert arrays. */
   public int getInsertIndex() {
     return insertIndex;
@@ -335,6 +357,10 @@ class Checkpoint {
    */
   public Date getDeleteDate() {
     return deleteDate;
+  }
+
+  public String getAclModifyId() {
+    return aclModifyId;
   }
 
   /**
@@ -386,6 +412,16 @@ class Checkpoint {
     aclId = objectId;
   }
 
+  public void setAclModifyCheckpoint(Date date, String objectId) {
+    // Remember the current ACL checkpoint as a restore point.
+    oldAclModifyId = aclModifyId;
+    oldAclModifyDate = aclModifyDate;
+
+    // Set the new ACL checkpoint.
+    aclModifyId = objectId;
+    aclModifyDate = date;
+  }
+
   /**
    * Returns true if some component of the checkpoint has changed.
    * (In other words, restore() would result in a different checkpoint.)
@@ -413,7 +449,8 @@ class Checkpoint {
       }
     } else if (lastAction == LastAction.DELETE) {
       if (insertIndex == -1) {
-        aclId = oldAclId;
+        aclModifyId = oldAclModifyId;
+        aclModifyDate = oldAclModifyDate;
       } else {
         deleteDate = oldDeleteDate;
         deleteId = oldDeleteId;
@@ -448,6 +485,8 @@ class Checkpoint {
     }
     oldDeleteId = deleteId;
     oldDeleteDate = deleteDate;
+    oldAclModifyId = aclModifyId;
+    oldAclModifyDate = aclModifyDate;
 
     return insertIndex != startInsertIndex;
   }
@@ -468,6 +507,12 @@ class Checkpoint {
       jo.put(INS_INDEX, nextInsertIndex);
       if (aclId != null) {
         jo.put(ACL_ID, aclId);
+      }
+      if (aclModifyId != null) {
+        jo.put(ACL_MODIFY_ID, aclModifyId);
+      }
+      if (aclModifyDate != null) {
+        jo.put(ACL_MODIFY_DATE, dateFormat.format(aclModifyDate));
       }
       jo.put(INS_ID, new JSONArray(insertId));
       jo.put(INS_DATE, new JSONArray(dates));
