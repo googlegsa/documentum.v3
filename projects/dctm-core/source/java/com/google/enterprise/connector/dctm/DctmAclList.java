@@ -178,7 +178,7 @@ public class DctmAclList implements DocumentList {
    * with no READ permission
    */
   private void processAcl(String docId, Map<String, List<Value>> aclValues)
-      throws RepositoryDocumentException {
+      throws RepositoryDocumentException, RepositoryException {
     List<Value> userPrincipals = new ArrayList<Value>();
     List<Value> groupPrincipals = new ArrayList<Value>();
 
@@ -187,13 +187,15 @@ public class DctmAclList implements DocumentList {
       IAcl iAcl = fetchAcl(docId);
 
       for (int i = 0; i < iAcl.getAccessorCount(); i++) {
-        String name = iAcl.getAccessorName(i);
+        String userName = iAcl.getAccessorName(i);
+        String userLoginName = getUserLoginName(userName);
         if (iAcl.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
           if (iAcl.isGroup(i)) {
-            groupPrincipals
-                .add(asPrincipalValue(name, getGroupNamespace(name)));
+            groupPrincipals.add(asPrincipalValue(userLoginName,
+                getGroupNamespace(userName)));
           } else {
-            userPrincipals.add(asPrincipalValue(name, getUserNamespace(name)));
+            userPrincipals.add(asPrincipalValue(userLoginName,
+                getUserNamespace(userName)));
           }
         }
       }
@@ -210,7 +212,7 @@ public class DctmAclList implements DocumentList {
    * Creates a secure document using Acl users and groups§
    */
   private Document getSecureAclDocument(String objId, ActionType action)
-      throws RepositoryDocumentException {
+      throws RepositoryDocumentException, RepositoryException {
     Map<String, List<Value>> aclValues = new HashMap<String, List<Value>>();
 
     aclValues.put(SpiConstants.PROPNAME_DOCID,
@@ -231,6 +233,27 @@ public class DctmAclList implements DocumentList {
       throws RepositoryDocumentException {
     return Value.getPrincipalValue(new Principal(PrincipalType.UNKNOWN,
         namespace, item, CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
+  }
+
+  private String getUserLoginName(String userName) throws RepositoryException {
+    String userLoginName = null;
+    if (userName.equalsIgnoreCase("dm_world")
+        || userName.equalsIgnoreCase("dm_owner")
+        || userName.equalsIgnoreCase("dm_group")) {
+      return userName;
+    }
+    try {
+      IUser userObj = (IUser) session.getObjectByQualification(
+          "dm_user where user_name = '" + userName + "'");
+      if (userObj != null) {
+        userLoginName = userObj.getUserLoginName();
+      }
+    } catch (RepositoryException e) {
+      logger.finer(e.getMessage());
+      logger.info("error getting user login name for: " + userName);
+      throw e;
+    }
+    return userLoginName;
   }
 
   private String getUserNamespace(String usergroup)

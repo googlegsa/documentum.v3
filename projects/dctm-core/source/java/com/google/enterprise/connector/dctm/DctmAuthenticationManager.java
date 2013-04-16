@@ -57,8 +57,8 @@ public class DctmAuthenticationManager implements AuthenticationManager {
   public AuthenticationResponse authenticate(
       AuthenticationIdentity authenticationIdentity)
       throws RepositoryLoginException, RepositoryException {
-    String username = authenticationIdentity.getUsername();
-    LOGGER.info("authentication process for user " + username);
+    String userLoginName = authenticationIdentity.getUsername();
+    LOGGER.info("authentication process for user " + userLoginName);
     String password = authenticationIdentity.getPassword();
     ISessionManager sessionManagerUser;
     boolean authenticate;
@@ -69,9 +69,9 @@ public class DctmAuthenticationManager implements AuthenticationManager {
             getSessionManager(connector.getLogin(), connector.getPassword());
         //check for user existence when null password
         authenticate = isValidUser(sessionManagerUser.getSession(docbase),
-            username);
+            userLoginName);
       } else {
-        sessionManagerUser = getSessionManager(username, password);
+        sessionManagerUser = getSessionManager(userLoginName, password);
         authenticate = sessionManagerUser.authenticate(docbase);
       }
     } catch (RepositoryLoginException e) {
@@ -83,7 +83,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     LOGGER.info("authentication status: " + authenticate);
     if (authenticate) {
       return new AuthenticationResponse(authenticate, "", getAllGroupsForUser(
-          sessionManagerUser, username));
+          sessionManagerUser, userLoginName));
     } else {
       return new AuthenticationResponse(false, "");
     }
@@ -100,10 +100,10 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     return sessionManagerUser;
   }
 
-  private boolean isValidUser(ISession session, String userName)
+  private boolean isValidUser(ISession session, String userLoginName)
       throws RepositoryDocumentException {
     IPersistentObject userObj = session.getObjectByQualification(
-          "dm_user where user_name = '" + userName + "'");
+          "dm_user where user_login_name = '" + userLoginName + "'");
     return userObj != null;
   }
 
@@ -120,8 +120,9 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     ArrayList<Principal> listGroups = new ArrayList<Principal>();
     ISession session = sessionManager.getSession(docbase);
     String queryStr =
-        "select group_name from dm_group where any i_all_users_names='"
-            + username + "'";
+        "select group_name from dm_group where any i_all_users_names in "
+            + "(select user_name from dm_user where user_login_name = '"
+            + username + "')";
     IQuery query = clientX.getQuery();
     query.setDQL(queryStr);
     ICollection collecGroups = query.execute(session,
