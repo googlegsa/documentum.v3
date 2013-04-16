@@ -16,6 +16,7 @@ package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IUser;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 import com.documentum.fc.client.IDfUser;
 import com.documentum.fc.common.DfException;
@@ -29,10 +30,26 @@ public class DmUser implements IUser {
   private static final Logger logger = 
       Logger.getLogger(DmQuery.class.getName());
 
-  private IDfUser idfUser;
+  private final IDfUser idfUser;
 
   public DmUser(IDfUser idfUser) {
     this.idfUser = idfUser;
+  }
+
+  public String getUserName() throws RepositoryException {
+    try {
+      return idfUser.getUserName();
+    } catch (DfException e) {
+      throw new RepositoryException(e);
+    }
+  }
+
+  public String getUserLoginName() throws RepositoryException {
+    try {
+      return idfUser.getUserLoginName();
+    } catch (DfException e) {
+      throw new RepositoryException(e);
+    }
   }
 
   public String getUserSourceAsString() throws RepositoryDocumentException {

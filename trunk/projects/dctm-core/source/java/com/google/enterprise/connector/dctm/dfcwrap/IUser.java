@@ -15,10 +15,15 @@
 package com.google.enterprise.connector.dctm.dfcwrap;
 
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
+import com.google.enterprise.connector.spi.RepositoryException;
 
 /*
  * @since TODO(Srinivas)
  */
 public interface IUser extends IPersistentObject {
+  String getUserName() throws RepositoryException;
+
+  String getUserLoginName() throws RepositoryException;
+
   String getUserSourceAsString() throws RepositoryDocumentException;
 }

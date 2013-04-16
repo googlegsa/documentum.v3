@@ -122,6 +122,16 @@ public class MockDmQuery implements IQuery {
               session.getDocbaseName());
       QueryResult qr = new MockJcrQueryResult(emptyResults);
       return new MockDmCollection(qr);
+    } else if (query.indexOf("dm_user") != -1) {
+      String name = query.substring(query.indexOf("'")+1);
+      name = name.substring(0,name.indexOf("'"));
+
+      String[] ids = {name};
+      List<MockRepositoryDocument> results =
+          new MockMockList(ids, session.getSessionManager(),
+              session.getDocbaseName());
+      QueryResult qr = new MockJcrQueryResult(results);
+      return new MockDmCollection(qr);
     } else { // Authorize query...
       String[] ids = this.query.split("','");
       ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
