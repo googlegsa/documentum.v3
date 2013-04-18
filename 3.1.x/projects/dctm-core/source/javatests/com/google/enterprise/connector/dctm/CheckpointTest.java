@@ -412,6 +412,36 @@ public class CheckpointTest extends TestCase {
 
     Checkpoint input = getCheckpoint(0, strChkpt);
 
-    String n = input.getAclId();
+    assertEquals("4501081f80000100", input.getAclId());
+  }
+
+  public void testAclModifyId() throws RepositoryException {
+    Checkpoint input =
+        getCheckpoint(1, "{\"uuid\":\"090000018000e100\","
+            + "\"lastModified\":\"2007-01-02 13:58:10\"}");
+    Date modifyDate = NOW;
+
+    input.setAclModifyCheckpoint(modifyDate, "aclModId");
+
+    assertEquals(-1, input.getInsertIndex());
+    assertEquals("aclModId", input.getAclModifyId());
+    assertEquals(modifyDate, input.getAclModifiedDate());
+  }
+
+  public void testAclModifyInfo() throws RepositoryException {
+    String strChkpt = "{\"uuidToRemove\":\"5f01081f8015d65c\",\"aclid\":"
+        + "\"4501081f80000100\",\"index\":0,\"lastModified\":"
+        + "[\"2012-05-24 16:11:00\"],\"lastRemoved\":\"2012-05-17 12:05:50\""
+        + ",\"uuid\":[\"0901081f800684b0\"]"
+        + ",\"acluuid\":\"5f01081f8019e345\""
+        + ",\"aclLastModified\":\"2013-03-19 17:18:16\"}";
+
+    Checkpoint input = getCheckpoint(0, strChkpt);
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    String aclModifiedDate = dateFormat.format(input.getAclModifiedDate());
+
+    assertEquals(0, input.getInsertIndex());
+    assertEquals("5f01081f8019e345", input.getAclModifyId());
+    assertEquals("2013-03-19 17:18:16", aclModifiedDate);
   }
 }

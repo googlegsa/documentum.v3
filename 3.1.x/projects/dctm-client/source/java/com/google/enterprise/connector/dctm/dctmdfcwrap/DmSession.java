@@ -115,7 +115,9 @@ public class DmSession implements ISession {
     IDfPersistentObject idfPersistentObject;
     try {
       idfPersistentObject = idfSession.getObjectByQualification(qualification);
-      if (idfPersistentObject instanceof IDfSysObject) {
+      if (idfPersistentObject == null) {
+        return null;
+      } else if (idfPersistentObject instanceof IDfSysObject) {
         return new DmSysObject((IDfSysObject) idfPersistentObject);
       } else if (idfPersistentObject instanceof IDfACL) {
         return new DmAcl((IDfACL) idfPersistentObject);
