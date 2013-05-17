@@ -54,6 +54,15 @@ public class DmAcl implements IAcl {
     }
   }
 
+  public int getAccessorPermitType(int index)
+      throws RepositoryDocumentException {
+    try {
+      return idfAcl.getAccessorPermitType(index);
+    } catch (DfException e) {
+      throw new RepositoryDocumentException(e);
+    }
+  }
+
   public int getAccessorPermit(int index) throws RepositoryDocumentException {
     try {
       return idfAcl.getAccessorPermit(index);
