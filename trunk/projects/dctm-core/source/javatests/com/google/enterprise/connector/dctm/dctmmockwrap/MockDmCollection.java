@@ -140,4 +140,10 @@ public class MockDmCollection implements ICollection {
     }
     return new MockDmTime(val.getTime());
   }
+
+  @Override
+  public String getAllRepeatingStrings(String colName, String separator)
+      throws RepositoryException {
+    throw new UnsupportedOperationException();
+  }
 }
