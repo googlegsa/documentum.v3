@@ -432,8 +432,7 @@ public class DctmTraversalManager
 
   protected IQuery buildACLQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder();
-    queryStr.append("select r_object_id, r_accessor_name, r_permit_type"
-        + " from dm_acl");
+    queryStr.append("select r_object_id from dm_acl");
     if (checkpoint.getAclId() != null && !checkpoint.getAclId().isEmpty()) {
       queryStr.append(MessageFormat.format(whereClauseAcl,
           checkpoint.getAclId()));

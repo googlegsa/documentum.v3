@@ -59,7 +59,7 @@ public class DctmAclList implements DocumentList {
   private final ICollection collectionAclToModify;
 
   private final HashSet<String> aclModifiedIds = new HashSet<String>();
-  
+
   private final Checkpoint checkpoint;
 
   private final DctmTraversalManager traversalManager;
@@ -94,14 +94,16 @@ public class DctmAclList implements DocumentList {
             objId = collectionAcl.getString("r_object_id");
             logger.fine("ACL r_object_id is " + objId);
             checkpoint.setAclCheckpoint(objId);
-            if (isRequiredGroupOrSet(collectionAcl)) {
+            IAcl aclObj = fetchAcl(objId);
+            if (isRequiredGroupOrSet(aclObj)) {
               logger.log(Level.FINE,
                   "ACL {0} has required groups or required group set", objId);
               requiredGroupAclStack =
-                  getSecureAclDocumentWithRequiredGroupOrSet(objId);
+                  getSecureAclDocumentWithRequiredGroupOrSet(aclObj, objId);
               retDoc = requiredGroupAclStack.pop();
             } else {
-              retAclDocument = getSecureAclDocument(objId, ActionType.ADD);
+              retAclDocument =
+                  getSecureAclDocument(aclObj, objId, ActionType.ADD);
               logger.fine("Creation of a new ACL to add");
               retDoc = retAclDocument;
             }
@@ -131,19 +133,23 @@ public class DctmAclList implements DocumentList {
           if (collectionAclToModify.getString("event_name").equalsIgnoreCase(
               "dm_destroy")) {
             logger.log(Level.FINE, "ACL to delete: {0}" + objIdModify);
-            retAclDocument = getSecureAclDocument(objIdModify,
+            retAclDocument = getSecureAclDocument(null, objIdModify,
                 ActionType.DELETE);
-          } else if (isRequiredGroupOrSet(objIdModify)) {
-            logger.log(Level.FINE,
-                "ACL to modify: {0} has required groups or required group set",
-                objIdModify);
-            requiredGroupAclStack =
-                getSecureAclDocumentWithRequiredGroupOrSet(objIdModify);
-            retAclDocument = requiredGroupAclStack.pop();
           } else {
-            logger.log(Level.FINE, "ACL to modify: {0} has no required groups",
-                objIdModify);
-            retAclDocument = getSecureAclDocument(objIdModify, ActionType.ADD);
+            IAcl aclObj = fetchAcl(objIdModify);
+            if (isRequiredGroupOrSet(aclObj)) {
+              logger.log(Level.FINE, "ACL to modify: {0} has required groups "
+                  + "or required group set", objIdModify);
+              requiredGroupAclStack =
+                  getSecureAclDocumentWithRequiredGroupOrSet(aclObj,
+                      objIdModify);
+              retAclDocument = requiredGroupAclStack.pop();
+            } else {
+              logger.log(Level.FINE,
+                  "ACL to modify: {0} has no required groups", objIdModify);
+              retAclDocument =
+                  getSecureAclDocument(aclObj, objIdModify, ActionType.ADD);
+            }
           }
           aclModifiedIds.add(chronicleId);
           retDoc = retAclDocument;
@@ -190,31 +196,14 @@ public class DctmAclList implements DocumentList {
     return (IAcl) session.getObject(id);
   }
 
-  private boolean isRequiredGroupOrSet(ICollection coll)
+  private boolean isRequiredGroupOrSet(IAcl aclObj)
       throws RepositoryException {
-    String permitType = coll.getAllRepeatingStrings("r_permit_type",",");
-    return (permitType.contains(Integer.toString(
-            IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP))
-        || permitType.contains(Integer.toString(
-            IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP_SET)));
-  }
-
-  private boolean isRequiredGroupOrSet(String objId)
-      throws RepositoryException {
-    ICollection coll = null;
-    try {
-      IQuery query = traversalManager.getClientX().getQuery();
-      query.setDQL("select r_permit_type from dm_acl where r_object_id = '"
-          + objId + "' and any (r_permit_type = "
-          + Integer.toString(IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP)
-          + " or r_permit_type = "
-          + Integer.toString(IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP_SET) + ")");
-      coll = query.execute(session, IQuery.EXECUTE_READ_QUERY);
-      if (coll != null && coll.next()) {
+    for (int i = 0; i < aclObj.getAccessorCount(); i++) {
+      int permitType = aclObj.getAccessorPermitType(i);
+      if (permitType == IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP
+          || permitType == IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP_SET) {
         return true;
       }
-    } finally {
-      if (coll != null) coll.close();
     }
     return false;
   }
@@ -225,20 +214,17 @@ public class DctmAclList implements DocumentList {
    * and group list. Populates denyusers and denygroup list users and groups
    * with no READ permission
    */
-  private void processAcl(String docId, Map<String, List<Value>> aclValues)
+  private void processAcl(IAcl aclObj, Map<String, List<Value>> aclValues)
       throws RepositoryDocumentException, RepositoryException {
     List<Value> userPrincipals = new ArrayList<Value>();
     List<Value> groupPrincipals = new ArrayList<Value>();
 
     try {
-      // fetch the Acl object
-      IAcl iAcl = fetchAcl(docId);
-
-      for (int i = 0; i < iAcl.getAccessorCount(); i++) {
-        String userName = iAcl.getAccessorName(i);
+      for (int i = 0; i < aclObj.getAccessorCount(); i++) {
+        String userName = aclObj.getAccessorName(i);
         String userLoginName = getUserLoginName(userName);
-        if (iAcl.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
-          if (iAcl.isGroup(i)) {
+        if (aclObj.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
+          if (aclObj.isGroup(i)) {
             groupPrincipals.add(asPrincipalValue(userLoginName,
                 getGroupNamespace(userName)));
           } else {
@@ -259,8 +245,9 @@ public class DctmAclList implements DocumentList {
   /*
    * Creates a secure document using Acl users and groups§
    */
-  private Document getSecureAclDocument(String objId, ActionType action)
-      throws RepositoryDocumentException, RepositoryException {
+  private Document getSecureAclDocument(IAcl aclObj, String objId,
+      ActionType action) throws RepositoryDocumentException,
+      RepositoryException {
     Map<String, List<Value>> aclValues = new HashMap<String, List<Value>>();
 
     aclValues.put(SpiConstants.PROPNAME_DOCID,
@@ -269,7 +256,7 @@ public class DctmAclList implements DocumentList {
         Collections.singletonList(Value.getStringValue(action.toString())));
 
     if (ActionType.ADD.equals(action)) {
-      processAcl(objId, aclValues);
+      processAcl(aclObj, aclValues);
       aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
           Collections.singletonList(Value.getStringValue(
               SpiConstants.AclInheritanceType.PARENT_OVERRIDES.toString())));
@@ -277,9 +264,8 @@ public class DctmAclList implements DocumentList {
     return SecureDocument.createAcl(aclValues);
   }
 
-  private Document getRequiredSecureAclDocument(String objId,
-      String idValue, String parentIdValue, String... group)
-      throws RepositoryException {
+  private Document getRequiredSecureAclDocument(IAcl aclObj, String idValue,
+      String parentIdValue, String... group) throws RepositoryException {
     Map<String, List<Value>> aclValues = new HashMap<String, List<Value>>();
 
     aclValues.put(SpiConstants.PROPNAME_DOCID,
@@ -293,8 +279,8 @@ public class DctmAclList implements DocumentList {
           Collections.singletonList(Value.getStringValue(parentIdValue)));
     }
 
-    if (objId != null) {
-      processAcl(objId, aclValues);
+    if (aclObj != null) {
+      processAcl(aclObj, aclValues);
     } else {
       List<Value> groupPrincipals = new ArrayList<Value>();
       for (String name : group) {
@@ -307,18 +293,17 @@ public class DctmAclList implements DocumentList {
   }
 
   private Stack<Document> getSecureAclDocumentWithRequiredGroupOrSet(
-      String objId) throws RepositoryException {
+      IAcl aclObj, String objId) throws RepositoryException {
     Stack<Document> docStack = new Stack<Document>();
     List<String> requiredGroupSetPrincipals = new ArrayList<String>();
-    IAcl iAcl = fetchAcl(objId);
 
     boolean processedReqGroupSet = false;
     String accessor = null;
     String parentIdValue = null;
-    for (int i = 0; i < iAcl.getAccessorCount(); i++) {
-      int permitType = iAcl.getAccessorPermitType(i);
+    for (int i = 0; i < aclObj.getAccessorCount(); i++) {
+      int permitType = aclObj.getAccessorPermitType(i);
       if (permitType == IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP) {
-        accessor = iAcl.getAccessorName(i);
+        accessor = aclObj.getAccessorName(i);
         String aclIdValue = objId + "_" + accessor;
         // do not process ACL principals
         Document doc = getRequiredSecureAclDocument(null,
@@ -326,7 +311,7 @@ public class DctmAclList implements DocumentList {
         docStack.push(doc);
         parentIdValue = aclIdValue;
       } else if (permitType == IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP_SET) {
-        String accessorName = iAcl.getAccessorName(i);
+        String accessorName = aclObj.getAccessorName(i);
         requiredGroupSetPrincipals.add(accessorName);
         processedReqGroupSet = true;
       }
@@ -340,8 +325,7 @@ public class DctmAclList implements DocumentList {
       parentIdValue = idValue;
     }
     // process ACL principals
-    docStack.push(getRequiredSecureAclDocument(objId, objId,
-        parentIdValue));
+    docStack.push(getRequiredSecureAclDocument(aclObj, objId, parentIdValue));
 
     return docStack;
   }
