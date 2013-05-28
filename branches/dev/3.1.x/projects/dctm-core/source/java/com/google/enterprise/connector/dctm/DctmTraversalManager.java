@@ -32,6 +32,7 @@ import com.google.enterprise.connector.util.TraversalTimer;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -355,7 +356,9 @@ public class DctmTraversalManager
   protected Checkpoint forgeStartCheckpoint() {
     Checkpoint checkpoint = new Checkpoint(additionalWhereClause);
     // Only consider delete actions that occur from this moment onward.
-    checkpoint.setDeleteCheckpoint(new java.util.Date(), null);
+    checkpoint.setDeleteCheckpoint(new Date(), null);
+    // Only consider ACL changes that occur from this moment onward.
+    checkpoint.setAclModifyCheckpoint(new Date(), null);
     return checkpoint;
   }
 

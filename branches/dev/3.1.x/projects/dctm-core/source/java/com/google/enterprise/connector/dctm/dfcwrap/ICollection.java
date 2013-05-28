@@ -29,6 +29,9 @@ public interface ICollection {
 
   boolean next() throws RepositoryException;
 
+  String getAllRepeatingStrings(String colName, String separator)
+      throws RepositoryException;
+
   String getString(String colName) throws RepositoryException;
 
   void close() throws RepositoryException;

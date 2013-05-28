@@ -105,6 +105,19 @@ public class DmCollection implements ICollection {
     return isNext;
   }
 
+  public String getAllRepeatingStrings(String colName, String separator)
+      throws RepositoryException {
+    try {
+      String colValues = idfCollection.getAllRepeatingStrings(colName,
+          separator);
+      if (logger.isLoggable(Level.FINEST))
+        logger.finest("column values are " + colValues);
+      return colValues;
+    } catch (DfException e) {
+      throw new RepositoryException(e);
+    }
+  }
+
   public String getString(String colName) throws RepositoryException {
     if (didPeek) {
       throw new IllegalStateException("Cannot access current row after hasNext()");
