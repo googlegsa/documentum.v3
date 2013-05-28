@@ -61,4 +61,10 @@ public class MockBooleanCollection implements ICollection {
   public ITime getTime(String colName) throws RepositoryException {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public String getAllRepeatingStrings(String colName, String separator)
+      throws RepositoryException {
+    throw new UnsupportedOperationException();
+  }
 }
