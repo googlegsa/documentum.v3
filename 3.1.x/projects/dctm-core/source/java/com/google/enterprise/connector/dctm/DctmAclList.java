@@ -272,16 +272,19 @@ public class DctmAclList implements DocumentList {
         Collections.singletonList(Value.getStringValue(idValue)));
 
     if (parentIdValue != null) {
-      aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
-          Collections.singletonList(Value.getStringValue(
-              SpiConstants.AclInheritanceType.AND_BOTH_PERMIT.toString())));
       aclValues.put(SpiConstants.PROPNAME_ACLINHERITFROM_DOCID,
           Collections.singletonList(Value.getStringValue(parentIdValue)));
     }
 
     if (aclObj != null) {
+      aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
+          Collections.singletonList(Value.getStringValue(
+              SpiConstants.AclInheritanceType.PARENT_OVERRIDES.toString())));
       processAcl(aclObj, aclValues);
     } else {
+      aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
+          Collections.singletonList(Value.getStringValue(
+              SpiConstants.AclInheritanceType.AND_BOTH_PERMIT.toString())));
       List<Value> groupPrincipals = new ArrayList<Value>();
       for (String name : group) {
         groupPrincipals.add(asPrincipalValue(name, getGroupNamespace(name)));
