@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- EDIT THIS BEAN DEFINTION WITH CUSTOM PROPERTY VALUES -->
+  <bean id="DctmConnectorInstance"
+      class="com.google.enterprise.connector.dctm.DctmConnector"
+      parent="DctmConnectorInstance_Defaults"
+      dependency-check="all" singleton="false">
+
+    <!-- SET CUSTOM PROPERTY VALUES HERE -->
+
+  </bean>
+</beans>
