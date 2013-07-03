@@ -209,21 +209,34 @@ public class DctmAclList implements DocumentList {
   }
 
   /*
-   * Processes users and groups from the ACL object for the given object id.
-   * Gets the users and groups with READ permission and populates the user 
-   * and group list. Populates denyusers and denygroup list users and groups
-   * with no READ permission
+   * Processes users and groups from the ACL object, populates the user and
+   * group list with users and groups with READ permission. Populates
+   * denyusers and denygroup list with restricted users and groups with no 
+   * READ permission
    */
   private void processAcl(IAcl aclObj, Map<String, List<Value>> aclValues)
       throws RepositoryDocumentException, RepositoryException {
     List<Value> userPrincipals = new ArrayList<Value>();
     List<Value> groupPrincipals = new ArrayList<Value>();
+    List<Value> userDenyPrincipals = new ArrayList<Value>();
+    List<Value> groupDenyPrincipals = new ArrayList<Value>();
 
     try {
       for (int i = 0; i < aclObj.getAccessorCount(); i++) {
         String userName = aclObj.getAccessorName(i);
+        int permitType = aclObj.getAccessorPermitType(i);
         String userLoginName = getUserLoginName(userName);
-        if (aclObj.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
+        if (permitType == IAcl.DF_PERMIT_TYPE_ACCESS_RESTRICTION) {
+          if (aclObj.getAccessorPermit(i) <= IAcl.DF_PERMIT_READ) {
+            if (aclObj.isGroup(i)) {
+              groupDenyPrincipals.add(asPrincipalValue(userLoginName,
+                  getGroupNamespace(userName)));
+            } else {
+              userDenyPrincipals.add(asPrincipalValue(userLoginName,
+                  getUserNamespace(userName)));
+            }
+          }
+        } else if (aclObj.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
           if (aclObj.isGroup(i)) {
             groupPrincipals.add(asPrincipalValue(userLoginName,
                 getGroupNamespace(userName)));
@@ -236,6 +249,8 @@ public class DctmAclList implements DocumentList {
       // add users and groups principals to the map
       aclValues.put(SpiConstants.PROPNAME_ACLUSERS, userPrincipals);
       aclValues.put(SpiConstants.PROPNAME_ACLGROUPS, groupPrincipals);
+      aclValues.put(SpiConstants.PROPNAME_ACLDENYUSERS, userDenyPrincipals);
+      aclValues.put(SpiConstants.PROPNAME_ACLDENYGROUPS, groupDenyPrincipals);
     } catch (RepositoryDocumentException e) {
       logger.log(Level.WARNING, "Error fetching Acl user and group names");
       throw e;
