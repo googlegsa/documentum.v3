@@ -24,6 +24,7 @@ public interface IAcl extends IPersistentObject {
   static final int DF_PERMIT_BROWSE = 2;
   static final int DF_PERMIT_NONE = 1;
 
+  static final int DF_PERMIT_TYPE_ACCESS_RESTRICTION = 3;
   static final int DF_PERMIT_TYPE_REQUIRED_GROUP = 6;
   static final int DF_PERMIT_TYPE_REQUIRED_GROUP_SET = 7;
 
