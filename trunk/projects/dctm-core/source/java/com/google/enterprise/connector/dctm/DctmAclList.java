@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -214,7 +215,8 @@ public class DctmAclList implements DocumentList {
    * denyusers and denygroup list with restricted users and groups with no 
    * READ permission
    */
-  private void processAcl(IAcl aclObj, Map<String, List<Value>> aclValues)
+  @VisibleForTesting
+  void processAcl(IAcl aclObj, Map<String, List<Value>> aclValues)
       throws RepositoryDocumentException, RepositoryException {
     List<Value> userPrincipals = new ArrayList<Value>();
     List<Value> groupPrincipals = new ArrayList<Value>();
