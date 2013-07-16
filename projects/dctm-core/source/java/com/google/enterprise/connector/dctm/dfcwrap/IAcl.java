@@ -20,10 +20,15 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
  * @since TODO(Srinivas)
  */
 public interface IAcl extends IPersistentObject {
+  static final int DF_PERMIT_DELETE = 7;
+  static final int DF_PERMIT_WRITE = 6;
+  static final int DF_PERMIT_VERSION = 5;
+  static final int DF_PERMIT_RELATE = 4;
   static final int DF_PERMIT_READ = 3;
   static final int DF_PERMIT_BROWSE = 2;
   static final int DF_PERMIT_NONE = 1;
 
+  static final int DF_PERMIT_TYPE_ACCESS_PERMIT = 0;
   static final int DF_PERMIT_TYPE_ACCESS_RESTRICTION = 3;
   static final int DF_PERMIT_TYPE_REQUIRED_GROUP = 6;
   static final int DF_PERMIT_TYPE_REQUIRED_GROUP_SET = 7;

@@ -93,6 +93,10 @@ public class DmInitialize {
 
   public static final Set<String> excluded_meta;
 
+  public static final String DM_LOCAL_NAMESPACE = "localNS";
+
+  public static final String DM_GLOBAL_NAMESPACE = "globalNS";
+
   static {
     excluded_meta = new HashSet<String>();
     excluded_meta.add("i_vstamp");

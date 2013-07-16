@@ -101,9 +101,16 @@ public class MockDmSession implements ISession {
   }
 
   @Override
-  public IPersistentObject getObjectByQualification(String string)
+  public IPersistentObject getObjectByQualification(String queryString)
       throws RepositoryDocumentException {
-    // TODO Srinivas Auto-generated method stub
-    return null;
+    if (queryString.startsWith("dm_user")) {
+      // get user name from the query string of form 
+      // "dm_user where user_name = 'userName'", so add 3 to index of '='
+      String username = queryString.substring(queryString.indexOf('=') + 3,
+          queryString.length() - 1);
+      return new MockDmUser(username);
+    } else {
+      return null;
+    }
   }
 }
