@@ -98,16 +98,6 @@ public class MockDmObject implements ISysObject {
     } else if (name.equals(SpiConstants.PROPNAME_DOCID)) {
       name = "docid";
       propStrVal = mockDocument.getDocID();
-    } else if (name.equals(SpiConstants.PROPNAME_SECURITYTOKEN)) {
-      name = "acl";
-      MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
-          name);
-      MockJcrValue propVal = new MockJcrValue(pm);
-      try {
-        propStrVal = propVal.getString();
-      } catch (IllegalStateException e) {
-        // TODO: Why is this exception ignored?
-      }
     } else {
       MockRepositoryProperty pm = mockDocument.getProplist().getProperty(
           name);

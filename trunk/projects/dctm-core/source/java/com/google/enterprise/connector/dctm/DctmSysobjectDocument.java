@@ -241,14 +241,6 @@ public class DctmSysobjectDocument implements Document {
       values.add(Value.getStringValue(displayUrl));
     } else if (SpiConstants.PROPNAME_FOLDER.equals(name)) {
       return findFolderProperty(name, values);
-    } else if (SpiConstants.PROPNAME_SECURITYTOKEN.equals(name)) {
-      try {
-        values.add(Value.getStringValue(object.getACLDomain() + " "
-                + object.getACLName()));
-      } catch (RepositoryDocumentException e) {
-        logger.warning("RepositoryDocumentException thrown: " + e
-            + " on getting property: " + name);
-      }
     } else if (SpiConstants.PROPNAME_ISPUBLIC.equals(name)) {
       values.add(Value.getBooleanValue(traversalManager.isPublic()));
     } else if (SpiConstants.PROPNAME_MIMETYPE.equals(name)) {

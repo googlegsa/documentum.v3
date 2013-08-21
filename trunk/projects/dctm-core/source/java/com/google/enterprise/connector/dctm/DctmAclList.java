@@ -259,9 +259,7 @@ public class DctmAclList implements DocumentList {
     }
   }
 
-  /*
-   * Creates a secure document using Acl users and groups§
-   */
+  /* Creates a secure document using Acl users and groups. */
   private Document getSecureAclDocument(IAcl aclObj, String objId,
       ActionType action) throws RepositoryDocumentException,
       RepositoryException {
