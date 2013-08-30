@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -64,7 +65,9 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     boolean authenticate;
 
     try {
-      if (Strings.isNullOrEmpty(password)) {
+      if (Strings.isNullOrEmpty(userLoginName)) {
+        return new AuthenticationResponse(false, "");
+      } else if (Strings.isNullOrEmpty(password)) {
         sessionManagerUser =
             getSessionManager(connector.getLogin(), connector.getPassword());
         //check for user existence when null password
@@ -102,6 +105,8 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
   private boolean isValidUser(ISession session, String userLoginName)
       throws RepositoryDocumentException {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(userLoginName),
+        "Username must not be null or empty.");
     IPersistentObject userObj = session.getObjectByQualification(
           "dm_user where user_login_name = '" + userLoginName + "'");
     return userObj != null;

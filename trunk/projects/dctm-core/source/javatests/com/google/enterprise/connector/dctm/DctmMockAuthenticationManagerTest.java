@@ -49,10 +49,15 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     assertFalse(authentManager.authenticate(
         new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
             DmInitialize.DM_PWD_KO)).isValid());
-    assertFalse(authentManager
-        .authenticate(
-            new SimpleAuthenticationIdentity(
-                DmInitialize.DM_LOGIN_OK2, null)).isValid());
+    assertFalse(authentManager.authenticate(
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_KO,
+            DmInitialize.DM_PWD_KO)).isValid());
+    assertTrue(authentManager.authenticate(
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2, null))
+        .isValid());
+    assertFalse(authentManager.authenticate(
+        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_KO, null))
+        .isValid());
     assertFalse(authentManager.authenticate(
         new SimpleAuthenticationIdentity(null, DmInitialize.DM_PWD_OK1))
         .isValid());
