@@ -108,7 +108,11 @@ public class MockDmSession implements ISession {
       // "dm_user where user_name = 'userName'", so add 3 to index of '='
       String username = queryString.substring(queryString.indexOf('=') + 3,
           queryString.length() - 1);
-      return new MockDmUser(username);
+      if (username.equals(DmInitialize.DM_LOGIN_KO)) {
+        return null;
+      } else {
+        return new MockDmUser(username);
+      }
     } else {
       return null;
     }
