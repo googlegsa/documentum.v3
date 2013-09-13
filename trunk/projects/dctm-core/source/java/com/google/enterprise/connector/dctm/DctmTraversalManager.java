@@ -84,8 +84,8 @@ public class DctmTraversalManager
         connector.getWebtopDisplayUrl(), connector.getWhereClause(),
         connector.isPublic(), connector.getRootObjectType(),
         connector.getIncludedObjectType(), connector.getIncludedMeta(),
-        connector.getExcludedMeta(), 
-        connector.getGoogleGlobalNamespace(), 
+        connector.getExcludedMeta(),
+        connector.getGoogleGlobalNamespace(),
         connector.getGoogleLocalNamespace(), sessionManager);
   }
 

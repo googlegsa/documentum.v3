@@ -87,18 +87,18 @@ public class DctmMockDocumentListTest extends TestCase {
     while ((propertyMapList.nextDocument()) != null) {
       counter++;
     }
-    assertEquals(27, counter);
+    assertEquals(DmInitialize.DM_RETURN_TOP_UNBOUNDED, counter);
 
     // XXX: This time comes back as if the timestamp value were in
     // seconds, but in MockDmTimeTest we get milliseconds. Also, this
     // time is local time. Should it be UTC?
     SimpleDateFormat iso8601 =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String lastModified = iso8601.format(new Date(260 * 1000));
+    String lastModified = iso8601.format(new Date(300 * 1000));
 
     checkPoint = propertyMapList.checkpoint();
     assertTrue(checkPoint,
-        checkPoint.indexOf("\"uuid\":[\"doc26\"]") != -1);
+        checkPoint.indexOf("\"uuid\":[\"group4\"]") != -1);
     assertTrue(checkPoint,
         checkPoint.indexOf("\"lastModified\":[\"" + lastModified + "\"]") != -1);
   }

@@ -113,6 +113,10 @@ public class MockDmSession implements ISession {
       } else {
         return new MockDmUser(username);
       }
+    } else if (queryString.contains("dm_group where group_name = '")) {
+      String groupName = queryString.substring(queryString.indexOf("= '") + 3,
+          queryString.lastIndexOf("'"));
+      return new MockDmGroup(groupName);
     } else {
       return null;
     }

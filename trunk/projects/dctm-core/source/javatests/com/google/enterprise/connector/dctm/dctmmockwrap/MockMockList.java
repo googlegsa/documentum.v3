@@ -15,7 +15,10 @@
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
@@ -57,6 +60,29 @@ public class MockMockList extends ArrayList<MockRepositoryDocument> {
               "true")) {
             add(doc);
           }
+        }
+      }
+    }
+  }
+
+  /**
+   * Returns all groups for a given user.
+   * 
+   * @param session 
+   * @param user name
+   */
+  MockMockList(ISession session, String user) {
+    MockRepositoryDocumentStore store = ((MockDmSession) session).getStore();
+    Iterator<MockRepositoryDocument> iter = store.iterator();
+    while (iter.hasNext()) {
+      MockRepositoryDocument d = iter.next();
+      MockRepositoryProperty prop = d.getProplist().getProperty("members");
+      if (prop == null) {
+        continue;
+      } else {
+        String userMembers = prop.toString();
+        if (userMembers.contains(user)) {
+          add(d);
         }
       }
     }

@@ -21,6 +21,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.documentum.fc.client.IDfUser;
 import com.documentum.fc.common.DfException;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /*
@@ -58,6 +59,20 @@ public class DmUser implements IUser {
           + idfUser.getUserSourceAsString() + " for user "
           + idfUser.getUserName());
       return idfUser.getUserSourceAsString();
+    } catch (DfException e) {
+      throw new RepositoryDocumentException(e);
+    }
+  }
+
+  public String getUserDistinguishedLDAPName()
+      throws RepositoryDocumentException {
+    try {
+      if (logger.isLoggable(Level.FINEST)) {
+        logger.finest("getUserDistinguishedLDAPName value: "
+            + idfUser.getUserDistinguishedLDAPName() + " for user "
+            + idfUser.getUserName());
+      }
+      return idfUser.getUserDistinguishedLDAPName();
     } catch (DfException e) {
       throw new RepositoryDocumentException(e);
     }

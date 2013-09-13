@@ -365,7 +365,14 @@ public class DctmAclList implements DocumentList {
       IUser userObj = (IUser) session.getObjectByQualification(
           "dm_user where user_name = '" + userName + "'");
       if (userObj != null) {
-        userLoginName = userObj.getUserLoginName();
+        if (!Strings.isNullOrEmpty(userObj.getUserSourceAsString())
+            && userObj.getUserSourceAsString().equalsIgnoreCase("ldap")) {
+          String dnName = userObj.getUserDistinguishedLDAPName();
+          userLoginName = IdentityUtil.getFirstDomainFromDN(dnName) + "\\"
+                  + IdentityUtil.getCNFromDN(dnName);
+        } else {
+          userLoginName = userObj.getUserLoginName();
+        }
       }
     } catch (RepositoryException e) {
       logger.finer(e.getMessage());
