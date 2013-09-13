@@ -24,7 +24,9 @@ import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockMockListTest extends TestCase {
-  public void testMockMockList() {
+  private ISessionManager sessionManager;
+
+  public void setUp() {
     IClientX dctmClientX = new MockDmClientX();
     IClient localClient = null;
     try {
@@ -32,7 +34,7 @@ public class MockMockListTest extends TestCase {
     } catch (RepositoryException e) {
       assertTrue(false);
     }
-    ISessionManager sessionManager = localClient.newSessionManager();
+    sessionManager = localClient.newSessionManager();
     ILoginInfo ili = new MockDmLoginInfo();
     ili.setUser("mark");
     ili.setPassword("mark");
@@ -42,7 +44,11 @@ public class MockMockListTest extends TestCase {
     } catch (RepositoryException e) {
       assertTrue(false);
     }
-    String query = "kqsfgopqsudhnfpioqsdf^qsdfhqsdo 'doc26', 'doc2', 'doc3', 'doc4'";
+  }
+
+  public void testMockMockList() {
+    String query =
+        "kqsfgopqsudhnfpioqsdf^qsdfhqsdo 'doc26', 'doc2', 'doc3', 'doc4'";
     String[] ids = query.split("', '");
     ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0].length());
     ids[ids.length - 1] = ids[ids.length - 1].substring(0, ids.length);
@@ -53,5 +59,15 @@ public class MockMockListTest extends TestCase {
       fail(e.toString());
     }
     assertTrue(lst.iterator().next() instanceof MockRepositoryDocument);
+  }
+
+  public void testMockMockListForUser() throws RepositoryException {
+    MockMockList lst = new MockMockList(sessionManager.getSession(
+        "SwordEventLog.txt"), "user1");
+    assertTrue(lst.iterator().next() instanceof MockRepositoryDocument);
+
+    lst = new MockMockList(sessionManager.getSession("SwordEventLog.txt"),
+        "user6"); // no user6 in test data
+    assertTrue(lst.isEmpty());
   }
 }

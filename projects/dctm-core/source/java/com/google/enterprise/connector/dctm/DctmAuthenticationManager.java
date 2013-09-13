@@ -36,6 +36,7 @@ import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DctmAuthenticationManager implements AuthenticationManager {
@@ -59,6 +60,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       AuthenticationIdentity authenticationIdentity)
       throws RepositoryLoginException, RepositoryException {
     String userLoginName = authenticationIdentity.getUsername();
+
     LOGGER.info("authentication process for user " + userLoginName);
     String password = authenticationIdentity.getPassword();
     ISessionManager sessionManagerUser;
@@ -86,7 +88,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     LOGGER.info("authentication status: " + authenticate);
     if (authenticate) {
       return new AuthenticationResponse(authenticate, "", getAllGroupsForUser(
-          sessionManagerUser, userLoginName));
+          sessionManagerUser, authenticationIdentity));
     } else {
       return new AuthenticationResponse(false, "");
     }
@@ -120,16 +122,32 @@ public class DctmAuthenticationManager implements AuthenticationManager {
    * @return Collection of Principals
    */
   private Collection<Principal> getAllGroupsForUser(
-      ISessionManager sessionManager, String username)
-      throws RepositoryLoginException, RepositoryException {
+      ISessionManager sessionManager,
+      AuthenticationIdentity authenticationIdentity)
+  throws RepositoryLoginException, RepositoryException {
     ArrayList<Principal> listGroups = new ArrayList<Principal>();
     ISession session = sessionManager.getSession(docbase);
-    String queryStr =
-        "select group_name from dm_group where any i_all_users_names in "
-            + "(select user_name from dm_user where user_login_name = '"
-            + username + "')";
+    String username =
+        IdentityUtil.getCanonicalUsername(authenticationIdentity);
+    String userdomain = IdentityUtil.getDomain(authenticationIdentity);
+
+    StringBuffer queryBuff = new StringBuffer();
+    queryBuff.append("select group_name from dm_group where any");
+    queryBuff.append(" i_all_users_names in (select user_name from dm_user");
+    queryBuff.append(" where user_login_name = '");
+    queryBuff.append(username);
+    if (!Strings.isNullOrEmpty(userdomain)) {
+      queryBuff.append("' and user_source = 'LDAP'");
+      queryBuff.append(" and user_ldap_dn like '%");
+      queryBuff.append(userdomain);
+      queryBuff.append(",%");
+      
+    }
+    queryBuff.append("')");
+
+    LOGGER.fine("queryString: " + queryBuff.toString());
     IQuery query = clientX.getQuery();
-    query.setDQL(queryStr);
+    query.setDQL(queryBuff.toString());
     ICollection collecGroups = query.execute(session,
         IQuery.EXECUTE_READ_QUERY);
     if (collecGroups != null) {

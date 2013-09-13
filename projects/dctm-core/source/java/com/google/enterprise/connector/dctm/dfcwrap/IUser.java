@@ -26,4 +26,6 @@ public interface IUser extends IPersistentObject {
   String getUserLoginName() throws RepositoryException;
 
   String getUserSourceAsString() throws RepositoryDocumentException;
+
+  String getUserDistinguishedLDAPName() throws RepositoryDocumentException;
 }

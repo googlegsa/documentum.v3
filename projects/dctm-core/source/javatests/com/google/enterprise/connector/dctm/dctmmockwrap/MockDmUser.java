@@ -39,4 +39,10 @@ public class MockDmUser implements IUser {
   public String getUserSourceAsString() throws RepositoryDocumentException {
     return null;
   }
+
+  @Override
+  public String getUserDistinguishedLDAPName()
+      throws RepositoryDocumentException {
+    return null;
+  }
 }

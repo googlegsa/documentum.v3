@@ -17,7 +17,9 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.query.Query;
@@ -27,6 +29,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
+import com.google.enterprise.connector.mock.MockRepositoryProperty;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryResult;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
@@ -116,11 +119,11 @@ public class MockDmQuery implements IQuery {
     } else if (query.indexOf("return_top 1") != -1) { // WHERE clause test...
       return new MockBooleanCollection(query.indexOf(TRUE_WHERE_CLAUSE) != -1);
     } else if (query.indexOf("dm_group") != -1) {
-      String[] ids = {};
-      List<MockRepositoryDocument> emptyResults =
-          new MockMockList(ids, session.getSessionManager(),
-              session.getDocbaseName());
-      QueryResult qr = new MockJcrQueryResult(emptyResults);
+      int start = query.indexOf("'") + 1;
+      int end = query.indexOf("'", start);
+      String user = query.substring(start, end);
+      List<MockRepositoryDocument> results = new MockMockList(session, user);
+      QueryResult qr = new MockJcrQueryResult(results);
       return new MockDmCollection(qr);
     } else if (query.indexOf("dm_user") != -1) {
       String name = query.substring(query.indexOf("'")+1);
