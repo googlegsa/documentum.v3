@@ -105,7 +105,7 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
         authentManager.authenticate(new SimpleAuthenticationIdentity(
             DmInitialize.DM_LOGIN_OK1, DmInitialize.DM_PWD_OK1));
     assertTrue(result.isValid());
-    Collection<Principal> groups = (Collection<Principal>) result.getGroups();
+    Collection<?> groups = (Collection<?>) result.getGroups();
     Set<String> expected = ImmutableSet.of("grp1", "grp2", "grp3", "dm_world");
     Set<String> setGroups = ImmutableSet.copyOf(toStringList(groups));
     assertEquals(expected, setGroups);
@@ -114,19 +114,21 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
         authentManager.authenticate(new SimpleAuthenticationIdentity(
             DmInitialize.DM_LOGIN_OK2, DmInitialize.DM_PWD_OK2));
     assertTrue(result2.isValid());
-    Collection<Principal> groups2 =
-        (Collection<Principal>) result2.getGroups();
+    Collection<?> groups2 =
+        (Collection<?>) result2.getGroups();
     List<String> users2 = Arrays.asList("dm_world");
     assertEquals(users2, toStringList(groups2));
   }
 
-  private List<String> toStringList(Collection<Principal> principals) {
-    if (principals == null) {
+  private List<String> toStringList(Collection<?> groups) {
+    if (groups == null) {
       return null;
     }
-    List<String> names = new ArrayList<String>(principals.size());
-    for (Principal principal : principals) {
-      names.add(principal.getName());
+    List<String> names = new ArrayList<String>(groups.size());
+    for (Object obj : groups) {
+      String name = (obj instanceof String) ? (String) obj : ((Principal)
+          obj).getName();
+      names.add(name);
     }
     return names;
   }
