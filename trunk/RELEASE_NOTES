@@ -3,11 +3,50 @@
 			    Release Notes
 
 This document contains the release notes for Google Search Appliance
-Connector for EMC Documentum Content Server. The following sections
-describe the release in detail and provide information that supplements
-the main documentation.
+Connector for Documentum. This connector supports EMC Documentum Content Server.
+The following sections describe the release in detail and provide information
+that supplements the main documentation.
 
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
+
+Release 3.2.0, Oct 14, 2013
+============================
+
+Introduction
+------------
+This is a major release with new features. Users of previous releases are 
+encouraged to review the changes below to determine whether to upgrade.
+
+Summary of Changes
+------------------
+  * Documentum Content Server version 5.3 is no longer supported with the
+    connector.
+
+  * Fixed issue 4326053: Per-URL ACLs for Documentum connector.
+
+    Connector now includes ACL information in feeds. Audit trail needs to be
+    turned on for dm_acl object for dm_save, dm_saveasnew and dm_destroy events.
+    Audit trail can be turned on using Documentum Administrator.
+
+    Supports LDAP synchronized users with domain in Documentum. Connector
+    uses domain information from user_ldap_dn field of dm_user object. Only
+    first domain information is used, for example, for a user_ldap_dn value of
+    "CN=John Doe, cn=users,dc=corp,dc=example,dc=com", domain value of "corp"
+    is used.
+
+  * Fixed issue 8509824: Support access control features in EMC Documentum
+    Trusted Content Services.
+
+    Supports AccessRestriction, RequiredGroup and RequiredGroupSet.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.1 through 3.0.4 may be
+used with this version. This version works with Connector Manager
+version 3.0.0 or later. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector. This product is
+designed to function with EMC Documentum Content Server versions 6.0,
+6.5, 6.6 and 6.7, including service packs.
 
 
 Release 3.0.4, Dec 6, 2012
