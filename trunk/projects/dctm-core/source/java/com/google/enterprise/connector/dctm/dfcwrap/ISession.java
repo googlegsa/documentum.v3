@@ -36,8 +36,8 @@ public interface ISession {
 
   boolean isConnected();
 
-  /*
-   * @since TODO(srinivas)
+  /**
+   * @since 3.2.0
    */
   IPersistentObject getObjectByQualification(String string)
       throws RepositoryDocumentException;
