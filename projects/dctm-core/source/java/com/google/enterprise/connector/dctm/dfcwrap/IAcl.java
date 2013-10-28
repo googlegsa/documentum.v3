@@ -16,8 +16,8 @@ package com.google.enterprise.connector.dctm.dfcwrap;
 
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 
-/*
- * @since TODO(Srinivas)
+/**
+ * @since 3.2.0
  */
 public interface IAcl extends IPersistentObject {
   static final int DF_PERMIT_DELETE = 7;

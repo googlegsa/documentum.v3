@@ -46,11 +46,11 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/*
- * @since TODO(Srinivas)
+/**
+ * @since 3.2.0
  */
 public class DctmAclList implements DocumentList {
-  //TODO(Srinivas): Refactor similarities between DocumentList 
+  // TODO(Srinivas): Refactor similarities between DocumentList.
   private static final Logger logger =
       Logger.getLogger(DctmAclList.class.getName());
 

@@ -17,8 +17,8 @@ package com.google.enterprise.connector.dctm.dfcwrap;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-/*
- * @since TODO(Srinivas)
+/**
+ * @since 3.2.0
  */
 public interface IUser extends IPersistentObject {
   String getUserName() throws RepositoryException;
