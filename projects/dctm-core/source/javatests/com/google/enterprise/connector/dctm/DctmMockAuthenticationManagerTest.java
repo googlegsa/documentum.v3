@@ -16,6 +16,7 @@ package com.google.enterprise.connector.dctm;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.Principal;
@@ -51,6 +52,10 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
 
     authentManager = (DctmAuthenticationManager) sess
         .getAuthenticationManager();
+  }
+
+  protected void tearDown() {
+    MockDmSessionManager.tearDown();
   }
 
   public void testAuthenticate() throws RepositoryException {
