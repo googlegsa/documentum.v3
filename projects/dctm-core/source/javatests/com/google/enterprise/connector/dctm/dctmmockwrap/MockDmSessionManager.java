@@ -14,28 +14,48 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import java.util.HashMap;
-
-import javax.jcr.Credentials;
-import javax.jcr.LoginException;
-import javax.jcr.SimpleCredentials;
-
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepository;
 import com.google.enterprise.connector.mock.MockRepositoryEventList;
-
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.jcr.Credentials;
+import javax.jcr.LoginException;
+import javax.jcr.SimpleCredentials;
 
 /**
  * Simulates the session pool.
  * Does not manage multiple sessions for the same docbase (for the moment)
  */
 public class MockDmSessionManager implements ISessionManager {
+  private static final Map<ISession, Throwable> allSessions =
+      new ConcurrentHashMap<ISession, Throwable>();
+
+  /**
+   * Check for unreleased sessions and throw an AssertionError if any
+   * are found.
+   */
+  public static void tearDown() {
+    if (!allSessions.isEmpty()) {
+      // TODO(jlacey): Include all the unreleased sessions instead of just one.
+      Throwable first = allSessions.values().iterator().next();
+      allSessions.clear();
+      // TODO(jlacey): AssertionError does not take a cause in Java 6.
+      Error assertion = new AssertionError("Unreleased session");
+      assertion.initCause(first);
+      throw assertion;
+    }
+  }
+
   private MockDmSession currentSession;
 
   private final HashMap<String, ILoginInfo> sessMgerCreds =
@@ -73,15 +93,17 @@ public class MockDmSessionManager implements ISessionManager {
         sessMgerSessions.remove(docbase);
         sessMgerSessions.put(docbase, currentSession);
       }
+      allSessions.put(currentSession, new Throwable("New session created"));
       return currentSession;
-    } else
+    } else {
       throw new RepositoryLoginException("newSession(" + docbase
           + ") called for docbase " + docbase
           + " without setting any credentials prior to this call");
+    }
   }
 
   public void release(ISession session) {
-    // No need to do anything regarding Mock sessions.
+    allSessions.remove(session);
   }
 
   public void clearIdentity(String docbase) {
@@ -104,18 +126,18 @@ public class MockDmSessionManager implements ISessionManager {
   }
 
   /**
-   * Session Manager's method. Sets current session as well
-   *
-   * @throws RepositoryException
+   * Sets current session as well. Per DFC javadoc, if session does
+   * not exist, a new one is created.
    */
   public ISession getSession(String docbase) throws RepositoryException {
+    ISession session;
     if (!sessMgerSessions.containsKey(docbase))
-      return this.newSession(docbase);
-    // DFC javadoc. If session not
-    // existing, created.
+      session = newSession(docbase);
     else {
-      return sessMgerSessions.get(docbase);
+      session = sessMgerSessions.get(docbase);
+      allSessions.put(session, new Throwable("Session allocated from pool"));
     }
+    return session;
   }
 
   public String getDocbaseName() {

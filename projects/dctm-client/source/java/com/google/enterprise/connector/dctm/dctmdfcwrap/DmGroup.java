@@ -22,8 +22,8 @@ import com.documentum.fc.common.DfException;
 
 import java.util.logging.Logger;
 
-/*
- * @since TODO(Srinivas)
+/**
+ * @since 3.2.0
  */
 public class DmGroup implements IGroup {
   private static final Logger logger =

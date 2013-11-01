@@ -20,8 +20,8 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.documentum.fc.client.IDfACL;
 import com.documentum.fc.common.DfException;
 
-/*
- * @since TODO(Srinivas)
+/**
+ * @since 3.2.0
  */
 public class DmAcl implements IAcl {
   IDfACL idfAcl;

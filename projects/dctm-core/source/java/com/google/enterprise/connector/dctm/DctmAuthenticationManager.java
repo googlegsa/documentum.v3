@@ -73,8 +73,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
         sessionManagerUser =
             getSessionManager(connector.getLogin(), connector.getPassword());
         //check for user existence when null password
-        authenticate = isValidUser(sessionManagerUser.getSession(docbase),
-            userLoginName);
+        authenticate = isValidUser(sessionManagerUser, userLoginName);
       } else {
         sessionManagerUser = getSessionManager(userLoginName, password);
         authenticate = sessionManagerUser.authenticate(docbase);
@@ -105,13 +104,19 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     return sessionManagerUser;
   }
 
-  private boolean isValidUser(ISession session, String userLoginName)
-      throws RepositoryDocumentException {
+  private boolean isValidUser(ISessionManager sessionManager,
+      String userLoginName) throws RepositoryLoginException,
+      RepositoryException {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(userLoginName),
         "Username must not be null or empty.");
-    IPersistentObject userObj = session.getObjectByQualification(
-          "dm_user where user_login_name = '" + userLoginName + "'");
-    return userObj != null;
+    ISession session = sessionManager.getSession(docbase);
+    try {
+      return session
+          .getObjectByQualification("dm_user where user_login_name = '"
+              + userLoginName + "'") != null;
+    } finally {
+      sessionManager.release(session);
+    }
   }
 
   /**
@@ -141,7 +146,6 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       queryBuff.append(" and user_ldap_dn like '%");
       queryBuff.append(userdomain);
       queryBuff.append(",%");
-      
     }
     queryBuff.append("')");
 
@@ -150,28 +154,28 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     query.setDQL(queryBuff.toString());
     ICollection collecGroups = query.execute(session,
         IQuery.EXECUTE_READ_QUERY);
-    if (collecGroups != null) {
-      try {
-        while (collecGroups.next()) {
-          String groupName = collecGroups.getString("group_name");
-          String groupNamespace = getGroupNamespace(session, groupName);
-          if (groupNamespace != null) {
-            listGroups.add(new Principal(PrincipalType.UNKNOWN, groupNamespace,
-                groupName, CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
-          } else {
-            LOGGER.warning("Skipping group " + groupName
-                + " with null namespace");
-          }
+
+    try {
+      while (collecGroups.next()) {
+        String groupName = collecGroups.getString("group_name");
+        String groupNamespace = getGroupNamespace(session, groupName);
+        if (groupNamespace != null) {
+          listGroups.add(new Principal(PrincipalType.UNKNOWN, groupNamespace,
+              groupName, CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
+        } else {
+          LOGGER.warning("Skipping group " + groupName
+              + " with null namespace");
         }
-        // process special group dm_world
-        listGroups.add(new Principal(PrincipalType.UNKNOWN,
-            connector.getGoogleLocalNamespace(), "dm_world",
-            CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
-      } finally {
-        collecGroups.close();
-        sessionManager.release(session);
       }
+      // process special group dm_world
+      listGroups.add(new Principal(PrincipalType.UNKNOWN,
+          connector.getGoogleLocalNamespace(), "dm_world",
+          CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
+    } finally {
+      collecGroups.close();
+      sessionManager.release(session);
     }
+
     return listGroups;
   }
 
