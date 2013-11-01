@@ -18,8 +18,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 
 import com.documentum.fc.client.IDfPersistentObject;
 
-/*
- * @since TODO(Srinivas)
+/**
+ * @since 3.2.0
  */
 public class DmPersistentObject implements IPersistentObject {
 

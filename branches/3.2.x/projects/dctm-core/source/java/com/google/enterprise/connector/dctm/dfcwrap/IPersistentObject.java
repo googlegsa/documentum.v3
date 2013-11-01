@@ -14,8 +14,8 @@
 
 package com.google.enterprise.connector.dctm.dfcwrap;
 
-/*
- * @since TODO(Srinivas)
+/**
+ * @since 3.2.0
  */
 public interface IPersistentObject {
 }

@@ -24,8 +24,8 @@ import com.documentum.fc.common.DfException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/*
- * @since TODO(Srinivas)
+/**
+ * @since 3.2.0
  */
 public class DmUser implements IUser {
   private static final Logger logger = 
