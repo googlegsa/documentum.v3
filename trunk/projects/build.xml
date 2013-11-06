@@ -215,7 +215,7 @@
     <checksum algorithm="SHA-1" file="${dist}/${bin.archive}.tar.gz" />
   </target>
 
-  <target name="src-archive" depends="init">
+  <target name="src-archive" depends="init,svn.svn-branch-version">
     <property name="src.archive" value="connector-dctm-${svn.branch}-src" />
 
     <!-- Use 'svn export' to create a clean version of the
