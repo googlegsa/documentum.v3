@@ -30,7 +30,7 @@ used with this version. This version works with Connector Manager
 version 3.0.0 or later. Earlier versions of the Connector Manager will
 not work correctly with this version of the connector. This product is
 designed to function with EMC Documentum Content Server versions 6.0,
-6.5, 6.6 and 6.7, including service packs.
+6.5, 6.6 and 6.7, including service packs. Java 6 or later is required.
 
 
 Release 3.2.0, Oct 14, 2013
@@ -45,6 +45,8 @@ Summary of Changes
 ------------------
   * Documentum Content Server version 5.3 is no longer supported with the
     connector.
+
+  * Java SE 5.0 is no longer supported. Java 6 or later is required.
 
   * Fixed issue 4326053: Per-URL ACLs for Documentum connector.
 
@@ -70,7 +72,7 @@ used with this version. This version works with Connector Manager
 version 3.0.0 or later. Earlier versions of the Connector Manager will
 not work correctly with this version of the connector. This product is
 designed to function with EMC Documentum Content Server versions 6.0,
-6.5, 6.6 and 6.7, including service packs.
+6.5, 6.6 and 6.7, including service packs. Java 6 or later is required.
 
 
 Release 3.0.4, Dec 6, 2012
