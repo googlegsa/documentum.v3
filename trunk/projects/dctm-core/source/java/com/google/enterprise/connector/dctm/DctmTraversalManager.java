@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.common.base.Strings;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
@@ -436,7 +437,7 @@ public class DctmTraversalManager
   protected IQuery buildACLQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder();
     queryStr.append("select r_object_id from dm_acl");
-    if (checkpoint.getAclId() != null && !checkpoint.getAclId().isEmpty()) {
+    if (!Strings.isNullOrEmpty(checkpoint.getAclId())) {
       queryStr.append(MessageFormat.format(whereClauseAcl,
           checkpoint.getAclId()));
     }
