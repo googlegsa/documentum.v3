@@ -14,14 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.io.ByteArrayInputStream;
-import java.util.logging.Logger;
-
-import com.documentum.fc.client.IDfFormat;
-import com.documentum.fc.client.IDfSysObject;
-import com.documentum.fc.client.IDfType;
-import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.IDfAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
@@ -33,16 +25,26 @@ import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 
-public class DmSysObject implements ISysObject {
-  IDfSysObject idfSysObject;
+import com.documentum.fc.client.IDfFormat;
+import com.documentum.fc.client.IDfSysObject;
+import com.documentum.fc.client.IDfType;
+import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.IDfAttr;
 
+import java.io.ByteArrayInputStream;
+import java.util.logging.Logger;
+
+public class DmSysObject implements ISysObject {
   private static Logger logger = Logger.getLogger(DmSysObject.class
       .getName());
+
+  private final IDfSysObject idfSysObject;
 
   public DmSysObject(IDfSysObject idfSysObject) {
     this.idfSysObject = idfSysObject;
   }
 
+  @Override
   public String getObjectName() throws RepositoryDocumentException {
     String name = null;
     try {
@@ -53,6 +55,7 @@ public class DmSysObject implements ISysObject {
     return name;
   }
 
+  @Override
   public IFormat getFormat() throws RepositoryDocumentException {
     IDfFormat idfFormat = null;
     try {
@@ -63,6 +66,7 @@ public class DmSysObject implements ISysObject {
     return new DmFormat(idfFormat);
   }
 
+  @Override
   public long getContentSize() throws RepositoryDocumentException {
     long contentSize = 0;
     try {
@@ -73,6 +77,7 @@ public class DmSysObject implements ISysObject {
     return contentSize;
   }
 
+  @Override
   public ByteArrayInputStream getContent() throws RepositoryDocumentException {
     ByteArrayInputStream content = null;
     try {
@@ -83,6 +88,7 @@ public class DmSysObject implements ISysObject {
     return content;
   }
 
+  @Override
   public String getACLDomain() throws RepositoryDocumentException {
     try {
       return idfSysObject.getACLDomain();
@@ -91,6 +97,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public String getACLName() throws RepositoryDocumentException {
     try {
       return idfSysObject.getACLName();
@@ -99,6 +106,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public String getString(String name) throws RepositoryDocumentException {
     try {
       if (name.equals("r_object_id") || name.equals("i_chronicle_id")) {
@@ -120,6 +128,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public boolean getBoolean(String name) throws RepositoryDocumentException {
     try {
       return idfSysObject.getBoolean(name);
@@ -128,6 +137,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public double getDouble(String name) throws RepositoryDocumentException {
     try {
       return idfSysObject.getDouble(name);
@@ -136,6 +146,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public IId getId(String name) throws RepositoryDocumentException {
     try {
       return new DmId(idfSysObject.getId(name));
@@ -144,6 +155,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public int getInt(String name) throws RepositoryDocumentException {
     try {
       return idfSysObject.getInt(name);
@@ -152,6 +164,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public ITime getTime(String name) throws RepositoryDocumentException {
     try {
       return new DmTime(idfSysObject.getTime(name));
@@ -160,6 +173,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public IType getType() throws RepositoryDocumentException {
     try {
       IDfType type = idfSysObject.getType();
@@ -169,6 +183,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public int getAttrDataType(String name) throws RepositoryDocumentException {
     try {
       return idfSysObject.getAttrDataType(name);
@@ -177,6 +192,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public int getAttrCount() throws RepositoryDocumentException {
     try {
       return idfSysObject.getAttrCount();
@@ -185,6 +201,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public IAttr getAttr(int attrIndex) throws RepositoryDocumentException {
     try {
       return new DmAttr(idfSysObject.getAttr(attrIndex));
@@ -193,6 +210,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public void setSessionManager(ISessionManager sessionManager)
       throws RepositoryDocumentException {
     DmSessionManager dmSessionManager = (DmSessionManager) sessionManager;
@@ -204,6 +222,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public IValue getRepeatingValue(String name, int index)
       throws RepositoryDocumentException {
     try {
@@ -213,6 +232,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public int findAttrIndex(String name) throws RepositoryDocumentException {
     try {
       return idfSysObject.findAttrIndex(name);
@@ -221,6 +241,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public int getValueCount(String name) throws RepositoryDocumentException {
     try {
       return idfSysObject.getValueCount(name);
@@ -229,6 +250,7 @@ public class DmSysObject implements ISysObject {
     }
   }
 
+  @Override
   public IAcl getAcl() throws RepositoryDocumentException {
     try {
       return new DmAcl(idfSysObject.getACL());
@@ -240,6 +262,7 @@ public class DmSysObject implements ISysObject {
   // TODO(Srinivas): Move this logic to get AclId by using getObjectId to
   // higher level class. getObjectId() belongs to IDfTypedObject, which we 
   // don't have an interface/implementation. Maybe add to IPersistentObject
+  @Override
   public IId getAclId() throws RepositoryDocumentException {
     try {
       return new DmId(idfSysObject.getACL().getObjectId());

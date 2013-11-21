@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.text.SimpleDateFormat;
-
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;

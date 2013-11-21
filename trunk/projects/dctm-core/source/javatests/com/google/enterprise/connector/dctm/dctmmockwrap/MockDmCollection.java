@@ -14,6 +14,12 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+import com.google.enterprise.connector.dctm.dfcwrap.IValue;
+import com.google.enterprise.connector.spi.RepositoryException;
+
 import java.util.Calendar;
 
 import javax.jcr.Node;
@@ -24,14 +30,8 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.query.QueryResult;
 
-import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ITime;
-import com.google.enterprise.connector.dctm.dfcwrap.IValue;
-import com.google.enterprise.connector.spi.RepositoryException;
-
 public class MockDmCollection implements ICollection {
-  private NodeIterator collection;
+  private final NodeIterator collection;
 
   private Node currentNode;
 
@@ -44,6 +44,7 @@ public class MockDmCollection implements ICollection {
     }
   }
 
+  @Override
   public boolean next() {
     if (collection.hasNext()) {
       currentNode = collection.nextNode();
@@ -54,6 +55,7 @@ public class MockDmCollection implements ICollection {
     }
   }
 
+  @Override
   public String getString(String colName) throws RepositoryException {
     try {
       if (colName.equals("r_object_id")
@@ -77,7 +79,7 @@ public class MockDmCollection implements ICollection {
    * catch (javax.jcr.RepositoryException e) { throw new
    * RepositoryException(e); } }
    */
-
+  @Override
   public IValue getValue(String attrName) throws RepositoryException {
     Value val = null;
     if (attrName.equals("r_object_id")) {
@@ -100,13 +102,16 @@ public class MockDmCollection implements ICollection {
     return new MockDmValue(val);
   }
 
+  @Override
   public void close() throws RepositoryException {
   }
 
+  @Override
   public int getState() {
     return ICollection.DF_READY_STATE;
   }
 
+  @Override
   public ISession getSession(){
     MockDmSessionManager mockDm = new MockDmSessionManager();
     ISession session = null;
@@ -118,11 +123,13 @@ public class MockDmCollection implements ICollection {
     return session;
   }
 
+  @Override
   public boolean hasNext() throws RepositoryException {
     // TODO Auto-generated method stub
     return collection.hasNext();
   }
 
+  @Override
   public ITime getTime(String colName) throws RepositoryException {
     Calendar val = null;
     if (colName.equals("r_modify_date")) {

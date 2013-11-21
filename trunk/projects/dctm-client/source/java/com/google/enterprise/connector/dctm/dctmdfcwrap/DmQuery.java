@@ -14,15 +14,16 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.client.DfQuery;
-import com.documentum.fc.client.IDfCollection;
-import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.client.IDfQuery;
-import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.spi.RepositoryException;
+
+import com.documentum.fc.client.DfQuery;
+import com.documentum.fc.client.IDfCollection;
+import com.documentum.fc.client.IDfQuery;
+import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.common.DfException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,10 +42,12 @@ public class DmQuery implements IQuery {
     this.idfQuery = new DfQuery();
   }
 
+  @Override
   public void setDQL(String dqlStatement) {
     idfQuery.setDQL(dqlStatement);
   }
 
+  @Override
   public ICollection execute(ISession session, int queryType)
       throws RepositoryException {
     if (!(session instanceof DmSession)) {

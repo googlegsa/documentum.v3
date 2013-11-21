@@ -30,14 +30,14 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class DctmMockAuthenticationManagerTest extends TestCase {
   DctmAuthenticationManager authentManager;
 
-  public void setUp() throws RepositoryException {
+  @Override
+  protected void setUp() throws RepositoryException {
     Connector connector = new DctmConnector();
     ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
     ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);

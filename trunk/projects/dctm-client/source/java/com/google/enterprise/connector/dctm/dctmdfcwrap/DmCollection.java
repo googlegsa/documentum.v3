@@ -19,8 +19,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
+
 import com.documentum.fc.client.IDfCollection;
-import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfTime;
 import com.documentum.fc.common.IDfValue;
@@ -46,6 +46,7 @@ public class DmCollection implements ICollection {
     didPeek = false;
   }
 
+  @Override
   public IValue getValue(String attrName) throws RepositoryException {
     if (didPeek) {
       throw new IllegalStateException("Cannot access current row after hasNext()");
@@ -73,6 +74,7 @@ public class DmCollection implements ICollection {
    * At this time, hasNext() is only called at the time the collection
    * is in DF_INITIAL_STATE, so there is no "current" row.
    */
+  @Override
   public boolean hasNext() throws RepositoryException {
     if (!didPeek) {
       peekState = getState();
@@ -82,6 +84,7 @@ public class DmCollection implements ICollection {
     return peekResult;
   }
 
+  @Override
   public boolean next() throws RepositoryException {
     if (didPeek) {
       didPeek = false;
@@ -105,6 +108,7 @@ public class DmCollection implements ICollection {
     return isNext;
   }
 
+  @Override
   public String getAllRepeatingStrings(String colName, String separator)
       throws RepositoryException {
     try {
@@ -118,6 +122,7 @@ public class DmCollection implements ICollection {
     }
   }
 
+  @Override
   public String getString(String colName) throws RepositoryException {
     if (didPeek) {
       throw new IllegalStateException("Cannot access current row after hasNext()");
@@ -131,6 +136,7 @@ public class DmCollection implements ICollection {
     }
   }
 
+  @Override
   public ITime getTime(String colName) throws RepositoryException {
     IDfTime dfTime = null;
     try {
@@ -143,6 +149,7 @@ public class DmCollection implements ICollection {
     return new DmTime(dfTime);
   }
 
+  @Override
   public void close() throws RepositoryException {
     if (logger.isLoggable(Level.FINEST))
       logger.finest(numberOfRows + " rows have been processed");
@@ -154,17 +161,20 @@ public class DmCollection implements ICollection {
     }
   }
 
+  @Override
   public int getState() {
     int state = (didPeek) ? peekState : idfCollection.getState();
     logger.fine("state of the collection : " + state);
     return state;
   }
 
+  @Override
   public ISession getSession() {
     logger.finest("getting the session from the collection");
     return new DmSession(idfCollection.getSession());
   }
 
+  @Override
   protected void finalize() throws RepositoryException {
     if (getState() != ICollection.DF_CLOSED_STATE) {
       logger.warning("Open DmCollection getting reaped by GC: " + this);

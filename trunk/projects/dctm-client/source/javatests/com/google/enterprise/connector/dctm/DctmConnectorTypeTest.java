@@ -14,17 +14,18 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.HashMap;
-import java.util.Locale;
-
 import com.google.enterprise.connector.spi.ConfigureResponse;
 
 import junit.framework.TestCase;
 
+import java.util.HashMap;
+import java.util.Locale;
+
 public class DctmConnectorTypeTest extends TestCase {
   private HashMap<String, String> map;
 
-  public void setUp() {
+  @Override
+  protected void setUp() {
     map = new HashMap<String, String>();
   }
 

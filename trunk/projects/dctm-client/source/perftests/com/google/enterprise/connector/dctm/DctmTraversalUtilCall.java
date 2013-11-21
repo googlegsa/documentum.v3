@@ -16,11 +16,10 @@ package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.pusher.FeedException;
 import com.google.enterprise.connector.pusher.PushException;
-import com.google.enterprise.connector.spi.Connector;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
-import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.Session;
+import com.google.enterprise.connector.spi.TraversalManager;
 
 import java.util.Collections;
 

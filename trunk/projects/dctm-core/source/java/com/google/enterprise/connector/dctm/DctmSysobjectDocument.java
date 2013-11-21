@@ -31,8 +31,8 @@ import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
-import com.google.enterprise.connector.spi.SkippedDocumentException;
 import com.google.enterprise.connector.spi.SimpleProperty;
+import com.google.enterprise.connector.spi.SkippedDocumentException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.SpiConstants.ActionType;
 import com.google.enterprise.connector.spi.TraversalContext;
@@ -145,6 +145,7 @@ public class DctmSysobjectDocument implements Document {
    * <p>This implementation looks up the properties when this method
    * is called.
    */
+  @Override
   public Property findProperty(String name) throws RepositoryDocumentException,
       RepositoryLoginException, RepositoryException {
     if (name == null || name.length() == 0)
@@ -525,7 +526,7 @@ public class DctmSysobjectDocument implements Document {
     }
   }
 
-  public void addIfIncluded(List<String> typeAttributes, String name,
+  private void addIfIncluded(List<String> typeAttributes, String name,
       Set<String> includedMeta, Set<String> excludedMeta) {
     if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
         !excludedMeta.contains(name)) {
@@ -541,6 +542,7 @@ public class DctmSysobjectDocument implements Document {
     }
   }
 
+  @Override
   public Set<String> getPropertyNames() throws RepositoryException {
     Set<String> properties;
     if (ActionType.ADD.equals(action)) {

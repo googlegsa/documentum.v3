@@ -14,20 +14,8 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import static com.google.enterprise.connector.dctm.FormSnippet.*;
+
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -41,6 +29,19 @@ import com.google.enterprise.connector.spi.ConnectorType;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.util.UrlValidator;
 import com.google.enterprise.connector.util.UrlValidatorException;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DctmConnectorType implements ConnectorType {
   private static final Logger logger =
@@ -117,6 +118,7 @@ public class DctmConnectorType implements ConnectorType {
     logger.config("root_object_type set to " + rootObjectType);
   }
 
+  @Override
   public ConfigureResponse getConfigForm(Locale language) {
     ResourceBundle resource = getResources(language);
     try {
@@ -131,6 +133,7 @@ public class DctmConnectorType implements ConnectorType {
     }
   }
 
+  @Override
   public ConfigureResponse validateConfig(Map<String, String> configData,
       Locale language, ConnectorFactory connectorFactory) {
     logger.config("CONFIG DATA is " + getMaskedMap(configData));
@@ -227,6 +230,7 @@ public class DctmConnectorType implements ConnectorType {
     }
   }
 
+  @Override
   public ConfigureResponse getPopulatedConfigForm(
       Map<String, String> configMap, Locale language) {
     logger.fine("getPopulatedConfigForm");

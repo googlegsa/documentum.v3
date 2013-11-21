@@ -34,7 +34,8 @@ public class DmQueryTest extends TestCase {
 
   IClientX dctmClientX;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     IClient localClient;
     ILoginInfo loginInfo;

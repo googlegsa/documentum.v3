@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import junit.framework.TestCase;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -23,10 +21,13 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import junit.framework.TestCase;
+
 public class MockMockListTest extends TestCase {
   private ISessionManager sessionManager;
 
-  public void setUp() {
+  @Override
+  protected void setUp() {
     IClientX dctmClientX = new MockDmClientX();
     IClient localClient = null;
     try {

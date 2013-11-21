@@ -14,8 +14,8 @@
 
 package com.google.enterprise.connector.dctm.dfcwrap;
 
-import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 public interface ISessionManager {
   ISession getSession(String docbase) throws RepositoryLoginException,

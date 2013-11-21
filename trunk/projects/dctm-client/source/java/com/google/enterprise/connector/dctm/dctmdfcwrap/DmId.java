@@ -14,12 +14,13 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.common.DfId;
-import com.documentum.fc.common.IDfId;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 
+import com.documentum.fc.common.DfId;
+import com.documentum.fc.common.IDfId;
+
 public class DmId implements IId {
-  IDfId idfId;
+  private final IDfId idfId;
 
   public DmId(String id) {
     this.idfId = new DfId(id);
@@ -33,10 +34,7 @@ public class DmId implements IId {
     return idfId;
   }
 
-  public void setidfId(IDfId idfId) {
-    this.idfId = idfId;
-  }
-
+  @Override
   public String getId() {
     return this.idfId.getId();
   }

@@ -14,10 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.Iterator;
-
-import junit.framework.TestCase;
-
 import com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -32,13 +28,16 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.Value;
 
+import junit.framework.TestCase;
+
 public class DctmSysobjectDocumentTest extends TestCase {
   IClientX dctmClientX = null;
   IClient localClient = null;
   ISessionManager sessionManager = null;
   DctmTraversalManager traversalManager = null;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new DmClientX();
     localClient = dctmClientX.getLocalClient();

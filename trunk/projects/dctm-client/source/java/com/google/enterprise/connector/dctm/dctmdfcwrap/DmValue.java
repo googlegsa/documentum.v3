@@ -14,38 +14,45 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.common.IDfValue;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 
+import com.documentum.fc.common.IDfValue;
+
 public class DmValue implements IValue {
-  IDfValue idfValue;
+  private final IDfValue idfValue;
 
   public DmValue(IDfValue idfValue) {
     this.idfValue = idfValue;
   }
 
+  @Override
   public String asString() {
     return idfValue.asString();
   }
 
+  @Override
   public boolean asBoolean() {
     return idfValue.asBoolean();
   }
 
+  @Override
   public double asDouble() {
     return idfValue.asDouble();
   }
 
+  @Override
   public long asInteger() {
     return idfValue.asInteger();
   }
 
+  @Override
   public ITime asTime() {
     return new DmTime(idfValue.asTime());
   }
 
+  @Override
   public IId asId() {
     return new DmId(idfValue.asId());
   }

@@ -15,14 +15,12 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
-import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleTraversalContext;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -32,6 +30,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
   DctmConnector connector;
   DctmTraversalManager qtm;
 
+  @Override
   protected void setUp() throws RepositoryException {
     connector = new DctmConnector();
     connector.setLogin(DmInitialize.DM_LOGIN_OK1);
@@ -117,8 +116,8 @@ public class DctmMockTraversalManagerTest extends TestCase {
    * of an instance.
    */
   private static class MockDocumentList implements DocumentList {
-    public Document nextDocument() { return null; }
-    public String checkpoint() { return null; }
+    @Override public Document nextDocument() { return null; }
+    @Override public String checkpoint() { return null; }
   }
 
   public void testGetDocumentList_start() throws RepositoryException {

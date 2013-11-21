@@ -20,7 +20,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IGroup;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
-import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IUser;
@@ -32,9 +31,9 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SecureDocument;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.SpiConstants.ActionType;
-import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.SpiConstants.CaseSensitivityType;
 import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
+import com.google.enterprise.connector.spi.Value;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -472,7 +471,8 @@ public class DctmAclList implements DocumentList {
 
   // Last chance to make sure the collections are closed and their sessions
   // are released.
-  public void finalize() {
+  @Override
+  protected void finalize() {
     try {
       if (isOpen(collectionAcl)) {
         try {

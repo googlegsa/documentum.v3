@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.logging.Logger;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -27,18 +25,16 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.TraversalManager;
 
+import java.util.logging.Logger;
+
 public class DctmSession implements Session {
+  private static Logger logger = Logger.getLogger(DctmSession.class.getName());
+
   private final DctmConnector connector;
 
   private final IClientX clientX;
 
   private final ISessionManager sessionManager;
-
-  private static Logger logger = null;
-
-  static {
-    logger = Logger.getLogger(DctmSession.class.getName());
-  }
 
   public DctmSession(DctmConnector connector) throws RepositoryException {
     this.connector = connector;
@@ -60,6 +56,7 @@ public class DctmSession implements Session {
     logger.info("Tested a new session for the docbase " + docbase);
   }
 
+  @Override
   public TraversalManager getTraversalManager() throws RepositoryException {
     return new DctmTraversalManager(connector, sessionManager);
   }
@@ -77,6 +74,7 @@ public class DctmSession implements Session {
    * @return a AuthenticationManager - may be null
    * @throws RepositoryException
    */
+  @Override
   public AuthenticationManager getAuthenticationManager() {
     return new DctmAuthenticationManager(connector, clientX,
         connector.getDocbase());
@@ -96,6 +94,7 @@ public class DctmSession implements Session {
    * @return a AuthorizationManager - may be null
    * @throws RepositoryException
    */
+  @Override
   public AuthorizationManager getAuthorizationManager() {
     return new DctmAuthorizationManager(clientX, sessionManager,
         connector.getDocbase());

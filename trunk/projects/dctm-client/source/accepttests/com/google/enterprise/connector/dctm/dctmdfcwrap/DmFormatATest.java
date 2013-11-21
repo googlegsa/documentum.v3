@@ -14,10 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.client.IDfSession;
-import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.IDfId;
-
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -28,6 +24,10 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.RepositoryException;
+
+import com.documentum.fc.client.IDfSession;
+import com.documentum.fc.common.DfException;
+import com.documentum.fc.common.IDfId;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -45,7 +45,8 @@ public class DmFormatATest extends TestCase {
 
   String docbase;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = (IClientX) Class.forName(DmInitialize.DM_CLIENTX)
         .newInstance();

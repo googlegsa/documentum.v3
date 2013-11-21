@@ -20,14 +20,13 @@ import com.google.enterprise.connector.pusher.GsaFeedConnection;
 import com.google.enterprise.connector.pusher.PushException;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
+import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.TraversalManager;
-import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.traversal.FileSizeLimitInfo;
 import com.google.enterprise.connector.util.filter.DocumentFilterChain;
 
 import java.net.MalformedURLException;
-import java.util.Iterator;
 
 public class DctmTraversalUtil {
   public static void runTraversal(TraversalManager queryTraversalManager,

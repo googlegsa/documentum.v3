@@ -14,16 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -34,6 +24,17 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import com.documentum.fc.common.DfException;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 public class DmSysObjectATest extends TestCase {
   ISysObject object;
 
@@ -43,7 +44,8 @@ public class DmSysObjectATest extends TestCase {
 
   DmDocument document;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     IClientX dctmClientX;
     IClient localClient;
@@ -60,7 +62,7 @@ public class DmSysObjectATest extends TestCase {
     session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
     object =
         (ISysObject) session.getObject(dctmClientX.getId(DmInitialize.DM_ID1));
-    document = CreateNewDocument(session);
+    document = createNewDocument(session);
   }
 
   public void testGetFormat() throws RepositoryException {
@@ -111,7 +113,7 @@ public class DmSysObjectATest extends TestCase {
     Assert.assertNotNull(ACLName);
   }
 
-  public DmDocument CreateNewDocument(ISession session)
+  private DmDocument createNewDocument(ISession session)
       throws RepositoryException, IOException {
     document = ((DmSession) session).newObject();
     File f = new File("DocumentCreationTest.txt");

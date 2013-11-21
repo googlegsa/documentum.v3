@@ -41,7 +41,8 @@ public class DctmMockAclListTest extends TestCase {
   private DctmAclList aclList = null;
   private Map<String, List<Value>> aclValues;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     DctmConnector connector = new DctmConnector();

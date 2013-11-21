@@ -33,7 +33,8 @@ public class DmLoginInfoTest extends TestCase {
 
   ILoginInfo loginInfo;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new DmClientX();
     localClient = dctmClientX.getLocalClient();

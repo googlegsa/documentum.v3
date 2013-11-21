@@ -18,20 +18,21 @@ import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
+
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
 public class MockDmValue implements IValue {
-  private Value value;
+  private final Value value;
 
   protected MockDmValue(Value val) {
     value = val;
   }
 
+  @Override
   public String asString() throws RepositoryException {
-    String ret = "";
     try {
-      ret = value.getString();
+      return value.getString();
     } catch (ValueFormatException e) {
       throw new RepositoryException(e);
     } catch (IllegalStateException e) {
@@ -39,13 +40,12 @@ public class MockDmValue implements IValue {
     } catch (javax.jcr.RepositoryException e) {
       throw new RepositoryException(e);
     }
-    return ret;
   }
 
+  @Override
   public boolean asBoolean() throws RepositoryException {
-    boolean ret = false;
     try {
-      ret = value.getBoolean();
+      return value.getBoolean();
     } catch (ValueFormatException e) {
       throw new RepositoryException(e);
     } catch (IllegalStateException e) {
@@ -53,13 +53,12 @@ public class MockDmValue implements IValue {
     } catch (javax.jcr.RepositoryException e) {
       throw new RepositoryException(e);
     }
-    return ret;
   }
 
+  @Override
   public double asDouble() throws RepositoryException {
-    double ret = 0;
     try {
-      ret = value.getLong();
+      return value.getLong();
     } catch (ValueFormatException e) {
       throw new RepositoryException(e);
     } catch (IllegalStateException e) {
@@ -67,13 +66,12 @@ public class MockDmValue implements IValue {
     } catch (javax.jcr.RepositoryException e) {
       throw new RepositoryException(e);
     }
-    return ret;
   }
 
+  @Override
   public long asInteger() throws RepositoryException {
-    long ret = 0;
     try {
-      ret = value.getLong();
+      return value.getLong();
     } catch (ValueFormatException e) {
       throw new RepositoryException(e);
     } catch (IllegalStateException e) {
@@ -81,13 +79,12 @@ public class MockDmValue implements IValue {
     } catch (javax.jcr.RepositoryException e) {
       throw new RepositoryException(e);
     }
-    return ret;
   }
 
+  @Override
   public ITime asTime() throws RepositoryException {
-    MockDmTime ret = null;
     try {
-      ret = new MockDmTime(value.getDate().getTime());
+      return new MockDmTime(value.getDate().getTime());
     } catch (ValueFormatException e) {
       throw new RepositoryException(e);
     } catch (IllegalStateException e) {
@@ -95,13 +92,12 @@ public class MockDmValue implements IValue {
     } catch (javax.jcr.RepositoryException e) {
       throw new RepositoryException(e);
     }
-    return ret;
   }
 
+  @Override
   public IId asId() throws RepositoryException {
-    MockDmId ret = null;
     try {
-      ret = new MockDmId(value.getString());
+      return new MockDmId(value.getString());
     } catch (ValueFormatException e) {
       throw new RepositoryException(e);
     } catch (IllegalStateException e) {
@@ -109,6 +105,5 @@ public class MockDmValue implements IValue {
     } catch (javax.jcr.RepositoryException e) {
       throw new RepositoryException(e);
     }
-    return ret;
   }
 }

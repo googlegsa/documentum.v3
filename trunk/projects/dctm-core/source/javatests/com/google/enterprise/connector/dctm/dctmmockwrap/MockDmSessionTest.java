@@ -36,7 +36,8 @@ public class MockDmSessionTest extends TestCase {
 
   ISession sess7;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new MockDmClientX();
     localClient = dctmClientX.getLocalClient();

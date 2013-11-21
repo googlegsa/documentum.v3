@@ -20,7 +20,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IGroup;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
-import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
@@ -29,14 +28,13 @@ import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
 import com.google.enterprise.connector.spi.Principal;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.SpiConstants.CaseSensitivityType;
 import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DctmAuthenticationManager implements AuthenticationManager {
@@ -56,6 +54,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     this.connector = connector;
   }
 
+  @Override
   public AuthenticationResponse authenticate(
       AuthenticationIdentity authenticationIdentity)
       throws RepositoryLoginException, RepositoryException {
