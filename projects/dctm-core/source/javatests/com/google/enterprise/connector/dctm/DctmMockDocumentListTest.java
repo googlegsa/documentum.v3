@@ -14,9 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
@@ -27,12 +24,16 @@ import com.google.enterprise.connector.spi.TraversalManager;
 
 import junit.framework.TestCase;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class DctmMockDocumentListTest extends TestCase {
   TraversalManager qtm = null;
 
   DctmSession dctmSession = null;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     DctmConnector connector = new DctmConnector();

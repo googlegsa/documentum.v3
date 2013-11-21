@@ -18,11 +18,9 @@ import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
-
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.RepositoryException;
 
@@ -38,7 +36,8 @@ public class DmSysObjectTest extends TestCase {
 
   IClientX dctmClientX;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     IClient localClient;

@@ -16,7 +16,6 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 
-
 public class MockDmFormat implements IFormat {
   private final String mimeType;
 
@@ -24,18 +23,22 @@ public class MockDmFormat implements IFormat {
     this.mimeType = mimeType;
   }
 
+  @Override
   public String getName() {
     return mimeType;
   }
 
+  @Override
   public boolean canIndex() {
     return true;
   }
 
+  @Override
   public String getMIMEType() {
     return mimeType;
   }
 
+  @Override
   public String getDOSExtension() {
     return null;
   }

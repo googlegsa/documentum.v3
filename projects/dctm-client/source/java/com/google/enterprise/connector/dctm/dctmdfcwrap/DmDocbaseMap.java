@@ -14,18 +14,20 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.client.IDfDocbaseMap;
-import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import com.documentum.fc.client.IDfDocbaseMap;
+import com.documentum.fc.common.DfException;
+
 public class DmDocbaseMap implements IDocbaseMap {
-  IDfDocbaseMap docbaseMap = null;
+  private final IDfDocbaseMap docbaseMap;
 
   public DmDocbaseMap(IDfDocbaseMap docbaseMap) {
     this.docbaseMap = docbaseMap;
   }
 
+  @Override
   public int getDocbaseCount() throws RepositoryException {
     try {
       return docbaseMap.getDocbaseCount();
@@ -34,6 +36,7 @@ public class DmDocbaseMap implements IDocbaseMap {
     }
   }
 
+  @Override
   public String getDocbaseName(int i) throws RepositoryException {
     try {
       return docbaseMap.getDocbaseName(i);

@@ -34,10 +34,12 @@ public class MockDmDocbaseMap implements IDocbaseMap {
     this.count = count;
   }
 
+  @Override
   public int getDocbaseCount() throws RepositoryException {
     return count;
   }
 
+  @Override
   public String getDocbaseName(int i) throws RepositoryException {
     if (i == 0) {
       return DmInitialize.DM_DOCBASE;

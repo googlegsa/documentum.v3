@@ -44,8 +44,8 @@ public class DctmMockSysobjectPropertyMapTest extends TestCase {
   DctmSysobjectDocument document = null;
   ITime lastModifDate;
 
-  private static final String PROPNAME_FEEDTYPE = "google:feedtype";
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     dctmClientX = new MockDmClientX();

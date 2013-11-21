@@ -20,7 +20,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
-import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
@@ -29,55 +28,33 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.TestCase;
 
 public class MockDmFormatTest extends TestCase {
-  IClientX dctmClientX;
+  private ISysObject object;
 
-  IClient localClient;
-
-  ISessionManager sessionManager;
-
-  ISession sess7;
-
-  IId id;
-
-  ISysObject object;
-
-  IQuery query;
-
-  String crID;
-
-  IFormat format;
-
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
-    dctmClientX = new MockDmClientX();
-    localClient = null;
-    localClient = dctmClientX.getLocalClient();
-    sessionManager = localClient.newSessionManager();
+
+    IClientX dctmClientX = new MockDmClientX();
+    IClient localClient = dctmClientX.getLocalClient();
+    ISessionManager sessionManager = localClient.newSessionManager();
     ILoginInfo ili = new MockDmLoginInfo();
     ili.setUser("mark");
     ili.setPassword("mark");
     sessionManager.setIdentity(DmInitialize.DM_DOCBASE, ili);
-    sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
-    query = localClient.getQuery();
-    query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
+    ISession sess7 = sessionManager.getSession(DmInitialize.DM_DOCBASE);
 
-    id = dctmClientX.getId(DmInitialize.DM_ID2);
+    IId id = dctmClientX.getId(DmInitialize.DM_ID2);
     object = (ISysObject) sess7.getObject(id);
-    try {
-      format = object.getFormat();
-    } catch (RepositoryException e) {
-      // TODO: Why is this exception ignored?
-    }
   }
 
-  public void testCanIndex() {
-    boolean indexable = format.canIndex();
-    assertTrue(indexable);
+  public void testCanIndex() throws RepositoryException {
+    IFormat format = object.getFormat();
+    assertTrue(format.canIndex());
   }
 
-  public void testGetMIMEType() {
-    String mime = "";
-    mime = ((MockDmFormat) format).getMIMEType();
-    assertEquals(mime, DmInitialize.DM_DEFAULT_MIMETYPE);
+  public void testGetMIMEType() throws RepositoryException {
+    IFormat format = object.getFormat();
+    String mime = ((MockDmFormat) format).getMIMEType();
+    assertEquals(DmInitialize.DM_DEFAULT_MIMETYPE, mime);
   }
 }

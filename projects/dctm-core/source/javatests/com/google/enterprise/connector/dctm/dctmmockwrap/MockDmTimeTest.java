@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import java.util.Date;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -27,6 +25,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 
 import junit.framework.TestCase;
+
+import java.util.Date;
 
 public class MockDmTimeTest extends TestCase {
   IClientX dctmClientX;
@@ -47,7 +47,8 @@ public class MockDmTimeTest extends TestCase {
 
   ITime time;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new MockDmClientX();
     localClient = dctmClientX.getLocalClient();

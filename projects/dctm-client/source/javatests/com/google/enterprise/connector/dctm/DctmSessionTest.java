@@ -16,15 +16,16 @@ package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
-import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.TraversalManager;
 
 import junit.framework.TestCase;
 
 public class DctmSessionTest extends TestCase {
   DctmSession dctmSession = null;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     DctmConnector connector = new DctmConnector();

@@ -14,20 +14,21 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.enterprise.connector.dctm.dfcwrap.ITime;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.google.enterprise.connector.dctm.dfcwrap.ITime;
-
 public class MockDmTime implements ITime {
-  private Date time;
+  private final Date time;
 
   public MockDmTime(Date time) {
     this.time = time;
   }
 
+  @Override
   public Date getDate() {
     return time;
   }
@@ -39,11 +40,13 @@ public class MockDmTime implements ITime {
     return simpleDateFormat.format(time);
   }
 
+  @Override
   public String asString(String pattern) {
     // TODO Auto-generated method stub
     return null;
   }
 
+  @Override
   public String getTime_pattern44() {
     // TODO Auto-generated method stub
     return null;

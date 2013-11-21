@@ -31,10 +31,12 @@ public class MockDmAttr implements IAttr {
     this.dataType = IAttr.DM_UNDEFINED; // Does not matter.
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public int getDataType() {
     return dataType;
   }

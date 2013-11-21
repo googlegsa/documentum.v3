@@ -14,16 +14,17 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.com.DfClientX;
-import com.documentum.com.IDfClientX;
-import com.documentum.fc.client.DfQuery;
-import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.spi.RepositoryException;
+
+import com.documentum.com.DfClientX;
+import com.documentum.com.IDfClientX;
+import com.documentum.fc.client.DfQuery;
+import com.documentum.fc.common.DfException;
 
 public class DmClientX implements IClientX {
   private final IDfClientX idfClientX;
@@ -32,14 +33,17 @@ public class DmClientX implements IClientX {
     this.idfClientX = new DfClientX();
   }
 
+  @Override
   public String getDFCVersion() {
     return idfClientX.getDFCVersion();
   }
 
+  @Override
   public IId getId(String id) {
     return new DmId(idfClientX.getId(id));
   }
 
+  @Override
   public IClient getLocalClient() throws RepositoryException {
     try {
       return new DmClient(idfClientX.getLocalClient());
@@ -55,10 +59,12 @@ public class DmClientX implements IClientX {
     }
   }
 
+  @Override
   public ILoginInfo getLoginInfo() {
     return new DmLoginInfo(idfClientX.getLoginInfo());
   }
 
+  @Override
   public IQuery getQuery() {
     return new DmQuery(new DfQuery());
   }

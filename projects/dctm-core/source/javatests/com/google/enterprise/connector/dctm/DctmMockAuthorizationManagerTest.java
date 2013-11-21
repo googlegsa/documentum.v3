@@ -14,12 +14,12 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
-import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

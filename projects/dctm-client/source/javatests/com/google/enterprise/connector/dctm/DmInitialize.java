@@ -14,8 +14,8 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 public class DmInitialize {
   public static final String DM_LOGIN_OK1 = "emilie";

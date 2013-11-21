@@ -29,12 +29,13 @@ public class DmGroup implements IGroup {
   private static final Logger logger =
       Logger.getLogger(DmQuery.class.getName());
 
-  IDfGroup idfGroup;
+  private final IDfGroup idfGroup;
 
   public DmGroup(IDfGroup idfGroup) {
     this.idfGroup = idfGroup;
   }
 
+  @Override
   public String getUserSource() throws RepositoryDocumentException {
     try {
       logger.finest("getUserSourceAsString value: " + idfGroup.getGroupSource()

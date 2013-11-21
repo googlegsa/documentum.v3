@@ -17,16 +17,18 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 
 public class MockDmId implements IId {
-  private String docId;
+  private final String docId;
 
   public MockDmId(String docid) {
     this.docId = docid;
   }
 
+  @Override
   public String toString() {
     return docId;
   }
 
+  @Override
   public String getId() {
     return docId;
   }

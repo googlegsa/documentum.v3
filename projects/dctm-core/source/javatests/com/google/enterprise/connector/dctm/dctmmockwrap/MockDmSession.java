@@ -53,6 +53,7 @@ public class MockDmSession implements ISession {
     return mockRep.getRepo().getStore();
   }
 
+  @Override
   public String getLoginTicketForUser(String username) {
     // this assumes that Mock authenticated the session by
     // checking username==paswword
@@ -66,20 +67,24 @@ public class MockDmSession implements ISession {
     // nullPointerException
   }
 
+  @Override
   public String getLoginTicketEx(String username, String scope, int timeout,
       boolean singleUse, String serverName) {
     // See getLoginTicketForUser.
     return username;
   }
 
+  @Override
   public String getDocbaseName() {
     return this.sessionFileNameSuffix;
   }
 
+  @Override
   public String getServerVersion() {
     return "dctmmockwrap";
   }
 
+  @Override
   public ISysObject getObject(IId objectId) throws RepositoryDocumentException {
     MockRepositoryDocument mockRepositoryDocument = mockRep.getRepo()
         .getStore().getDocByID(objectId.toString());
@@ -88,14 +93,17 @@ public class MockDmSession implements ISession {
     return dctmMockRepositoryDocument;
   }
 
+  @Override
   public IType getType(String typeName) throws RepositoryException {
     return new MockDmType(typeName);
   }
 
+  @Override
   public ISessionManager getSessionManager() throws RepositoryException {
     return sessMgr;
   }
 
+  @Override
   public boolean isConnected() {
     return sessMgr != null;
   }

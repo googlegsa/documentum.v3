@@ -15,16 +15,18 @@
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
+
 import com.documentum.fc.client.IDfFormat;
 import com.documentum.fc.common.DfException;
 
 public class DmFormat implements IFormat {
-  IDfFormat idfFormat;
+  private final IDfFormat idfFormat;
 
   public DmFormat(IDfFormat idfFormat) {
     this.idfFormat = idfFormat;
   }
 
+  @Override
   public String getName() {
     String rep;
     try {
@@ -44,6 +46,7 @@ public class DmFormat implements IFormat {
    * server. If the answer isn't definitive, err on the side of
    * feeding the content.
    */
+  @Override
   public boolean canIndex() {
     boolean rep;
     try {
@@ -58,6 +61,7 @@ public class DmFormat implements IFormat {
     return rep;
   }
 
+  @Override
   public String getMIMEType() {
     String rep;
     try {
@@ -75,6 +79,7 @@ public class DmFormat implements IFormat {
     return rep;
   }
 
+  @Override
   public String getDOSExtension() {
     String rep;
     try {

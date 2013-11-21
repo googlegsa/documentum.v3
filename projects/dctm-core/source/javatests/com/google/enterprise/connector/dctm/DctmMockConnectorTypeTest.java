@@ -20,9 +20,9 @@ import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
+import com.google.enterprise.connector.spi.ConfigureResponse;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.ConnectorFactory;
-import com.google.enterprise.connector.spi.ConfigureResponse;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SimpleConnectorFactory;
 import com.google.enterprise.connector.util.UrlValidator;
@@ -308,6 +308,7 @@ public class DctmMockConnectorTypeTest extends TestCase {
       this.xmlWhere = whereClause;
     }
 
+    @Override
     public Connector makeConnector(Map<String, String> configMap) {
       List<String> whereClause = new ArrayList<String>();
       String mapWhere = configMap.get("where_clause");

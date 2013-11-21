@@ -14,14 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Locale;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
@@ -34,23 +26,31 @@ import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.mock.MockRepositoryDateTime;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryProperty;
-import com.google.enterprise.connector.mock.MockRepositoryPropertyList;
 import com.google.enterprise.connector.mock.MockRepositoryProperty.PropertyType;
 import com.google.enterprise.connector.mock.jcr.MockJcrValue;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.SpiConstants;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MockDmObject implements ISysObject {
-  private MockRepositoryDocument mockDocument;
+  private final MockRepositoryDocument mockDocument;
 
   public MockDmObject(MockRepositoryDocument mRD) {
     this.mockDocument = mRD;
   }
 
+  @Override
   public String getObjectName() throws RepositoryDocumentException {
     return this.mockDocument.getDocID();
   }
 
+  @Override
   public long getContentSize() throws RepositoryDocumentException {
     ByteArrayInputStream contentStream = null;
     int avail = 0;
@@ -63,6 +63,7 @@ public class MockDmObject implements ISysObject {
     return avail;
   }
 
+  @Override
   public ByteArrayInputStream getContent() throws RepositoryDocumentException {
     ByteArrayInputStream contentStream = null;
     try {
@@ -73,14 +74,17 @@ public class MockDmObject implements ISysObject {
     return contentStream;
   }
 
+  @Override
   public String getACLDomain() throws RepositoryDocumentException {
     return "ACLDomain";
   }
 
+  @Override
   public String getACLName() throws RepositoryDocumentException {
     return "ACLName";
   }
 
+  @Override
   public String getString(String name) throws RepositoryDocumentException {
     // /faire les remplacements requis entre attributs Mock et attributs
     // Dctm
@@ -112,6 +116,7 @@ public class MockDmObject implements ISysObject {
     return propStrVal;
   }
 
+  @Override
   public int getInt(String name) throws RepositoryDocumentException {
     MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     MockJcrValue propVal = new MockJcrValue(pm);
@@ -124,6 +129,7 @@ public class MockDmObject implements ISysObject {
     return propIntVal;
   }
 
+  @Override
   public ITime getTime(String name) throws RepositoryDocumentException {
     Date propDateVal = null;
     if (name.equals("r_modify_date")) {
@@ -147,6 +153,7 @@ public class MockDmObject implements ISysObject {
     return new MockDmTime(propDateVal);
   }
 
+  @Override
   public IType getType() throws RepositoryDocumentException {
     String propType = "MockType";
     MockRepositoryProperty pm = mockDocument.getProplist()
@@ -162,6 +169,7 @@ public class MockDmObject implements ISysObject {
     return new MockDmType(propType, this);
   }
 
+  @Override
   public double getDouble(String name) throws RepositoryDocumentException {
     MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     MockJcrValue propVal = new MockJcrValue(pm);
@@ -174,6 +182,7 @@ public class MockDmObject implements ISysObject {
     return propDblVal;
   }
 
+  @Override
   public boolean getBoolean(String name) throws RepositoryDocumentException {
     MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     MockJcrValue propVal = new MockJcrValue(pm);
@@ -186,21 +195,25 @@ public class MockDmObject implements ISysObject {
     return propBlVal;
   }
 
+  @Override
   public IId getId(String id) throws RepositoryDocumentException {
     return new MockDmId(this.mockDocument.getDocID());
   }
 
+  @Override
   public IFormat getFormat() throws RepositoryDocumentException {
     // /return new MockDmFormat("text/plain");
     return new MockDmFormat("application/octet-stream");
   }
 
+  @Override
   public int getAttrDataType(String name) throws RepositoryDocumentException {
     MockRepositoryProperty pm = mockDocument.getProplist().getProperty(name);
     MockJcrValue propVal = new MockJcrValue(pm);
     return propVal.getType();
   }
 
+  @Override
   public int getAttrCount() throws RepositoryDocumentException {
     int counter = 0;
     for (MockRepositoryProperty pm : mockDocument.getProplist()) {
@@ -209,6 +222,7 @@ public class MockDmObject implements ISysObject {
     return counter;
   }
 
+  @Override
   public IAttr getAttr(int attrIndex) throws RepositoryDocumentException {
     int counter = 0;
     for (MockRepositoryProperty pm : mockDocument.getProplist()) {
@@ -220,20 +234,24 @@ public class MockDmObject implements ISysObject {
     return null;
   }
 
+  @Override
   public void setSessionManager(ISessionManager sessionManager)
       throws RepositoryDocumentException {
   }
 
+  @Override
   public IValue getRepeatingValue(String name, int index)
       throws RepositoryDocumentException {
     return new MockDmValue(new MockJcrValue(new MockRepositoryProperty(
         name, PropertyType.STRING, getString(name))));
   }
 
+  @Override
   public int findAttrIndex(String name) throws RepositoryDocumentException {
     return 0;
   }
 
+  @Override
   public int getValueCount(String name) throws RepositoryDocumentException {
     return 1;
   }

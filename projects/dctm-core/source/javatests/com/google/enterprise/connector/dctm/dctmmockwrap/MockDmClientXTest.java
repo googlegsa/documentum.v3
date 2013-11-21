@@ -17,8 +17,6 @@ package com.google.enterprise.connector.dctm.dctmmockwrap;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

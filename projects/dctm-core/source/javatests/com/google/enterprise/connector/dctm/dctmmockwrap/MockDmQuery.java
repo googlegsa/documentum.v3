@@ -14,26 +14,23 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.mock.MockRepositoryDocument;
+import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
+import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
+import com.google.enterprise.connector.mock.jcr.MockJcrQueryResult;
+import com.google.enterprise.connector.spi.RepositoryException;
+
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
-
-import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
-import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
-import com.google.enterprise.connector.mock.MockRepositoryProperty;
-import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
-import com.google.enterprise.connector.mock.jcr.MockJcrQueryResult;
-import com.google.enterprise.connector.mock.MockRepositoryDocument;
-import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmQuery implements IQuery {
   /* FIXME: Should these be in DmInitialize? */
@@ -57,6 +54,7 @@ public class MockDmQuery implements IQuery {
     query = "";
   }
 
+  @Override
   public void setDQL(String dqlStatement) {
     String goodQuery = "";
     if (dqlStatement.indexOf(
@@ -97,6 +95,7 @@ public class MockDmQuery implements IQuery {
         new Object[] { formattedDate, id });
   }
 
+  @Override
   public ICollection execute(ISession session, int queryType)
       throws RepositoryException {
     if (query.equals("") || query.indexOf("dm_audittrail") != -1) {
