@@ -56,7 +56,7 @@ public class DctmTraversalUtil {
     DocPusher push = null;
     try {
       push = new DocPusher(new GsaFeedConnection(null, "gogol", 19900, -1),
-          "dctm", new FileSizeLimitInfo(), new DocumentFilterChain(), null);
+          "dctm", new FileSizeLimitInfo(), new DocumentFilterChain());
 
     } catch (MalformedURLException e) {
       // TODO Auto-generated catch block
@@ -83,7 +83,7 @@ public class DctmTraversalUtil {
         System.out.println("counter " + counter + ",  num properties " + k);
         System.out.println(pm.findProperty(
             SpiConstants.PROPNAME_DISPLAYURL).nextValue());
-        push.take(pm, null);
+        push.take(pm);
       }
       String checkpoint = "";
       if (counter != 0) {
