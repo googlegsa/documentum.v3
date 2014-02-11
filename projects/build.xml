@@ -40,11 +40,7 @@
   <property name="spi.jarfile" value="${spi.jar.dir}/connector-spi.jar" />
   <property name="connector.jarfile" value="${spi.jar.dir}/connector.jar" />
   <property name="tests.jarfile" value="${spi.jar.dir}/connector-tests.jar" />
-  <property name="guava.jarfile" location="${thirdparty.jar.dir}/prod/guava-r05.jar" />
-  <property name="json.jarfile" location="${thirdparty.jar.dir}/prod/json.jar" />
   <property name="junit.jarfile" location="${thirdparty.jar.dir}/tests/junit.jar" />
-  <property name="spring.jarfile" value="${thirdparty.jar.dir}/prod/spring.jar" />
-  <property name="commons-logging.jarfile" value="${thirdparty.jar.dir}/prod/commons-logging.jar" />
 
   <property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
 
@@ -102,8 +98,9 @@
       <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
       <classpath>
         <pathelement location="${spi.jarfile}" />
-        <pathelement location="${json.jarfile}" />
-        <pathelement location="${guava.jarfile}" />
+        <fileset dir="${thirdparty.jar.dir}">
+          <include name="prod/*.jar" />
+        </fileset>
       </classpath>
     </javac>
   </target>
@@ -114,9 +111,10 @@
     <pathelement location="${connector.jarfile}" />
     <pathelement location="${tests.jarfile}" />
     <pathelement location="${junit.jarfile}" />
-    <pathelement location="${json.jarfile}" />
     <pathelement location="${jcr.jarfile}" />
-    <pathelement location="${guava.jarfile}" />
+    <fileset dir="${thirdparty.jar.dir}">
+      <include name="prod/*.jar" />
+    </fileset>
   </path>
 
   <target name="compile-tests" depends="compile-core">
@@ -137,9 +135,9 @@
     <pathelement location="${classes-tests}" />
     <pathelement location="${config}" />
     <path refid="compile_tests_path" />
-    <pathelement location="${guava.jarfile}" />
-    <pathelement location="${spring.jarfile}" />
-    <pathelement location="${commons-logging.jarfile}" />
+    <fileset dir="${thirdparty.jar.dir}">
+      <include name="prod/*.jar" />
+    </fileset>
   </path>
 
   <!-- This classpath gets overridden by code_coverage. -->
@@ -202,10 +200,8 @@
       </zipfileset>
       <zipfileset file="${config}/logging.properties"
                   prefix="${bin.archive}/Config" />
-      <zipfileset file="${json.jarfile}" prefix="${bin.archive}/Lib" />
       <zipfileset dir=".." prefix="${bin.archive}/License">
         <include name="COPYING" />
-        <include name="JSON_License" />
       </zipfileset>
     </zip>
     <checksum algorithm="SHA-1" file="${dist}/${bin.archive}.zip" />
