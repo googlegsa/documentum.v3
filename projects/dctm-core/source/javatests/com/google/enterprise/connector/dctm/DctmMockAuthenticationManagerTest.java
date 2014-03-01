@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2007 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
@@ -27,17 +27,17 @@ import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 
 import junit.framework.TestCase;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 public class DctmMockAuthenticationManagerTest extends TestCase {
   DctmAuthenticationManager authentManager;
 
+  private final JdbcFixture jdbcFixture = new JdbcFixture();
+
   @Override
-  protected void setUp() throws RepositoryException {
+  protected void setUp() throws RepositoryException, SQLException {
     Connector connector = new DctmConnector();
     ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
     ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
@@ -52,10 +52,16 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
 
     authentManager = (DctmAuthenticationManager) sess
         .getAuthenticationManager();
+
+    jdbcFixture.setUp();
   }
 
-  protected void tearDown() {
-    MockDmSessionManager.tearDown();
+  protected void tearDown() throws SQLException {
+    try {
+      MockDmSessionManager.tearDown();
+    } finally {
+      jdbcFixture.tearDown();
+    }
   }
 
   public void testAuthenticate() throws RepositoryException {
@@ -104,16 +110,59 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
             DmInitialize.DM_PWD_OK2_DNS_DOMAIN)).isValid());
   }
 
-  public void testGroupLookup() throws RepositoryLoginException,
-      RepositoryException {
+  private void insertUser(String name) throws SQLException {
+    jdbcFixture.executeUpdate(
+        String.format("insert into dm_user"
+            + "(user_name, user_login_name, user_source, user_ldap_dn) "
+            + "values('%s', '%s', '', '')",
+            name, name));
+  }
+
+  private void insertGroup(String group, String... members)
+      throws SQLException {
+    for (String user : members) {
+      jdbcFixture.executeUpdate(
+          String.format("insert into dm_group(group_name, i_all_users_names) "
+              + "values('%s', '%s')",
+              group, user));
+    }
+  }
+
+  private void groupSetUp() throws SQLException {
+    insertUser(DmInitialize.DM_LOGIN_OK1);
+    insertUser(DmInitialize.DM_LOGIN_OK2);
+    insertGroup("grp1", DmInitialize.DM_LOGIN_OK1, "user3", "user4");
+    insertGroup("grp2", "user1", DmInitialize.DM_LOGIN_OK1, "user2");
+    insertGroup("grp3", "user2", "user3", DmInitialize.DM_LOGIN_OK1);
+    insertGroup("grp3", "user3", "user4");
+  }
+
+  public void testGroupLookup_only() throws Exception {
+    groupSetUp();
+
+    AuthenticationResponse result =
+        authentManager.authenticate(new SimpleAuthenticationIdentity(
+            DmInitialize.DM_LOGIN_OK1, null));
+    assertTrue(result.isValid());
+    Collection<?> groups = (Collection<?>) result.getGroups();
+    assertEquals(ImmutableList.of("grp1", "grp2", "grp3", "dm_world"),
+        toStrings(groups));
+  }
+
+  public void testGroupLookup_multipleGroups() throws Exception {
+    groupSetUp();
+
     AuthenticationResponse result =
         authentManager.authenticate(new SimpleAuthenticationIdentity(
             DmInitialize.DM_LOGIN_OK1, DmInitialize.DM_PWD_OK1));
     assertTrue(result.isValid());
     Collection<?> groups = (Collection<?>) result.getGroups();
-    Set<String> expected = ImmutableSet.of("grp1", "grp2", "grp3", "dm_world");
-    Set<String> setGroups = ImmutableSet.copyOf(toStringList(groups));
-    assertEquals(expected, setGroups);
+    assertEquals(ImmutableList.of("grp1", "grp2", "grp3", "dm_world"),
+        toStrings(groups));
+  }
+
+  public void testGroupLookup_onlyWorld() throws Exception {
+    groupSetUp();
 
     AuthenticationResponse result2 =
         authentManager.authenticate(new SimpleAuthenticationIdentity(
@@ -121,20 +170,30 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     assertTrue(result2.isValid());
     Collection<?> groups2 =
         (Collection<?>) result2.getGroups();
-    List<String> users2 = Arrays.asList("dm_world");
-    assertEquals(users2, toStringList(groups2));
+    assertEquals(ImmutableList.of("dm_world"), toStrings(groups2));
   }
 
-  private List<String> toStringList(Collection<?> groups) {
+  private Collection<String> toStrings(Collection<?> groups) {
     if (groups == null) {
       return null;
     }
-    List<String> names = new ArrayList<String>(groups.size());
+    Collection<String> names = new ArrayList<String>(groups.size());
     for (Object obj : groups) {
       String name = (obj instanceof String) ? (String) obj : ((Principal)
           obj).getName();
       names.add(name);
     }
     return names;
+  }
+
+  /**
+   * Compares the membership of two collections. Like set equality,
+   * order is not important, but unlike set equality, duplicates are
+   * consided distinct elements.
+   */
+  private void assertEquals(Collection<String> expected,
+      Collection<String> actual) {
+    assertTrue("expected:<" + expected + "> but was:<" + actual + ">",
+        expected.size() == actual.size() && actual.containsAll(expected));
   }
 }
