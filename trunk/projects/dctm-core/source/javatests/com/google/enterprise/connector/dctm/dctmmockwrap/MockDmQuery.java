@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.enterprise.connector.dctm.JdbcFixture;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
@@ -23,6 +24,9 @@ import com.google.enterprise.connector.mock.jcr.MockJcrQueryManager;
 import com.google.enterprise.connector.mock.jcr.MockJcrQueryResult;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,6 +51,8 @@ public class MockDmQuery implements IQuery {
   private static final String XPATH_QUERY_STRING_UNBOUNDED_DEFAULT = "//*[@jcr:primaryType='nt:resource'] order by @jcr:lastModified, @jcr:uuid";
 
   private static final String XPATH_QUERY_STRING_BOUNDED_DEFAULT = "//*[@jcr:primaryType = 'nt:resource' and @jcr:lastModified >= ''{0}''] order by @jcr:lastModified, @jcr:uuid";
+
+  private final Connection jdbcConnection = JdbcFixture.getSharedConnection();
 
   private String query;
 
@@ -118,22 +124,12 @@ public class MockDmQuery implements IQuery {
     } else if (query.indexOf("return_top 1") != -1) { // WHERE clause test...
       return new MockBooleanCollection(query.indexOf(TRUE_WHERE_CLAUSE) != -1);
     } else if (query.indexOf("dm_group") != -1) {
-      int start = query.indexOf("'") + 1;
-      int end = query.indexOf("'", start);
-      String user = query.substring(start, end);
-      List<MockRepositoryDocument> results = new MockMockList(session, user);
-      QueryResult qr = new MockJcrQueryResult(results);
-      return new MockDmCollection(qr);
+      // The repeating attribute i_all_user_names is modeled with
+      // multiple rows, so we can just drop the "any" qualifier.
+      String sql = query.replace(" any ", " ");
+      return executeQuery(sql);
     } else if (query.indexOf("dm_user") != -1) {
-      String name = query.substring(query.indexOf("'")+1);
-      name = name.substring(0,name.indexOf("'"));
-
-      String[] ids = {name};
-      List<MockRepositoryDocument> results =
-          new MockMockList(ids, session.getSessionManager(),
-              session.getDocbaseName());
-      QueryResult qr = new MockJcrQueryResult(results);
-      return new MockDmCollection(qr);
+      throw new UnsupportedOperationException(query);
     } else { // Authorize query...
       String[] ids = this.query.split("','");
       ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]
@@ -153,6 +149,20 @@ public class MockDmQuery implements IQuery {
         return null; // null value is tested in DctmAuthorizationManager
         // and won't lead to any NullPointerException
       }
+    }
+  }
+
+  private ICollection executeQuery(String query) throws RepositoryException {
+    try {
+      Statement stmt = jdbcConnection.createStatement();
+      try {
+        return new MockJdbcCollection(stmt, stmt.executeQuery(query));
+      } catch (SQLException e) {
+        stmt.close();
+        throw new RepositoryException("Database error", e);
+      }
+    } catch (SQLException e) {
+      throw new RepositoryException("Database error", e);
     }
   }
 }

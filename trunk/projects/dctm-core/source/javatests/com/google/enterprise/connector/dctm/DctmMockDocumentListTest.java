@@ -1,10 +1,10 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2007 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -95,11 +95,11 @@ public class DctmMockDocumentListTest extends TestCase {
     // time is local time. Should it be UTC?
     SimpleDateFormat iso8601 =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String lastModified = iso8601.format(new Date(300 * 1000));
+    String lastModified = iso8601.format(new Date(260 * 1000));
 
     checkPoint = propertyMapList.checkpoint();
     assertTrue(checkPoint,
-        checkPoint.indexOf("\"uuid\":[\"group4\"]") != -1);
+        checkPoint.indexOf("\"uuid\":[\"doc26\"]") != -1);
     assertTrue(checkPoint,
         checkPoint.indexOf("\"lastModified\":[\"" + lastModified + "\"]") != -1);
   }

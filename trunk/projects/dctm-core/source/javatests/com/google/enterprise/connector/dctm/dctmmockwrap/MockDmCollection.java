@@ -30,6 +30,7 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.query.QueryResult;
 
+/** An ICollection implementation on top of jcr. */
 public class MockDmCollection implements ICollection {
   private final NodeIterator collection;
 

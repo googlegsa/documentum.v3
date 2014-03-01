@@ -24,10 +24,7 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.TestCase;
 
 public class MockMockListTest extends TestCase {
-  private ISessionManager sessionManager;
-
-  @Override
-  protected void setUp() {
+  public void testMockMockList() {
     IClientX dctmClientX = new MockDmClientX();
     IClient localClient = null;
     try {
@@ -35,7 +32,7 @@ public class MockMockListTest extends TestCase {
     } catch (RepositoryException e) {
       assertTrue(false);
     }
-    sessionManager = localClient.newSessionManager();
+    ISessionManager sessionManager = localClient.newSessionManager();
     ILoginInfo ili = new MockDmLoginInfo();
     ili.setUser("mark");
     ili.setPassword("mark");
@@ -45,9 +42,7 @@ public class MockMockListTest extends TestCase {
     } catch (RepositoryException e) {
       assertTrue(false);
     }
-  }
 
-  public void testMockMockList() {
     String query =
         "kqsfgopqsudhnfpioqsdf^qsdfhqsdo 'doc26', 'doc2', 'doc3', 'doc4'";
     String[] ids = query.split("', '");
@@ -60,15 +55,5 @@ public class MockMockListTest extends TestCase {
       fail(e.toString());
     }
     assertTrue(lst.iterator().next() instanceof MockRepositoryDocument);
-  }
-
-  public void testMockMockListForUser() throws RepositoryException {
-    MockMockList lst = new MockMockList(sessionManager.getSession(
-        "SwordEventLog.txt"), "user1");
-    assertTrue(lst.iterator().next() instanceof MockRepositoryDocument);
-
-    lst = new MockMockList(sessionManager.getSession("SwordEventLog.txt"),
-        "user6"); // no user6 in test data
-    assertTrue(lst.isEmpty());
   }
 }

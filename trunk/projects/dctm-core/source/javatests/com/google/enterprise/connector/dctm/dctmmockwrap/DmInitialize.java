@@ -37,7 +37,7 @@ public class DmInitialize {
   public static final String DM_PWD_OK1 = "joe";
 
   public static final String DM_PWD_OK2 = "mary";
-  
+
   public static final String DM_PWD_OK2_DNS_DOMAIN = "mary@example.com";
 
   public static final String DM_PWD_OK3 = "user1";
@@ -50,9 +50,9 @@ public class DmInitialize {
 
   public static final String DM_DOCBASE = "SwordEventLog.txt";
 
-  public static final int DM_RETURN_TOP_UNBOUNDED = 31;
+  public static final int DM_RETURN_TOP_UNBOUNDED = 27;
 
-  public static final int DM_RETURN_TOP_BOUNDED = 31;
+  public static final int DM_RETURN_TOP_BOUNDED = 27;
 
   public static final String DM_CLIENTX = "com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX";
 
