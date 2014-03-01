@@ -142,9 +142,13 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     queryBuff.append(username);
     if (!Strings.isNullOrEmpty(userdomain)) {
       queryBuff.append("' and user_source = 'LDAP'");
-      queryBuff.append(" and user_ldap_dn like '%");
-      queryBuff.append(userdomain);
-      queryBuff.append(",%");
+      queryBuff.append(" and LOWER(user_ldap_dn) like '%,dc=");
+      if (userdomain.indexOf('.') != -1) {
+        queryBuff.append(userdomain.toLowerCase().replace(".", ",dc="));
+      } else {
+        queryBuff.append(userdomain.toLowerCase());
+        queryBuff.append(",%");
+      }
     }
     queryBuff.append("')");
 

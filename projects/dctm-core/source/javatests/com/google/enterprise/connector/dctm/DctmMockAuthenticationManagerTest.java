@@ -110,12 +110,13 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
             DmInitialize.DM_PWD_OK2_DNS_DOMAIN)).isValid());
   }
 
-  private void insertUser(String name) throws SQLException {
+  private void insertUser(String name, String login, String source,
+      String dn) throws SQLException {
     jdbcFixture.executeUpdate(
         String.format("insert into dm_user"
             + "(user_name, user_login_name, user_source, user_ldap_dn) "
-            + "values('%s', '%s', '', '')",
-            name, name));
+            + "values('%s', '%s', '%s', '%s')",
+            name, login, source, dn));
   }
 
   private void insertGroup(String group, String... members)
@@ -129,8 +130,8 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
   }
 
   private void groupSetUp() throws SQLException {
-    insertUser(DmInitialize.DM_LOGIN_OK1);
-    insertUser(DmInitialize.DM_LOGIN_OK2);
+    insertUser(DmInitialize.DM_LOGIN_OK1, DmInitialize.DM_LOGIN_OK1, "", "");
+    insertUser(DmInitialize.DM_LOGIN_OK2, DmInitialize.DM_LOGIN_OK2, "", "");
     insertGroup("grp1", DmInitialize.DM_LOGIN_OK1, "user3", "user4");
     insertGroup("grp2", "user1", DmInitialize.DM_LOGIN_OK1, "user2");
     insertGroup("grp3", "user2", "user3", DmInitialize.DM_LOGIN_OK1);
@@ -171,6 +172,65 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     Collection<?> groups2 =
         (Collection<?>) result2.getGroups();
     assertEquals(ImmutableList.of("dm_world"), toStrings(groups2));
+  }
+
+  private void domainSetUp() throws SQLException {
+    insertUser("localuser", "localuser", "", "");
+    insertUser("otheruser", "someuser", "", "");
+    insertUser("acmeuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=acme,dc=example,dc=com");
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertUser("aussieuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com,dc=au");
+
+    insertGroup("localgroup", "localuser");
+    insertGroup("localgroup", "otheruser");
+    insertGroup("ldapgroup", "acmeuser");
+    insertGroup("ldapgroup", "ajaxuser");
+    insertGroup("invalids", "someuser");
+    insertGroup("invalids", "ldapuser");
+    insertGroup("invalids", "aussieuser");
+  }
+
+  private void testDomain(String user, String domain, String... expectedGroups)
+      throws Exception {
+    domainSetUp();
+
+    AuthenticationResponse result = authentManager.authenticate(
+        new SimpleAuthenticationIdentity(user, null, domain));
+    assertTrue(result.isValid());
+    ImmutableList.Builder<String> builder = ImmutableList.builder();
+    assertEquals(builder.add(expectedGroups).add("dm_world").build(),
+        toStrings(result.getGroups()));
+  }
+
+  public void testDomain_userLogin() throws Exception {
+    testDomain("someuser", "", "localgroup");
+  }
+
+  public void testDomain_noDomain() throws Exception {
+    testDomain("localuser", "", "localgroup");
+  }
+
+  public void testDomain_windowsLowercase() throws Exception {
+    testDomain("ldapuser", "acme", "ldapgroup");
+  }
+
+  public void testDomain_windowsUppercase() throws Exception {
+    testDomain("ldapuser", "ACME", "ldapgroup");
+  }
+
+  public void testDomain_windowsSubstring() throws Exception {
+    testDomain("ldapuser", "me");
+  }
+
+  public void testDomain_dnsLowercase() throws Exception {
+    testDomain("ldapuser", "acme.example.com", "ldapgroup");
+  }
+
+  public void testDomain_dnsExtraTld() throws Exception {
+    testDomain("ldapuser", "ajax.example.com", "ldapgroup");
   }
 
   private Collection<String> toStrings(Collection<?> groups) {
