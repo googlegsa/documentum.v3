@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DctmMockAclListTest extends TestCase {
   private TraversalManager qtm = null;
@@ -108,33 +110,21 @@ public class DctmMockAclListTest extends TestCase {
         true);
   }
 
-  private boolean containsPrincipal(String value, String propertyName) {
-    boolean found = false;
+  /**
+   * Asserts that the principal names in the named ACL property match
+   * the expected set. Identical ordering is not required but the two
+   * collections must be the same size and contain the same names.
+   *
+   * @param expected the expected principal names
+   * @param propertyName the name of an ACL property containing PrincipalValues
+   */
+  private void assertAclEquals(Set<?> expected, String propertyName) {
     List<Value> values = aclValues.get(propertyName);
+    assertEquals(values.toString(), expected.size(), values.size());
     for (Value listvalue : values) {
-      if (value.equals(((PrincipalValue) listvalue).
-          getPrincipal().getName())) {
-        found = true;
-        break;
-      }
+      assertTrue(values.toString(), expected.contains(
+              ((PrincipalValue) listvalue).getPrincipal().getName()));
     }
-    return found;
-  }
-
-  private void assertContains(String value, String propertyName) {
-    assertTrue(containsPrincipal(value, propertyName));
-  }
-
-  private void assertNotContains(String value, String propertyName) {
-    assertFalse(containsPrincipal(value, propertyName));
-  }
-
-  private void assertSize(int size, String propertyName) {
-    assertEquals(size, aclValues.get(propertyName).size());
-  }
-
-  private void assertEmpty(String propertyName) {
-    assertEquals(0, aclValues.get(propertyName).size());
   }
 
   private void insertUsers(String... names) throws SQLException {
@@ -153,15 +143,12 @@ public class DctmMockAclListTest extends TestCase {
     addAllowGroupToAcl(aclObj, "group1");
 
     aclList.processAcl(aclObj, aclValues);
-    // verify allow users
-    assertSize(1, SpiConstants.PROPNAME_ACLUSERS);
-    assertContains("user1", SpiConstants.PROPNAME_ACLUSERS);
-    // verify allow groups
-    assertSize(1, SpiConstants.PROPNAME_ACLGROUPS);
-    assertContains("group1", SpiConstants.PROPNAME_ACLGROUPS);
-    // verify no deny users and no deny groups
-    assertEmpty(SpiConstants.PROPNAME_ACLDENYUSERS);
-    assertEmpty(SpiConstants.PROPNAME_ACLDENYGROUPS);
+
+    assertAclEquals(ImmutableSet.of("user1"), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of("group1"), SpiConstants.PROPNAME_ACLGROUPS);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
   }
 
   public void testDenyAcl() throws Exception {
@@ -175,20 +162,13 @@ public class DctmMockAclListTest extends TestCase {
 
     aclList.processAcl(aclObj, aclValues);
 
-    // verify no entries in groups
-    assertEmpty(SpiConstants.PROPNAME_ACLGROUPS);
-    assertEmpty(SpiConstants.PROPNAME_ACLDENYGROUPS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
 
-    assertSize(1, SpiConstants.PROPNAME_ACLUSERS);
-    assertContains("user1", SpiConstants.PROPNAME_ACLUSERS);
-    // verify user3 is not in allow users
-    assertNotContains("user3", SpiConstants.PROPNAME_ACLUSERS);
-
-    assertSize(2, SpiConstants.PROPNAME_ACLDENYUSERS);
-    assertContains("user2", SpiConstants.PROPNAME_ACLDENYUSERS);
-    // verify user3 is not restricted, i.e, not in deny users
-    assertNotContains("user3", SpiConstants.PROPNAME_ACLDENYUSERS);
-    assertContains("user4", SpiConstants.PROPNAME_ACLDENYUSERS);
+    // user3 is not in allowed or denied users.
+    assertAclEquals(ImmutableSet.of("user1"), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of("user2", "user4"),
+        SpiConstants.PROPNAME_ACLDENYUSERS);
   }
 
   public void testGroupAcl() throws Exception {
@@ -201,14 +181,12 @@ public class DctmMockAclListTest extends TestCase {
 
     aclList.processAcl(aclObj, aclValues);
 
-    assertEmpty(SpiConstants.PROPNAME_ACLUSERS);
-    assertEmpty(SpiConstants.PROPNAME_ACLDENYUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
 
-    assertSize(1, SpiConstants.PROPNAME_ACLGROUPS);
-    assertContains("engineering", SpiConstants.PROPNAME_ACLGROUPS);
-
-    assertSize(1, SpiConstants.PROPNAME_ACLDENYGROUPS);
-    assertNotContains("marketing", SpiConstants.PROPNAME_ACLDENYGROUPS);
-    assertContains("sales", SpiConstants.PROPNAME_ACLDENYGROUPS);
+    assertAclEquals(ImmutableSet.of("engineering"),
+        SpiConstants.PROPNAME_ACLGROUPS);
+    assertAclEquals(ImmutableSet.of("sales"),
+        SpiConstants.PROPNAME_ACLDENYGROUPS);
   }
 }
