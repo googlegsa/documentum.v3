@@ -23,6 +23,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
+import com.google.enterprise.connector.dctm.dfcwrap.IUser;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
@@ -58,37 +59,47 @@ public class DctmAuthenticationManager implements AuthenticationManager {
   public AuthenticationResponse authenticate(
       AuthenticationIdentity authenticationIdentity)
       throws RepositoryLoginException, RepositoryException {
-    String userLoginName = authenticationIdentity.getUsername();
-
-    LOGGER.info("authentication process for user " + userLoginName);
-    String password = authenticationIdentity.getPassword();
-    ISessionManager sessionManagerUser;
-    boolean authenticate;
-
-    try {
-      if (Strings.isNullOrEmpty(userLoginName)) {
-        return new AuthenticationResponse(false, "");
-      } else if (Strings.isNullOrEmpty(password)) {
-        sessionManagerUser =
-            getSessionManager(connector.getLogin(), connector.getPassword());
-        //check for user existence when null password
-        authenticate = isValidUser(sessionManagerUser, userLoginName);
-      } else {
-        sessionManagerUser = getSessionManager(userLoginName, password);
-        authenticate = sessionManagerUser.authenticate(docbase);
-      }
-    } catch (RepositoryLoginException e) {
-      LOGGER.finer(e.getMessage());
-      LOGGER.info("authentication status: false");
+    String userLoginName =
+        IdentityUtil.getCanonicalUsername(authenticationIdentity);
+    if (userLoginName == null) {
       return new AuthenticationResponse(false, "");
-    }
-
-    LOGGER.info("authentication status: " + authenticate);
-    if (authenticate) {
-      return new AuthenticationResponse(authenticate, "", getAllGroupsForUser(
-          sessionManagerUser, authenticationIdentity));
     } else {
-      return new AuthenticationResponse(false, "");
+      String userDomain = IdentityUtil.getDomain(authenticationIdentity);
+      String password = authenticationIdentity.getPassword();
+      ISessionManager sessionManagerUser;
+      boolean authenticate;
+      String userName;
+      try {
+        if (Strings.isNullOrEmpty(password)) {
+          sessionManagerUser =
+              getSessionManager(connector.getLogin(), connector.getPassword());
+          //check for user existence when null password
+          userName = getUserName(sessionManagerUser, userLoginName, userDomain);
+          authenticate = (userName != null);
+        } else {
+          // TODO(jlacey): We are using the raw username from the GSA
+          // here because we always have and no bugs have been reported.
+          sessionManagerUser =
+              getSessionManager(authenticationIdentity.getUsername(), password);
+          authenticate = sessionManagerUser.authenticate(docbase);
+          if (authenticate) {
+            userName =
+                getUserName(sessionManagerUser, userLoginName, userDomain);
+          } else {
+            userName = null; // Unused.
+          }
+        }
+      } catch (RepositoryLoginException e) {
+        LOGGER.finer(e.getMessage());
+        return new AuthenticationResponse(false, "");
+      }
+
+      if (authenticate) {
+        return new AuthenticationResponse(authenticate, "", getAllGroupsForUser(
+            sessionManagerUser, userName));
+      } else {
+        return new AuthenticationResponse(false, "");
+      }
     }
   }
 
@@ -103,16 +114,30 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     return sessionManagerUser;
   }
 
-  private boolean isValidUser(ISessionManager sessionManager,
-      String userLoginName) throws RepositoryLoginException,
-      RepositoryException {
+  private String getUserName(ISessionManager sessionManager,
+      String userLoginName, String userDomain)
+      throws RepositoryLoginException, RepositoryException {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(userLoginName),
         "Username must not be null or empty.");
     ISession session = sessionManager.getSession(docbase);
     try {
-      return session
-          .getObjectByQualification("dm_user where user_login_name = '"
-              + userLoginName + "'") != null;
+      StringBuilder queryBuff = new StringBuilder();
+      queryBuff.append("dm_user where user_login_name = '");
+      queryBuff.append(userLoginName);
+      if (!Strings.isNullOrEmpty(userDomain)) {
+        queryBuff.append("' and user_source = 'LDAP'");
+        queryBuff.append(" and LOWER(user_ldap_dn) like '%,dc=");
+        if (userDomain.indexOf('.') != -1) {
+          queryBuff.append(userDomain.toLowerCase().replace(".", ",dc="));
+        } else {
+          queryBuff.append(userDomain.toLowerCase());
+          queryBuff.append(",%");
+        }
+      }
+      queryBuff.append("'");
+      IUser user =
+          (IUser) session.getObjectByQualification(queryBuff.toString());
+      return (user == null) ? null : user.getUserName();
     } finally {
       sessionManager.release(session);
     }
@@ -126,35 +151,16 @@ public class DctmAuthenticationManager implements AuthenticationManager {
    * @return Collection of Principals
    */
   private Collection<Principal> getAllGroupsForUser(
-      ISessionManager sessionManager,
-      AuthenticationIdentity authenticationIdentity)
-  throws RepositoryLoginException, RepositoryException {
+      ISessionManager sessionManager, String username)
+      throws RepositoryLoginException, RepositoryException {
     ArrayList<Principal> listGroups = new ArrayList<Principal>();
     ISession session = sessionManager.getSession(docbase);
-    String username =
-        IdentityUtil.getCanonicalUsername(authenticationIdentity);
-    String userdomain = IdentityUtil.getDomain(authenticationIdentity);
 
-    StringBuffer queryBuff = new StringBuffer();
-    queryBuff.append("select group_name from dm_group where any");
-    queryBuff.append(" i_all_users_names in (select user_name from dm_user");
-    queryBuff.append(" where user_login_name = '");
-    queryBuff.append(username);
-    if (!Strings.isNullOrEmpty(userdomain)) {
-      queryBuff.append("' and user_source = 'LDAP'");
-      queryBuff.append(" and LOWER(user_ldap_dn) like '%,dc=");
-      if (userdomain.indexOf('.') != -1) {
-        queryBuff.append(userdomain.toLowerCase().replace(".", ",dc="));
-      } else {
-        queryBuff.append(userdomain.toLowerCase());
-        queryBuff.append(",%");
-      }
-    }
-    queryBuff.append("')");
-
-    LOGGER.fine("queryString: " + queryBuff.toString());
+    String queryStr =
+        "select group_name from dm_group where any i_all_users_names = '"
+        + username + "'";
     IQuery query = clientX.getQuery();
-    query.setDQL(queryBuff.toString());
+    query.setDQL(queryStr);
     ICollection collecGroups = query.execute(session,
         IQuery.EXECUTE_READ_QUERY);
 

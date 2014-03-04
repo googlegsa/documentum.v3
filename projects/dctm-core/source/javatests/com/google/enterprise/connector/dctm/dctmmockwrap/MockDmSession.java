@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.enterprise.connector.dctm.JdbcFixture;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
@@ -27,12 +28,19 @@ import com.google.enterprise.connector.mock.jcr.MockJcrSession;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public class MockDmSession implements ISession {
   private final ISessionManager sessMgr;
 
   private final MockJcrRepository mockRep;
 
   private final String sessionFileNameSuffix;
+
+  private final Connection jdbcConnection = JdbcFixture.getSharedConnection();
 
   public MockDmSession(ISessionManager sessMgr, MockJcrRepository mjR,
       MockJcrSession mjS, String dbFileName) {
@@ -111,22 +119,32 @@ public class MockDmSession implements ISession {
   @Override
   public IPersistentObject getObjectByQualification(String queryString)
       throws RepositoryDocumentException {
-    if (queryString.startsWith("dm_user")) {
-      // get user name from the query string of form 
-      // "dm_user where user_name = 'userName'", so add 3 to index of '='
-      String username = queryString.substring(queryString.indexOf('=') + 3,
-          queryString.length() - 1);
-      if (username.equals(DmInitialize.DM_LOGIN_KO)) {
-        return null;
+    try {
+      if (queryString.startsWith("dm_user")) {
+        String name = executeQuery("select user_name from " + queryString);
+        return (name == null) ? null : new MockDmUser(name);
+      } else if (queryString.startsWith("dm_group")) {
+        String name = executeQuery("select group_name from " + queryString);
+        return (name == null) ? null : new MockDmGroup(name);
       } else {
-        return new MockDmUser(username);
+        return null;
       }
-    } else if (queryString.contains("dm_group where group_name = '")) {
-      String groupName = queryString.substring(queryString.indexOf("= '") + 3,
-          queryString.lastIndexOf("'"));
-      return new MockDmGroup(groupName);
-    } else {
-      return null;
+    } catch (SQLException e) {
+      throw new RepositoryDocumentException("Database error", e);
+    }
+  }
+
+  private String executeQuery(String query) throws SQLException {
+    Statement stmt = jdbcConnection.createStatement();
+    try {
+      ResultSet rs = stmt.executeQuery(query);
+      if (rs.next()) {
+        return rs.getString(1);
+      } else {
+        return null;
+      }
+    } finally {
+      stmt.close();
     }
   }
 }
