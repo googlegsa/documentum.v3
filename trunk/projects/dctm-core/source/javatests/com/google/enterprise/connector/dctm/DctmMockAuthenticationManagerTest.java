@@ -80,12 +80,6 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     assertFalse(authentManager.authenticate(
         new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_KO,
             DmInitialize.DM_PWD_KO)).isValid());
-    assertTrue(authentManager.authenticate(
-        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2, null))
-        .isValid());
-    assertFalse(authentManager.authenticate(
-        new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_KO, null))
-        .isValid());
     assertFalse(authentManager.authenticate(
         new SimpleAuthenticationIdentity(null, DmInitialize.DM_PWD_OK1))
         .isValid());
@@ -150,6 +144,15 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
         toStrings(groups));
   }
 
+  public void testGroupLookup_fail() throws Exception {
+    groupSetUp();
+
+    AuthenticationResponse result =
+        authentManager.authenticate(new SimpleAuthenticationIdentity(
+            DmInitialize.DM_LOGIN_KO, null));
+    assertFalse(result.isValid());
+  }
+
   public void testGroupLookup_multipleGroups() throws Exception {
     groupSetUp();
 
@@ -205,12 +208,25 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
         toStrings(result.getGroups()));
   }
 
+  private void testDomainFail(String user, String domain)
+      throws Exception {
+    domainSetUp();
+
+    AuthenticationResponse result = authentManager.authenticate(
+        new SimpleAuthenticationIdentity(user, null, domain));
+    assertFalse(result.isValid());
+  }
+
   public void testDomain_userLogin() throws Exception {
     testDomain("someuser", "", "localgroup");
   }
 
   public void testDomain_noDomain() throws Exception {
     testDomain("localuser", "", "localgroup");
+  }
+
+  public void testDomain_differentDomain() throws Exception {
+    testDomainFail("ldapuser", "non-existent");
   }
 
   public void testDomain_windowsLowercase() throws Exception {
@@ -222,7 +238,7 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
   }
 
   public void testDomain_windowsSubstring() throws Exception {
-    testDomain("ldapuser", "me");
+    testDomainFail("ldapuser", "me");
   }
 
   public void testDomain_dnsLowercase() throws Exception {

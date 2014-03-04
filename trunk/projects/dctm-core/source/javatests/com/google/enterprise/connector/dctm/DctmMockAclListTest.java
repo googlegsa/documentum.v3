@@ -28,6 +28,7 @@ import com.google.enterprise.connector.spiimpl.PrincipalValue;
 
 import junit.framework.TestCase;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,8 @@ public class DctmMockAclListTest extends TestCase {
 
   private DctmAclList aclList = null;
   private Map<String, List<Value>> aclValues;
+
+  private final JdbcFixture jdbcFixture = new JdbcFixture();
 
   @Override
   protected void setUp() throws Exception {
@@ -64,6 +67,12 @@ public class DctmMockAclListTest extends TestCase {
     aclValues =
         new HashMap<String, List<Value>>();
     aclList = getAclListForTest();
+
+    jdbcFixture.setUp();
+  }
+
+  protected void tearDown() throws SQLException {
+    jdbcFixture.tearDown();
   }
 
   private DctmAclList getAclListForTest()
@@ -128,8 +137,17 @@ public class DctmMockAclListTest extends TestCase {
     assertEquals(0, aclValues.get(propertyName).size());
   }
 
-  public void testAllowAcl() throws RepositoryDocumentException,
-      RepositoryException {
+  private void insertUsers(String... names) throws SQLException {
+    for (String name : names) {
+      jdbcFixture.executeUpdate(
+          String.format("insert into dm_user(user_name) values('%s')", name));
+    }
+  }
+
+  public void testAllowAcl() throws Exception {
+    insertUsers("user1");
+    insertUsers("group1"); // All groups appear in dm_user.
+
     MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
     addAllowUserToAcl(aclObj, "user1");
     addAllowGroupToAcl(aclObj, "group1");
@@ -146,8 +164,9 @@ public class DctmMockAclListTest extends TestCase {
     assertEmpty(SpiConstants.PROPNAME_ACLDENYGROUPS);
   }
 
-  public void testDenyAcl() throws RepositoryDocumentException,
-      RepositoryException {
+  public void testDenyAcl() throws Exception {
+    insertUsers("user1", "user2", "user3", "user4");
+
     MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
     addAllowUserToAcl(aclObj, "user1");
     addDenyUserToAcl(aclObj, "user2", IAcl.DF_PERMIT_READ);
@@ -172,8 +191,9 @@ public class DctmMockAclListTest extends TestCase {
     assertContains("user4", SpiConstants.PROPNAME_ACLDENYUSERS);
   }
 
-  public void testGroupAcl() throws RepositoryDocumentException,
-      RepositoryException {
+  public void testGroupAcl() throws Exception {
+    insertUsers("engineering", "sales", "marketing");
+
     MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
     addAllowGroupToAcl(aclObj, "engineering");
     addDenyGroupToAcl(aclObj, "sales", IAcl.DF_PERMIT_READ);
