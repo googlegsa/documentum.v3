@@ -139,12 +139,12 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
         authentManager.authenticate(new SimpleAuthenticationIdentity(
             DmInitialize.DM_LOGIN_OK1, null));
     assertTrue(result.isValid());
-    Collection<?> groups = (Collection<?>) result.getGroups();
+    Collection<?> groups = result.getGroups();
     assertEquals(ImmutableList.of("grp1", "grp2", "grp3", "dm_world"),
         toStrings(groups));
   }
 
-  public void testGroupLookup_fail() throws Exception {
+  public void testGroupLookup_badUser() throws Exception {
     groupSetUp();
 
     AuthenticationResponse result =
@@ -160,7 +160,7 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
         authentManager.authenticate(new SimpleAuthenticationIdentity(
             DmInitialize.DM_LOGIN_OK1, DmInitialize.DM_PWD_OK1));
     assertTrue(result.isValid());
-    Collection<?> groups = (Collection<?>) result.getGroups();
+    Collection<?> groups = result.getGroups();
     assertEquals(ImmutableList.of("grp1", "grp2", "grp3", "dm_world"),
         toStrings(groups));
   }
@@ -168,13 +168,29 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
   public void testGroupLookup_onlyWorld() throws Exception {
     groupSetUp();
 
-    AuthenticationResponse result2 =
+    AuthenticationResponse result =
         authentManager.authenticate(new SimpleAuthenticationIdentity(
             DmInitialize.DM_LOGIN_OK2, DmInitialize.DM_PWD_OK2));
-    assertTrue(result2.isValid());
-    Collection<?> groups2 =
-        (Collection<?>) result2.getGroups();
-    assertEquals(ImmutableList.of("dm_world"), toStrings(groups2));
+    assertTrue(result.isValid());
+    Collection<?> groups = result.getGroups();
+    assertEquals(ImmutableList.of("dm_world"), toStrings(groups));
+  }
+
+  /** Tests for a leaked session when a query throws an exception. */
+  public void testGroupLookup_exception() throws Exception {
+    // This username is impossible, but it triggers an exception in
+    // the group lookup query, so we can test the exception handling.
+    insertUser("d''oh!", "homer", "", "");
+
+    try {
+      authentManager.authenticate(
+          new SimpleAuthenticationIdentity("homer", null));
+      fail("Expected an exception");
+    } catch (RepositoryException expected) {
+      if (!expected.getMessage().startsWith("Database error")) {
+        throw expected;
+      }
+    }
   }
 
   private void domainSetUp() throws SQLException {

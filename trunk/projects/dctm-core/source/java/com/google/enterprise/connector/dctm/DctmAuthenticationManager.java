@@ -155,33 +155,34 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       throws RepositoryLoginException, RepositoryException {
     ArrayList<Principal> listGroups = new ArrayList<Principal>();
     ISession session = sessionManager.getSession(docbase);
-
-    String queryStr =
-        "select group_name from dm_group where any i_all_users_names = '"
-        + username + "'";
-    IQuery query = clientX.getQuery();
-    query.setDQL(queryStr);
-    ICollection collecGroups = query.execute(session,
-        IQuery.EXECUTE_READ_QUERY);
-
     try {
-      while (collecGroups.next()) {
-        String groupName = collecGroups.getString("group_name");
-        String groupNamespace = getGroupNamespace(session, groupName);
-        if (groupNamespace != null) {
-          listGroups.add(new Principal(PrincipalType.UNKNOWN, groupNamespace,
-              groupName, CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
-        } else {
-          LOGGER.warning("Skipping group " + groupName
-              + " with null namespace");
+      String queryStr =
+          "select group_name from dm_group where any i_all_users_names = '"
+          + username + "'";
+      IQuery query = clientX.getQuery();
+      query.setDQL(queryStr);
+      ICollection collecGroups = query.execute(session,
+          IQuery.EXECUTE_READ_QUERY);
+      try {
+        while (collecGroups.next()) {
+          String groupName = collecGroups.getString("group_name");
+          String groupNamespace = getGroupNamespace(session, groupName);
+          if (groupNamespace != null) {
+            listGroups.add(new Principal(PrincipalType.UNKNOWN, groupNamespace,
+                    groupName, CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
+          } else {
+            LOGGER.warning("Skipping group " + groupName
+                + " with null namespace");
+          }
         }
+        // process special group dm_world
+        listGroups.add(new Principal(PrincipalType.UNKNOWN,
+                connector.getGoogleLocalNamespace(), "dm_world",
+                CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
+      } finally {
+        collecGroups.close();
       }
-      // process special group dm_world
-      listGroups.add(new Principal(PrincipalType.UNKNOWN,
-          connector.getGoogleLocalNamespace(), "dm_world",
-          CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
     } finally {
-      collecGroups.close();
       sessionManager.release(session);
     }
 
