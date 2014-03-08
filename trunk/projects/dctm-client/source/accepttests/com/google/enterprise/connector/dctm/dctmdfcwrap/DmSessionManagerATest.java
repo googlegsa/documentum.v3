@@ -96,6 +96,7 @@ public class DmSessionManagerATest extends TestCase {
     }
   }
 
+  @SuppressWarnings("deprecation") // For ISessionManager.authenticate.
   public void testAuthenticateOK() throws RepositoryLoginException,
       DfException {
     loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);
@@ -105,6 +106,7 @@ public class DmSessionManagerATest extends TestCase {
     Assert.assertTrue(rep);
   }
 
+  @SuppressWarnings("deprecation") // For ISessionManager.authenticate.
   public void testAuthenticateK0() throws RepositoryLoginException,
       DfException {
     loginInfo.setUser(DmInitialize.DM_LOGIN_OK4);

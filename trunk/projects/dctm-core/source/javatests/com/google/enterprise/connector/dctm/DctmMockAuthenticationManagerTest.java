@@ -124,11 +124,14 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
   }
 
   private void groupSetUp() throws SQLException {
-    insertUser(DmInitialize.DM_LOGIN_OK1, DmInitialize.DM_LOGIN_OK1, "", "");
-    insertUser(DmInitialize.DM_LOGIN_OK2, DmInitialize.DM_LOGIN_OK2, "", "");
-    insertGroup("grp1", DmInitialize.DM_LOGIN_OK1, "user3", "user4");
-    insertGroup("grp2", "user1", DmInitialize.DM_LOGIN_OK1, "user2");
-    insertGroup("grp3", "user2", "user3", DmInitialize.DM_LOGIN_OK1);
+    assertFalse("joseph".equals(DmInitialize.DM_LOGIN_OK1));
+    assertFalse("margaret".equals(DmInitialize.DM_LOGIN_OK2));
+
+    insertUser("joseph", DmInitialize.DM_LOGIN_OK1, "", "");
+    insertUser("margaret", DmInitialize.DM_LOGIN_OK2, "", "");
+    insertGroup("grp1", "joseph", "user3", "user4");
+    insertGroup("grp2", "user1", "joseph", "user2");
+    insertGroup("grp3", "user2", "user3", "joseph");
     insertGroup("grp3", "user3", "user4");
   }
 
@@ -153,7 +156,7 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     assertFalse(result.isValid());
   }
 
-  public void testGroupLookup_multipleGroups() throws Exception {
+  public void testGroupLookup_authentication() throws Exception {
     groupSetUp();
 
     AuthenticationResponse result =

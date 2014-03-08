@@ -36,6 +36,7 @@ public class MockDmSessionManagerTest extends TestCase {
     sessionManager = localClient.newSessionManager();
   }
 
+  @SuppressWarnings("deprecation") // For ISessionManager.authenticate.
   public void testSetAndClearIdentity() {
     try {
       ILoginInfo ili = dctmClientX.getLoginInfo();
@@ -97,6 +98,7 @@ public class MockDmSessionManagerTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("deprecation") // For ISessionManager.authenticate.
   public void testAuthenticate() {
     try {
       ILoginInfo ili = dctmClientX.getLoginInfo();

@@ -46,6 +46,16 @@ public class DmSession implements ISession {
     this.idfSession = dfSession;
   }
 
+  /** @since 3.2.4 */
+  @Override
+  public String getLoginUserName() throws RepositoryException {
+    try {
+      return idfSession.getLoginUserName();
+    } catch (DfException de) {
+      throw new RepositoryException(de);
+    }
+  }
+
   @Override
   public String getDocbaseName() throws RepositoryException {
     try {
@@ -92,6 +102,7 @@ public class DmSession implements ISession {
     }
   }
 
+  /** @since 3.2.0 */
   @Override
   public IPersistentObject getObjectByQualification(String qualification)
       throws RepositoryDocumentException {

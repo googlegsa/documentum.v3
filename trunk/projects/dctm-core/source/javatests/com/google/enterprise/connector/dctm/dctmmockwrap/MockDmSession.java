@@ -26,6 +26,7 @@ import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
 import com.google.enterprise.connector.mock.jcr.MockJcrRepository;
 import com.google.enterprise.connector.mock.jcr.MockJcrSession;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 import java.sql.Connection;
@@ -38,6 +39,8 @@ public class MockDmSession implements ISession {
 
   private final MockJcrRepository mockRep;
 
+  private final MockJcrSession mockSess;
+
   private final String sessionFileNameSuffix;
 
   private final Connection jdbcConnection = JdbcFixture.getSharedConnection();
@@ -46,6 +49,7 @@ public class MockDmSession implements ISession {
       MockJcrSession mjS, String dbFileName) {
     this.sessMgr = sessMgr;
     this.mockRep = mjR;
+    this.mockSess = mjS;
     this.sessionFileNameSuffix = dbFileName;
   }
 
@@ -59,6 +63,20 @@ public class MockDmSession implements ISession {
 
   MockRepositoryDocumentStore getStore() {
     return mockRep.getRepo().getStore();
+  }
+
+  @Override
+  public String getLoginUserName() throws RepositoryException {
+    // TODO(jlacey): We are not supporting domains for authentication.
+    // This code is similar to getObjectByQualification in that it
+    // just returns the first match if there are multiple matches.
+    try {
+      return executeQuery(
+          "select user_name from dm_user where user_login_name = '"
+          + mockSess.getUserID() + "'");
+    } catch (SQLException e) {
+      throw new RepositoryLoginException("Database error", e);
+    }
   }
 
   @Override
@@ -134,6 +152,11 @@ public class MockDmSession implements ISession {
     }
   }
 
+  /**
+   * Executes a SQL query and returns the string value of the first
+   * column in the first row. It is not an error if there are
+   * additional rows in the result set.
+   */
   private String executeQuery(String query) throws SQLException {
     Statement stmt = jdbcConnection.createStatement();
     try {

@@ -114,6 +114,7 @@ public class MockDmSessionManager implements ISessionManager {
     sessMgerCreds.remove(docbase);
   }
 
+  @Deprecated
   @Override
   public boolean authenticate(String docbaseName) {
     MockDmSession tmp;
@@ -204,7 +205,7 @@ public class MockDmSessionManager implements ISessionManager {
         return null;
       }
     } catch (LoginException e) {
-      throw new RepositoryException(e);
+      throw new RepositoryLoginException(e);
     }
   }
 }
