@@ -31,6 +31,8 @@ public interface ISessionManager {
 
   ILoginInfo getIdentity(String docbase);
 
+  /** @deprecated This method is unused */
+  @Deprecated
   boolean authenticate(String docbaseName);
 
   void clearIdentity(String docbase);

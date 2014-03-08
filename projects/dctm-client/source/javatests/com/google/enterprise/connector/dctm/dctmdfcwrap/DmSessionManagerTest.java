@@ -76,6 +76,7 @@ public class DmSessionManagerTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("deprecation") // For ISessionManager.authenticate.
   public void testAuthenticateOK() throws RepositoryLoginException {
     boolean rep = false;
 
@@ -93,6 +94,7 @@ public class DmSessionManagerTest extends TestCase {
     Assert.assertTrue(rep);
   }
 
+  @SuppressWarnings("deprecation") // For ISessionManager.authenticate.
   public void testAuthenticateKO() throws RepositoryLoginException {
     boolean rep = false;
 

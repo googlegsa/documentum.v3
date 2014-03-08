@@ -121,6 +121,7 @@ public class DmSessionManager implements ISessionManager {
     return dfSessionManager;
   }
 
+  @Deprecated
   @Override
   public boolean authenticate(String docbaseName) {
     boolean authent = false;

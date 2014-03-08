@@ -81,13 +81,16 @@ public class DctmAuthenticationManager implements AuthenticationManager {
           // here because we always have and no bugs have been reported.
           sessionManagerUser =
               getSessionManager(authenticationIdentity.getUsername(), password);
-          authenticate = sessionManagerUser.authenticate(docbase);
-          if (authenticate) {
-            userName =
-                getUserName(sessionManagerUser, userLoginName, userDomain);
-          } else {
-            userName = null; // Unused.
+
+          // Use getSession instead of authenticate, so we can get the
+          // authenticated user name.
+          ISession session = sessionManagerUser.getSession(docbase);
+          try {
+            userName = session.getLoginUserName();
+          } finally {
+            sessionManagerUser.release(session);
           }
+          authenticate = true;
         }
       } catch (RepositoryLoginException e) {
         LOGGER.finer(e.getMessage());
