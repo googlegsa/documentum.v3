@@ -129,7 +129,7 @@ public class MockDmQuery implements IQuery {
       String sql = query.replace(" any ", " ");
       return executeQuery(sql);
     } else if (query.indexOf("dm_user") != -1) {
-      throw new UnsupportedOperationException(query);
+      return executeQuery(query);
     } else { // Authorize query...
       String[] ids = this.query.split("','");
       ids[0] = ids[0].substring(ids[0].lastIndexOf("'") + 1, ids[0]

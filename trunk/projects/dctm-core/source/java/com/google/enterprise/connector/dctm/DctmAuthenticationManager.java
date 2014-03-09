@@ -125,6 +125,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     ISession session = sessionManager.getSession(docbase);
     try {
       StringBuilder queryBuff = new StringBuilder();
+      queryBuff.append("select user_name from ");
       queryBuff.append("dm_user where user_login_name = '");
       queryBuff.append(userLoginName);
       if (!Strings.isNullOrEmpty(userDomain)) {
@@ -138,9 +139,19 @@ public class DctmAuthenticationManager implements AuthenticationManager {
         }
       }
       queryBuff.append("'");
-      IUser user =
-          (IUser) session.getObjectByQualification(queryBuff.toString());
-      return (user == null) ? null : user.getUserName();
+
+      IQuery query = clientX.getQuery();
+      query.setDQL(queryBuff.toString());
+      ICollection users = query.execute(session, IQuery.EXECUTE_READ_QUERY);
+      try {
+        if (users.next() && !users.hasNext()) {
+          return users.getString("user_name");
+        } else {
+          return null; // No users or multiple users found.
+        }
+      } finally {
+        users.close();
+      }
     } finally {
       sessionManager.release(session);
     }

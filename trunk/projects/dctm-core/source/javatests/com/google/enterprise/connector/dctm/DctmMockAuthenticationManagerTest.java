@@ -268,6 +268,14 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     testDomain("ldapuser", "ajax.example.com", "ldapgroup");
   }
 
+  public void testDomain_ambiguousNoDomain() throws Exception {
+    testDomainFail("ldapuser", "");
+  }
+
+  public void testDomain_ambiguousDomain() throws Exception {
+    testDomainFail("ldapuser", "ajax");
+  }
+
   private Collection<String> toStrings(Collection<?> groups) {
     if (groups == null) {
       return null;
