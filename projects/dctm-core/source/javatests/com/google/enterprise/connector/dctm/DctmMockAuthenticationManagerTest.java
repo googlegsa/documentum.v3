@@ -276,6 +276,24 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     testDomainFail("ldapuser", "ajax");
   }
 
+  private void testParentDomainFail(String user, String domain)
+      throws Exception {
+    insertUser("aceuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=ace,dc=example,dc=com");
+
+    AuthenticationResponse result = authentManager.authenticate(
+        new SimpleAuthenticationIdentity(user, null, domain));
+    assertFalse(result.isValid());
+  }
+
+  public void testDomain_windowsParent() throws Exception {
+    testParentDomainFail("ldapuser", "example");
+  }
+
+  public void testDomain_dnsParent() throws Exception {
+    testParentDomainFail("ldapuser", "example.com");
+  }
+
   private Collection<String> toStrings(Collection<?> groups) {
     if (groups == null) {
       return null;

@@ -36,7 +36,12 @@ import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 public class DctmAuthenticationManager implements AuthenticationManager {
   private static final Logger LOGGER = 
@@ -122,19 +127,24 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       throws RepositoryLoginException, RepositoryException {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(userLoginName),
         "Username must not be null or empty.");
+
+    // Construct a DN for the domain, which is used in both the query
+    // and the results post-processing. Note this works for both
+    // NetBIOS and DNS domains (the former has no dots to replace).
+    String domainDn  = (Strings.isNullOrEmpty(userDomain))
+        ? null : "dc=" + userDomain.toLowerCase().replace(".", ",dc=");
+
     ISession session = sessionManager.getSession(docbase);
     try {
       StringBuilder queryBuff = new StringBuilder();
-      queryBuff.append("select user_name from ");
+      queryBuff.append("select user_name, user_ldap_dn from ");
       queryBuff.append("dm_user where user_login_name = '");
       queryBuff.append(userLoginName);
-      if (!Strings.isNullOrEmpty(userDomain)) {
+      if (domainDn != null) {
         queryBuff.append("' and user_source = 'LDAP'");
-        queryBuff.append(" and LOWER(user_ldap_dn) like '%,dc=");
-        if (userDomain.indexOf('.') != -1) {
-          queryBuff.append(userDomain.toLowerCase().replace(".", ",dc="));
-        } else {
-          queryBuff.append(userDomain.toLowerCase());
+        queryBuff.append(" and LOWER(user_ldap_dn) like '%,");
+        queryBuff.append(domainDn);
+        if (userDomain.indexOf('.') == -1) { // NetBIOS domain
           queryBuff.append(",%");
         }
       }
@@ -144,16 +154,56 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       query.setDQL(queryBuff.toString());
       ICollection users = query.execute(session, IQuery.EXECUTE_READ_QUERY);
       try {
-        if (users.next() && !users.hasNext()) {
-          return users.getString("user_name");
+        // The DQL query can only confirm partial matches, and not
+        // exact matches. For brevity, we loop over all the users in
+        // case we want to log them, and we check domainDn == null on
+        // each iteration.
+        ArrayList<String> matches = new ArrayList<String>();
+        while (users.next()) {
+          if (domainDn == null || domainMatchesUser(domainDn,
+              users.getString("user_ldap_dn"))) {
+            matches.add(users.getString("user_name"));
+          }
+        }
+        if (matches.size() == 1) {
+          return matches.get(0);
         } else {
-          return null; // No users or multiple users found.
+          LOGGER.log(Level.FINER, "No users or multiple users found: {0}",
+              matches);
+          return null;
         }
       } finally {
         users.close();
       }
     } finally {
       sessionManager.release(session);
+    }
+  }
+
+  /**
+   * Gets whether the given domain matches the domain in the user DN.
+   *
+   * @param domainDn the GSA identity domain DN
+   * @param userDn the Documentum user LDAP DN
+   */
+  private boolean domainMatchesUser(String domainDn, String userDn) {
+    try {
+      // Extract the DC RDNs from the userDn.
+      LdapName userName = new LdapName(userDn);
+      ArrayList<Rdn> userDnDomain = new ArrayList<Rdn>(userName.size());
+      for (Rdn rdn : userName.getRdns()) {
+        if (rdn.getType().equalsIgnoreCase("dc")) {
+          userDnDomain.add(rdn);
+        }
+      }
+
+      // LDAP numbers RDNs from right to left, and we want a match on
+      // the left (starting with the subdomain), that is, on the end.
+      return new LdapName(userDnDomain).endsWith(new LdapName(domainDn));
+    } catch (InvalidNameException e) {
+      LOGGER.log(Level.WARNING,
+          "Error matching domain " + domainDn + " for user " + userDn, e);
+      return false;
     }
   }
 
