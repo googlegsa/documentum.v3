@@ -219,6 +219,15 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
       throws Exception {
     domainSetUp();
 
+    testGroupLookup(user, domain, expectedGroups);
+  }
+
+  /**
+   * Helper method tests group lookup only and verifies that the given
+   * groups (along with dm_world) are returned for the user.
+   */
+  private void testGroupLookup(String user, String domain,
+      String... expectedGroups) throws Exception {
     AuthenticationResponse result = authentManager.authenticate(
         new SimpleAuthenticationIdentity(user, null, domain));
     assertTrue(result.isValid());
@@ -231,6 +240,12 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
       throws Exception {
     domainSetUp();
 
+    testGroupLookupFail(user, domain);
+  }
+
+  /** Helper method tests group lookup only and verifies that it fails. */
+  private void testGroupLookupFail(String user, String domain)
+      throws Exception {
     AuthenticationResponse result = authentManager.authenticate(
         new SimpleAuthenticationIdentity(user, null, domain));
     assertFalse(result.isValid());
@@ -274,6 +289,66 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
 
   public void testDomain_ambiguousDomain() throws Exception {
     testDomainFail("ldapuser", "ajax");
+  }
+
+  public void testLdapInjection_windowsDomain() throws Exception {
+    testDomainFail("ldapuser", "acme,dc=example");
+  }
+
+  public void testLdapInjection_dnsDomain() throws Exception {
+    testDomainFail("ldapuser", "acme,dc=example.com");
+  }
+
+  /**
+   * Note: The H2 default escape character is disabled for the JDBC
+   * connection, to match the DQL behavior.
+   *
+   * @see JdbcFixture#getSharedConnection
+   */
+  private void ldapSetUp() throws SQLException {
+    insertUser("acmeuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=dc\\=acme,dc=example,dc=com");
+    // Note ou, looking for false positives.
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "CN=LDAP User,ou=dc\\=ajax,dc=example,dc=com");
+    insertGroup("ldapgroup", "acmeuser");
+    insertGroup("ldapgroup", "ajaxuser");
+  }
+
+  public void testLdapEscaping_windows() throws Exception {
+    ldapSetUp();
+
+    testGroupLookup("ldapuser", "dc=acme", "ldapgroup");
+  }
+
+  public void testLdapEscaping_dns() throws Exception {
+    ldapSetUp();
+
+    testGroupLookup("ldapuser", "dc=acme.example.com", "ldapgroup");
+  }
+
+  public void testLdapEscaping_partialFail() throws Exception {
+    ldapSetUp();
+
+    testGroupLookupFail("ldapuser", "ajax");
+  }
+
+  public void testLdapEscaping_fullFail() throws Exception {
+    ldapSetUp();
+
+    testGroupLookupFail("ldapuser", "dc=ajax");
+  }
+
+  public void testLdapEscaping_escapedFail() throws Exception {
+    ldapSetUp();
+
+    testGroupLookupFail("ldapuser", "dc\\=ajax");
+  }
+
+  public void testLdapEscaping_actualDomain() throws Exception {
+    ldapSetUp();
+
+    testGroupLookup("ldapuser", "example", "ldapgroup");
   }
 
   private void testParentDomainFail(String user, String domain)

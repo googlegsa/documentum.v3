@@ -29,10 +29,15 @@ public class JdbcFixture {
       + "(user_name varchar primary key, user_login_name varchar, "
       + "user_source varchar, user_ldap_dn varchar)";
 
+  /**
+   * Gets a JDBC connection to a named in-memory database. The default
+   * escape character is disabled, to match the DQL behavior (and
+   * standard SQL).
+   */
   public static Connection getSharedConnection() {
     try {
       JdbcDataSource ds = new JdbcDataSource();
-      ds.setURL("jdbc:h2:mem:test");
+      ds.setURL("jdbc:h2:mem:test;DEFAULT_ESCAPE=");
       ds.setUser("sa");
       ds.setPassword("");
       return ds.getConnection();
