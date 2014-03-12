@@ -36,6 +36,7 @@ import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -130,9 +131,8 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
     // Construct a DN for the domain, which is used in both the query
     // and the results post-processing. Note this works for both
-    // NetBIOS and DNS domains (the former has no dots to replace).
-    String domainDn  = (Strings.isNullOrEmpty(userDomain))
-        ? null : "dc=" + userDomain.toLowerCase().replace(".", ",dc=");
+    // NetBIOS and DNS domains.
+    LdapName domainName = toLdapName(userDomain);
 
     ISession session = sessionManager.getSession(docbase);
     try {
@@ -140,11 +140,11 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       queryBuff.append("select user_name, user_ldap_dn from ");
       queryBuff.append("dm_user where user_login_name = '");
       queryBuff.append(userLoginName);
-      if (domainDn != null) {
+      if (!domainName.isEmpty()) {
         queryBuff.append("' and user_source = 'LDAP'");
         queryBuff.append(" and LOWER(user_ldap_dn) like '%,");
-        queryBuff.append(domainDn);
-        if (userDomain.indexOf('.') == -1) { // NetBIOS domain
+        queryBuff.append(domainName);
+        if (domainName.size() == 1) { // NetBIOS domain
           queryBuff.append(",%");
         }
       }
@@ -156,13 +156,17 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       try {
         // The DQL query can only confirm partial matches, and not
         // exact matches. For brevity, we loop over all the users in
-        // case we want to log them, and we check domainDn == null on
-        // each iteration.
+        // case we want to log them, and we check domainName.isEmpty()
+        // on each iteration.
         ArrayList<String> matches = new ArrayList<String>();
         while (users.next()) {
-          if (domainDn == null || domainMatchesUser(domainDn,
-              users.getString("user_ldap_dn"))) {
+          String userLdapDn = users.getString("user_ldap_dn");
+          if (domainName.isEmpty()
+              || domainMatchesUser(domainName, userLdapDn)) {
             matches.add(users.getString("user_name"));
+          } else if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("Rejecting non-matching domain " + domainName
+                + " for user " + userLdapDn);
           }
         }
         if (matches.size() == 1) {
@@ -181,12 +185,33 @@ public class DctmAuthenticationManager implements AuthenticationManager {
   }
 
   /**
+   * Converts a NetBIOS or DNS domain string to an LDAP distinguished
+   * name including just the DC attributes, all in lowercase.
+   */
+  private LdapName toLdapName(String userDomain)
+      throws RepositoryLoginException{
+    String[] domainComponents = (Strings.isNullOrEmpty(userDomain))
+        ? new String[0] : userDomain.toLowerCase().split("\\.");
+
+    ArrayList<Rdn> domainRdns = new ArrayList<Rdn>(domainComponents.length);
+    try {
+      for (String dc : domainComponents) {
+        domainRdns.add(new Rdn("dc", dc));
+      }
+    } catch (InvalidNameException e) {
+      throw new RepositoryLoginException("Invalid domain " + userDomain, e);
+    }
+    Collections.reverse(domainRdns); // RDN lists are in reverse order.
+    return new LdapName(domainRdns);
+  }
+
+  /**
    * Gets whether the given domain matches the domain in the user DN.
    *
-   * @param domainDn the GSA identity domain DN
+   * @param domainName the parsed GSA identity domain DN
    * @param userDn the Documentum user LDAP DN
    */
-  private boolean domainMatchesUser(String domainDn, String userDn) {
+  private boolean domainMatchesUser(LdapName domainName, String userDn) {
     try {
       // Extract the DC RDNs from the userDn.
       LdapName userName = new LdapName(userDn);
@@ -199,10 +224,10 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
       // LDAP numbers RDNs from right to left, and we want a match on
       // the left (starting with the subdomain), that is, on the end.
-      return new LdapName(userDnDomain).endsWith(new LdapName(domainDn));
+      return new LdapName(userDnDomain).endsWith(domainName);
     } catch (InvalidNameException e) {
       LOGGER.log(Level.WARNING,
-          "Error matching domain " + domainDn + " for user " + userDn, e);
+          "Error matching domain " + domainName + " for user " + userDn, e);
       return false;
     }
   }
