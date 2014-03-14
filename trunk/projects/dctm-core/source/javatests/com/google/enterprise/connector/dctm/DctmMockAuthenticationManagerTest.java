@@ -369,6 +369,21 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     testParentDomainFail("ldapuser", "example.com");
   }
 
+  public void testSqlInjection_userNoDomain() throws Exception {
+    testDomainFail("' or user_name = 'localuser", "");
+  }
+
+  public void testSqlInjection_userDomain() throws Exception {
+    testDomainFail(
+        "ldapuser' and user_ldap_dn like '%dc=ajax,dc=example,dc=com,dc=au' --",
+        "ajax.example.com");
+  }
+
+  /** The post-processing using LdapName also blocks this. */
+  public void testSqlInjection_domain() throws Exception {
+    testDomainFail("ldapuser", "acme.example%");
+  }
+
   private Collection<String> toStrings(Collection<?> groups) {
     if (groups == null) {
       return null;

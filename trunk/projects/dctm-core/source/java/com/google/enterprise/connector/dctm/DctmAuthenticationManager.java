@@ -139,14 +139,15 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       StringBuilder queryBuff = new StringBuilder();
       queryBuff.append("select user_name, user_ldap_dn from ");
       queryBuff.append("dm_user where user_login_name = '");
-      queryBuff.append(userLoginName);
+      queryBuff.append(DqlUtils.escapeString(userLoginName));
       if (!domainName.isEmpty()) {
         queryBuff.append("' and user_source = 'LDAP'");
         queryBuff.append(" and LOWER(user_ldap_dn) like '%,");
-        queryBuff.append(domainName);
+        queryBuff.append(DqlUtils.escapePattern(domainName.toString(), '\\'));
         if (domainName.size() == 1) { // NetBIOS domain
           queryBuff.append(",%");
         }
+        queryBuff.append("' escape '\\");
       }
       queryBuff.append("'");
 
