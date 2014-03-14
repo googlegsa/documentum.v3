@@ -57,6 +57,56 @@ public class DqlUtils {
     buffer.append(')');
   }
 
+  /**
+   * Escapes single quotes (') in the given value by doubling them,
+   * as per SQL.
+   */
+  public static String escapeString(String value) {
+    StringBuilder buffer = new StringBuilder(value.length() + 2);
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      switch (c) {
+        case '\'':
+          buffer.append("''");
+          break;
+        default:
+          buffer.append(c);
+          break;
+      }
+    }
+    return buffer.toString();
+  }
+
+  /**
+   * Escapes single quotes (') in the given value by doubling them, as
+   * per SQL, and escapes the LIKE wildcards, percent (%) and
+   * underscore (_), using the given escape character, as well as
+   * escaping the escape character itself.
+   */
+  public static String escapePattern(String value, char escapeChar) {
+    StringBuilder buffer = new StringBuilder(value.length() + 2);
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      switch (c) {
+        case '\'':
+          buffer.append("''");
+          break;
+        case '%':
+        case '_':
+          buffer.append(escapeChar);
+          buffer.append(c);
+          break;
+        default:
+          if (c == escapeChar) {
+            buffer.append(escapeChar);
+          }
+          buffer.append(c);
+          break;
+      }
+    }
+    return buffer.toString();
+  }
+
   /** This class should not be instantiated. */
   private DqlUtils() {
     throw new AssertionError();
