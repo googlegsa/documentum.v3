@@ -74,8 +74,8 @@ public class DqlUtilsTest extends TestCase {
   }
 
   public void testEscapePattern_quotedSlash() {
-    String value = "' \\ % _ \\' \\\\ \\% \\_";
-    String escaped = "'' /\\ /% /_ /\\'' /\\/\\ /\\/% /\\/_";
+    String value = "' \\ / % _ /' \\\\ // /% /_";
+    String escaped = "'' \\ // /% /_ //'' \\\\ //// ///% ///_";
     assertEquals(escaped, DqlUtils.escapePattern(value, '/'));
   }
 }
