@@ -28,10 +28,12 @@ public class MockBooleanCollection implements ICollection {
     this.hasNext = hasNext;
   }
 
+  @Override
   public boolean hasNext() {
     return hasNext;
   }
 
+  @Override
   public boolean next() {
     // It may not matter, but let's return a finite collection.
     boolean temp = hasNext;
@@ -39,25 +41,31 @@ public class MockBooleanCollection implements ICollection {
     return temp;
   }
 
+  @Override
   public String getString(String colName) throws RepositoryException {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public IValue getValue(String attrName) throws RepositoryException {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public void close() throws RepositoryException {
   }
 
+  @Override
   public int getState() {
     return ICollection.DF_READY_STATE;
   }
 
+  @Override
   public ISession getSession(){
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public ITime getTime(String colName) throws RepositoryException {
     throw new UnsupportedOperationException();
   }

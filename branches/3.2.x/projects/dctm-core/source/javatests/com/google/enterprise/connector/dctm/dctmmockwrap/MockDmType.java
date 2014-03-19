@@ -70,28 +70,34 @@ public class MockDmType implements IType {
     }
   }
 
+  @Override
   public int getTypeAttrCount() throws RepositoryDocumentException {
     return (prototype == null) ? attributes.size() : prototype.getAttrCount();
   }
 
+  @Override
   public IType getSuperType() {
     return superType;
   }
 
+  @Override
   public IAttr getTypeAttr(int attrIndex) throws RepositoryDocumentException {
     return (prototype == null)
         ? attributes.get(attrIndex) : prototype.getAttr(attrIndex);
   }
 
+  @Override
   public String getTypeAttrNameAt(int attrIndex)
       throws RepositoryDocumentException {
     return getTypeAttr(attrIndex).getName();
   }
 
+  @Override
   public String getDescription() {
     return typeName + "Description";
   }
 
+  @Override
   public boolean isSubTypeOf(String typeName) {
     for (MockDmType souper = superType;
          souper != null;
@@ -102,6 +108,7 @@ public class MockDmType implements IType {
     return false;
   }
 
+  @Override
   public String getName() {
     return typeName;
   }

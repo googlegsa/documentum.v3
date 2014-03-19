@@ -44,7 +44,8 @@ public class DctmDocumentListTest extends TestCase {
 
   DctmDocumentList documentList;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new DmClientX();
     localClient = dctmClientX.getLocalClient();
@@ -68,7 +69,8 @@ public class DctmDocumentListTest extends TestCase {
         collec, new Checkpoint(Collections.<String>emptyList()));
   }
 
-  public void tearDown() throws RepositoryException {
+  @Override
+  protected void tearDown() throws RepositoryException {
     documentList.checkpoint();
   }
 

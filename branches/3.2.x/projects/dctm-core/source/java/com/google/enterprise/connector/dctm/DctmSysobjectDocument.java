@@ -14,19 +14,8 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IFormat;
@@ -42,12 +31,23 @@ import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
-import com.google.enterprise.connector.spi.SkippedDocumentException;
 import com.google.enterprise.connector.spi.SimpleProperty;
+import com.google.enterprise.connector.spi.SkippedDocumentException;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.SpiConstants.ActionType;
 import com.google.enterprise.connector.spi.TraversalContext;
 import com.google.enterprise.connector.spi.Value;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DctmSysobjectDocument implements Document {
   private static final Logger logger =
@@ -63,21 +63,14 @@ public class DctmSysobjectDocument implements Document {
    * Optional properties from Documentum that are not truly attributes.
    * Values include "r_object_id" and "google:folder".
    */
-  public static final Set<String> EXTENDED_PROPERTIES;
-
-  static {
-    // TODO: Use ImmutableSet.of(OBJECT_ID_NAME, SpiConstants.PROPNAME_FOLDER)
-    // in 3.0.
-    String[] properties = { OBJECT_ID_NAME, SpiConstants.PROPNAME_FOLDER };
-    EXTENDED_PROPERTIES = Collections.unmodifiableSet(
-        new HashSet<String>(Arrays.asList(properties)));
-  }
+  public static final Set<String> EXTENDED_PROPERTIES =
+      ImmutableSet.of(OBJECT_ID_NAME, SpiConstants.PROPNAME_FOLDER);
 
   /**
    * A record of logged requests for unsupported SPI properties so we
    * don't spam the logs.
    */
-  /* Package access for the unit tests. */
+  @VisibleForTesting
   static Set<String> UNSUPPORTED_PROPNAMES = new HashSet<String>();
 
   private final DctmTraversalManager traversalManager;
@@ -152,6 +145,7 @@ public class DctmSysobjectDocument implements Document {
    * <p>This implementation looks up the properties when this method
    * is called.
    */
+  @Override
   public Property findProperty(String name) throws RepositoryDocumentException,
       RepositoryLoginException, RepositoryException {
     if (name == null || name.length() == 0)
@@ -532,7 +526,7 @@ public class DctmSysobjectDocument implements Document {
     }
   }
 
-  public void addIfIncluded(List<String> typeAttributes, String name,
+  private void addIfIncluded(List<String> typeAttributes, String name,
       Set<String> includedMeta, Set<String> excludedMeta) {
     if ((includedMeta.isEmpty() || includedMeta.contains(name)) &&
         !excludedMeta.contains(name)) {
@@ -548,6 +542,7 @@ public class DctmSysobjectDocument implements Document {
     }
   }
 
+  @Override
   public Set<String> getPropertyNames() throws RepositoryException {
     Set<String> properties;
     if (ActionType.ADD.equals(action)) {

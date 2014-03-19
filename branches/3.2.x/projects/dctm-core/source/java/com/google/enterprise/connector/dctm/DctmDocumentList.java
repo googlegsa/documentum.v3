@@ -14,9 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.logging.Logger;
-import java.util.HashSet;
-
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
@@ -26,6 +23,9 @@ import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SpiConstants;
+
+import java.util.HashSet;
+import java.util.logging.Logger;
 
 public class DctmDocumentList implements DocumentList {
   private static final Logger logger =
@@ -57,6 +57,7 @@ public class DctmDocumentList implements DocumentList {
     this.checkpoint = checkpoint;
   }
 
+  @Override
   public Document nextDocument() throws RepositoryException {
     DctmSysobjectDocument dctmSysobjectDocument;
     Document retDoc = null;
@@ -178,6 +179,7 @@ public class DctmDocumentList implements DocumentList {
     return retDoc;
   }
 
+  @Override
   public String checkpoint() throws RepositoryException {
     try {
       return checkpoint.asString();
@@ -226,7 +228,8 @@ public class DctmDocumentList implements DocumentList {
 
   // Last chance to make sure the collections are closed and their sessions
   // are released.
-  public void finalize() {
+  @Override
+  protected void finalize() {
     try {
       if (isOpen(collectionToAdd)) {
         try {

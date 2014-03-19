@@ -37,6 +37,7 @@ public class DmUser implements IUser {
     this.idfUser = idfUser;
   }
 
+  @Override
   public String getUserName() throws RepositoryException {
     try {
       return idfUser.getUserName();
@@ -45,6 +46,7 @@ public class DmUser implements IUser {
     }
   }
 
+  @Override
   public String getUserLoginName() throws RepositoryException {
     try {
       return idfUser.getUserLoginName();
@@ -53,6 +55,7 @@ public class DmUser implements IUser {
     }
   }
 
+  @Override
   public String getUserSourceAsString() throws RepositoryDocumentException {
     try {
       logger.finest("getUserSourceAsString value: "
@@ -64,6 +67,7 @@ public class DmUser implements IUser {
     }
   }
 
+  @Override
   public String getUserDistinguishedLDAPName()
       throws RepositoryDocumentException {
     try {

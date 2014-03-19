@@ -33,7 +33,8 @@ public class MockDmLoginInfoTest extends TestCase {
 
   ILoginInfo ili;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new MockDmClientX();
     localClient = dctmClientX.getLocalClient();

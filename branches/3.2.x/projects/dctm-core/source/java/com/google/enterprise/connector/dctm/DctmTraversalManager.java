@@ -14,13 +14,13 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.common.base.Strings;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.IType;
-import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.TraversalContext;
@@ -135,6 +135,7 @@ public class DctmTraversalManager
     return serverUrl;
   }
 
+  @Override
   public void setTraversalContext(TraversalContext traversalContext) {
     this.traversalContext = traversalContext;
   }
@@ -183,6 +184,7 @@ public class DctmTraversalManager
    *             if the Repository is unreachable or similar exceptional
    *             condition.
    */
+  @Override
   public DocumentList startTraversal() throws RepositoryException {
     logger.info("StartTraversal");
     return getDocumentList(forgeStartCheckpoint());
@@ -201,6 +203,7 @@ public class DctmTraversalManager
    *         the checkpoint.
    * @throws RepositoryException
    */
+  @Override
   public DocumentList resumeTraversal(String checkPoint)
       throws RepositoryException {
     logger.info("ResumeTraversal from checkpoint: " + checkPoint);
@@ -216,6 +219,7 @@ public class DctmTraversalManager
    * @param batchHint
    * @throws RepositoryException
    */
+  @Override
   public void setBatchHint(int batchHint) throws RepositoryException {
     logger.info("batchHint of " + batchHint);
     this.batchHint = batchHint;
@@ -436,7 +440,7 @@ public class DctmTraversalManager
   protected IQuery buildACLQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder();
     queryStr.append("select r_object_id from dm_acl");
-    if (checkpoint.getAclId() != null && !checkpoint.getAclId().isEmpty()) {
+    if (!Strings.isNullOrEmpty(checkpoint.getAclId())) {
       queryStr.append(MessageFormat.format(whereClauseAcl,
           checkpoint.getAclId()));
     }

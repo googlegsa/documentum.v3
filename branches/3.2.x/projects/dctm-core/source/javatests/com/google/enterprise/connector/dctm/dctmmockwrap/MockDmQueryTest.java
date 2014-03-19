@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import java.text.MessageFormat;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -26,6 +24,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.TestCase;
+
+import java.text.MessageFormat;
 
 public class MockDmQueryTest extends TestCase {
   private static final String XPATH_QUERY_STRING_BOUNDED_DEFAULT = "//*[@jcr:primaryType = 'nt:resource' and @jcr:lastModified >= ''{0}'' and @jcr:uuid >= ''{1}''] order by @jcr:lastModified, @jcr:uuid";
@@ -40,7 +40,8 @@ public class MockDmQueryTest extends TestCase {
 
   IQuery query;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     dctmClientX = new MockDmClientX();

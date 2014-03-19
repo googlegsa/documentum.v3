@@ -24,12 +24,13 @@ import com.documentum.fc.common.DfException;
  * @since 3.2.0
  */
 public class DmAcl implements IAcl {
-  IDfACL idfAcl;
+  private final IDfACL idfAcl;
 
   public DmAcl(IDfACL idfAcl) {
     this.idfAcl = idfAcl;
   }
 
+  @Override
   public String getObjectName() throws RepositoryDocumentException {
     try {
       return idfAcl.getObjectName();
@@ -38,6 +39,7 @@ public class DmAcl implements IAcl {
     }
   }
 
+  @Override
   public int getAccessorCount() throws RepositoryDocumentException {
     try {
       return idfAcl.getAccessorCount();
@@ -46,6 +48,7 @@ public class DmAcl implements IAcl {
     }
   }
 
+  @Override
   public String getAccessorName(int index) throws RepositoryDocumentException {
     try {
       return idfAcl.getAccessorName(index);
@@ -54,6 +57,7 @@ public class DmAcl implements IAcl {
     }
   }
 
+  @Override
   public int getAccessorPermitType(int index)
       throws RepositoryDocumentException {
     try {
@@ -63,6 +67,7 @@ public class DmAcl implements IAcl {
     }
   }
 
+  @Override
   public int getAccessorPermit(int index) throws RepositoryDocumentException {
     try {
       return idfAcl.getAccessorPermit(index);
@@ -71,6 +76,7 @@ public class DmAcl implements IAcl {
     }
   }
 
+  @Override
   public boolean hasPermission(String permissionName, String accessorName)
       throws RepositoryDocumentException {
     try {
@@ -80,6 +86,7 @@ public class DmAcl implements IAcl {
     }
   }
 
+  @Override
   public boolean isGroup(int index) throws RepositoryDocumentException {
     try {
       return idfAcl.isGroup(index);
@@ -88,6 +95,7 @@ public class DmAcl implements IAcl {
     }
   }
 
+  @Override
   public String getDomain() throws RepositoryDocumentException {
     try {
       return idfAcl.getDomain();

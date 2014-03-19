@@ -18,6 +18,14 @@ import com.google.enterprise.connector.spi.RepositoryDocumentException;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public interface ISession {
+  /**
+   * Gets the repository name (that is, the user_name attribute) for
+   * the currently logged in user.
+   *
+   * @since 3.2.4
+   */
+  String getLoginUserName() throws RepositoryException;
+
   String getDocbaseName() throws RepositoryException;
 
   String getServerVersion() throws RepositoryException;

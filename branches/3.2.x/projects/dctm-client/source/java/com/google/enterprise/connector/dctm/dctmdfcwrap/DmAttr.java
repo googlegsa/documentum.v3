@@ -14,20 +14,23 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.common.IDfAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 
+import com.documentum.fc.common.IDfAttr;
+
 public class DmAttr implements IAttr {
-  IDfAttr idfAttr;
+  private final IDfAttr idfAttr;
 
   public DmAttr(IDfAttr idfAttr) {
     this.idfAttr = idfAttr;
   }
 
+  @Override
   public String getName() {
     return idfAttr.getName();
   }
 
+  @Override
   public int getDataType() {
     return idfAttr.getDataType();
   }

@@ -14,21 +14,23 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.common.IDfLoginInfo;
-
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 
+import com.documentum.fc.common.IDfLoginInfo;
+
 public class DmLoginInfo implements ILoginInfo {
-  protected IDfLoginInfo idfLoginInfo = null;
+  protected final IDfLoginInfo idfLoginInfo;
 
   public DmLoginInfo(IDfLoginInfo tmp) {
     idfLoginInfo = tmp;
   }
 
+  @Override
   public void setUser(String u) {
     idfLoginInfo.setUser(u);
   }
 
+  @Override
   public void setPassword(String p) {
     idfLoginInfo.setPassword(p);
   }
@@ -37,14 +39,12 @@ public class DmLoginInfo implements ILoginInfo {
     return idfLoginInfo;
   }
 
-  public void setIdfLoginInfo(IDfLoginInfo idfLoginInfo) {
-    this.idfLoginInfo = idfLoginInfo;
-  }
-
+  @Override
   public String getUser() {
     return idfLoginInfo.getUser();
   }
 
+  @Override
   public String getPassword() {
     return idfLoginInfo.getPassword();
   }

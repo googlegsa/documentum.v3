@@ -14,30 +14,32 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.util.Date;
-
-import com.documentum.fc.common.IDfTime;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 
-public class DmTime implements ITime {
-  private IDfTime idfTime;
+import com.documentum.fc.common.IDfTime;
 
-  private String time_pattern44 = IDfTime.DF_TIME_PATTERN44;
+import java.util.Date;
+
+public class DmTime implements ITime {
+  private final IDfTime idfTime;
 
   public DmTime(IDfTime idfTime) {
     this.idfTime = idfTime;
   }
 
+  @Override
   public Date getDate() {
     return idfTime.getDate();
   }
 
+  @Override
   public String asString(String pattern) {
     return idfTime.asString(pattern);
   }
 
+  @Override
   public String getTime_pattern44() {
-    return time_pattern44;
+    return IDfTime.DF_TIME_PATTERN44;
   }
 
   @Override

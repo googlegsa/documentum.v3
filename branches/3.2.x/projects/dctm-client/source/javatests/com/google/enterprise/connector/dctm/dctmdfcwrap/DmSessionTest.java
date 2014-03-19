@@ -14,10 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -26,8 +22,12 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.spi.RepositoryException;
+
+import com.documentum.fc.common.DfException;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
 public class DmSessionTest extends TestCase {
   IClientX dctmClientX;
@@ -50,7 +50,8 @@ public class DmSessionTest extends TestCase {
 
   String docbase = DmInitialize.DM_DOCBASE;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new DmClientX();
     localClient = dctmClientX.getLocalClient();

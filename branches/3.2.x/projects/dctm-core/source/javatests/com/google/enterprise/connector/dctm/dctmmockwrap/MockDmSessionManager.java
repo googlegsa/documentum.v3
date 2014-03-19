@@ -72,6 +72,7 @@ public class MockDmSessionManager implements ISessionManager {
    * This method only stores credentials. Authentication is performed later,
    * through a newSession(docbase) call.
    */
+  @Override
   public void setIdentity(String docbase, ILoginInfo identity) {
     if (identity.getUser() != null && identity.getPassword() != null) {
       if (!sessMgerCreds.containsKey(docbase))
@@ -83,6 +84,7 @@ public class MockDmSessionManager implements ISessionManager {
     }
   }
 
+  @Override
   public ISession newSession(String docbase) throws RepositoryException {
     if (sessMgerCreds.containsKey(docbase)) {
       currentSession = createAuthenticatedSession(docbase,
@@ -102,14 +104,18 @@ public class MockDmSessionManager implements ISessionManager {
     }
   }
 
+  @Override
   public void release(ISession session) {
     allSessions.remove(session);
   }
 
+  @Override
   public void clearIdentity(String docbase) {
     sessMgerCreds.remove(docbase);
   }
 
+  @Deprecated
+  @Override
   public boolean authenticate(String docbaseName) {
     MockDmSession tmp;
     try {
@@ -129,6 +135,7 @@ public class MockDmSessionManager implements ISessionManager {
    * Sets current session as well. Per DFC javadoc, if session does
    * not exist, a new one is created.
    */
+  @Override
   public ISession getSession(String docbase) throws RepositoryException {
     ISession session;
     if (!sessMgerSessions.containsKey(docbase))
@@ -149,6 +156,7 @@ public class MockDmSessionManager implements ISessionManager {
     return null;
   }
 
+  @Override
   public ILoginInfo getIdentity(String docbase) {
     return sessMgerCreds.get(docbase);
   }
@@ -197,7 +205,7 @@ public class MockDmSessionManager implements ISessionManager {
         return null;
       }
     } catch (LoginException e) {
-      throw new RepositoryException(e);
+      throw new RepositoryLoginException(e);
     }
   }
 }

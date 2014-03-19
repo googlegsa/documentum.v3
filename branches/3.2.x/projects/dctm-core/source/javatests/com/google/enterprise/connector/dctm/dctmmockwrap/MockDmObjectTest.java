@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import java.io.ByteArrayInputStream;
-
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
@@ -31,6 +29,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.TestCase;
+
+import java.io.ByteArrayInputStream;
 
 public class MockDmObjectTest extends TestCase {
   IClientX dctmClientX;

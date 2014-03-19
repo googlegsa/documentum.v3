@@ -14,13 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -29,6 +22,10 @@ import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DctmAuthorizationManagerTest extends TestCase {
   public DctmAuthorizationManagerTest(String arg0) {
