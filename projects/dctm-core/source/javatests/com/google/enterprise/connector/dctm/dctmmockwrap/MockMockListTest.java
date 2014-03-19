@@ -14,8 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import junit.framework.TestCase;
-
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
@@ -23,10 +21,10 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.spi.RepositoryException;
 
-public class MockMockListTest extends TestCase {
-  private ISessionManager sessionManager;
+import junit.framework.TestCase;
 
-  public void setUp() {
+public class MockMockListTest extends TestCase {
+  public void testMockMockList() {
     IClientX dctmClientX = new MockDmClientX();
     IClient localClient = null;
     try {
@@ -34,7 +32,7 @@ public class MockMockListTest extends TestCase {
     } catch (RepositoryException e) {
       assertTrue(false);
     }
-    sessionManager = localClient.newSessionManager();
+    ISessionManager sessionManager = localClient.newSessionManager();
     ILoginInfo ili = new MockDmLoginInfo();
     ili.setUser("mark");
     ili.setPassword("mark");
@@ -44,9 +42,7 @@ public class MockMockListTest extends TestCase {
     } catch (RepositoryException e) {
       assertTrue(false);
     }
-  }
 
-  public void testMockMockList() {
     String query =
         "kqsfgopqsudhnfpioqsdf^qsdfhqsdo 'doc26', 'doc2', 'doc3', 'doc4'";
     String[] ids = query.split("', '");
@@ -59,15 +55,5 @@ public class MockMockListTest extends TestCase {
       fail(e.toString());
     }
     assertTrue(lst.iterator().next() instanceof MockRepositoryDocument);
-  }
-
-  public void testMockMockListForUser() throws RepositoryException {
-    MockMockList lst = new MockMockList(sessionManager.getSession(
-        "SwordEventLog.txt"), "user1");
-    assertTrue(lst.iterator().next() instanceof MockRepositoryDocument);
-
-    lst = new MockMockList(sessionManager.getSession("SwordEventLog.txt"),
-        "user6"); // no user6 in test data
-    assertTrue(lst.isEmpty());
   }
 }

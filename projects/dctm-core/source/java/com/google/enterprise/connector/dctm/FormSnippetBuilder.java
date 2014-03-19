@@ -14,6 +14,17 @@
 
 package com.google.enterprise.connector.dctm;
 
+import static com.google.enterprise.connector.dctm.FormSnippet.*;
+
+import com.google.enterprise.connector.dctm.dfcwrap.IClient;
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
+import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
+import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.IType;
+import com.google.enterprise.connector.spi.RepositoryException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,17 +37,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.google.enterprise.connector.dctm.FormSnippet.*;
-import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
-import com.google.enterprise.connector.dctm.dfcwrap.IClient;
-import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
-import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
-import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
-import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.IType;
-import com.google.enterprise.connector.spi.RepositoryException;
 
 public class FormSnippetBuilder {
   private static final Logger logger =

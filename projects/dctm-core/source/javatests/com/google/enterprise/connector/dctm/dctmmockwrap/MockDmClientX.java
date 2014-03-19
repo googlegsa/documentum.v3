@@ -19,7 +19,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
-
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmClientX implements IClientX {
@@ -28,6 +27,7 @@ public class MockDmClientX implements IClientX {
   public MockDmClientX() {
   }
 
+  @Override
   public String getDFCVersion() {
     return "dctmmockwrap";
   }
@@ -35,6 +35,7 @@ public class MockDmClientX implements IClientX {
   /**
    * @throws RepositoryException if a subclass throws it
    */
+  @Override
   public IClient getLocalClient() throws RepositoryException {
     return localClient;
   }
@@ -43,6 +44,7 @@ public class MockDmClientX implements IClientX {
    * Factory method for an IDfLoginInfo object. Constructs a new empty object
    * to set with login details prior to connecting to Documentum servers.
    */
+  @Override
   public ILoginInfo getLoginInfo() {
     return new MockDmLoginInfo();
   }
@@ -51,6 +53,7 @@ public class MockDmClientX implements IClientX {
    * Factory method for an IDfQuery object. Constructs an new query object to
    * use for sending DQL queries to Documentum servers.
    */
+  @Override
   public IQuery getQuery() {
     return new MockDmQuery();
   }
@@ -58,6 +61,7 @@ public class MockDmClientX implements IClientX {
   /**
    * Never called for mock
    */
+  @Override
   public IId getId(String id) {
     return new MockDmId(id);
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2007 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.mock.MockRepositoryDocument;
 import com.google.enterprise.connector.mock.MockRepositoryDocumentStore;
@@ -26,6 +21,8 @@ import com.google.enterprise.connector.mock.MockRepositoryProperty;
 import com.google.enterprise.connector.mock.MockRepositoryPropertyList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
+
+import java.util.ArrayList;
 
 /**
  * @author jpasquon This list will be utilized only by the MockJcrQueryResult
@@ -60,29 +57,6 @@ public class MockMockList extends ArrayList<MockRepositoryDocument> {
               "true")) {
             add(doc);
           }
-        }
-      }
-    }
-  }
-
-  /**
-   * Returns all groups for a given user.
-   * 
-   * @param session 
-   * @param user name
-   */
-  MockMockList(ISession session, String user) {
-    MockRepositoryDocumentStore store = ((MockDmSession) session).getStore();
-    Iterator<MockRepositoryDocument> iter = store.iterator();
-    while (iter.hasNext()) {
-      MockRepositoryDocument d = iter.next();
-      MockRepositoryProperty prop = d.getProplist().getProperty("members");
-      if (prop == null) {
-        continue;
-      } else {
-        String userMembers = prop.toString();
-        if (userMembers.contains(user)) {
-          add(d);
         }
       }
     }

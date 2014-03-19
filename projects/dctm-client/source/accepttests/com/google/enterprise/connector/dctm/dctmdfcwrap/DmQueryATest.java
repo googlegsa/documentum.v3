@@ -30,7 +30,8 @@ import junit.framework.TestCase;
 public class DmQueryATest extends TestCase {
   IClientX dctmClientX;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new DmClientX();
   }

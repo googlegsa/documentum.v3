@@ -14,9 +14,9 @@
 
 package com.google.enterprise.connector.dctm.dfcwrap;
 
-import java.io.ByteArrayInputStream;
-
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
+
+import java.io.ByteArrayInputStream;
 
 public interface ISysObject extends IPersistentObject{
   String getObjectName() throws RepositoryDocumentException;

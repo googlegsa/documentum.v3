@@ -21,6 +21,7 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 
 class MockUrlValidator extends UrlValidator {
+  @Override
   public int validate(String urlString)
       throws GeneralSecurityException, IOException {
     new URL(urlString);

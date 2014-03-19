@@ -26,18 +26,22 @@ public class MockDmLoginInfo implements ILoginInfo {
     password = null;
   }
 
+  @Override
   public void setUser(String u) {
     user = u;
   }
 
+  @Override
   public void setPassword(String p) {
     password = p;
   }
 
+  @Override
   public String getUser() {
     return user;
   }
 
+  @Override
   public String getPassword() {
     return password;
   }

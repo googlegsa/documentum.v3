@@ -14,75 +14,68 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.client.IDfType;
-import com.documentum.fc.common.DfException;
-import com.documentum.fc.common.IDfAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IType;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import com.documentum.fc.client.IDfType;
+import com.documentum.fc.common.DfException;
+
 public class DmType implements IType {
-  IDfType idfType;
+  private final IDfType idfType;
 
   public DmType(IDfType idfType) {
     this.idfType = idfType;
   }
 
+  @Override
   public int getTypeAttrCount() throws RepositoryException {
-    int attrCount = 0;
     try {
-      attrCount = idfType.getTypeAttrCount();
+      return idfType.getTypeAttrCount();
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
-    return attrCount;
   }
 
+  @Override
   public IType getSuperType() throws RepositoryException {
-    IDfType idfSuperType = null;
+    IDfType idfSuperType;
     try {
       idfSuperType = idfType.getSuperType();
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
     return (idfSuperType == null) ? null : new DmType(idfSuperType);
   }
 
+  @Override
   public boolean isSubTypeOf(String type) throws RepositoryException {
-    boolean subTypeOrNot = false;
     try {
-      subTypeOrNot = idfType.isSubTypeOf(type);
+      return idfType.isSubTypeOf(type);
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
-    return subTypeOrNot;
   }
 
+  @Override
   public String getName() throws RepositoryException {
-    String name = null;
     try {
-      name = idfType.getName();
+      return idfType.getName();
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
-    return name;
   }
 
+  @Override
   public IAttr getTypeAttr(int attrIndex) throws RepositoryException {
-    IDfAttr idfAttr = null;
     try {
-      idfAttr = idfType.getTypeAttr(attrIndex);
+      return new DmAttr(idfType.getTypeAttr(attrIndex));
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
-    return new DmAttr(idfAttr);
   }
 
+  @Override
   public String getTypeAttrNameAt(int attrIndex) throws RepositoryException {
     try {
       return idfType.getTypeAttrNameAt(attrIndex);
@@ -91,14 +84,12 @@ public class DmType implements IType {
     }
   }
 
+  @Override
   public String getDescription() throws RepositoryException {
-    String desc = "";
     try {
-      desc = idfType.getDescription();
+      return idfType.getDescription();
     } catch (DfException de) {
-      RepositoryException re = new RepositoryException(de);
-      throw re;
+      throw new RepositoryException(de);
     }
-    return desc;
   }
 }

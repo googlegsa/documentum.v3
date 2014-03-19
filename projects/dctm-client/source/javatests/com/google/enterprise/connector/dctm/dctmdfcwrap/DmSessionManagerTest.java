@@ -20,8 +20,8 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -41,7 +41,8 @@ public class DmSessionManagerTest extends TestCase {
 
   private String pwdKO = DmInitialize.DM_PWD_KO;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     IClientX dctmClientX;
@@ -75,6 +76,7 @@ public class DmSessionManagerTest extends TestCase {
     }
   }
 
+  @SuppressWarnings("deprecation") // For ISessionManager.authenticate.
   public void testAuthenticateOK() throws RepositoryLoginException {
     boolean rep = false;
 
@@ -92,6 +94,7 @@ public class DmSessionManagerTest extends TestCase {
     Assert.assertTrue(rep);
   }
 
+  @SuppressWarnings("deprecation") // For ISessionManager.authenticate.
   public void testAuthenticateKO() throws RepositoryLoginException {
     boolean rep = false;
 

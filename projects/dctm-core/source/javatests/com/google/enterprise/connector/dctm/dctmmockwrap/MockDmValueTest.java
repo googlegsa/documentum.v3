@@ -48,7 +48,8 @@ public class MockDmValueTest extends TestCase {
 
   ICollection collec;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
     dctmClientX = new MockDmClientX();
     localClient = dctmClientX.getLocalClient();

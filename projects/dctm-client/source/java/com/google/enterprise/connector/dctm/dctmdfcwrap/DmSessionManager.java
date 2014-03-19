@@ -14,8 +14,11 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
+import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
+import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.RepositoryLoginException;
 
 import com.documentum.fc.client.DfAuthenticationException;
 import com.documentum.fc.client.DfIdentityException;
@@ -25,22 +28,21 @@ import com.documentum.fc.client.IDfSession;
 import com.documentum.fc.client.IDfSessionManager;
 import com.documentum.fc.common.DfException;
 import com.documentum.fc.common.IDfLoginInfo;
-import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
-import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
-import com.google.enterprise.connector.spi.RepositoryException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DmSessionManager implements ISessionManager {
-  private final IDfSessionManager dfSessionManager;
-
   private static Logger logger = Logger.getLogger(DmSessionManager.class
       .getName());
+
+  private final IDfSessionManager dfSessionManager;
 
   public DmSessionManager(IDfSessionManager DfSessionManager) {
     this.dfSessionManager = DfSessionManager;
   }
 
+  @Override
   public ISession getSession(String docbase) throws RepositoryLoginException,
       RepositoryException {
     IDfSession dfSession = null;
@@ -65,6 +67,7 @@ public class DmSessionManager implements ISessionManager {
     return new DmSession(dfSession);
   }
 
+  @Override
   public void setIdentity(String docbase, ILoginInfo identity)
       throws RepositoryLoginException {
     if (!(identity instanceof DmLoginInfo)) {
@@ -80,11 +83,13 @@ public class DmSessionManager implements ISessionManager {
     }
   }
 
+  @Override
   public ILoginInfo getIdentity(String docbase) {
     IDfLoginInfo idfLoginInfo = dfSessionManager.getIdentity(docbase);
     return new DmLoginInfo(idfLoginInfo);
   }
 
+  @Override
   public ISession newSession(String docbase) throws RepositoryLoginException,
       RepositoryException {
     IDfSession dfSession = null;
@@ -104,6 +109,7 @@ public class DmSessionManager implements ISessionManager {
     return new DmSession(dfSession);
   }
 
+  @Override
   public void release(ISession session) {
     IDfSession dfSession = ((DmSession) session).getDfSession();
     logger.finest("before session released: " + dfSession);
@@ -115,6 +121,8 @@ public class DmSessionManager implements ISessionManager {
     return dfSessionManager;
   }
 
+  @Deprecated
+  @Override
   public boolean authenticate(String docbaseName) {
     boolean authent = false;
     try {
@@ -127,6 +135,7 @@ public class DmSessionManager implements ISessionManager {
     return authent;
   }
 
+  @Override
   public void clearIdentity(String docbase) {
     dfSessionManager.clearIdentity(docbase);
   }

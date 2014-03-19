@@ -14,17 +14,17 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
+import com.google.enterprise.connector.spi.Connector;
+import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.Session;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
-import com.google.enterprise.connector.spi.Connector;
-import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.Session;
 
 public class DctmConnector implements Connector {
   private static final Logger logger =
@@ -62,6 +62,7 @@ public class DctmConnector implements Connector {
   public DctmConnector(String googleConnectorWorkDir) {
   }
 
+  @Override
   public Session login() throws RepositoryException {
     logger.log(Level.CONFIG, "login in the docbase " + docbase + " and user "
         + login + " " + clientX + " " + docbase + " "

@@ -10,12 +10,51 @@ that supplements the main documentation.
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
 
 
+Release 3.2.4, March 17, 2014
+=============================
+
+Introduction
+------------
+This is a maintenance release that improves security and quality
+without adding any new functionality. Users of previous releases are
+strongly encouraged to upgrade.
+
+Issues Fixed Since 3.2.2
+------------------------
+13399766 - Documentum connector SQL and LDAP injection vulnerability
+           in group lookup. With a carefully constructed username,
+           which must be validly authenticated by the connector or
+           another configured authentication mechanism, the connector
+           group lookup might return the group membership for a
+           different user.
+
+13309424 - Documentum connector leaks a session if group lookup query
+           fails.
+
+13253159 - When multiple domains are used, it is possible for the
+           Documentum connector to return groups for the wrong user
+           when configured for group lookup only.
+
+13109953 - Documentum connector does not support Kerberos realms, DNS
+           domains, or uppercase domain names for group lookup.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.1 through 3.2.2 may be
+used with this version. This version works with Connector Manager
+version 3.2.2 or later. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector. This product is
+designed to function with EMC Documentum Content Server versions 6.0,
+6.5, 6.6 and 6.7, including service packs. EMC Documentum Foundation
+Classes (DFC) 6.0 or later is required. Java 6 or later is required.
+
+
 Release 3.2.2, October 30, 2013
 ===============================
 
 Introduction
 ------------
-This is a a maintenance release that improves quality without adding any
+This is a maintenance release that improves quality without adding any
 new functionality. Users of previous releases are encouraged to upgrade.
 
 Issues Fixed Since 3.2.0

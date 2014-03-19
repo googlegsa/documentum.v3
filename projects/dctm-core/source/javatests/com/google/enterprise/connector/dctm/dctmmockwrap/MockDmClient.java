@@ -18,13 +18,13 @@ import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-
 import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmClient implements IClient {
   public MockDmClient() {
   }
 
+  @Override
   public ISessionManager newSessionManager() {
     return new MockDmSessionManager();
   }
@@ -33,6 +33,7 @@ public class MockDmClient implements IClient {
    * Factory method for an IDfQuery object. Constructs an new query object to
    * use for sending DQL queries to Documentum servers.
    */
+  @Override
   public IQuery getQuery() {
     return new MockDmQuery();
   }
@@ -40,6 +41,7 @@ public class MockDmClient implements IClient {
   /**
    * @throws RepositoryException if a subclass throws it
    */
+  @Override
   public IDocbaseMap getDocbaseMap() throws RepositoryException {
     return new MockDmDocbaseMap();
   }

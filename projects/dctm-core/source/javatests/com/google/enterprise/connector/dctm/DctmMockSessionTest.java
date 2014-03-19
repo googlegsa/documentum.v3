@@ -25,7 +25,8 @@ import junit.framework.TestCase;
 public class DctmMockSessionTest extends TestCase {
   DctmSession dctmSession = null;
 
-  public void setUp() throws Exception {
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     DctmConnector connector = new DctmConnector();

@@ -14,14 +14,15 @@
 
 package com.google.enterprise.connector.dctm.dctmdfcwrap;
 
-import com.documentum.fc.client.IDfDocument;
-import com.documentum.fc.client.IDfSysObject;
-import com.documentum.fc.common.DfException;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocument;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import com.documentum.fc.client.IDfDocument;
+import com.documentum.fc.client.IDfSysObject;
+import com.documentum.fc.common.DfException;
+
 public class DmDocument extends DmSysObject implements IDocument {
-  IDfDocument idfDocument;
+  private final IDfDocument idfDocument;
 
   public DmDocument(IDfDocument idfDocument) {
     super((IDfSysObject) idfDocument);

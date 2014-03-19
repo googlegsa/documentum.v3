@@ -14,10 +14,6 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
-import javax.jcr.query.InvalidQueryException;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
-
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
@@ -34,6 +30,10 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import javax.jcr.query.InvalidQueryException;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+
 public class MockDmCollectionTest extends TestCase {
   IClientX dctmClientX;
 
@@ -43,8 +43,8 @@ public class MockDmCollectionTest extends TestCase {
 
   ISession sess7;
 
-  public void setUp() throws Exception {
-
+  @Override
+  protected void setUp() throws Exception {
     super.setUp();
 
     dctmClientX = new MockDmClientX();
@@ -104,13 +104,11 @@ public class MockDmCollectionTest extends TestCase {
   }
 
   public void testGetString() throws RepositoryException {
-    IQuery query = null;
-    String rep = "";
-    query = localClient.getQuery();
+    IQuery query = localClient.getQuery();
     query.setDQL(DmInitialize.DM_QUERY_STRING_ENABLE);
     ICollection collec = query.execute(sess7, IQuery.READ_QUERY);
     if (collec.next()) {
-      rep = collec.getString("jcr:uuid");
+      String rep = collec.getString("jcr:uuid");
       Assert.assertEquals(rep, DmInitialize.DM_ID1);
     }
   }

@@ -19,15 +19,15 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 import junit.framework.TestCase;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class CheckpointTest extends TestCase {
   /** Gets the current date without milliseconds. */
@@ -80,7 +80,7 @@ public class CheckpointTest extends TestCase {
 
   /** A Checkpoint is empty if aclid, uuid and lastModified
    * are null or empty. */
-  public boolean isEmptyCheckpoint(String checkpoint)
+  private boolean isEmptyCheckpoint(String checkpoint)
       throws RepositoryException {
     try {
       JSONObject jsonObj = new JSONObject(checkpoint);

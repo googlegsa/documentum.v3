@@ -14,12 +14,6 @@
 
 package com.google.enterprise.connector.dctm;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -27,12 +21,21 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
-import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
+import com.google.enterprise.connector.spi.RepositoryException;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DctmAuthorizationManager implements AuthorizationManager {
+  private static Logger logger =
+      Logger.getLogger(DctmAuthorizationManager.class.getName());
+
   private static final String QUERY_STRING =
       "select for read i_chronicle_id from dm_sysobject "
       + "where i_chronicle_id in (";
@@ -46,9 +49,6 @@ public class DctmAuthorizationManager implements AuthorizationManager {
 
   private final String docbase;
 
-  private static Logger logger =
-      Logger.getLogger(DctmAuthorizationManager.class.getName());
-
   public DctmAuthorizationManager(IClientX clientX,
       ISessionManager sessionManager, String docbase) {
     this.clientX = clientX;
@@ -56,6 +56,7 @@ public class DctmAuthorizationManager implements AuthorizationManager {
     this.docbase = docbase;
   }
 
+  @Override
   public Collection<AuthorizationResponse> authorizeDocids(
       Collection<String> docids, AuthenticationIdentity identity)
       throws RepositoryException {
