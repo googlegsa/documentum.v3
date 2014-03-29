@@ -190,8 +190,13 @@
     </jar>
   </target>
 
-  <target name="bin-archive" depends="jar">
-    <property name="bin.archive" value="connector-dctm-${svn.branch}" />
+  <target name="init-package" depends="svn.svn-branch">
+    <property name="downloads.prefix" value="connector-dctm-${svn.branch}" />
+    <property name="repackage.prefix" value="connector-dctm-${version}"/>
+  </target>
+
+  <target name="bin-archive" depends="jar,init-package">
+    <property name="bin.archive" value="${downloads.prefix}" />
     <zip destfile="${dist}/${bin.archive}.zip">
       <zipfileset dir="${jar.dir}" prefix="${bin.archive}" />
       <zipfileset dir=".." prefix="${bin.archive}">
@@ -205,14 +210,10 @@
       </zipfileset>
     </zip>
     <checksum algorithm="SHA-1" file="${dist}/${bin.archive}.zip" />
-    <tar destfile="${dist}/${bin.archive}.tar.gz" compression="gzip">
-      <zipfileset src="${dist}/${bin.archive}.zip"/>
-    </tar>
-    <checksum algorithm="SHA-1" file="${dist}/${bin.archive}.tar.gz" />
   </target>
 
-  <target name="src-archive" depends="init,svn.svn-branch-version">
-    <property name="src.archive" value="connector-dctm-${svn.branch}-src" />
+  <target name="src-archive" depends="init,init-package">
+    <property name="src.archive" value="${downloads.prefix}-src" />
 
     <!-- Use 'svn export' to create a clean version of the
       source tree in the build dir. You can
@@ -243,17 +244,19 @@
       <arg line="export ${svn.export.revision.arg} ${svn.export.source} ${svn.export.dir}" />
     </exec>
 
-    <!-- Create .zip and .tar.gz archives of the exported source tree. -->
+    <!-- Create .zip archive of the exported source tree. -->
     <zip destfile="${dist}/${src.archive}.zip">
       <zipfileset dir="${svn.export.dir}" prefix="${src.archive}" />
     </zip>
     <checksum algorithm="SHA-1" file="${dist}/${src.archive}.zip" />
-    <tar destfile="${dist}/${src.archive}.tar.gz"
-         longfile="gnu" compression="gzip">
-      <zipfileset src="${dist}/${src.archive}.zip"/>
-    </tar>
-    <checksum algorithm="SHA-1" file="${dist}/${src.archive}.tar.gz" />
     <delete dir="${svn.export.dir}" quiet="true" />
+  </target>
+
+  <target name="repackage" depends="init-package"
+          description="Repackage release candidate files for release.">
+    <repackage-downloads downloads.dir="${dist}"
+                         downloads.prefix="${downloads.prefix}"
+                         repackage.prefix="${repackage.prefix}" />
   </target>
 
   <target name="clean" depends="clean_coverage"
