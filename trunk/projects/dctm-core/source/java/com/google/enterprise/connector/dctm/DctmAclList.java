@@ -238,9 +238,14 @@ public class DctmAclList implements DocumentList {
             }
           }
         } else if (aclObj.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
-          if (aclObj.isGroup(i)) {
+          if (userName.equalsIgnoreCase("dm_world") || aclObj.isGroup(i)) {
             groupPrincipals.add(asPrincipalValue(userLoginName,
                 getGroupNamespace(userName)));
+          } else if (userName.equalsIgnoreCase("dm_owner")
+              || userName.equalsIgnoreCase("dm_group")) {
+            // skip dm_owner and dm_group for now.
+            // TODO (Srinivas): Need to resolve these acls
+            continue;
           } else {
             userPrincipals.add(asPrincipalValue(userLoginName,
                 getUserNamespace(userName)));
@@ -386,16 +391,6 @@ public class DctmAclList implements DocumentList {
     String localNamespace = traversalManager.getLocalNamespace();
     String globalNamespace = traversalManager.getGlobalNamespace();
 
-    // special users local to repository
-    if (usergroup.toLowerCase().equalsIgnoreCase("dm_world")
-        || usergroup.toLowerCase().equalsIgnoreCase("dm_owner")
-        || usergroup.toLowerCase().equalsIgnoreCase("dm_group")) {
-      // TODO(srinivas) to check with Meghna about name space for users
-      // if it is always global namespace. setting to global for now.
-      return globalNamespace;
-      // return localNamespace;
-    }
-
     try {
       IUser userObj = (IUser) session.getObjectByQualification(
           "dm_user where user_name = '" + usergroup + "'");
@@ -425,7 +420,11 @@ public class DctmAclList implements DocumentList {
     String localNamespace = traversalManager.getLocalNamespace();
     String globalNamespace = traversalManager.getGlobalNamespace();
 
-    // return localNamespace;
+    // special group local to repository
+    if (usergroup.equalsIgnoreCase("dm_world")) {
+      return localNamespace;
+    }
+
     try {
       IGroup groupObj = (IGroup) session.getObjectByQualification(
           "dm_group where group_name = '" + usergroup + "'");

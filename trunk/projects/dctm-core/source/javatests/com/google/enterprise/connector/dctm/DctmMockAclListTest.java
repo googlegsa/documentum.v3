@@ -19,24 +19,30 @@ import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.spi.RepositoryDocumentException;
+import com.google.enterprise.connector.spi.AuthenticationResponse;
+import com.google.enterprise.connector.spi.Principal;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
+import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.Value;
+import com.google.enterprise.connector.spi.SpiConstants.CaseSensitivityType;
+import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
 import com.google.enterprise.connector.spiimpl.PrincipalValue;
 
 import junit.framework.TestCase;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class DctmMockAclListTest extends TestCase {
+  private DctmConnector connector = null;
   private TraversalManager qtm = null;
 
   private DctmSession dctmSession = null;
@@ -50,7 +56,7 @@ public class DctmMockAclListTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
 
-    DctmConnector connector = new DctmConnector();
+    connector = new DctmConnector();
     connector.setLogin(DmInitialize.DM_LOGIN_OK1);
     connector.setPassword(DmInitialize.DM_PWD_OK1);
     connector.setDocbase(DmInitialize.DM_DOCBASE);
@@ -129,14 +135,26 @@ public class DctmMockAclListTest extends TestCase {
 
   private void insertUsers(String... names) throws SQLException {
     for (String name : names) {
-      jdbcFixture.executeUpdate(
-          String.format("insert into dm_user(user_name) values('%s')", name));
+      jdbcFixture.executeUpdate(String.format(
+          "insert into dm_user(user_name, user_login_name) values('%s', '%s')",
+          name, name));
+    }
+  }
+
+  private void insertGroup(String groupName, String... members)
+      throws SQLException {
+    jdbcFixture.executeUpdate(String.format(
+        "insert into dm_user(user_name) values('%s')", groupName));
+    for (String user : members) {
+      jdbcFixture.executeUpdate(String.format(
+          "insert into dm_group(group_name, i_all_users_names) "
+              + "values('%s', '%s')", groupName, user));
     }
   }
 
   public void testAllowAcl() throws Exception {
     insertUsers("user1");
-    insertUsers("group1"); // All groups appear in dm_user.
+    insertGroup("group1", "user2", "user3");
 
     MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
     addAllowUserToAcl(aclObj, "user1");
@@ -149,6 +167,27 @@ public class DctmMockAclListTest extends TestCase {
 
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
+  }
+
+  public void testAllowBrowseAcl() throws Exception {
+    insertUsers("user1", "user2");
+    insertGroup("group1");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, "user1");
+    // add browse permission to user2 and group1
+    aclObj.addAccessor("user2", IAcl.DF_PERMIT_BROWSE,
+        IAcl.DF_PERMIT_TYPE_ACCESS_PERMIT, false);
+    aclObj.addAccessor("group1", IAcl.DF_PERMIT_BROWSE,
+        IAcl.DF_PERMIT_TYPE_ACCESS_PERMIT, true);
+
+    aclList.processAcl(aclObj, aclValues);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
+
+    assertAclEquals(ImmutableSet.of("user1"), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
   }
 
   public void testDenyAcl() throws Exception {
@@ -172,7 +211,9 @@ public class DctmMockAclListTest extends TestCase {
   }
 
   public void testGroupAcl() throws Exception {
-    insertUsers("engineering", "sales", "marketing");
+    insertGroup("engineering", "john");
+    insertGroup("sales");
+    insertGroup("marketing");
 
     MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
     addAllowGroupToAcl(aclObj, "engineering");
@@ -188,5 +229,67 @@ public class DctmMockAclListTest extends TestCase {
         SpiConstants.PROPNAME_ACLGROUPS);
     assertAclEquals(ImmutableSet.of("sales"),
         SpiConstants.PROPNAME_ACLDENYGROUPS);
+  }
+
+  public void testGroupDmWorldAcl() throws Exception {
+    insertUsers(DmInitialize.DM_LOGIN_OK1);
+    insertGroup("grp1", "joseph", "user3", "user4");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, DmInitialize.DM_LOGIN_OK1);
+    addAllowGroupToAcl(aclObj, "dm_world");
+
+    aclList.processAcl(aclObj, aclValues);
+
+    assertAclEquals(ImmutableSet.of(DmInitialize.DM_LOGIN_OK1),
+        SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of("dm_world"),
+        SpiConstants.PROPNAME_ACLGROUPS);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
+  }
+
+  public void testDmWorldPrincipal() throws Exception {
+    insertUsers(DmInitialize.DM_LOGIN_OK1);
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, DmInitialize.DM_LOGIN_OK1);
+    addAllowGroupToAcl(aclObj, "dm_world");
+
+    aclList.processAcl(aclObj, aclValues);
+    DctmAuthenticationManager authentManager =
+        (DctmAuthenticationManager) dctmSession.getAuthenticationManager();
+    AuthenticationResponse result =
+        authentManager.authenticate(new SimpleAuthenticationIdentity(
+            DmInitialize.DM_LOGIN_OK1, null));
+    assertTrue(result.isValid());
+
+    Principal expectedPrincipal = new Principal(PrincipalType.UNKNOWN,
+        connector.getGoogleLocalNamespace(), "dm_world",
+        CaseSensitivityType.EVERYTHING_CASE_SENSITIVE);
+
+    // get dm_world principal from ACL
+    Principal aclPrincipal = null;
+    List<Value> values = aclValues.get(SpiConstants.PROPNAME_ACLGROUPS);
+    for (Value listvalue : values) {
+      if (((PrincipalValue) listvalue).getPrincipal().getName()
+          .equalsIgnoreCase("dm_world")) {
+        aclPrincipal = ((PrincipalValue) listvalue).getPrincipal();
+        break;
+      }
+    }
+    assertEquals(expectedPrincipal, aclPrincipal);
+
+    // get dm_world principal from group lookup
+    Principal groupLookupPrincipal = null;
+    Collection<Principal> groups = (Collection<Principal>) result.getGroups();
+    for (Principal groupPrincipal : groups) {
+      if (groupPrincipal.getName().equalsIgnoreCase("dm_world")) {
+        groupLookupPrincipal = groupPrincipal;
+        break;
+      }
+    }
+    assertEquals(expectedPrincipal, groupLookupPrincipal);
   }
 }
