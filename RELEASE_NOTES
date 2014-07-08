@@ -10,6 +10,36 @@ that supplements the main documentation.
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
 
 
+Release 3.2.8, July 8, 2014
+===========================
+
+Introduction
+------------
+This is a maintenance release that improves security and quality
+without adding any new functionality. Users of previous releases are
+strongly encouraged to upgrade.
+
+Summary of Changes
+------------------
+  * Documentum Content Server version 6.0 is no longer supported with
+    the connector.
+
+Issues Fixed Since 3.2.8
+------------------------
+14417806 - Documentum connector incorrectly marks dm_world.
+           It was marked as global user, instead of local group.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.1 through 3.2.4 may be
+used with this version. This version works with Connector Manager
+version 3.2.2 or later. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector. This product is
+designed to function with EMC Documentum Content Server versions 6.5,
+6.6 and 6.7, including service packs. EMC Documentum Foundation Classes
+(DFC) 6.5 or later is required. Java 6 or later is required.
+
+
 Release 3.2.4, March 17, 2014
 =============================
 
