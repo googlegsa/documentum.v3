@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="EMC_Documentum_Content_Server"
+      class="com.google.enterprise.connector.dctm.DctmConnectorType"
+      dependency-check="all">
+    <property name="configKeys">
+      <list>
+        <value>login</value>
+        <value>Password</value>
+        <value>docbase</value>
+        <value>webtop_display_url</value>
+        <value>is_public</value>
+        <value>advanced_configuration</value>
+        <value>action_update</value>
+        <value>root_object_type</value>
+        <value>where_clause</value>
+        <value>included_object_type</value>
+        <value>included_meta</value>
+      </list>
+    </property>
+    <property name="clientX" 
+        value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX"/>
+    <property name="urlValidator" ref="UrlValidator"/>
+    <property name="root_object_type" value="dm_sysobject"/>
+    <property name="included_object_type" value="dm_document"/>
+    <property name="included_meta" value="object_name,r_object_type,title,subject,keywords,authors,r_creation_date,r_modify_date,r_content_size,a_content_type"/>
+  </bean>
+
+  <bean id="UrlValidator" 
+      class="com.google.enterprise.connector.util.UrlValidator"/>
+</beans>
