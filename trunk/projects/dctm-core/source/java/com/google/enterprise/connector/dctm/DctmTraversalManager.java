@@ -319,33 +319,18 @@ public class DctmTraversalManager
         // No documents to add or delete. Return a null DocumentList,
         // but close the collections and release the session first.
         try {
-          if (collecAclToAdd != null) {
-            try {
-              collecAclToAdd.close();
-              logger.fine("collection of documents to add closed");
-            } catch (RepositoryException e) {
-              logger.severe("Error while closing the collection of Acls"
-                  + " to add: " + e);
-            }
-          }
-          if (collecToAdd != null) {
-            try {
-              collecToAdd.close();
-              logger.fine("collection of documents to add closed");
-            } catch (RepositoryException e) {
-              logger.severe("Error while closing the collection of documents"
-                  + " to add: " + e);
-            }
-          }
-          if (collecToDel != null) {
-            try {
-              collecToDel.close();
-              logger.fine("collection of documents to delete closed");
-            } catch (RepositoryException e) {
-              logger.severe("Error while closing the collection of documents"
-                  + " to delete: " + e);
-            }
-          }
+          closeCollection(collecAclToAdd,
+              "collection of ACLs to add closed",
+              "Error while closing the collection of ACLs to add");
+          closeCollection(collecAclToModify,
+              "collection of ACLs to modify closed",
+              "Error while closing the collection of ACLs to modify");
+          closeCollection(collecToAdd,
+              "collection of documents to add closed",
+              "Error while closing the collection of documents to add");
+          closeCollection(collecToDel,
+              "collection of documents to delete closed",
+              "Error while closing the collection of documents to delete");
         } finally {
           if (session != null) {
             sessionManager.release(session);
@@ -355,6 +340,18 @@ public class DctmTraversalManager
       }
     }
     return documentList;
+  }
+
+  private void closeCollection(ICollection collection, String message,
+      String errorMessage) {
+    if (collection != null) {
+      try {
+        collection.close();
+        logger.fine(message);
+      } catch (RepositoryException e) {
+        logger.severe(errorMessage + ": " + e);
+      }
+    }
   }
 
   protected Checkpoint forgeStartCheckpoint() {
