@@ -56,6 +56,8 @@ public class DctmConnector implements Connector {
 
   private String localNamespace;
 
+  private String windowsDomain;
+
   public DctmConnector() {
   }
 
@@ -152,6 +154,16 @@ public class DctmConnector implements Connector {
 
   String getGoogleLocalNamespace() {
     return localNamespace;
+  }
+
+  public void setWindows_domain(String windowsDomain) {
+    this.windowsDomain = windowsDomain;
+    logger.log(Level.CONFIG, "windows domain set to: " + windowsDomain);
+  }
+
+  /** Gets the Windows domain name to be used for user authentication. */
+  String getWindowsDomain() {
+    return windowsDomain;
   }
 
   /*

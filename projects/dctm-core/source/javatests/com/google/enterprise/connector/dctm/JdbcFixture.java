@@ -27,7 +27,7 @@ public class JdbcFixture {
 
   private static final String CREATE_TABLE_USER = "create table dm_user "
       + "(user_name varchar primary key, user_login_name varchar, "
-      + "user_source varchar, user_ldap_dn varchar)";
+      + "user_source varchar, user_ldap_dn varchar, r_is_group boolean)";
 
   /**
    * Gets a JDBC connection to a named in-memory database. The default

@@ -81,4 +81,13 @@ public class DmUser implements IUser {
       throw new RepositoryDocumentException(e);
     }
   }
+
+  @Override
+  public boolean isGroup() throws RepositoryException {
+    try {
+      return idfUser.isGroup();
+    } catch (DfException e) {
+      throw new RepositoryException(e);
+    }
+  }
 }

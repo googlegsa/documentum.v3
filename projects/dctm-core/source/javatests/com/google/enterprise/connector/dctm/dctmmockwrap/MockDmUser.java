@@ -20,9 +20,11 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmUser implements IUser {
   private final String username;
+  private final boolean isGroup;
 
-  public MockDmUser(String username) {
+  public MockDmUser(String username, boolean isGroup) {
     this.username = username;
+    this.isGroup = isGroup;
   }
 
   @Override
@@ -44,5 +46,10 @@ public class MockDmUser implements IUser {
   public String getUserDistinguishedLDAPName()
       throws RepositoryDocumentException {
     return null;
+  }
+
+  @Override
+  public boolean isGroup() throws RepositoryException {
+    return isGroup;
   }
 }

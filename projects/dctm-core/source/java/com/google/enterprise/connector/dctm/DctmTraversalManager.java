@@ -77,6 +77,7 @@ public class DctmTraversalManager
   private final String rootObjectType;
   private final String globalNamespace;
   private final String localNamespace;
+  private final String windowsDomain;
 
   public DctmTraversalManager(DctmConnector connector,
       ISessionManager sessionManager) throws RepositoryException {
@@ -86,7 +87,8 @@ public class DctmTraversalManager
         connector.getIncludedObjectType(), connector.getIncludedMeta(),
         connector.getExcludedMeta(),
         connector.getGoogleGlobalNamespace(),
-        connector.getGoogleLocalNamespace(), sessionManager);
+        connector.getGoogleLocalNamespace(),
+        connector.getWindowsDomain(), sessionManager);
   }
 
   /** Constructor used by tests. */
@@ -94,7 +96,7 @@ public class DctmTraversalManager
       String webtopServerUrl, Set<String> included_meta,
       ISessionManager sessionManager) throws RepositoryException {
     this(clientX, docbase, webtopServerUrl, EMPTY_LIST, true, "", EMPTY_SET,
-        included_meta, EMPTY_SET, null, null, sessionManager); 
+        included_meta, EMPTY_SET, null, null, null, sessionManager); 
     //Srinivas TODO: add global, local name space for tests
   }
 
@@ -102,7 +104,7 @@ public class DctmTraversalManager
       String webtopServerUrl, List<String> additionalWhereClause,
       boolean isPublic, String rootObjectType, Set<String> includedObjectType,
       Set<String> includedMeta, Set<String> excludedMeta,
-      String globalnamespace, String localnamespace,
+      String globalnamespace, String localnamespace, String windowsDomain,
       ISessionManager sessionManager) throws RepositoryException {
     this.additionalWhereClause = additionalWhereClause;
     this.clientX = clientX;
@@ -117,6 +119,7 @@ public class DctmTraversalManager
     this.rootObjectType = rootObjectType;
     this.globalNamespace = globalnamespace;
     this.localNamespace = localnamespace;
+    this.windowsDomain = windowsDomain;
   }
 
   IClientX getClientX() {
@@ -172,6 +175,9 @@ public class DctmTraversalManager
     return localNamespace;
   }
 
+  public String getWindowsDomain() {
+    return windowsDomain;
+  }
   /**
    * Starts (or restarts) traversal from the beginning. This action will
    * return objects starting from the very oldest, or with the smallest IDs,

@@ -140,16 +140,30 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       queryBuff.append("select user_name, user_ldap_dn from ");
       queryBuff.append("dm_user where user_login_name = '");
       queryBuff.append(DqlUtils.escapeString(userLoginName));
+      queryBuff.append("'");
+
       if (!domainName.isEmpty()) {
-        queryBuff.append("' and user_source = 'LDAP'");
+        queryBuff.append(" and (user_source = 'LDAP'");
         queryBuff.append(" and LOWER(user_ldap_dn) like '%,");
         queryBuff.append(DqlUtils.escapePattern(domainName.toString(), '\\'));
         if (domainName.size() == 1) { // NetBIOS domain
           queryBuff.append(",%");
         }
-        queryBuff.append("' escape '\\");
+        queryBuff.append("' escape '\\'");
+
+        String windowsDomain = connector.getWindowsDomain();
+        if (!Strings.isNullOrEmpty(windowsDomain)) {
+          String dumbedDownDomain =
+              domainName.getRdn(domainName.size() - 1).toString().substring(3);
+          queryBuff.append(" or user_source = '' and '");
+          queryBuff.append(DqlUtils.escapeString(dumbedDownDomain));
+          queryBuff.append("' = '");
+          queryBuff.append(DqlUtils.escapeString(windowsDomain));
+          queryBuff.append("'");
+        }
+        queryBuff.append(")");
       }
-      queryBuff.append("'");
+      LOGGER.log(Level.FINER, "username query: {0}", queryBuff);
 
       IQuery query = clientX.getQuery();
       query.setDQL(queryBuff.toString());
@@ -162,7 +176,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
         ArrayList<String> matches = new ArrayList<String>();
         while (users.next()) {
           String userLdapDn = users.getString("user_ldap_dn");
-          if (domainName.isEmpty()
+          if (domainName.isEmpty() || Strings.isNullOrEmpty(userLdapDn)
               || domainMatchesUser(domainName, userLdapDn)) {
             matches.add(users.getString("user_name"));
           } else if (LOGGER.isLoggable(Level.FINEST)) {

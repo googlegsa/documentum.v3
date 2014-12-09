@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
@@ -34,11 +35,12 @@ import java.util.Collection;
 public class DctmMockAuthenticationManagerTest extends TestCase {
   DctmAuthenticationManager authentManager;
 
+  private Connector connector;
   private final JdbcFixture jdbcFixture = new JdbcFixture();
 
-  @Override
-  protected void setUp() throws RepositoryException, SQLException {
-    Connector connector = new DctmConnector();
+  protected Connector setupConnectorConfig()
+      throws RepositoryException, SQLException {
+    connector = new DctmConnector();
     ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
     ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
     ((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
@@ -48,10 +50,16 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     ((DctmConnector) connector)
         .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
     ((DctmConnector) connector).setIs_public("true");
-    Session sess = (DctmSession) connector.login();
 
-    authentManager = (DctmAuthenticationManager) sess
-        .getAuthenticationManager();
+    return connector;
+  }
+
+  @Override
+  protected void setUp() throws RepositoryException, SQLException {
+    setupConnectorConfig();
+    Session sess = (DctmSession) connector.login();
+    authentManager =
+        (DctmAuthenticationManager) sess.getAuthenticationManager();
 
     jdbcFixture.setUp();
   }
@@ -382,6 +390,180 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
   /** The post-processing using LdapName also blocks this. */
   public void testSqlInjection_domain() throws Exception {
     testDomainFail("ldapuser", "acme.example%");
+  }
+
+  protected void windowsDomainSetUp(String windowsDomain)
+      throws RepositoryException, SQLException {
+    ((DctmConnector) connector).setWindows_domain(windowsDomain);
+    Session sess = (DctmSession) connector.login();
+    authentManager =
+        (DctmAuthenticationManager) sess.getAuthenticationManager();
+  }
+
+  /**
+   * Test case with valid windows domain, no ldap domain, valid identity domain
+   */
+  public void testWindowsDomain_validUserDomain() throws Exception {
+    windowsDomainSetUp("ajax");
+    insertUser("localuser", "localuser", "", "");
+    insertGroup("localgroup", "localuser");
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertGroup("invalids", "ajaxuser");
+    testGroupLookup("localuser", "ajax", "localgroup");
+  }
+
+  /**
+   * Test case with valid windows domain, valid ldap domain and
+   * valid identity domain
+   */
+  public void testWindowsDomain_validDnsDomain() throws Exception {
+    windowsDomainSetUp("ajax");
+    insertUser("localuser", "localuser", "", "");
+    insertGroup("localgroup", "localuser");
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertGroup("invalids", "ajaxuser");
+    testGroupLookup("localuser", "ajax.example.com", "localgroup");
+  }
+
+  /**
+   * Test case with valid windows domain, no ldap domain, empty identity domain
+   */
+  public void testWindowsDomain_emptyUserDomain() throws Exception {
+    windowsDomainSetUp("ajax");
+    insertUser("localuser", "localuser", "", "");
+    insertUser("local user", "acmeuser", "", "");
+    insertUser("ldapuser", "acmeuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertGroup("localgroup", "localuser");
+    insertGroup("localgroup", "acmeuser");
+    insertGroup("ldapgroup", "ldapuser");
+    testGroupLookup("localuser", "", "localgroup");
+  }
+
+  /**
+   * Test case with valid windows domain, valid ldap domain, 
+   * wrong identity domain
+   */
+  public void testWindowsDomain_wrongUserDomain() throws Exception {
+    windowsDomainSetUp("acme");
+    insertUser("localuser", "someuser", "", "");
+    insertUser("ldapuser", "someuser",
+        "LDAP", "CN=LDAP User,dc=acme,dc=example,dc=com");
+    insertGroup("localgroup", "localuser");
+    testGroupLookupFail("someuser", "ajax");
+  }
+
+  /** Test case for empty user source and unmatched dumbed down domain */
+  public void testWindowsDomain_InvalidDumbeddownDomain() throws Exception {
+    windowsDomainSetUp("acme");
+    insertUser("localuser", "localuser", "", "");
+    insertUser("local user", "someuser", "", "");
+    insertGroup("localgroup", "localuser");
+    testGroupLookupFail("localuser", "ajax.example.com");
+  }
+
+  /**
+   * Test case with valid windows domain, ldap domain is valid and
+   * valid identity domain
+   */
+  public void testWindowsDomain_validLdapDn_validUserDomain()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    insertUser("ajax user", "ajaxuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertUser("local user", "ajaxuser", "", "");
+    insertGroup("ldapgroup", "ajax user");
+    insertGroup("localgroup", "localuser");
+    testGroupLookupFail("ajaxuser", "ajax");
+  }
+
+  /**
+   * Test case with windows domain is valid, ldap domain is valid and
+   *  identity domain doesn't match ldap domain
+   */
+  public void testWindowsDomain_validLdapDn_invalidUserDomain()
+      throws Exception {
+    windowsDomainSetUp("acme");
+    insertUser("ajax user", "ajaxuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertUser("localuser", "localuser", "", "");
+    insertGroup("ldapgroup", "ajax user");
+    insertGroup("localgroup", "localuser");
+    testGroupLookupFail("ajaxuser", "acme");
+  }
+
+  /**
+   * Test case with valid windows domain, valid ldap domain and
+   * wrong identity domain
+   */
+  public void testWindowsDomain_validLdapDn_wrongUserDomain()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    insertUser("ajax user", "ajaxuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertGroup("ldapgroup", "ajax user");
+    testGroupLookupFail("ajaxuser", "somedomain");
+  }
+
+  /**
+   * Test case with empty windows domain, valid ldap domain and
+   * valid identity domain
+   */
+  public void testWindowsDomain_emptyWindowsDomain_validLdapDn()
+      throws Exception {
+    windowsDomainSetUp("");
+    insertUser("ajax user", "ajaxuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertGroup("ldapgroup", "ajax user");
+    testGroupLookup("ajaxuser", "ajax", "ldapgroup");
+  }
+
+  /** Test case with empty windows domain, for local use */
+  public void testWindowsDomain_emptyWindowsDomain()
+      throws Exception {
+    windowsDomainSetUp("");
+    insertUser("localuser", "localuser", "", "");
+    insertGroup("localgroup", "localuser");
+    testGroupLookup("localuser", "", "localgroup");
+  }
+
+  /** Test case for aussie user */
+  public void testWindowsDomain_validAussieLdapDn() throws Exception {
+    windowsDomainSetUp("ajax");
+    insertUser("ldapuser", "ajaxuser", "", "");
+    insertUser("aussie user", "ajaxuser", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com,dc=au");
+    insertGroup("ldapgroup", "ldapuser");
+    insertGroup("invalids", "aussie user");
+    testGroupLookup("ajaxuser", "ajax.example.com", "ldapgroup");
+  }
+
+  /** Test case for checking nonexistent user */
+  public void testWindowsDomain_InvalidUser() throws Exception {
+    windowsDomainSetUp("ajax");
+    AuthenticationResponse result = authentManager.authenticate(
+        new SimpleAuthenticationIdentity("localuser", null, ""));
+    assertFalse(result.isValid());
+  }
+
+  /**
+   * Test case for valid non-empty user source and matching dumbed down domain
+   */
+  public void testWindowsDomain_unixUserSource() throws Exception {
+    windowsDomainSetUp("ajax");
+    insertUser("localuser", "localuser", "unixfirst", "");
+    insertGroup("ldapgroup", "localuser");
+    testGroupLookupFail("localuser", "ajax");
+  }
+
+  /** Test case for OR condition with invalid user and valid windows domain  */
+  public void testWindowsDomain_validdomain_invalidUser() throws Exception {
+    windowsDomainSetUp("ajax");
+    insertUser("localuser", "localuser", "", "");
+    insertGroup("invalids", "localuser");
+    testGroupLookupFail("someuser", "ajax");
   }
 
   private Collection<String> toStrings(Collection<?> groups) {
