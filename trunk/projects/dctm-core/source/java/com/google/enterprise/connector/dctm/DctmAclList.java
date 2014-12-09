@@ -375,7 +375,15 @@ public class DctmAclList implements DocumentList {
           userLoginName = IdentityUtil.getFirstDomainFromDN(dnName) + "\\"
                   + IdentityUtil.getCNFromDN(dnName);
         } else {
-          userLoginName = userObj.getUserLoginName();
+          String windowsDomain = traversalManager.getWindowsDomain();
+          if (!Strings.isNullOrEmpty(windowsDomain) && !userObj.isGroup()) {
+            logger.log(Level.FINEST,
+                "using configured domain: {0} for unsynchronized user {1}",
+                new String[] {windowsDomain, userName});
+            userLoginName = windowsDomain + "\\" + userObj.getUserLoginName();
+          } else {
+            userLoginName = userObj.getUserLoginName();
+          }
         }
       }
     } catch (RepositoryException e) {

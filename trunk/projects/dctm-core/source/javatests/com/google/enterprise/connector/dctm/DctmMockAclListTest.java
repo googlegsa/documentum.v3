@@ -144,7 +144,8 @@ public class DctmMockAclListTest extends TestCase {
   private void insertGroup(String groupName, String... members)
       throws SQLException {
     jdbcFixture.executeUpdate(String.format(
-        "insert into dm_user(user_name) values('%s')", groupName));
+        "insert into dm_user(user_name, r_is_group) values('%s', TRUE)",
+        groupName));
     for (String user : members) {
       jdbcFixture.executeUpdate(String.format(
           "insert into dm_group(group_name, i_all_users_names) "
@@ -291,5 +292,39 @@ public class DctmMockAclListTest extends TestCase {
       }
     }
     assertEquals(expectedPrincipal, groupLookupPrincipal);
+  }
+
+  private void testDomainSetup(String domain) throws Exception {
+    connector.setWindows_domain(domain);
+    dctmSession = (DctmSession) connector.login();
+    qtm = (DctmTraversalManager) dctmSession.getTraversalManager();
+    qtm.setBatchHint(2);
+    aclList = getAclListForTest();
+
+    insertUsers("user1");
+    insertGroup("group1", "user2", "user3");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, "user1");
+    addAllowGroupToAcl(aclObj, "group1");
+
+    aclList.processAcl(aclObj, aclValues);
+  }
+
+  public void testDomainForAclUser() throws Exception {
+    testDomainSetup("ajax");
+    assertAclEquals(ImmutableSet.of("ajax\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testDnsDomainForAclUser() throws Exception {
+    testDomainSetup("ajax.example.com");
+    assertAclEquals(ImmutableSet.of("ajax.example.com\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testDomainForAclGroup() throws Exception {
+    testDomainSetup("ajax");
+    assertAclEquals(ImmutableSet.of("group1"), SpiConstants.PROPNAME_ACLGROUPS);
   }
 }

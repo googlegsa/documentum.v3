@@ -33,6 +33,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
 public class MockDmSession implements ISession {
   private final ISessionManager sessMgr;
@@ -71,9 +72,10 @@ public class MockDmSession implements ISession {
     // This code is similar to getObjectByQualification in that it
     // just returns the first match if there are multiple matches.
     try {
-      return executeQuery(
+      HashMap<String, Object> values = executeQuery(
           "select user_name from dm_user where user_login_name = '"
-          + mockSess.getUserID() + "'");
+          + mockSess.getUserID() + "'", "user_name");
+      return (values == null) ? null: (String) values.get("user_name");
     } catch (SQLException e) {
       throw new RepositoryLoginException("Database error", e);
     }
@@ -139,11 +141,23 @@ public class MockDmSession implements ISession {
       throws RepositoryDocumentException {
     try {
       if (queryString.startsWith("dm_user")) {
-        String name = executeQuery("select user_name from " + queryString);
-        return (name == null) ? null : new MockDmUser(name);
+        HashMap<String, Object> values =
+            executeQuery("select user_name, r_is_group from " + queryString,
+                "user_name", "r_is_group");
+        if (values == null) {
+          return null;
+        } else {
+          return new MockDmUser((String) values.get("user_name"),
+              Boolean.TRUE.equals(values.get("r_is_group")));
+        }
       } else if (queryString.startsWith("dm_group")) {
-        String name = executeQuery("select group_name from " + queryString);
-        return (name == null) ? null : new MockDmGroup(name);
+        HashMap<String, Object> values =
+            executeQuery("select group_name from " + queryString, "group_name");
+        if (values == null) {
+          return null;
+        } else {
+          return new MockDmGroup((String) values.get("group_name"));
+        }
       } else {
         return null;
       }
@@ -153,16 +167,20 @@ public class MockDmSession implements ISession {
   }
 
   /**
-   * Executes a SQL query and returns the string value of the first
-   * column in the first row. It is not an error if there are
-   * additional rows in the result set.
+   * Executes a SQL query and returns the Map of values for the first row.
+   * It is not an error if there are additional rows in the result set.
    */
-  private String executeQuery(String query) throws SQLException {
+  private HashMap<String, Object> executeQuery(String query, String... columns)
+      throws SQLException {
     Statement stmt = jdbcConnection.createStatement();
+    HashMap<String, Object> values = new HashMap<String, Object>();
     try {
       ResultSet rs = stmt.executeQuery(query);
       if (rs.next()) {
-        return rs.getString(1);
+        for (String column : columns) {
+          values.put(column, rs.getObject(column));
+        }
+        return values;
       } else {
         return null;
       }
