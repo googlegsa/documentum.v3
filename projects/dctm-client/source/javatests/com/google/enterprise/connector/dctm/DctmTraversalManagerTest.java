@@ -14,40 +14,33 @@
 
 package com.google.enterprise.connector.dctm;
 
-import com.google.enterprise.connector.spi.Connector;
+import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.TraversalManager;
 import com.google.enterprise.connector.spi.Value;
 
 import junit.framework.TestCase;
 
 public class DctmTraversalManagerTest extends TestCase {
-  Session session = null;
-
-  Connector connector = null;
-
-  DctmTraversalManager qtm = null;
+  TraversalManager qtm = null;
 
   protected void setUp() throws Exception {
     super.setUp();
-    qtm = null;
-    Connector connector = new DctmConnector();
-    ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
-    ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
-    ((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
-    ((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
-    ((DctmConnector) connector)
-        .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-    ((DctmConnector) connector).setIs_public("false");
-    ((DctmConnector) connector)
-        .setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
 
-    ((DctmConnector) connector)
-        .setRoot_object_type(DmInitialize.ROOT_OBJECT_TYPE);
-    Session sess = (DctmSession) connector.login();
-    qtm = (DctmTraversalManager) sess.getTraversalManager();
+    DctmConnector connector = new DctmConnector();
+    connector.setLogin(DmInitialize.DM_LOGIN_OK1);
+    connector.setPassword(DmInitialize.DM_PWD_OK1);
+    connector.setDocbase(DmInitialize.DM_DOCBASE);
+    connector.setClientX(DmInitialize.DM_CLIENTX);
+    connector.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+    connector.setIs_public("false");
+    connector.setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
+    connector.setRoot_object_type(DmInitialize.ROOT_OBJECT_TYPE);
+    Session sess = connector.login();
+    qtm = sess.getTraversalManager();
   }
 
   public void testStartTraversal() throws RepositoryException {
@@ -86,8 +79,8 @@ public class DctmTraversalManagerTest extends TestCase {
     qtm.setBatchHint(1);
     documentList = qtm.resumeTraversal(checkPoint);
 
-    DctmSysobjectDocument map = null;
-    while ((map = (DctmSysobjectDocument) documentList.nextDocument()) != null) {
+    Document map;
+    while ((map = documentList.nextDocument()) != null) {
       String docId = map.findProperty(SpiConstants.PROPNAME_DOCID)
           .nextValue().toString();
       String expectedid = "090000018000015e";

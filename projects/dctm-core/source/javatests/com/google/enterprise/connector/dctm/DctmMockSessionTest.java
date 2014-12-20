@@ -18,7 +18,6 @@ import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.TraversalManager;
 
 import junit.framework.TestCase;
 
@@ -36,14 +35,13 @@ public class DctmMockSessionTest extends TestCase {
     connector.setClientX(DmInitialize.DM_CLIENTX);
     connector.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
     connector.setIs_public("false");
-    dctmSession = (DctmSession) connector.login();
+    dctmSession = connector.login();
   }
 
   public void testGetQueryTraversalManager() throws RepositoryException {
-    TraversalManager DctmQm = dctmSession.getTraversalManager();
-    String serverUrl = ((DctmTraversalManager) DctmQm).getServerUrl();
+    DctmTraversalManager DctmQm = dctmSession.getTraversalManager();
     assertNotNull(DctmQm);
-
+    String serverUrl = DctmQm.getServerUrl();
     assertEquals(serverUrl, DmInitialize.DM_WEBTOP_SERVER_URL);
   }
 
