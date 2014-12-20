@@ -19,6 +19,7 @@ import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SpiConstants;
 import com.google.enterprise.connector.spi.TraversalManager;
 
@@ -29,8 +30,6 @@ import java.util.Date;
 
 public class DctmMockDocumentListTest extends TestCase {
   TraversalManager qtm = null;
-
-  DctmSession dctmSession = null;
 
   @Override
   protected void setUp() throws Exception {
@@ -45,9 +44,9 @@ public class DctmMockDocumentListTest extends TestCase {
     connector.setIs_public("false");
     connector.setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
     connector.setIncluded_meta(DmInitialize.DM_INCLUDED_META);
-    dctmSession = (DctmSession) connector.login();
+    Session dctmSession = connector.login();
 
-    qtm = (DctmTraversalManager) dctmSession.getTraversalManager();
+    qtm = dctmSession.getTraversalManager();
     qtm.setBatchHint(2);
   }
 
@@ -62,7 +61,6 @@ public class DctmMockDocumentListTest extends TestCase {
     Property prop = null;
 
     while ((pm = propertyMapList.nextDocument()) != null) {
-
       assertTrue(pm instanceof DctmSysobjectDocument);
       prop = pm.findProperty(SpiConstants.PROPNAME_DOCID);
 

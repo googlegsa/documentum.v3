@@ -25,10 +25,9 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 import com.google.enterprise.connector.spi.SpiConstants;
-import com.google.enterprise.connector.spi.TraversalManager;
-import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.SpiConstants.CaseSensitivityType;
 import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
+import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spiimpl.PrincipalValue;
 
 import junit.framework.TestCase;
@@ -43,7 +42,7 @@ import java.util.Set;
 
 public class DctmMockAclListTest extends TestCase {
   private DctmConnector connector = null;
-  private TraversalManager qtm = null;
+  private DctmTraversalManager qtm = null;
 
   private DctmSession dctmSession = null;
 
@@ -67,13 +66,12 @@ public class DctmMockAclListTest extends TestCase {
     connector.setIncluded_meta(DmInitialize.DM_INCLUDED_META);
     connector.setGoogleLocalNamespace(DmInitialize.DM_LOCAL_NAMESPACE);
     connector.setGoogleGlobalNamespace(DmInitialize.DM_GLOBAL_NAMESPACE);
-    dctmSession = (DctmSession) connector.login();
+    dctmSession = connector.login();
 
-    qtm = (DctmTraversalManager) dctmSession.getTraversalManager();
+    qtm = dctmSession.getTraversalManager();
     qtm.setBatchHint(2);
 
-    aclValues =
-        new HashMap<String, List<Value>>();
+    aclValues = new HashMap<String, List<Value>>();
     aclList = getAclListForTest();
 
     jdbcFixture.setUp();
@@ -88,12 +86,8 @@ public class DctmMockAclListTest extends TestCase {
     List<String> whereClauselist = new ArrayList<String>();
     Checkpoint checkpoint = new Checkpoint(whereClauselist);
     ISession session =
-        ((DctmTraversalManager) qtm).getSessionManager().getSession(
-            DmInitialize.DM_DOCBASE);
-    DctmAclList aclList =
-        new DctmAclList((DctmTraversalManager) qtm, session, null, null,
-            checkpoint);
-    return aclList;
+        qtm.getSessionManager().getSession(DmInitialize.DM_DOCBASE);
+    return new DctmAclList(qtm, session, null, null, checkpoint);
   }
 
   private void addAllowUserToAcl(MockDmAcl aclObj, String name) {
@@ -260,7 +254,7 @@ public class DctmMockAclListTest extends TestCase {
 
     aclList.processAcl(aclObj, aclValues);
     DctmAuthenticationManager authentManager =
-        (DctmAuthenticationManager) dctmSession.getAuthenticationManager();
+        dctmSession.getAuthenticationManager();
     AuthenticationResponse result =
         authentManager.authenticate(new SimpleAuthenticationIdentity(
             DmInitialize.DM_LOGIN_OK1, null));
@@ -284,7 +278,8 @@ public class DctmMockAclListTest extends TestCase {
 
     // get dm_world principal from group lookup
     Principal groupLookupPrincipal = null;
-    Collection<Principal> groups = (Collection<Principal>) result.getGroups();
+    @SuppressWarnings("unchecked") Collection<Principal> groups =
+        (Collection<Principal>) result.getGroups();
     for (Principal groupPrincipal : groups) {
       if (groupPrincipal.getName().equalsIgnoreCase("dm_world")) {
         groupLookupPrincipal = groupPrincipal;
@@ -296,8 +291,8 @@ public class DctmMockAclListTest extends TestCase {
 
   private void testDomainSetup(String domain) throws Exception {
     connector.setWindows_domain(domain);
-    dctmSession = (DctmSession) connector.login();
-    qtm = (DctmTraversalManager) dctmSession.getTraversalManager();
+    dctmSession = connector.login();
+    qtm = dctmSession.getTraversalManager();
     qtm.setBatchHint(2);
     aclList = getAclListForTest();
 

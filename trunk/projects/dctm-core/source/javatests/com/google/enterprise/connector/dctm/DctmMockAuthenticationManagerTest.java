@@ -14,15 +14,13 @@
 
 package com.google.enterprise.connector.dctm;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
+import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
-import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.Principal;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 
@@ -33,33 +31,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class DctmMockAuthenticationManagerTest extends TestCase {
-  DctmAuthenticationManager authentManager;
+  AuthenticationManager authentManager;
 
-  private Connector connector;
+  private DctmConnector connector;
   private final JdbcFixture jdbcFixture = new JdbcFixture();
 
-  protected Connector setupConnectorConfig()
+  protected void setupConnectorConfig()
       throws RepositoryException, SQLException {
     connector = new DctmConnector();
-    ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
-    ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
-    ((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
-    ((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
-    ((DctmConnector) connector).setGoogleGlobalNamespace("global");
-    ((DctmConnector) connector).setGoogleLocalNamespace("local");
-    ((DctmConnector) connector)
-        .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-    ((DctmConnector) connector).setIs_public("true");
-
-    return connector;
+    connector.setLogin(DmInitialize.DM_LOGIN_OK1);
+    connector.setPassword(DmInitialize.DM_PWD_OK1);
+    connector.setDocbase(DmInitialize.DM_DOCBASE);
+    connector.setClientX(DmInitialize.DM_CLIENTX);
+    connector.setGoogleGlobalNamespace("global");
+    connector.setGoogleLocalNamespace("local");
+    connector.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+    connector.setIs_public("true");
   }
 
   @Override
   protected void setUp() throws RepositoryException, SQLException {
     setupConnectorConfig();
-    Session sess = (DctmSession) connector.login();
-    authentManager =
-        (DctmAuthenticationManager) sess.getAuthenticationManager();
+    Session sess = connector.login();
+    authentManager = sess.getAuthenticationManager();
 
     jdbcFixture.setUp();
   }
@@ -394,10 +388,9 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
 
   protected void windowsDomainSetUp(String windowsDomain)
       throws RepositoryException, SQLException {
-    ((DctmConnector) connector).setWindows_domain(windowsDomain);
-    Session sess = (DctmSession) connector.login();
-    authentManager =
-        (DctmAuthenticationManager) sess.getAuthenticationManager();
+    connector.setWindows_domain(windowsDomain);
+    Session sess = connector.login();
+    authentManager = sess.getAuthenticationManager();
 
     insertUser("alfa", "alice", "", "");
     insertGroup("aliceLocal", "alfa");

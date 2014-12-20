@@ -52,8 +52,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
       expectedResults.put(DmInitialize.DM_VSID3, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
-      testAuthorization((DctmAuthorizationManager) authorizationManager,
-          expectedResults, username);
+      testAuthorization(authorizationManager, expectedResults, username);
     }
 
     {
@@ -65,8 +64,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
       expectedResults.put(DmInitialize.DM_VSID3, Boolean.FALSE);
       expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
-      testAuthorization((DctmAuthorizationManager) authorizationManager,
-          expectedResults, username);
+      testAuthorization(authorizationManager, expectedResults, username);
     }
 
     {
@@ -78,8 +76,7 @@ public class DctmAuthorizationManagerTest extends TestCase {
       expectedResults.put(DmInitialize.DM_VSID3, Boolean.FALSE);
       expectedResults.put(DmInitialize.DM_VSID4, Boolean.TRUE);
       expectedResults.put(DmInitialize.DM_VSID5, Boolean.TRUE);
-      testAuthorization((DctmAuthorizationManager) authorizationManager,
-          expectedResults, username);
+      testAuthorization(authorizationManager, expectedResults, username);
     }
   }
 

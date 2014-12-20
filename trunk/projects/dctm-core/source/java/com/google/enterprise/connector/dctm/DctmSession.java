@@ -23,7 +23,6 @@ import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
-import com.google.enterprise.connector.spi.TraversalManager;
 
 import java.util.logging.Logger;
 
@@ -57,7 +56,7 @@ public class DctmSession implements Session {
   }
 
   @Override
-  public TraversalManager getTraversalManager() throws RepositoryException {
+  public DctmTraversalManager getTraversalManager() throws RepositoryException {
     return new DctmTraversalManager(connector, sessionManager);
   }
 
@@ -75,7 +74,7 @@ public class DctmSession implements Session {
    * @throws RepositoryException
    */
   @Override
-  public AuthenticationManager getAuthenticationManager() {
+  public DctmAuthenticationManager getAuthenticationManager() {
     return new DctmAuthenticationManager(connector, clientX,
         connector.getDocbase());
   }
@@ -95,7 +94,7 @@ public class DctmSession implements Session {
    * @throws RepositoryException
    */
   @Override
-  public AuthorizationManager getAuthorizationManager() {
+  public DctmAuthorizationManager getAuthorizationManager() {
     return new DctmAuthorizationManager(clientX, sessionManager,
         connector.getDocbase());
   }
