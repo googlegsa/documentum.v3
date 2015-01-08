@@ -10,6 +10,44 @@ that supplements the main documentation.
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
 
 
+Release 3.2.10, December 21, 2014
+=================================
+
+Introduction
+------------
+This is a maintenance release that improves security and quality
+without adding any new functionality. Users of previous releases are
+strongly encouraged to upgrade.
+
+Issues Fixed Since 3.2.8
+------------------------
+17737679 - Documentum connector has an unclosed collection. This may
+           use extra resources and may lead to other problems.
+
+15450112 - Documentum group lookup fails without LDAP synchronization.
+           A new advanced config property is introduced to support this.
+           <property name="windows_domain" value="configdomain"/>
+           The configured "configdomain" is used as the domain for 
+           all users not synchronized from LDAP in ACLs and for group
+           lookup. If the primary verified identity (PVI) of the search
+           user includes a domain, it must match the configured
+           windows_domain value.
+
+13218191 - Advanced configuration on Documentum connector did not
+           load on GSA 7.2 when the Advanced configuration checkbox
+           was clicked.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.1 through 3.2.8 may be
+used with this version. This version works with Connector Manager
+version 3.2.2 or later. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector. This product is
+designed to function with EMC Documentum Content Server versions 6.5,
+6.6 and 6.7, including service packs. EMC Documentum Foundation Classes
+(DFC) 6.5 or later is required. Java 6 or later is required.
+
+
 Release 3.2.8, July 8, 2014
 ===========================
 
@@ -24,7 +62,7 @@ Summary of Changes
   * Documentum Content Server version 6.0 is no longer supported with
     the connector.
 
-Issues Fixed Since 3.2.8
+Issues Fixed Since 3.2.4
 ------------------------
 14417806 - Documentum connector incorrectly marks dm_world.
            It was marked as global user, instead of local group.
