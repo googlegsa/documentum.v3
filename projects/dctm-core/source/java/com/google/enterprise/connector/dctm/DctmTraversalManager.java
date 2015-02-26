@@ -363,9 +363,9 @@ public class DctmTraversalManager
   protected Checkpoint forgeStartCheckpoint() {
     Checkpoint checkpoint = new Checkpoint(additionalWhereClause);
     // Only consider delete actions that occur from this moment onward.
-    checkpoint.setDeleteCheckpoint(new Date(), null);
+    checkpoint.setDeleteCheckpoint(dateFormat.format(new Date()), null);
     // Only consider ACL changes that occur from this moment onward.
-    checkpoint.setAclModifyCheckpoint(new Date(), null);
+    checkpoint.setAclModifyCheckpoint(dateFormat.format(new Date()), null);
     return checkpoint;
   }
 
@@ -380,8 +380,8 @@ public class DctmTraversalManager
     baseQueryString(queryStr, checkpoint);
     if (checkpoint.getInsertId() != null
         && checkpoint.getInsertDate() != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.getInsertDate()),
-                             checkpoint.getInsertId() };
+      Object[] arguments =
+          {checkpoint.getInsertDate(), checkpoint.getInsertId()};
       queryStr.append(MessageFormat.format(whereBoundedClause, arguments));
     }
     queryStr.append(" order by r_modify_date,r_object_id");
@@ -402,7 +402,9 @@ public class DctmTraversalManager
   }
 
   protected void baseQueryString(StringBuilder query, Checkpoint checkpoint) {
-    query.append("select i_chronicle_id, r_object_id, r_modify_date from ");
+    query.append("select i_chronicle_id, r_object_id, r_modify_date, ");
+    query.append("DATETOSTRING(r_modify_date, 'yyyy-mm-dd hh:mi:ss') ");
+    query.append("as r_modify_date_str from ");
     query.append(rootObjectType);
     query.append(" where ");
     if (!includedObjectType.isEmpty()) {
@@ -422,12 +424,14 @@ public class DctmTraversalManager
 
   protected IQuery buildDelQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder(
-        "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc "
+        "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc, "
+        + "DATETOSTRING(time_stamp_utc, 'yyyy-mm-dd hh:mi:ss') "
+        + "as time_stamp_utc_str "
         + "from dm_audittrail "
         + "where (event_name='dm_destroy' or event_name='dm_prune')");
     if (checkpoint.getDeleteDate() != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.getDeleteDate()),
-                             checkpoint.getDeleteId() };
+      Object[] arguments =
+          {checkpoint.getDeleteDate(), checkpoint.getDeleteId()};
       queryStr.append(MessageFormat.format(
           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
           arguments));
@@ -458,13 +462,16 @@ public class DctmTraversalManager
   protected IQuery buildAclModifyQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder(
         "select r_object_id, chronicle_id, audited_obj_id, event_name, "
-        + "time_stamp_utc from dm_audittrail_acl "
+        + "time_stamp_utc, "
+        + "DATETOSTRING(time_stamp_utc, 'yyyy-mm-dd hh:mi:ss') "
+        + "as time_stamp_utc_str "
+        + "from dm_audittrail_acl "
         + "where (event_name='dm_save' or event_name='dm_saveasnew' "
         + "or event_name='dm_destroy')");
 
     if (checkpoint.getAclModifiedDate() != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.getAclModifiedDate()),
-                             checkpoint.getAclModifyId() };
+      Object[] arguments =
+          {checkpoint.getAclModifiedDate(), checkpoint.getAclModifyId()};
       queryStr.append(MessageFormat.format(
           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly
               : whereBoundedClauseRemove, arguments));

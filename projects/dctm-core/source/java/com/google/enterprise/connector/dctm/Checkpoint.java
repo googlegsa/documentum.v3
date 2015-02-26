@@ -106,10 +106,10 @@ class Checkpoint {
   private List<String> insertId;
 
   /** r_modify_date of the last item inserted. */
-  private List<Date> insertDate;
+  private List<String> insertDate;
 
   /** dm_audittrail_acl time_stamp_utc of last ACL modification */
-  private Date aclModifyDate;
+  private String aclModifyDate;
 
   /** r_object_id of the last item deleted. */
   private String deleteId;
@@ -122,7 +122,7 @@ class Checkpoint {
    * the stored date is UTC, but the value of this field may not be,
    * due to the way DQL handles time zones.
    */
-  private Date deleteDate;
+  private String deleteDate;
 
   /**
    * Backup versions of the ACL, insert and delete checkpoints,
@@ -131,11 +131,11 @@ class Checkpoint {
    */
   private String oldAclId;
   private String oldInsertId;
-  private Date oldInsertDate;
+  private String oldInsertDate;
   private String oldDeleteId;
-  private Date oldDeleteDate;
+  private String oldDeleteDate;
   private String oldAclModifyId;
-  private Date oldAclModifyDate;
+  private String oldAclModifyDate;
 
   private enum LastAction { NONE, ADD, DELETE }
   private LastAction lastAction = LastAction.NONE;
@@ -159,8 +159,8 @@ class Checkpoint {
   }
 
   /** Constructs a mutable list containing only the specified object. */
-  private static <T> List<T> mutableList(T value) {
-    List<T> list = new ArrayList<T>(1);
+  private static List<String> mutableList(String value) {
+    List<String> list = new ArrayList<String>(1);
     list.add(value);
     return list;
   }
@@ -199,8 +199,7 @@ class Checkpoint {
 
       aclId = getJsonString(jo, ACL_ID);
       aclModifyId = getJsonString(jo, ACL_MODIFY_ID);
-      String modDate = getJsonString(jo, ACL_MODIFY_DATE);
-      aclModifyDate = (modDate == null) ? null : dateFormat.parse(modDate);
+      aclModifyDate = getJsonString(jo, ACL_MODIFY_DATE);
 
       if (jo.has(INS_INDEX)) {
         insertIndex = jo.getInt(INS_INDEX);
@@ -214,10 +213,9 @@ class Checkpoint {
         for (int i = 0; i < ids.length(); i++) {
           insertId.add(getJsonString(ids, i));
         }
-        insertDate = new ArrayList<Date>(dates.length());
+        insertDate = new ArrayList<String>(dates.length());
         for (int i = 0; i < dates.length(); i++) {
-          String value = getJsonString(dates, i);
-          insertDate.add((value == null) ? null : dateFormat.parse(value));
+          insertDate.add(getJsonString(dates, i));
         }
         if (insertIndex == insertId.size()) {
           insertId.add(null);
@@ -230,23 +228,25 @@ class Checkpoint {
         // process old style id and date which may not be in an array
         insertIndex = -1;
         insertId = mutableList(getJsonString(jo, INS_ID));
-        insertDate = mutableList(getJsonDate(jo, INS_DATE));
+        insertDate = mutableList(getJsonString(jo, INS_DATE));
       }
       startInsertIndex = insertIndex;
       insertIndexModulus = whereClause.size();
       nextInsertIndex = incrementModulo(insertIndex, insertIndexModulus);
 
       deleteId = getJsonString(jo, DEL_ID);
-      deleteDate = getJsonDate(jo, DEL_DATE);
+      deleteDate = getJsonString(jo, DEL_DATE);
       if (deleteDate == null) {
-        Date oldStyle = getJsonDate(jo, DEL_DATE_OLD);
+        String oldStyle = getJsonString(jo, DEL_DATE_OLD);
         if (oldStyle != null) {
           // TODO: This migration will be repeated until the checkpoint
           // is actually returned to the connector manager and
           // persisted. We could force that to happen on the next call
           // to resumeTraversal by returning an empty DocumentList
           // instead of null.
-          deleteDate = new Date(oldStyle.getTime() + TIME_STAMP_OFFSET);
+          Date dateWithOffset = new Date(dateFormat.parse(oldStyle).getTime()
+              + TIME_STAMP_OFFSET);
+          deleteDate = dateFormat.format(dateWithOffset);
           if (LOGGER.isLoggable(Level.INFO)) {
             LOGGER.info("Migrating from time_stamp to time_stamp_utc: "
                 + oldStyle + " becomes " + deleteDate);
@@ -289,16 +289,6 @@ class Checkpoint {
   }
 
   /**
-   * Gets a date value from a JSON object. If the value is missing,
-   * null, or empty, return null.
-   */
-  private Date getJsonDate(JSONObject jo, String key)
-      throws JSONException, ParseException {
-    String value = getJsonString(jo, key);
-    return (value == null) ? null : dateFormat.parse(value);
-  }
-
-  /**
    * Gets a trimmed string value from a JSON array. If the value is
    * missing, null, or empty, return null.
    */
@@ -328,7 +318,7 @@ class Checkpoint {
   }
 
   /** r_modify_date of the last item inserted. */
-  public Date getInsertDate() {
+  public String getInsertDate() {
     if ( insertIndex == -1) { 
       return null;
     } else {
@@ -336,7 +326,7 @@ class Checkpoint {
     }
   }
 
-  public Date getAclModifiedDate() {
+  public String getAclModifiedDate() {
     return aclModifyDate;
   }
 
@@ -355,7 +345,7 @@ class Checkpoint {
    * the stored date is UTC, but the value of this field may not be,
    * due to the way DQL handles time zones.
    */
-  public Date getDeleteDate() {
+  public String getDeleteDate() {
     return deleteDate;
   }
 
@@ -369,7 +359,7 @@ class Checkpoint {
    * @param date the r_modify_date of the last item inserted.
    * @param objectId the r_object_id of the last item inserted.
    */
-  public void setInsertCheckpoint(Date date, String objectId) {
+  public void setInsertCheckpoint(String date, String objectId) {
     // Remember previous insert checkpoint as a restore point.
     oldInsertDate = getInsertDate();
     oldInsertId = getInsertId();
@@ -388,7 +378,7 @@ class Checkpoint {
    * @param date the dm_audittrail time_stamp_utc of the last item deleted.
    * @param objectId the r_object_id of the last item deleted.
    */
-  public void setDeleteCheckpoint(Date date, String objectId) {
+  public void setDeleteCheckpoint(String date, String objectId) {
     // Remember the current delete checkpoint as a restore point.
     oldDeleteDate = deleteDate;
     oldDeleteId = deleteId;
@@ -412,7 +402,7 @@ class Checkpoint {
     aclId = objectId;
   }
 
-  public void setAclModifyCheckpoint(Date date, String objectId) {
+  public void setAclModifyCheckpoint(String date, String objectId) {
     // Remember the current ACL checkpoint as a restore point.
     oldAclModifyId = aclModifyId;
     oldAclModifyDate = aclModifyDate;
@@ -499,11 +489,6 @@ class Checkpoint {
     try {
       JSONObject jo = new JSONObject();
 
-      List<String> dates = new ArrayList<String>(insertDate.size());
-      for (Date date : insertDate) {
-        dates.add((date == null) ? null : dateFormat.format(date));
-      }
-
       jo.put(INS_INDEX, nextInsertIndex);
       if (aclId != null) {
         jo.put(ACL_ID, aclId);
@@ -512,16 +497,16 @@ class Checkpoint {
         jo.put(ACL_MODIFY_ID, aclModifyId);
       }
       if (aclModifyDate != null) {
-        jo.put(ACL_MODIFY_DATE, dateFormat.format(aclModifyDate));
+        jo.put(ACL_MODIFY_DATE, aclModifyDate);
       }
       jo.put(INS_ID, new JSONArray(insertId));
-      jo.put(INS_DATE, new JSONArray(dates));
+      jo.put(INS_DATE, new JSONArray(insertDate));
 
       if (deleteId != null) {
         jo.put(DEL_ID, deleteId);
       }
       if (deleteDate != null) {
-        jo.put(DEL_DATE, dateFormat.format(deleteDate));
+        jo.put(DEL_DATE, deleteDate);
       }
       String result = jo.toString();
       LOGGER.fine("Created Checkpoint: " + result);
