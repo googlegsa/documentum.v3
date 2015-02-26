@@ -61,11 +61,17 @@ public class CheckpointTest extends TestCase {
     return new Checkpoint(getWhereClause(size), checkpoint);
   }
 
+  private final static SimpleDateFormat dateFormat =
+      new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+  /** The current date as Date */
+  private static Date NOWDATE = now();
+
   /** The current date without milliseconds. */
-  private static Date NOW = now();
+  private static String NOW = dateFormat.format(NOWDATE);
 
   /** A later date without milliseconds. */
-  private static Date LATER = later(NOW);
+  private static String LATER = dateFormat.format(later(NOWDATE));
 
   public void testCheckpoint_noargs() throws RepositoryException {
     Checkpoint empty = getCheckpoint(0);
@@ -231,8 +237,7 @@ public class CheckpointTest extends TestCase {
     Checkpoint checkpoint =
         getCheckpoint(1, "{\"uuid\":[\"090000018000e100\"],"
             + "\"lastModified\":[\"2007-01-02 13:58:10\"], \"index\":0}");
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String modifDate = dateFormat.format(checkpoint.getInsertDate());
+    String modifDate = checkpoint.getInsertDate();
     assertNotNull(modifDate);
     assertEquals(modifDate, "2007-01-02 13:58:10");
   }
@@ -419,7 +424,7 @@ public class CheckpointTest extends TestCase {
     Checkpoint input =
         getCheckpoint(1, "{\"uuid\":\"090000018000e100\","
             + "\"lastModified\":\"2007-01-02 13:58:10\"}");
-    Date modifyDate = NOW;
+    String modifyDate = NOW;
 
     input.setAclModifyCheckpoint(modifyDate, "aclModId");
 
@@ -437,8 +442,7 @@ public class CheckpointTest extends TestCase {
         + ",\"aclLastModified\":\"2013-03-19 17:18:16\"}";
 
     Checkpoint input = getCheckpoint(0, strChkpt);
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String aclModifiedDate = dateFormat.format(input.getAclModifiedDate());
+    String aclModifiedDate = input.getAclModifiedDate();
 
     assertEquals(0, input.getInsertIndex());
     assertEquals("5f01081f8019e345", input.getAclModifyId());

@@ -115,12 +115,12 @@ public class DctmAclList implements DocumentList {
             && collectionAclToModify.next()) {
           logger.fine("Looking through the collection of ACLs to modify");
           String eventId = "";
-          ITime aclModifyDate = null;
           eventId = collectionAclToModify.getString("r_object_id");
-          aclModifyDate = collectionAclToModify.getTime("time_stamp_utc");
+          String modifyDateToStr =
+              collectionAclToModify.getString("time_stamp_utc_str");
           logger.fine("audit event r_object_id is " + eventId
-              + ", modifyDate is " + aclModifyDate.getDate());
-          checkpoint.setAclModifyCheckpoint(aclModifyDate.getDate(), eventId);
+              + ", modifyDate is " + modifyDateToStr);
+          checkpoint.setAclModifyCheckpoint(modifyDateToStr, eventId);
 
           String chronicleId = collectionAclToModify.getString("chronicle_id");
           if (aclModifiedIds.contains(chronicleId)) {

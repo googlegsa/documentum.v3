@@ -64,7 +64,7 @@ public class MockDmQuery implements IQuery {
   public void setDQL(String dqlStatement) {
     String goodQuery = "";
     if (dqlStatement.indexOf(
-            "select i_chronicle_id, r_object_id, r_modify_date from ") != -1) {
+        "select i_chronicle_id, r_object_id, r_modify_date, ") != -1) {
       if (dqlStatement.indexOf(" r_modify_date > ") != -1) {
         goodQuery = makeBoundedQuery(dqlStatement);
       } else {
