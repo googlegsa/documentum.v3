@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="source/java"/>
+	<classpathentry kind="src" path="source/javatests"/>
+	<classpathentry kind="src" path="source/perftests"/>
+	<classpathentry kind="src" path="source/accepttests"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/dctm_third_party/lib/dctm.jar"/>
+	<classpathentry kind="lib" path="/dctm_third_party/lib/dfc.jar"/>
+	<classpathentry kind="lib" path="/dctm_third_party/lib/dfcbase.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/dctm-core"/>
+	<classpathentry kind="lib" path="/connector-manager/dist/jarfile/connector_spi.jar" sourcepath="/connector-manager/source/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
+	<classpathentry kind="lib" path="/dctm_third_party/lib/json.jar"/>
+	<classpathentry kind="lib" path="/connector-manager/dist/jarfile/connector.jar"/>
+	<classpathentry kind="lib" path="/dctm_third_party/lib/log4j-1.2.8.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
