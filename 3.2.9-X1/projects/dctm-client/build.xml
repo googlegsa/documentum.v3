@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="connector-dctm-client" default="connector-dctm" basedir=".">
+
+  <!-- ========================= PROPERTIES ============================= -->
+  <property file="${user.home}/google-enterprise-connector-dctm.properties"/>
+
+  <property name="COMPILE_DEBUG_FLAG" value="true" />
+  <property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
+  <property name="COMPILE_TARGET" value="1.6" />
+  <property name="COMPILE_BOOTCLASSPATH" value="${build.bootclasspath}" />
+
+  <!-- Define Directories. -->
+  <property name="build" location="build" />
+  <property name="dist" location="dist" />
+  <property name="src" location="source/java" />
+  <property name="classes" location="${build}/classes" />
+  <property name="jarfile.dir" location="../third_party/lib"/>
+  <property name="dctm_jarfile.dir" location="../dctm_third_party/lib"/>
+  <property name="core.dir" location="../dctm-core"/>
+        <!-- FIXME: It was just "config", which doesn't work. Is this right? -->
+  <property name="config" location="${core.dir}/config" />
+
+  <property name="tests.src" location="source/javatests" />
+  <property name="perfstests.src" location="source/perftests" />
+  <property name="accepttests.src" location="source/accepttests" />
+  <property name="tests.build" location="build/tests" />
+  <property name="tests.classes" location="${tests.build}/classes" />
+  <property name="core.classes" location="${core.dir}/build/classes" />
+
+  <property name="jar.dir"  location="${dist}/jar" />
+  <property name="jarfile"  location="${jar.dir}/connector-dctm.jar" />
+  <property name="jarfile.test"  location="${jar.dir}/connector_dctm_test.jar" />
+
+  <property name="dfc.jarfile" location="${dctm_jarfile.dir}/dfc.jar" />
+
+  <property name="connector-manager.dir"
+            location="${build.connector.manager.home}/projects/connector-manager" />
+  <property name="thirdparty.jar.dir"
+            location="${connector-manager.dir}/third-party" />
+  <property name="spi.jar.dir" value="${connector-manager.dir}/dist/jarfile" />
+  <property name="spi.jarfile" value="${spi.jar.dir}/connector-spi.jar" />
+  <property name="connector.jarfile" value="${spi.jar.dir}/connector.jar" />
+  <property name="tests.jarfile" value="${spi.jar.dir}/connector-tests.jar" />
+  <property name="json.jarfile" location="${thirdparty.jar.dir}/prod/json.jar" />
+  <property name="junit.jarfile" location="${thirdparty.jar.dir}/tests/junit.jar" />
+
+  <!-- =========================== TASKS =============================== -->
+  <target name="connector-dctm" depends="init,compile,compile-all-tests,jar" />
+
+  <target name="compile-all-tests" depends="compile_tests,compile_accepttests,compile_perftests" />
+
+  <target name="init">
+    <mkdir dir="${build}" />
+    <mkdir dir="${dist}" />
+    <mkdir dir="${classes}" />
+    <mkdir dir="${tests.build}" />
+    <mkdir dir="${tests.classes}" />
+    <mkdir dir="${jar.dir}" />
+  </target>
+
+  <target name="compile" depends="init">
+    <javac srcdir="${src}" destdir="${classes}"
+           includeantruntime="false"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
+      <!-- DFC JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath>
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${dfc.jarfile}" />
+        <pathelement location="${core.classes}" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="compile_tests" depends="compile">
+    <javac srcdir="${tests.src}" destdir="${tests.classes}"
+           includeantruntime="false"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}">
+      <!-- DFC JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath>
+        <pathelement location="${core.classes}" />
+        <pathelement location="${connector.jarfile}" />
+        <pathelement location="${tests.jarfile}" />
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${junit.jarfile}" />
+        <pathelement location="${classes}" />
+        <pathelement location="${dfc.jarfile}" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="compile_perftests" depends="compile_tests">
+    <javac srcdir="${perfstests.src}" destdir="${tests.classes}"
+           includeantruntime="false"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}">
+      <!-- DFC JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath>
+        <pathelement location="${tests.classes}" />
+        <pathelement location="${core.classes}" />
+        <pathelement location="${connector.jarfile}" />
+        <pathelement location="${tests.jarfile}" />
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${junit.jarfile}" />
+        <pathelement location="${dfc.jarfile}" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="compile_accepttests" depends="compile_tests">
+    <javac srcdir="${accepttests.src}" destdir="${tests.classes}"
+           includeantruntime="false"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}">
+      <!-- DFC JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath>
+        <pathelement location="${connector.jarfile}" />
+        <pathelement location="${tests.jarfile}" />
+        <pathelement location="${spi.jarfile}" />
+        <pathelement location="${junit.jarfile}" />
+        <pathelement location="${classes}" />
+        <pathelement location="${dfc.jarfile}" />
+        <pathelement location="${core.classes}" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="jar" description="connector-dctm">
+    <jar jarfile="${jarfile}">
+      <fileset dir="${config}"/>
+      <fileset dir="${classes}"/>
+    </jar>
+    <manifest file="dist/MANIFEST.MF">
+      <attribute name="Main-Class" value="com.google.enterprise.connector.dctm.AllTests"/>
+
+    </manifest>
+    <jar jarfile="${jarfile.test}" manifest="dist/MANIFEST.MF">
+      <fileset dir="${tests.classes}" />
+    </jar>
+  </target>
+
+  <target name="clean" description="Deletes all build files.">
+    <delete dir="${build}" />
+    <delete dir="${dist}" />
+  </target>
+
+</project>
