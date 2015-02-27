@@ -1,0 +1,19 @@
+##
+# These properties are specific to the individual's development and
+# test environment.  This properties file should be located in your
+# home directory, e.g.: ~/google-enterprise-connector-dctm.properties
+#
+# To just compile the connector and run the dctm-core tests, you need
+# to set build.connector.manager.home to point at a Connector Manager
+# version 2.8 (or newer) build and ensure that
+# projects/connector-manager/dist/jarfile/connector-spi.jar exists there.
+
+
+##
+# Build Properties
+
+# The root of the google-enterprise-connector-manager tree
+build.connector.manager.home = ${user.home}/gsa/google-enterprise-connector-manager
+
+# JDK 1.6 bootclasspath.
+build.bootclasspath = /System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Classes/classes.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Classes/jsse.jar
