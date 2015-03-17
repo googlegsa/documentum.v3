@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dfcwrap.IAttr;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
@@ -27,6 +28,7 @@ import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.ISysObject;
 import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.spi.RepositoryException;
+import com.google.enterprise.connector.spi.SpiConstants;
 
 import junit.framework.TestCase;
 
@@ -150,8 +152,13 @@ public class MockDmObjectTest extends TestCase {
 
   public void testGetAttr() {
     try {
-      IAttr attr = object.getAttr(1);
-      assertEquals(attr.getName(), DmInitialize.DM_FIRST_ATTR);
+      ImmutableSet.Builder<String> builder = new ImmutableSet.Builder<String>();
+      for (int i = 0; i < object.getAttrCount(); i++) {
+        IAttr attr = object.getAttr(i);
+        builder.add(attr.getName());
+      }
+      assertEquals(ImmutableSet.of("acl", SpiConstants.PROPNAME_ISPUBLIC),
+          builder.build());
     } catch (RepositoryException e) {
       // TODO: Why is this exception ignored?
     }
