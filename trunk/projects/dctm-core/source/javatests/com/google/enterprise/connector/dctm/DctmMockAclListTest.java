@@ -135,6 +135,17 @@ public class DctmMockAclListTest extends TestCase {
     }
   }
 
+  private void insertLdapUsers(String commonName, String domain,
+      String... names) throws SQLException {
+    for (String name : names) {
+      jdbcFixture.executeUpdate(String.format(
+          "insert into dm_user(user_name, user_login_name, user_source, "
+          + "user_ldap_dn) "
+          + "values('%s', '%s', 'LDAP', '%s%s,%s')",
+          name, name, commonName, name, domain));
+    }
+  }
+
   private void insertGroup(String groupName, String... members)
       throws SQLException {
     jdbcFixture.executeUpdate(String.format(
@@ -287,6 +298,46 @@ public class DctmMockAclListTest extends TestCase {
       }
     }
     assertEquals(expectedPrincipal, groupLookupPrincipal);
+  }
+
+  private void testLdapSetup(String commonName, String domain)
+      throws Exception {
+    dctmSession = connector.login();
+    qtm = dctmSession.getTraversalManager();
+    qtm.setBatchHint(2);
+    aclList = getAclListForTest();
+
+    insertLdapUsers(commonName, domain, "user1");
+    insertGroup("group1", "user2", "user3");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, "user1");
+    addAllowGroupToAcl(aclObj, "group1");
+
+    aclList.processAcl(aclObj, aclValues);
+  }
+
+  public void testLdapForAclUser() throws Exception {
+    testLdapSetup("CN=My name is", "dc=ajax");
+    assertAclEquals(ImmutableSet.of("ajax\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testDnsLdapForAclUser() throws Exception {
+    testLdapSetup("CN=My name is", "dc=ajax,dc=example,dc=com");
+    assertAclEquals(ImmutableSet.of("ajax\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testNoCnLdapForAclUser() throws Exception {
+    testLdapSetup("uid=n", "dc=ajax,dc=example,dc=com");
+    assertAclEquals(ImmutableSet.of("ajax\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testLdapForAclGroup() throws Exception {
+    testLdapSetup("CN=My name is", "dc=ajax");
+    assertAclEquals(ImmutableSet.of("group1"), SpiConstants.PROPNAME_ACLGROUPS);
   }
 
   private void testDomainSetup(String domain) throws Exception {

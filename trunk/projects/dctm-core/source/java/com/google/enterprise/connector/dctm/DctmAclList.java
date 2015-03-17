@@ -373,7 +373,7 @@ public class DctmAclList implements DocumentList {
             && userObj.getUserSourceAsString().equalsIgnoreCase("ldap")) {
           String dnName = userObj.getUserDistinguishedLDAPName();
           userLoginName = IdentityUtil.getFirstDomainFromDN(dnName) + "\\"
-                  + IdentityUtil.getCNFromDN(dnName);
+              + userObj.getUserLoginName();
         } else {
           String windowsDomain = traversalManager.getWindowsDomain();
           if (!Strings.isNullOrEmpty(windowsDomain) && !userObj.isGroup()) {

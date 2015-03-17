@@ -26,31 +26,6 @@ public class IdentityUtil {
       Logger.getLogger(IdentityUtil.class.getName());
 
   /**
-   * Extracts CN attribute from a given DN.
-   * This method needs to be in sync with 
-   * google3/java/com/google/enterprise/secmgr/ldap/LDAPClient
-   */
-  public static String getCNFromDN(String dn) {
-    if (Strings.isNullOrEmpty(dn)) {
-      return null;
-    }
-    int pre = dn.toLowerCase().indexOf("cn=");
-    int post = dn.indexOf(",", pre);
-    if (pre == -1) {
-      return null;
-    }
-    String cn;
-    if (post != -1) {
-      // Here 3 is length of 'cn='. We just want to add the
-      // group name.
-      cn = dn.substring(pre + 3, post);
-    } else {
-      cn = dn.substring(pre + 3);
-    }
-    return cn;
-  }
-
-  /**
    * Given a dn, it returns the first domain.
    * E.g., DN: uid=xyz,ou=engineer,dc=corp.example,dc=com
    * it will return corp
