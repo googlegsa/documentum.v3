@@ -141,13 +141,16 @@ public class MockDmSession implements ISession {
       throws RepositoryDocumentException {
     try {
       if (queryString.startsWith("dm_user")) {
-        HashMap<String, Object> values =
-            executeQuery("select user_name, r_is_group from " + queryString,
-                "user_name", "r_is_group");
+        HashMap<String, Object> values = executeQuery(
+            "select user_name, user_source, user_ldap_dn, r_is_group from "
+            + queryString,
+            "user_name", "user_source", "user_ldap_dn", "r_is_group");
         if (values == null) {
           return null;
         } else {
           return new MockDmUser((String) values.get("user_name"),
+              (String) values.get("user_source"),
+              (String) values.get("user_ldap_dn"),
               Boolean.TRUE.equals(values.get("r_is_group")));
         }
       } else if (queryString.startsWith("dm_group")) {
