@@ -18,38 +18,55 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 public class IdentityUtil {
   private static final Logger LOGGER = 
       Logger.getLogger(IdentityUtil.class.getName());
 
   /**
-   * Given a dn, it returns the first domain.
-   * E.g., DN: uid=xyz,ou=engineer,dc=corp.example,dc=com
-   * it will return corp
-   * 
-   * This method is derived from getDomainFromDN, and needs to be in sync with
-   * google3/java/com/google/enterprise/secmgr/ldap/LDAPClient
-   * 
-   * @param dn the distinguished name
-   * @return first domain, or null if the input was invalid or
-   *    did not contain the domain attribute
+   * Gets the leftmost DC from an {@code LdapName} of DC RDNs.
+   * For example, given
+   * <pre>
+   * new LdapName("uid=xyz,ou=engineer,dc=corp.example,dc=com")
+   * </pre>
+   * it will return "corp".
+   *
+   * @param domain the domain name
+   * @return the first domain component, or {@code null} if the DN
+   *     does not contain a DC attribute
+   * @throws InvalidNameException if the input is invalid
    */
-  public static String getFirstDomainFromDN(String dn) {
-    if (Strings.isNullOrEmpty(dn)) {
+  public static String getFirstDomainFromDN(LdapName domain) {
+    if (domain.isEmpty()) {
       return null;
+    } else {
+      // RDNs are numbered right-to-left.
+      return domain.getRdn(domain.size() - 1).getValue().toString();
     }
+  }
 
-    Iterable<String> str =
-        Splitter.on(',').trimResults().omitEmptyStrings().split(dn);
-    for (String substr : str) {
-      if (substr.startsWith("dc") || substr.startsWith("DC")) {
-        return substr.substring(3);
+  /**
+   * Extracts the DC attributes in a DN string as an {@code LdapName}.
+   *
+   * @param userDn the Documentum user LDAP DN
+   */
+  public static LdapName getDomainComponents(String userDn)
+      throws InvalidNameException{
+    LdapName userName = new LdapName(userDn);
+    ArrayList<Rdn> userDnDomain = new ArrayList<Rdn>(userName.size());
+    for (Rdn rdn : userName.getRdns()) {
+      if (rdn.getType().equalsIgnoreCase("dc")) {
+        userDnDomain.add(rdn);
       }
     }
-    return null;
+    return new LdapName(userDnDomain);
   }
 
   /**
