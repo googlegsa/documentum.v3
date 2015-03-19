@@ -21,7 +21,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
 import com.google.enterprise.connector.dctm.dfcwrap.IGroup;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
-import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IUser;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
@@ -44,6 +43,9 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
 
 /**
  * @since 3.2.0
@@ -227,6 +229,11 @@ public class DctmAclList implements DocumentList {
         String userName = aclObj.getAccessorName(i);
         int permitType = aclObj.getAccessorPermitType(i);
         String userLoginName = getUserLoginName(userName);
+        if (userLoginName == null) {
+          logger.log(Level.FINE,
+              "Skipping invalid username {0} found in ACL.", userName);
+          continue;
+        }
         if (permitType == IAcl.DF_PERMIT_TYPE_ACCESS_RESTRICTION) {
           if (aclObj.getAccessorPermit(i) <= IAcl.DF_PERMIT_READ) {
             if (aclObj.isGroup(i)) {
@@ -359,39 +366,60 @@ public class DctmAclList implements DocumentList {
   }
 
   private String getUserLoginName(String userName) throws RepositoryException {
-    String userLoginName = null;
     if (userName.equalsIgnoreCase("dm_world")
         || userName.equalsIgnoreCase("dm_owner")
         || userName.equalsIgnoreCase("dm_group")) {
       return userName;
     }
+
     try {
       IUser userObj = (IUser) session.getObjectByQualification(
           "dm_user where user_name = '" + userName + "'");
-      if (userObj != null) {
-        if (!Strings.isNullOrEmpty(userObj.getUserSourceAsString())
-            && userObj.getUserSourceAsString().equalsIgnoreCase("ldap")) {
-          String dnName = userObj.getUserDistinguishedLDAPName();
-          userLoginName = IdentityUtil.getFirstDomainFromDN(dnName) + "\\"
-              + userObj.getUserLoginName();
-        } else {
-          String windowsDomain = traversalManager.getWindowsDomain();
-          if (!Strings.isNullOrEmpty(windowsDomain) && !userObj.isGroup()) {
-            logger.log(Level.FINEST,
-                "using configured domain: {0} for unsynchronized user {1}",
-                new String[] {windowsDomain, userName});
-            userLoginName = windowsDomain + "\\" + userObj.getUserLoginName();
-          } else {
-            userLoginName = userObj.getUserLoginName();
+      if (userObj == null) {
+        return null;
+      }
+
+      if (!Strings.isNullOrEmpty(userObj.getUserSourceAsString())
+          && userObj.getUserSourceAsString().equalsIgnoreCase("ldap")) {
+        String dnName = userObj.getUserDistinguishedLDAPName();
+        if (Strings.isNullOrEmpty(dnName)) {
+          // TODO(jlacey): This is inconsistent with authN, which
+          // matches such users against windows_domain. This case
+          // probably can't happen, so I don't think it's important.
+          logger.log(Level.FINE, "Missing DN for user: {0}", userName);
+          return null;
+        }
+
+        try {
+          LdapName dnDomain = IdentityUtil.getDomainComponents(dnName);
+          if (!dnDomain.isEmpty()) {
+            return IdentityUtil.getFirstDomainFromDN(dnDomain) + "\\"
+                + userObj.getUserLoginName();
           }
+          // Else fall-through to use windows_domain.
+        } catch (InvalidNameException e) {
+          logger.log(Level.FINE,
+              "Invalid DN " + dnName + " for user: " + userName, e);
+          return null;
         }
       }
+
+      String userLoginName;
+      String windowsDomain = traversalManager.getWindowsDomain();
+      if (!Strings.isNullOrEmpty(windowsDomain) && !userObj.isGroup()) {
+        logger.log(Level.FINEST,
+            "using configured domain: {0} for unsynchronized user {1}",
+            new String[] {windowsDomain, userName});
+        userLoginName = windowsDomain + "\\" + userObj.getUserLoginName();
+      } else {
+        userLoginName = userObj.getUserLoginName();
+      }
+      return userLoginName;
     } catch (RepositoryException e) {
       logger.finer(e.getMessage());
       logger.info("error getting user login name for: " + userName);
       throw e;
     }
-    return userLoginName;
   }
 
   private String getUserNamespace(String usergroup)

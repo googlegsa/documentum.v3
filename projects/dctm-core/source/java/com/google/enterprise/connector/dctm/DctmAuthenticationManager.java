@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -143,12 +143,15 @@ public class DctmAuthenticationManager implements AuthenticationManager {
 
       if (!domainName.isEmpty()) {
         queryBuff.append(" and (user_source = 'LDAP'");
-        queryBuff.append(" and LOWER(user_ldap_dn) like '%,");
+        queryBuff.append(" and (LOWER(user_ldap_dn) like '%,");
         queryBuff.append(DqlUtils.escapePattern(domainName.toString(), '\\'));
         if (domainName.size() == 1) { // NetBIOS domain
           queryBuff.append(",%");
         }
         queryBuff.append("' escape '\\'");
+        // This check for no DC RDNs is not syntax-aware and will skip
+        // valid but unlikely DNs like "...ou=\,dc=acme,...".
+        queryBuff.append(" or LOWER(user_ldap_dn) not like '%,dc=%')");
 
         String windowsDomain = connector.getWindowsDomain();
         if (!Strings.isNullOrEmpty(windowsDomain)) {
@@ -227,18 +230,10 @@ public class DctmAuthenticationManager implements AuthenticationManager {
    */
   private boolean domainMatchesUser(LdapName domainName, String userDn) {
     try {
-      // Extract the DC RDNs from the userDn.
-      LdapName userName = new LdapName(userDn);
-      ArrayList<Rdn> userDnDomain = new ArrayList<Rdn>(userName.size());
-      for (Rdn rdn : userName.getRdns()) {
-        if (rdn.getType().equalsIgnoreCase("dc")) {
-          userDnDomain.add(rdn);
-        }
-      }
-
       // LDAP numbers RDNs from right to left, and we want a match on
       // the left (starting with the subdomain), that is, on the end.
-      return new LdapName(userDnDomain).endsWith(domainName);
+      LdapName userDnDomain = IdentityUtil.getDomainComponents(userDn);
+      return userDnDomain.isEmpty() || userDnDomain.endsWith(domainName);
     } catch (InvalidNameException e) {
       LOGGER.log(Level.WARNING,
           "Error matching domain " + domainName + " for user " + userDn, e);

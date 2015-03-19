@@ -386,6 +386,36 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     testDomainFail("ldapuser", "acme.example%");
   }
 
+  public void testLdapDomain_nodc() throws Exception {
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "uid=ajax,o=ajax,o=example,o=com");
+    insertGroup("ldapgroup", "ajaxuser");
+
+    testGroupLookup("ldapuser", "acme", "ldapgroup");
+  }
+
+  public void testLdapDomain_nodc_duplicate() throws Exception {
+    insertUser("acmeuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=acme,dc=example,dc=com");
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "uid=n314159,o=ajax,o=example,o=com");
+    insertGroup("ldapgroup", "acmeuser");
+    insertGroup("ldapgroup", "ajaxuser");
+
+    testGroupLookupFail("ldapuser", "acme");
+  }
+
+  /**
+   * This fails because ",dc=acme" looks to the DQL like a non-matching DC RDN.
+   */
+  public void testLdapDomain_nodc_escaping() throws Exception {
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "CN=LDAP User,ou=\\,dc=acme,o=example,o=com");
+    insertGroup("ldapgroup", "ajaxuser");
+
+    testGroupLookupFail("ldapuser", "ajax");
+  }
+
   protected void windowsDomainSetUp(String windowsDomain)
       throws RepositoryException, SQLException {
     connector.setWindows_domain(windowsDomain);
@@ -416,6 +446,18 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     insertUser("golf", "dan", "LDAP",
         "CN=LDAP User,dc=ajax,dc=example,dc=com,dc=au");
     insertGroup("danAussie", "golf");
+
+    insertUser("hotel", "frank", "LDAP", "uid=n314159,o=example,o=intranet");
+    insertGroup("frankLdap", "hotel");
+
+    insertUser("india", "gina", "", "");
+    insertGroup("ginaLocal", "india");
+
+    insertUser("juliett", "gina", "LDAP", "uid=n314159,o=example,o=intranet");
+    insertGroup("ginaLdap", "juliett");
+
+    insertUser("kilo", "henry", "LDAP", "cn=LDAP User,=,");
+    insertGroup("henryLdap", "kilo");
   }
 
   public void testWindowsDomain_local_empty_empty()
@@ -542,6 +584,30 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
       throws Exception {
     windowsDomainSetUp("ajax");
     testGroupLookupFail("erin", "ajax.example.com");
+  }
+
+  /** Succeeds because frank's DN has no DC RDNs, so windows_domain is used. */
+  public void testWindowsDomain_nodc()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookup("frank", "ajax.example.com", "frankLdap");
+  }
+
+  /**
+   * Fails because gina matches the local user and the LDAP user with
+   * no DC RDN.
+   */
+  public void testWindowsDomain_nodc_duplicate()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("gina", "ajax");
+  }
+
+  /** Fails because DN cannot be parsed. */
+  public void testWindowsDomain_invalid()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("henry", "ajax");
   }
 
   private Collection<String> toStrings(Collection<?> groups) {
