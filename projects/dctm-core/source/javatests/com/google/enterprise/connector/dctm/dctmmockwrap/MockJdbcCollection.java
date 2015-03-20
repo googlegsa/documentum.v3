@@ -22,7 +22,6 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 

@@ -52,14 +52,10 @@ public class DmInitialize {
 
   public static final String DM_WEBTOP_SERVER_URL = "http://swp-vm-wt:8080/webtop/drl/objectId/";
 
-  public static final String DM_CHECKPOINT_QUERY_STRING = " and ((r_modify_date = date('2007-01-02 13:58:10','yyyy-mm-dd hh:mi:ss')  and r_object_id > '090000018000e100') OR ( r_modify_date > date('2007-01-02 13:58:10','yyyy-mm-dd hh:mi:ss')))";
-
   public static final String DM_CHECKPOINT = "{\"uuid\":\"0900000180041d34\",\"lastModified\":\"2007-04-19 15:28:16\"}";
 
   public static final String DM_QUERY_STRING_ENABLE = "select i_chronicle_id, r_object_id, r_modify_date from dm_sysobject where r_object_type='dm_document'"
       + "order by r_modify_date, i_chronicle_id ENABLE (return_top 50)";
-
-  public static final String DM_FAlSE_PWD = "false";
 
   public static final String DM_ID1 = "0900000180041d34";
 
@@ -88,8 +84,6 @@ public class DmInitialize {
   public static final int DM_DEFAULT_ATTRS = 0;
 
   public static final int DM_ID2_SIZE = 16;
-
-  public static final String DM_FIRST_ATTR = "google:ispublic";
 
   public static final String DM_INCLUDED_META = "object_name r_object_type title subject keywords authors r_creation_date r_modify_date";
   public static final String DM_INCLUDED_OBJECT_TYPE = "dm_document custom_type";

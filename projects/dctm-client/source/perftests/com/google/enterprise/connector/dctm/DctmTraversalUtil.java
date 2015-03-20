@@ -29,9 +29,8 @@ import com.google.enterprise.connector.util.filter.DocumentFilterChain;
 import java.net.MalformedURLException;
 
 public class DctmTraversalUtil {
-  public static void runTraversal(TraversalManager queryTraversalManager,
-      int batchHint) throws RepositoryException, PushException, FeedException {
-    DctmTraversalManager dctmTM = (DctmTraversalManager) queryTraversalManager;
+  public static void runTraversal(TraversalManager dctmTM, int batchHint)
+      throws RepositoryException, PushException, FeedException {
     dctmTM.setBatchHint(batchHint);
     System.out.println(batchHint);
 

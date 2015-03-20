@@ -17,11 +17,10 @@ package com.google.enterprise.connector.dctm;
 import com.google.common.collect.ImmutableList;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
+import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
-import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.Principal;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 
@@ -32,26 +31,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class DctmMockAuthenticationManagerTest extends TestCase {
-  DctmAuthenticationManager authentManager;
+  AuthenticationManager authentManager;
 
+  private DctmConnector connector;
   private final JdbcFixture jdbcFixture = new JdbcFixture();
+
+  protected void setupConnectorConfig()
+      throws RepositoryException, SQLException {
+    connector = new DctmConnector();
+    connector.setLogin(DmInitialize.DM_LOGIN_OK1);
+    connector.setPassword(DmInitialize.DM_PWD_OK1);
+    connector.setDocbase(DmInitialize.DM_DOCBASE);
+    connector.setClientX(DmInitialize.DM_CLIENTX);
+    connector.setGoogleGlobalNamespace("global");
+    connector.setGoogleLocalNamespace("local");
+    connector.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+    connector.setIs_public("true");
+  }
 
   @Override
   protected void setUp() throws RepositoryException, SQLException {
-    Connector connector = new DctmConnector();
-    ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
-    ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
-    ((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
-    ((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
-    ((DctmConnector) connector).setGoogleGlobalNamespace("global");
-    ((DctmConnector) connector).setGoogleLocalNamespace("local");
-    ((DctmConnector) connector)
-        .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-    ((DctmConnector) connector).setIs_public("true");
-    Session sess = (DctmSession) connector.login();
-
-    authentManager = (DctmAuthenticationManager) sess
-        .getAuthenticationManager();
+    setupConnectorConfig();
+    Session sess = connector.login();
+    authentManager = sess.getAuthenticationManager();
 
     jdbcFixture.setUp();
   }
@@ -382,6 +384,230 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
   /** The post-processing using LdapName also blocks this. */
   public void testSqlInjection_domain() throws Exception {
     testDomainFail("ldapuser", "acme.example%");
+  }
+
+  public void testLdapDomain_nodc() throws Exception {
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "uid=ajax,o=ajax,o=example,o=com");
+    insertGroup("ldapgroup", "ajaxuser");
+
+    testGroupLookup("ldapuser", "acme", "ldapgroup");
+  }
+
+  public void testLdapDomain_nodc_duplicate() throws Exception {
+    insertUser("acmeuser", "ldapuser", "LDAP",
+        "CN=LDAP User,dc=acme,dc=example,dc=com");
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "uid=n314159,o=ajax,o=example,o=com");
+    insertGroup("ldapgroup", "acmeuser");
+    insertGroup("ldapgroup", "ajaxuser");
+
+    testGroupLookupFail("ldapuser", "acme");
+  }
+
+  /**
+   * This fails because ",dc=acme" looks to the DQL like a non-matching DC RDN.
+   */
+  public void testLdapDomain_nodc_escaping() throws Exception {
+    insertUser("ajaxuser", "ldapuser", "LDAP",
+        "CN=LDAP User,ou=\\,dc=acme,o=example,o=com");
+    insertGroup("ldapgroup", "ajaxuser");
+
+    testGroupLookupFail("ldapuser", "ajax");
+  }
+
+  protected void windowsDomainSetUp(String windowsDomain)
+      throws RepositoryException, SQLException {
+    connector.setWindows_domain(windowsDomain);
+    Session sess = connector.login();
+    authentManager = sess.getAuthenticationManager();
+
+    insertUser("alfa", "alice", "", "");
+    insertGroup("aliceLocal", "alfa");
+
+    insertUser("bravo", "bob", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertGroup("bobLdap", "bravo");
+
+    insertUser("charlie", "carol", "", "");
+    insertGroup("carolLocal", "charlie");
+
+    insertUser("delta", "carol", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertGroup("carolLdap", "delta");
+
+    insertUser("echo", "carol", "unixfirst", "");
+    insertGroup("carolUnixfirst", "echo");
+
+    insertUser("foxtrot", "dan", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com");
+    insertGroup("danLdap", "foxtrot");
+
+    insertUser("golf", "dan", "LDAP",
+        "CN=LDAP User,dc=ajax,dc=example,dc=com,dc=au");
+    insertGroup("danAussie", "golf");
+
+    insertUser("hotel", "frank", "LDAP", "uid=n314159,o=example,o=intranet");
+    insertGroup("frankLdap", "hotel");
+
+    insertUser("india", "gina", "", "");
+    insertGroup("ginaLocal", "india");
+
+    insertUser("juliett", "gina", "LDAP", "uid=n314159,o=example,o=intranet");
+    insertGroup("ginaLdap", "juliett");
+
+    insertUser("kilo", "henry", "LDAP", "cn=LDAP User,=,");
+    insertGroup("henryLdap", "kilo");
+  }
+
+  public void testWindowsDomain_local_empty_empty()
+      throws Exception {
+    windowsDomainSetUp("");
+    testGroupLookup("alice", "", "aliceLocal");
+  }
+
+  public void testWindowsDomain_local_empty_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookup("alice", "", "aliceLocal");
+  }
+
+  public void testWindowsDomain_local_ajax_empty()
+      throws Exception {
+    windowsDomainSetUp("");
+    testGroupLookupFail("alice", "ajax");
+  }
+
+  public void testWindowsDomain_local_ajax_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookup("alice", "ajax", "aliceLocal");
+  }
+
+  public void testWindowsDomain_local_dns_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookup("alice", "ajax.example.com", "aliceLocal");
+  }
+
+  public void testWindowsDomain_local_dns_acme()
+      throws Exception {
+    windowsDomainSetUp("acme");
+    testGroupLookupFail("alice", "ajax.example.com");
+  }
+
+  public void testWindowsDomain_ldap_empty_empty()
+      throws Exception {
+    windowsDomainSetUp("");
+    testGroupLookup("bob", "", "bobLdap");
+  }
+
+  public void testWindowsDomain_ldap_empty_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookup("bob", "", "bobLdap");
+  }
+
+  public void testWindowsDomain_ldap_ajax_empty()
+      throws Exception {
+    windowsDomainSetUp("");
+    testGroupLookup("bob", "ajax", "bobLdap");
+  }
+
+  public void testWindowsDomain_ldap_dns_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookup("bob", "ajax.example.com", "bobLdap");
+  }
+
+  public void testWindowsDomain_dns_acme()
+      throws Exception {
+    windowsDomainSetUp("acme");
+    testGroupLookup("bob", "ajax.example.com", "bobLdap");
+  }
+
+  public void testWindowsDomain_ldap_acme_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("bob", "acme");
+  }
+
+  public void testWindowsDomain_ldap_acme_acme()
+      throws Exception {
+    windowsDomainSetUp("acme");
+    testGroupLookupFail("bob", "acme");
+  }
+
+  public void testWindowsDomain_duplicate_empty_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("carol", "");
+  }
+
+  public void testWindowsDomain_duplicate_ajax_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("carol", "ajax");
+  }
+
+  public void testWindowsDomain_duplicate_acme_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("carol", "acme");
+  }
+
+  public void testWindowsDomain_duplicate_acme_acme()
+      throws Exception {
+    windowsDomainSetUp("acme");
+    testGroupLookup("carol", "acme", "carolLocal");
+  }
+
+  public void testWindowsDomain_aussie_dns_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookup("dan", "ajax.example.com", "danLdap");
+  }
+
+  public void testWindowsDomain_nonexisting_empty_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("erin", "");
+  }
+
+  public void testWindowsDomain_nonexisting_ajax_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("erin", "ajax");
+  }
+
+  public void testWindowsDomain_nonexisting_dns_ajax()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("erin", "ajax.example.com");
+  }
+
+  /** Succeeds because frank's DN has no DC RDNs, so windows_domain is used. */
+  public void testWindowsDomain_nodc()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookup("frank", "ajax.example.com", "frankLdap");
+  }
+
+  /**
+   * Fails because gina matches the local user and the LDAP user with
+   * no DC RDN.
+   */
+  public void testWindowsDomain_nodc_duplicate()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("gina", "ajax");
+  }
+
+  /** Fails because DN cannot be parsed. */
+  public void testWindowsDomain_invalid()
+      throws Exception {
+    windowsDomainSetUp("ajax");
+    testGroupLookupFail("henry", "ajax");
   }
 
   private Collection<String> toStrings(Collection<?> groups) {

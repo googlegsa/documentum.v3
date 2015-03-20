@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2009 Google Inc.
+// Copyright 2006 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
 import com.google.enterprise.connector.dctm.dfcwrap.IQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
-import com.google.enterprise.connector.dctm.dfcwrap.IUser;
 import com.google.enterprise.connector.spi.AuthenticationIdentity;
 import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
@@ -140,16 +139,33 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       queryBuff.append("select user_name, user_ldap_dn from ");
       queryBuff.append("dm_user where user_login_name = '");
       queryBuff.append(DqlUtils.escapeString(userLoginName));
+      queryBuff.append("'");
+
       if (!domainName.isEmpty()) {
-        queryBuff.append("' and user_source = 'LDAP'");
-        queryBuff.append(" and LOWER(user_ldap_dn) like '%,");
+        queryBuff.append(" and (user_source = 'LDAP'");
+        queryBuff.append(" and (LOWER(user_ldap_dn) like '%,");
         queryBuff.append(DqlUtils.escapePattern(domainName.toString(), '\\'));
         if (domainName.size() == 1) { // NetBIOS domain
           queryBuff.append(",%");
         }
-        queryBuff.append("' escape '\\");
+        queryBuff.append("' escape '\\'");
+        // This check for no DC RDNs is not syntax-aware and will skip
+        // valid but unlikely DNs like "...ou=\,dc=acme,...".
+        queryBuff.append(" or LOWER(user_ldap_dn) not like '%,dc=%')");
+
+        String windowsDomain = connector.getWindowsDomain();
+        if (!Strings.isNullOrEmpty(windowsDomain)) {
+          String dumbedDownDomain =
+              domainName.getRdn(domainName.size() - 1).toString().substring(3);
+          queryBuff.append(" or user_source = '' and '");
+          queryBuff.append(DqlUtils.escapeString(dumbedDownDomain));
+          queryBuff.append("' = '");
+          queryBuff.append(DqlUtils.escapeString(windowsDomain));
+          queryBuff.append("'");
+        }
+        queryBuff.append(")");
       }
-      queryBuff.append("'");
+      LOGGER.log(Level.FINER, "username query: {0}", queryBuff);
 
       IQuery query = clientX.getQuery();
       query.setDQL(queryBuff.toString());
@@ -162,7 +178,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
         ArrayList<String> matches = new ArrayList<String>();
         while (users.next()) {
           String userLdapDn = users.getString("user_ldap_dn");
-          if (domainName.isEmpty()
+          if (domainName.isEmpty() || Strings.isNullOrEmpty(userLdapDn)
               || domainMatchesUser(domainName, userLdapDn)) {
             matches.add(users.getString("user_name"));
           } else if (LOGGER.isLoggable(Level.FINEST)) {
@@ -214,18 +230,10 @@ public class DctmAuthenticationManager implements AuthenticationManager {
    */
   private boolean domainMatchesUser(LdapName domainName, String userDn) {
     try {
-      // Extract the DC RDNs from the userDn.
-      LdapName userName = new LdapName(userDn);
-      ArrayList<Rdn> userDnDomain = new ArrayList<Rdn>(userName.size());
-      for (Rdn rdn : userName.getRdns()) {
-        if (rdn.getType().equalsIgnoreCase("dc")) {
-          userDnDomain.add(rdn);
-        }
-      }
-
       // LDAP numbers RDNs from right to left, and we want a match on
       // the left (starting with the subdomain), that is, on the end.
-      return new LdapName(userDnDomain).endsWith(domainName);
+      LdapName userDnDomain = IdentityUtil.getDomainComponents(userDn);
+      return userDnDomain.isEmpty() || userDnDomain.endsWith(domainName);
     } catch (InvalidNameException e) {
       LOGGER.log(Level.WARNING,
           "Error matching domain " + domainName + " for user " + userDn, e);

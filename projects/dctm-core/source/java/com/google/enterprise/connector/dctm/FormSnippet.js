@@ -26,9 +26,7 @@ function clickAdvancedConfiguration(checkbox, isRendered) {
 /** Submits the form to be redisplayed. */
 function redisplayFormSnippet() {
   document.getElementById('action_update').value = 'redisplay';
-  document.body.style.cursor = 'wait';
-  document.getElementsByTagName('input')[
-      document.getElementsByTagName('input').length - 1].click();
+  document.getElementsByName('setConfig')[0].click();
 }
 
 /**

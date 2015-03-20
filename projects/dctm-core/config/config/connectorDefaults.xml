@@ -10,6 +10,7 @@
 
     <!-- OVERRIDE THESE PROPERTIES WITH CAUTION BY COPYING TO connectorInstance.xml -->
     <property name="excluded_meta"><set></set></property>
+    <property name="windows_domain" value=""/>
 
     <!-- DO NOT OVERRIDE PROPERTIES BELOW THIS LINE -->
     <property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX" />

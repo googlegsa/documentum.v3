@@ -77,6 +77,7 @@ public class DctmTraversalManager
   private final String rootObjectType;
   private final String globalNamespace;
   private final String localNamespace;
+  private final String windowsDomain;
 
   public DctmTraversalManager(DctmConnector connector,
       ISessionManager sessionManager) throws RepositoryException {
@@ -86,7 +87,8 @@ public class DctmTraversalManager
         connector.getIncludedObjectType(), connector.getIncludedMeta(),
         connector.getExcludedMeta(),
         connector.getGoogleGlobalNamespace(),
-        connector.getGoogleLocalNamespace(), sessionManager);
+        connector.getGoogleLocalNamespace(),
+        connector.getWindowsDomain(), sessionManager);
   }
 
   /** Constructor used by tests. */
@@ -94,7 +96,7 @@ public class DctmTraversalManager
       String webtopServerUrl, Set<String> included_meta,
       ISessionManager sessionManager) throws RepositoryException {
     this(clientX, docbase, webtopServerUrl, EMPTY_LIST, true, "", EMPTY_SET,
-        included_meta, EMPTY_SET, null, null, sessionManager); 
+        included_meta, EMPTY_SET, null, null, null, sessionManager); 
     //Srinivas TODO: add global, local name space for tests
   }
 
@@ -102,7 +104,7 @@ public class DctmTraversalManager
       String webtopServerUrl, List<String> additionalWhereClause,
       boolean isPublic, String rootObjectType, Set<String> includedObjectType,
       Set<String> includedMeta, Set<String> excludedMeta,
-      String globalnamespace, String localnamespace,
+      String globalnamespace, String localnamespace, String windowsDomain,
       ISessionManager sessionManager) throws RepositoryException {
     this.additionalWhereClause = additionalWhereClause;
     this.clientX = clientX;
@@ -117,6 +119,7 @@ public class DctmTraversalManager
     this.rootObjectType = rootObjectType;
     this.globalNamespace = globalnamespace;
     this.localNamespace = localnamespace;
+    this.windowsDomain = windowsDomain;
   }
 
   IClientX getClientX() {
@@ -172,6 +175,9 @@ public class DctmTraversalManager
     return localNamespace;
   }
 
+  public String getWindowsDomain() {
+    return windowsDomain;
+  }
   /**
    * Starts (or restarts) traversal from the beginning. This action will
    * return objects starting from the very oldest, or with the smallest IDs,
@@ -319,33 +325,18 @@ public class DctmTraversalManager
         // No documents to add or delete. Return a null DocumentList,
         // but close the collections and release the session first.
         try {
-          if (collecAclToAdd != null) {
-            try {
-              collecAclToAdd.close();
-              logger.fine("collection of documents to add closed");
-            } catch (RepositoryException e) {
-              logger.severe("Error while closing the collection of Acls"
-                  + " to add: " + e);
-            }
-          }
-          if (collecToAdd != null) {
-            try {
-              collecToAdd.close();
-              logger.fine("collection of documents to add closed");
-            } catch (RepositoryException e) {
-              logger.severe("Error while closing the collection of documents"
-                  + " to add: " + e);
-            }
-          }
-          if (collecToDel != null) {
-            try {
-              collecToDel.close();
-              logger.fine("collection of documents to delete closed");
-            } catch (RepositoryException e) {
-              logger.severe("Error while closing the collection of documents"
-                  + " to delete: " + e);
-            }
-          }
+          closeCollection(collecAclToAdd,
+              "collection of ACLs to add closed",
+              "Error while closing the collection of ACLs to add");
+          closeCollection(collecAclToModify,
+              "collection of ACLs to modify closed",
+              "Error while closing the collection of ACLs to modify");
+          closeCollection(collecToAdd,
+              "collection of documents to add closed",
+              "Error while closing the collection of documents to add");
+          closeCollection(collecToDel,
+              "collection of documents to delete closed",
+              "Error while closing the collection of documents to delete");
         } finally {
           if (session != null) {
             sessionManager.release(session);
@@ -357,12 +348,24 @@ public class DctmTraversalManager
     return documentList;
   }
 
+  private void closeCollection(ICollection collection, String message,
+      String errorMessage) {
+    if (collection != null) {
+      try {
+        collection.close();
+        logger.fine(message);
+      } catch (RepositoryException e) {
+        logger.severe(errorMessage + ": " + e);
+      }
+    }
+  }
+
   protected Checkpoint forgeStartCheckpoint() {
     Checkpoint checkpoint = new Checkpoint(additionalWhereClause);
     // Only consider delete actions that occur from this moment onward.
-    checkpoint.setDeleteCheckpoint(new Date(), null);
+    checkpoint.setDeleteCheckpoint(dateFormat.format(new Date()), null);
     // Only consider ACL changes that occur from this moment onward.
-    checkpoint.setAclModifyCheckpoint(new Date(), null);
+    checkpoint.setAclModifyCheckpoint(dateFormat.format(new Date()), null);
     return checkpoint;
   }
 
@@ -377,8 +380,8 @@ public class DctmTraversalManager
     baseQueryString(queryStr, checkpoint);
     if (checkpoint.getInsertId() != null
         && checkpoint.getInsertDate() != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.getInsertDate()),
-                             checkpoint.getInsertId() };
+      Object[] arguments =
+          {checkpoint.getInsertDate(), checkpoint.getInsertId()};
       queryStr.append(MessageFormat.format(whereBoundedClause, arguments));
     }
     queryStr.append(" order by r_modify_date,r_object_id");
@@ -399,7 +402,9 @@ public class DctmTraversalManager
   }
 
   protected void baseQueryString(StringBuilder query, Checkpoint checkpoint) {
-    query.append("select i_chronicle_id, r_object_id, r_modify_date from ");
+    query.append("select i_chronicle_id, r_object_id, r_modify_date, ");
+    query.append("DATETOSTRING(r_modify_date, 'yyyy-mm-dd hh:mi:ss') ");
+    query.append("as r_modify_date_str from ");
     query.append(rootObjectType);
     query.append(" where ");
     if (!includedObjectType.isEmpty()) {
@@ -419,12 +424,14 @@ public class DctmTraversalManager
 
   protected IQuery buildDelQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder(
-        "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc "
+        "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc, "
+        + "DATETOSTRING(time_stamp_utc, 'yyyy-mm-dd hh:mi:ss') "
+        + "as time_stamp_utc_str "
         + "from dm_audittrail "
         + "where (event_name='dm_destroy' or event_name='dm_prune')");
     if (checkpoint.getDeleteDate() != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.getDeleteDate()),
-                             checkpoint.getDeleteId() };
+      Object[] arguments =
+          {checkpoint.getDeleteDate(), checkpoint.getDeleteId()};
       queryStr.append(MessageFormat.format(
           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly : whereBoundedClauseRemove,
           arguments));
@@ -455,13 +462,16 @@ public class DctmTraversalManager
   protected IQuery buildAclModifyQuery(Checkpoint checkpoint) {
     StringBuilder queryStr = new StringBuilder(
         "select r_object_id, chronicle_id, audited_obj_id, event_name, "
-        + "time_stamp_utc from dm_audittrail_acl "
+        + "time_stamp_utc, "
+        + "DATETOSTRING(time_stamp_utc, 'yyyy-mm-dd hh:mi:ss') "
+        + "as time_stamp_utc_str "
+        + "from dm_audittrail_acl "
         + "where (event_name='dm_save' or event_name='dm_saveasnew' "
         + "or event_name='dm_destroy')");
 
     if (checkpoint.getAclModifiedDate() != null) {
-      Object[] arguments = { dateFormat.format(checkpoint.getAclModifiedDate()),
-                             checkpoint.getAclModifyId() };
+      Object[] arguments =
+          {checkpoint.getAclModifiedDate(), checkpoint.getAclModifyId()};
       queryStr.append(MessageFormat.format(
           (arguments[1] == null) ? whereBoundedClauseRemoveDateOnly
               : whereBoundedClauseRemove, arguments));

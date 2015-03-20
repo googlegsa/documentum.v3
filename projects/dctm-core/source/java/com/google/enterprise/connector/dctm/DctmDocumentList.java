@@ -69,16 +69,19 @@ public class DctmDocumentList implements DocumentList {
 
           String objId = "";
           ITime modifyDate = null;
+          String modifyDateToStr;
           try {
             objId = collectionToAdd.getString("r_object_id");
             modifyDate = collectionToAdd.getTime("r_modify_date");
+            modifyDateToStr =
+                collectionToAdd.getString("r_modify_date_str");
             logger.fine("r_object_id is " + objId + "  modifyDate is "
-                        + modifyDate.getDate());
+                        + modifyDateToStr);
           } catch (RepositoryException e) {
             logger.severe("impossible to get the r_object_id of the document");
             return null;
           }
-          checkpoint.setInsertCheckpoint(modifyDate.getDate(), objId);
+          checkpoint.setInsertCheckpoint(modifyDateToStr, objId);
 
           dctmSysobjectDocument = new DctmSysobjectDocument(traversalManager,
               session, objId, collectionToAdd.getString("i_chronicle_id"),
@@ -91,16 +94,19 @@ public class DctmDocumentList implements DocumentList {
 
           String eventId = "";
           ITime deleteDate = null;
+          String deleteDateToStr;
           try {
             eventId = collectionToDel.getString("r_object_id");
             deleteDate = collectionToDel.getTime("time_stamp_utc");
+            deleteDateToStr =
+                collectionToDel.getString("time_stamp_utc_str");
             logger.fine("delete event r_object_id is " + eventId
-                        + "  deleteDate is " + deleteDate.getDate());
+                        + "  deleteDate is " + deleteDateToStr);
           } catch (RepositoryException e) {
             logger.warning("impossible to get the r_object_id of the delete event");
             return null;
           }
-          checkpoint.setDeleteCheckpoint(deleteDate.getDate(), eventId);
+          checkpoint.setDeleteCheckpoint(deleteDateToStr, eventId);
 
           String chronicleId = collectionToDel.getString("chronicle_id");
 
