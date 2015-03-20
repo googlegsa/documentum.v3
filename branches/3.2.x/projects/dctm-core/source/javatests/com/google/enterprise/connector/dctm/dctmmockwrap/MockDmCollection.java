@@ -20,7 +20,9 @@ import com.google.enterprise.connector.dctm.dfcwrap.ITime;
 import com.google.enterprise.connector.dctm.dfcwrap.IValue;
 import com.google.enterprise.connector.spi.RepositoryException;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -62,6 +64,13 @@ public class MockDmCollection implements ICollection {
       if (colName.equals("r_object_id")
           || colName.equals("i_chronicle_id")) {
         colName = "jcr:uuid";
+      } else if (colName.equals("r_modify_date_str")) {
+        colName = "jcr:lastModified";
+        Date modifiedDate =
+            currentNode.getProperty(colName).getDate().getTime();
+        SimpleDateFormat formatter =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return formatter.format(modifiedDate);
       }
 
       Property tmp = currentNode.getProperty(colName);

@@ -17,7 +17,6 @@ package com.google.enterprise.connector.dctm;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.spi.Connector;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.Session;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,6 +55,8 @@ public class DctmConnector implements Connector {
 
   private String localNamespace;
 
+  private String windowsDomain;
+
   public DctmConnector() {
   }
 
@@ -63,7 +64,7 @@ public class DctmConnector implements Connector {
   }
 
   @Override
-  public Session login() throws RepositoryException {
+  public DctmSession login() throws RepositoryException {
     logger.log(Level.CONFIG, "login in the docbase " + docbase + " and user "
         + login + " " + clientX + " " + docbase + " "
         + webtopDisplayUrl + " " + whereClause + " "
@@ -152,6 +153,16 @@ public class DctmConnector implements Connector {
 
   String getGoogleLocalNamespace() {
     return localNamespace;
+  }
+
+  public void setWindows_domain(String windowsDomain) {
+    this.windowsDomain = windowsDomain;
+    logger.log(Level.CONFIG, "windows domain set to: " + windowsDomain);
+  }
+
+  /** Gets the Windows domain name to be used for user authentication. */
+  String getWindowsDomain() {
+    return windowsDomain;
   }
 
   /*

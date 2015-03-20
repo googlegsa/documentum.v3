@@ -14,7 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
-import com.google.enterprise.connector.spi.Connector;
+import com.google.enterprise.connector.spi.AuthenticationManager;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
@@ -27,21 +27,18 @@ public class DctmAuthenticationManagerTest extends TestCase {
    * 'com.google.enterprise.connector.dctm.DctmAuthenticationManager.authenticate(String,
    * String)'
    */
-
   public void testAuthenticate() throws RepositoryException {
-    Connector connector = new DctmConnector();
-    ((DctmConnector) connector).setLogin(DmInitialize.DM_LOGIN_OK1);
-    ((DctmConnector) connector).setPassword(DmInitialize.DM_PWD_OK1);
-    ((DctmConnector) connector).setDocbase(DmInitialize.DM_DOCBASE);
-    ((DctmConnector) connector).setClientX(DmInitialize.DM_CLIENTX);
-    ((DctmConnector) connector)
-        .setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
-    ((DctmConnector) connector).setIs_public("false");
+    DctmConnector connector = new DctmConnector();
+    connector.setLogin(DmInitialize.DM_LOGIN_OK1);
+    connector.setPassword(DmInitialize.DM_PWD_OK1);
+    connector.setDocbase(DmInitialize.DM_DOCBASE);
+    connector.setClientX(DmInitialize.DM_CLIENTX);
+    connector.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
+    connector.setIs_public("false");
 
-    Session sess = (DctmSession) connector.login();
+    Session sess = connector.login();
 
-    DctmAuthenticationManager authentManager = (DctmAuthenticationManager) sess
-        .getAuthenticationManager();
+    AuthenticationManager authentManager = sess.getAuthenticationManager();
 
     assertTrue(authentManager.authenticate(
         new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK1,
@@ -55,10 +52,9 @@ public class DctmAuthenticationManagerTest extends TestCase {
     assertFalse(authentManager.authenticate(
         new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK2,
             DmInitialize.DM_PWD_KO)).isValid());
-    assertFalse(authentManager
-        .authenticate(
-            new SimpleAuthenticationIdentity(
-                DmInitialize.DM_LOGIN_OK2, null)).isValid());
+    assertFalse(authentManager.authenticate(
+        new SimpleAuthenticationIdentity(
+            DmInitialize.DM_LOGIN_OK2, null)).isValid());
     assertTrue(authentManager.authenticate(
         new SimpleAuthenticationIdentity(DmInitialize.DM_LOGIN_OK3,
             DmInitialize.DM_PWD_OK3)).isValid());

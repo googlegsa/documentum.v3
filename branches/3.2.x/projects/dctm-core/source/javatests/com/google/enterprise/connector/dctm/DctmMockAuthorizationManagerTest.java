@@ -15,10 +15,8 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
-import com.google.enterprise.connector.spi.AuthorizationManager;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.RepositoryException;
-import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 
 import junit.framework.Assert;
@@ -31,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DctmMockAuthorizationManagerTest extends TestCase {
-  private AuthorizationManager authorizationManager;
+  private DctmAuthorizationManager authorizationManager;
 
   protected void setUp() throws RepositoryException {
     DctmConnector connector = new DctmConnector();
@@ -41,7 +39,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
     connector.setClientX(DmInitialize.DM_CLIENTX);
     connector.setWebtop_display_url(DmInitialize.DM_WEBTOP_SERVER_URL);
     connector.setIs_public("false");
-    Session sess = connector.login();
+    DctmSession sess = connector.login();
     authorizationManager = sess.getAuthorizationManager();
     assertNotNull(authorizationManager);
   }
@@ -52,9 +50,7 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
       docidList.add("xyzzy" + i);
     }
 
-    DctmAuthorizationManager out =
-        (DctmAuthorizationManager) authorizationManager;
-    String queryString = out.buildQueryString(docidList);
+    String queryString = authorizationManager.buildQueryString(docidList);
 
     assertEquals(queryString, containsOr,
         queryString.contains(DctmAuthorizationManager.QUERY_STRING_OR));

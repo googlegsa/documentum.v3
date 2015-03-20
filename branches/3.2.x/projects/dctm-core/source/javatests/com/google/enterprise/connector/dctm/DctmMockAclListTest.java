@@ -25,10 +25,9 @@ import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 import com.google.enterprise.connector.spi.SpiConstants;
-import com.google.enterprise.connector.spi.TraversalManager;
-import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spi.SpiConstants.CaseSensitivityType;
 import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
+import com.google.enterprise.connector.spi.Value;
 import com.google.enterprise.connector.spiimpl.PrincipalValue;
 
 import junit.framework.TestCase;
@@ -43,7 +42,7 @@ import java.util.Set;
 
 public class DctmMockAclListTest extends TestCase {
   private DctmConnector connector = null;
-  private TraversalManager qtm = null;
+  private DctmTraversalManager qtm = null;
 
   private DctmSession dctmSession = null;
 
@@ -67,13 +66,12 @@ public class DctmMockAclListTest extends TestCase {
     connector.setIncluded_meta(DmInitialize.DM_INCLUDED_META);
     connector.setGoogleLocalNamespace(DmInitialize.DM_LOCAL_NAMESPACE);
     connector.setGoogleGlobalNamespace(DmInitialize.DM_GLOBAL_NAMESPACE);
-    dctmSession = (DctmSession) connector.login();
+    dctmSession = connector.login();
 
-    qtm = (DctmTraversalManager) dctmSession.getTraversalManager();
+    qtm = dctmSession.getTraversalManager();
     qtm.setBatchHint(2);
 
-    aclValues =
-        new HashMap<String, List<Value>>();
+    aclValues = new HashMap<String, List<Value>>();
     aclList = getAclListForTest();
 
     jdbcFixture.setUp();
@@ -88,12 +86,8 @@ public class DctmMockAclListTest extends TestCase {
     List<String> whereClauselist = new ArrayList<String>();
     Checkpoint checkpoint = new Checkpoint(whereClauselist);
     ISession session =
-        ((DctmTraversalManager) qtm).getSessionManager().getSession(
-            DmInitialize.DM_DOCBASE);
-    DctmAclList aclList =
-        new DctmAclList((DctmTraversalManager) qtm, session, null, null,
-            checkpoint);
-    return aclList;
+        qtm.getSessionManager().getSession(DmInitialize.DM_DOCBASE);
+    return new DctmAclList(qtm, session, null, null, checkpoint);
   }
 
   private void addAllowUserToAcl(MockDmAcl aclObj, String name) {
@@ -141,10 +135,32 @@ public class DctmMockAclListTest extends TestCase {
     }
   }
 
+  private void insertLdapUsers(String commonName, String domain,
+      String... names) throws SQLException {
+    for (String name : names) {
+      jdbcFixture.executeUpdate(String.format(
+          "insert into dm_user(user_name, user_login_name, user_source, "
+          + "user_ldap_dn) "
+          + "values('%s', '%s', 'LDAP', '%s%s,%s')",
+          name, name, commonName, name, domain));
+    }
+  }
+
+  /** Inserts LDAP users with no user_ldap_dn attribute. */
+  private void insertNullDnLdapUsers(String... names) throws SQLException {
+    for (String name : names) {
+      jdbcFixture.executeUpdate(String.format(
+          "insert into dm_user(user_name, user_login_name, user_source) "
+          + "values('%s', '%s', 'LDAP')",
+          name, name));
+    }
+  }
+
   private void insertGroup(String groupName, String... members)
       throws SQLException {
     jdbcFixture.executeUpdate(String.format(
-        "insert into dm_user(user_name) values('%s')", groupName));
+        "insert into dm_user(user_name, r_is_group) values('%s', TRUE)",
+        groupName));
     for (String user : members) {
       jdbcFixture.executeUpdate(String.format(
           "insert into dm_group(group_name, i_all_users_names) "
@@ -259,7 +275,7 @@ public class DctmMockAclListTest extends TestCase {
 
     aclList.processAcl(aclObj, aclValues);
     DctmAuthenticationManager authentManager =
-        (DctmAuthenticationManager) dctmSession.getAuthenticationManager();
+        dctmSession.getAuthenticationManager();
     AuthenticationResponse result =
         authentManager.authenticate(new SimpleAuthenticationIdentity(
             DmInitialize.DM_LOGIN_OK1, null));
@@ -283,7 +299,8 @@ public class DctmMockAclListTest extends TestCase {
 
     // get dm_world principal from group lookup
     Principal groupLookupPrincipal = null;
-    Collection<Principal> groups = (Collection<Principal>) result.getGroups();
+    @SuppressWarnings("unchecked") Collection<Principal> groups =
+        (Collection<Principal>) result.getGroups();
     for (Principal groupPrincipal : groups) {
       if (groupPrincipal.getName().equalsIgnoreCase("dm_world")) {
         groupLookupPrincipal = groupPrincipal;
@@ -291,5 +308,117 @@ public class DctmMockAclListTest extends TestCase {
       }
     }
     assertEquals(expectedPrincipal, groupLookupPrincipal);
+  }
+
+  public void testNonExistentAccessorsAcl() throws Exception {
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, "nope-user");
+    addAllowGroupToAcl(aclObj, "nope-group");
+    addDenyUserToAcl(aclObj, "not-here-user", IAcl.DF_PERMIT_READ);
+    addDenyGroupToAcl(aclObj, "not-here-group", IAcl.DF_PERMIT_READ);
+
+    aclList.processAcl(aclObj, aclValues);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
+  }
+
+  private void testLdapSetup(String commonName, String domain)
+      throws Exception {
+    insertLdapUsers(commonName, domain, "user1");
+    insertGroup("group1", "user2", "user3");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, "user1");
+    addAllowGroupToAcl(aclObj, "group1");
+
+    aclList.processAcl(aclObj, aclValues);
+  }
+
+  public void testLdapForAclUser() throws Exception {
+    testLdapSetup("CN=My name is", "dc=ajax");
+    assertAclEquals(ImmutableSet.of("ajax\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testDnsLdapForAclUser() throws Exception {
+    testLdapSetup("CN=My name is", "dc=ajax,dc=example,dc=com");
+    assertAclEquals(ImmutableSet.of("ajax\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testInvalidDnLdapForAclUser() throws Exception {
+    testLdapSetup("=", ",=,");
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testNullDnLdapForAclUser() throws Exception {
+    insertNullDnLdapUsers("user1");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, "user1");
+
+    aclList.processAcl(aclObj, aclValues);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testNoCnLdapForAclUser() throws Exception {
+    testLdapSetup("uid=n", "dc=ajax,dc=example,dc=com");
+    assertAclEquals(ImmutableSet.of("ajax\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testNoDcLdapForAclUser() throws Exception {
+    connector.setWindows_domain("acme");
+    dctmSession = connector.login();
+    qtm = dctmSession.getTraversalManager();
+    qtm.setBatchHint(2);
+    aclList = getAclListForTest();
+
+    testLdapSetup("uid=n", "o=ajax,o=example,o=local");
+    assertAclEquals(ImmutableSet.of("acme\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testLdapForAclGroup() throws Exception {
+    testLdapSetup("CN=My name is", "dc=ajax");
+    assertAclEquals(ImmutableSet.of("group1"), SpiConstants.PROPNAME_ACLGROUPS);
+  }
+
+  private void testDomainSetup(String domain) throws Exception {
+    connector.setWindows_domain(domain);
+    dctmSession = connector.login();
+    qtm = dctmSession.getTraversalManager();
+    qtm.setBatchHint(2);
+    aclList = getAclListForTest();
+
+    insertUsers("user1");
+    insertGroup("group1", "user2", "user3");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, "user1");
+    addAllowGroupToAcl(aclObj, "group1");
+
+    aclList.processAcl(aclObj, aclValues);
+  }
+
+  public void testDomainForAclUser() throws Exception {
+    testDomainSetup("ajax");
+    assertAclEquals(ImmutableSet.of("ajax\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testDnsDomainForAclUser() throws Exception {
+    testDomainSetup("ajax.example.com");
+    assertAclEquals(ImmutableSet.of("ajax.example.com\\user1"),
+        SpiConstants.PROPNAME_ACLUSERS);
+  }
+
+  public void testDomainForAclGroup() throws Exception {
+    testDomainSetup("ajax");
+    assertAclEquals(ImmutableSet.of("group1"), SpiConstants.PROPNAME_ACLGROUPS);
   }
 }

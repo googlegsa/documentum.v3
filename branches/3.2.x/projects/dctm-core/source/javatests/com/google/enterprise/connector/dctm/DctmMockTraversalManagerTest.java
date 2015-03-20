@@ -20,6 +20,7 @@ import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.Session;
 import com.google.enterprise.connector.spi.SimpleTraversalContext;
+import com.google.enterprise.connector.spi.TraversalManager;
 
 import junit.framework.TestCase;
 
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class DctmMockTraversalManagerTest extends TestCase {
   DctmConnector connector;
-  DctmTraversalManager qtm;
+  TraversalManager qtm;
 
   @Override
   protected void setUp() throws RepositoryException {
@@ -46,7 +47,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
     connector.setIncluded_object_type(DmInitialize.DM_INCLUDED_OBJECT_TYPE);
     connector.setIncluded_meta(DmInitialize.DM_INCLUDED_META);
     Session session = connector.login();
-    qtm = (DctmTraversalManager) session.getTraversalManager();
+    qtm = session.getTraversalManager();
   }
 
   public void testStartTraversal() throws RepositoryException {
