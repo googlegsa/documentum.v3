@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--
+       CUSTOMERS SHOULD NOT EDIT THIS FILE.
+       Override these properties by copying them to the
+       DctmConnectorInstance bean in connectorInstance.xml
+  -->
+  <bean id="DctmConnectorInstance_Defaults" abstract="true">
+
+    <!-- OVERRIDE THESE PROPERTIES WITH CAUTION BY COPYING TO connectorInstance.xml -->
+    <property name="excluded_meta"><set></set></property>
+    <property name="windows_domain" value=""/>
+
+    <!-- DO NOT OVERRIDE PROPERTIES BELOW THIS LINE -->
+    <property name="clientX" value="com.google.enterprise.connector.dctm.dctmdfcwrap.DmClientX" />
+    <property name="authentication_type" value="api" />
+
+    <property name="docbase" value="${docbase}" />
+    <property name="login" value="${login}" />
+    <property name="password" value="${Password}" />
+    <property name="webtop_display_url" value="${webtop_display_url}" />
+    <property name="where_clause" value="${where_clause}" />
+    <property name="is_public" value="${is_public}" />
+    <property name="included_meta" value="${included_meta}" />
+    <property name="included_object_type" value="${included_object_type}" />
+    <property name="root_object_type" value="${root_object_type}"/>
+    <property name="googleGlobalNamespace" value="${googleGlobalNamespace}"/>
+    <property name="googleLocalNamespace" value="${googleLocalNamespace}"/>
+  </bean>
+
+  <bean id="DefaultEncryptedPropertyPlaceholderConfigurator"
+      class="com.google.enterprise.connector.instantiator.EncryptedPropertyPlaceholderConfigurer">
+    <property name="properties">
+      <props>
+        <prop key="included_meta">object_name,r_object_type,title,subject,keywords,authors,r_creation_date,r_modify_date,r_content_size,a_content_type</prop>
+        <prop key="included_object_type">dm_document</prop>
+        <prop key="root_object_type">dm_sysobject</prop>
+        <prop key="is_public">false</prop>
+        <prop key="googleGlobalNamespace"></prop>
+        <prop key="googleLocalNamespace"></prop>
+      </props>
+    </property>
+  </bean>
+</beans>

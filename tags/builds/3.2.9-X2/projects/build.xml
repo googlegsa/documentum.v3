@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="GoogleDCTM" default="GoogleDCTM" basedir=".">
+
+  <!-- ========================= PROPERTIES ========================= -->
+  <property file="version.properties" />
+  <property file="${user.home}/google-enterprise-connector-dctm.properties"/>
+
+  <property name="COMPILE_DEBUG_FLAG" value="true" />
+  <property name="COMPILE_DEBUG_LEVEL" value="source,lines,vars" />
+  <property name="COMPILE_TARGET" value="1.6" />
+  <property name="COMPILE_BOOTCLASSPATH" value="${build.bootclasspath}" />
+
+  <!-- Define Directories. -->
+  <property name="dist" location="dist" />
+  <property name="config" location="dctm-core/config" />
+  <property name="jarfile.dir" location="third_party/lib"/>
+  <property name="core.dir" location="dctm-core"/>
+
+  <property name="build-client" location="dctm-client/build" />
+  <property name="src-client" location="dctm-client/source/java" />
+  <property name="classes-client" location="${build-client}/classes" />
+
+  <property name="build-tests" location="dctm-core/build" />
+  <property name="src-tests" location="dctm-core/source/javatests" />
+  <property name="classes-tests" location="${build-tests}/testclasses" />
+
+  <property name="build-core" location="dctm-core/build" />
+  <property name="src-core" location="dctm-core/source/java" />
+  <property name="classes-core" location="${build-core}/classes" />
+
+  <property name="jar.dir" location="${dist}/jar" />
+  <property name="jarfile" location="${jar.dir}/connector-dctm.jar" />
+
+  <property name="connector-manager.dir"
+            location="${build.connector.manager.home}/projects/connector-manager" />
+  <property name="thirdparty.jar.dir"
+            location="${connector-manager.dir}/third-party" />
+  <property name="spi.jar.dir" value="${connector-manager.dir}/dist/jarfile" />
+  <property name="spi.jarfile" value="${spi.jar.dir}/connector-spi.jar" />
+  <property name="connector.jarfile" value="${spi.jar.dir}/connector.jar" />
+  <property name="tests.jarfile" value="${spi.jar.dir}/connector-tests.jar" />
+  <property name="junit.jarfile" location="${thirdparty.jar.dir}/tests/junit.jar" />
+
+  <property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
+
+  <!-- All reports go into this directory. -->
+  <property name="reports.dir" value="dctm-core/reports" />
+
+  <!-- Unit test reports from JUnit are deposited into this directory. -->
+  <property name="junit.xml.dir" value="${reports.dir}/junit-xml" />
+  <property name="junit.html.dir" value="${reports.dir}/junit-html" />
+  <!-- Use these if you switch to plain text output, instead of xml+html.
+  <property name="junit.plain.dir" value="${reports.dir}/junit-plain" />
+  -->
+
+  <!-- ======== Cobertura Code Coverage Properties ======= -->
+  <!-- Instrumented classes are deposited into this directory. -->
+  <property name="instrumented.dir" value="${build-core}/instrumented" />
+
+  <!-- Coverage reports are deposited into these directories. -->
+  <property name="coverage.xml.dir" value="${reports.dir}/cobertura-xml" />
+  <property name="coverage.html.dir" value="${reports.dir}/cobertura-html" />
+
+  <!-- ============================ TASKS ============================ -->
+  <include file="${connector-manager.dir}/../svnbuild.xml" as="svn"/>
+
+  <target name="GoogleDCTM"
+          depends="init,compile,jar,compile-tests">
+    <ant dir="dctm-client" target="compile-all-tests" />
+  </target>
+
+  <target name="init">
+    <mkdir dir="${dist}" />
+    <mkdir dir="${build-tests}" />
+    <mkdir dir="${classes-tests}" />
+    <mkdir dir="${build-core}" />
+    <mkdir dir="${classes-core}" />
+    <mkdir dir="${reports.dir}" />
+    <mkdir dir="${junit.xml.dir}" />
+    <mkdir dir="${junit.html.dir}" />
+    <mkdir dir="${jar.dir}" />
+  </target>
+
+  <target name="compile" depends="compile-core, compile-client" />
+
+  <target name="compile-client" depends="compile-core">
+    <ant dir="dctm-client" target="compile" />
+  </target>
+
+  <target name="compile-core" depends="init">
+    <javac srcdir="${src-core}" destdir="${classes-core}"
+           includeantruntime="false"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
+      <compilerarg line="-Xlint -Xlint:-serial"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath>
+        <pathelement location="${spi.jarfile}" />
+        <fileset dir="${thirdparty.jar.dir}">
+          <include name="prod/*.jar" />
+        </fileset>
+      </classpath>
+    </javac>
+  </target>
+
+  <path id="compile_tests_path">
+    <pathelement location="${classes-core}" />
+    <pathelement location="${spi.jarfile}" />
+    <pathelement location="${connector.jarfile}" />
+    <pathelement location="${tests.jarfile}" />
+    <pathelement location="${junit.jarfile}" />
+    <pathelement location="${jcr.jarfile}" />
+    <fileset dir="${thirdparty.jar.dir}">
+      <include name="prod/*.jar" />
+    </fileset>
+  </path>
+
+  <target name="compile-tests" depends="compile-core">
+    <javac srcdir="${src-tests}" destdir="${classes-tests}"
+           includeantruntime="false"
+           debug="${COMPILE_DEBUG_FLAG}"
+           debuglevel="${COMPILE_DEBUG_LEVEL}"
+           target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
+      <!-- CM JAR Class-Path references are not available. -->
+      <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
+      <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
+      <classpath refid="compile_tests_path"/>
+    </javac>
+  </target>
+
+  <path id="run_tests_path">
+    <pathelement location="${src-core}" /> <!-- For .js files. -->
+    <pathelement location="${classes-tests}" />
+    <pathelement location="${config}" />
+    <path refid="compile_tests_path" />
+    <fileset dir="${thirdparty.jar.dir}">
+      <include name="prod/*.jar" />
+    </fileset>
+  </path>
+
+  <!-- This classpath gets overridden by code_coverage. -->
+  <property name="tests.classpath" value="run_tests_path"/>
+
+  <target name="run_tests" depends="compile-tests">
+    <property name="test.suite" value="*"/>
+    <junit>
+      <assertions><enable/></assertions>
+      <classpath refid="${tests.classpath}" />
+      <formatter type="xml" />
+      <batchtest fork="yes" todir="${junit.xml.dir}">
+        <fileset dir="${src-tests}">
+          <include name="**/${test.suite}Test.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+    <junitreport todir="${junit.xml.dir}">
+      <fileset dir="${junit.xml.dir}" includes="*.xml"/>
+      <report format="frames" todir="${junit.html.dir}"/>
+    </junitreport>
+  </target>
+
+  <target name="jar" description="connector-dctm"
+          depends="compile-core,compile-client,svn.svn-branch-version">
+    <tstamp />
+    <jar jarfile="${jarfile}">
+      <fileset dir="${config}">
+        <include name="*.properties"/>
+        <include name="config/*.xml"/>
+      </fileset>
+      <fileset dir="${classes-client}"/>
+      <fileset dir="${classes-core}"/>
+      <!-- TODO: Compile the JavaScript, presumably using Closure Compiler. -->
+      <fileset dir="${src-core}">
+        <include name="**/*.js"/>
+      </fileset>
+      <manifest>
+      <attribute name="Implementation-Title"
+                 value="Google Search Appliance Connector for Documentum" />
+      <attribute name="Implementation-Version"
+                 value="${version} (build ${svn.branch.version} ${TODAY})"/>
+      <attribute name="Implementation-Vendor" value="Google Inc."/>
+      <attribute name="Specification-Title" value="Connector Manager SPI"/>
+      <attribute name="Specification-Version" value="${version.spi}"/>
+      <attribute name="Specification-Vendor" value="Google Inc."/>
+      <attribute name="Main-Class"
+                 value="com.google.enterprise.connector.dctm.DctmMain" />
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="init-package" depends="svn.svn-branch">
+    <property name="downloads.prefix" value="connector-dctm-${svn.branch}" />
+    <property name="repackage.prefix" value="connector-dctm-${version}"/>
+  </target>
+
+  <target name="bin-archive" depends="jar,init-package">
+    <property name="bin.archive" value="${downloads.prefix}" />
+    <zip destfile="${dist}/${bin.archive}.zip">
+      <zipfileset dir="${jar.dir}" prefix="${bin.archive}" />
+      <zipfileset dir=".." prefix="${bin.archive}">
+        <include name="README" />
+        <include name="RELEASE_NOTES" />
+      </zipfileset>
+      <zipfileset file="${config}/logging.properties"
+                  prefix="${bin.archive}/Config" />
+      <zipfileset dir=".." prefix="${bin.archive}/License">
+        <include name="COPYING" />
+      </zipfileset>
+    </zip>
+    <checksum algorithm="SHA-1" file="${dist}/${bin.archive}.zip" />
+  </target>
+
+  <target name="src-archive" depends="init,init-package">
+    <property name="src.archive" value="${downloads.prefix}-src" />
+
+    <!-- Use 'svn export' to create a clean version of the
+      source tree in the build dir. You can
+      adjust the behaviour of this by
+      setting some properties when invoking
+      ant:
+
+      svn.export.revision - the revision of the tree
+        to pull from svn.
+      svn.export.source - the source of the tree,
+        either a svn repository URL, or a
+        pathname of a working directory tree.
+
+      Note: you cannot specify both
+      svn.export.revision and point
+      svn.export.source at a local working tree.
+      TODO: Make this work with svn.branch in src.archive value.
+    -->
+    <condition property="svn.export.revision.arg"
+               value="-r ${svn.export.revision}" else="" >
+      <isset property="svn.export.revision"/>
+    </condition>
+    <property name="svn.export.source" value=".." />
+    <property name="svn.export.dir" value="${dist}/${src.archive}" />
+
+    <delete dir="${svn.export.dir}" quiet="true" />
+    <exec executable="svn">
+      <arg line="export ${svn.export.revision.arg} ${svn.export.source} ${svn.export.dir}" />
+    </exec>
+
+    <!-- Create .zip archive of the exported source tree. -->
+    <zip destfile="${dist}/${src.archive}.zip">
+      <zipfileset dir="${svn.export.dir}" prefix="${src.archive}" />
+    </zip>
+    <checksum algorithm="SHA-1" file="${dist}/${src.archive}.zip" />
+    <delete dir="${svn.export.dir}" quiet="true" />
+  </target>
+
+  <target name="repackage" depends="init-package"
+          description="Repackage release candidate files for release.">
+    <repackage-downloads downloads.dir="${dist}"
+                         downloads.prefix="${downloads.prefix}"
+                         repackage.prefix="${repackage.prefix}" />
+  </target>
+
+  <target name="clean" depends="clean_coverage"
+          description="Deletes all build files.">
+    <ant dir="dctm-client" target="clean" />
+    <delete dir="${build-core}" />
+    <delete dir="${dist}" />
+    <delete dir="${reports.dir}" />
+  </target>
+
+  <target name="everything" depends="clean,bin-archive,src-archive" />
+
+  <!-- ====================== Cobertura Tasks ====================== -->
+
+  <!-- Where Cobertura can find itself and its dependencies. -->
+  <path id="cobertura.classpath">
+    <fileset dir="${thirdparty.jar.dir}/cobertura" includes="**/*.jar" />
+  </path>
+  <taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+
+  <target name="init_coverage">
+    <mkdir dir="${instrumented.dir}" />
+    <mkdir dir="${coverage.xml.dir}" />
+    <mkdir dir="${coverage.html.dir}" />
+  </target>
+
+  <target name="compile_coverage"
+          depends="init_coverage,compile,compile-tests" />
+
+  <target name="instrument" depends="compile_coverage">
+    <cobertura-instrument todir="${instrumented.dir}">
+      <!-- The following line causes instrument to ignore any line
+           refering to log4j, for the purposes of coverage reporting.
+      -->
+      <ignore regex="org.apache.log4j.*" />
+
+      <!-- Instrument the application classes, but not the test classes. -->
+      <fileset dir="${classes-core}" includes="**/*.class" />
+    </cobertura-instrument>
+  </target>
+
+  <path id="coverage.classpath">
+    <pathelement location="${instrumented.dir}" />
+    <path refid="run_tests_path" />
+    <path refid="cobertura.classpath" />
+  </path>
+
+  <target name="run_coverage_tests" depends="jar,instrument">
+    <antcall target="run_tests">
+      <param name="tests.classpath" value="coverage.classpath" />
+    </antcall>
+  </target>
+
+  <target name="coverage_report">
+    <!-- Generate an XML file containing the coverage data. -->
+    <cobertura-report srcdir="${src-core}" destdir="${coverage.xml.dir}"
+                      format="xml" />
+    <!-- Generate a series of HTML files containing the coverage
+         data in a user-readable form using nested source filesets.
+    -->
+    <cobertura-report destdir="${coverage.html.dir}">
+      <fileset dir="${src-core}">
+        <include name="**/*.java"/>
+      </fileset>
+    </cobertura-report>
+  </target>
+
+  <target name="clean_coverage"
+          description="Remove all files created by the code coverage process.">
+    <delete file="cobertura.log" />
+    <delete file="cobertura.ser" />
+    <delete dir="${instrumented.dir}" />
+  </target>
+
+  <target name="code_coverage"
+          depends="run_coverage_tests,coverage_report"
+          description="Compile, instrument ourself, run the tests and generate coverage reports."/>
+
+</project>
