@@ -10,8 +10,8 @@ that supplements the main documentation.
 Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
 
 
-Release 3.2.10, December 21, 2014
-=================================
+Release 3.2.10, March 20, 2015
+==============================
 
 Introduction
 ------------
@@ -21,21 +21,40 @@ strongly encouraged to upgrade.
 
 Issues Fixed Since 3.2.8
 ------------------------
-17737679 - Documentum connector has an unclosed collection. This may
-           use extra resources and may lead to other problems.
+19736255 - Documentum user ACEs should use the user_login_name
+           attribute rather than the CN RDN of the user_ldap_dn
+           attribute. This is consistent with authentication, which
+           uses the user_login_name.
 
-15450112 - Documentum group lookup fails without LDAP synchronization.
-           A new advanced config property is introduced to support this.
+19732599, 15450112 - Group lookup fails and user ACEs are constructed
+           incorrectly if the user's user_ldap_dn attribute does not
+           contain the user domain.
+
+           A new advanced config property is introduced to support
+           this configuration:
+
            <property name="windows_domain" value="configdomain"/>
-           The configured "configdomain" is used as the domain for 
-           all users not synchronized from LDAP in ACLs and for group
-           lookup. If the primary verified identity (PVI) of the search
-           user includes a domain, it must match the configured
+
+           The configured value ("configdomain") is used as the domain
+           for all users with no LDAP domain, in ACLs and for group
+           lookup. If the primary verified identity (PVI) of the
+           search user includes a domain, it must match the configured
            windows_domain value.
 
-13218191 - Advanced configuration on Documentum connector did not
-           load on GSA 7.2 when the Advanced configuration checkbox
-           was clicked.
+19484996 - The connector handles timestamps incorrectly if the
+           connector host is in a different time zone from the
+           Documentum Content Server. Depending on whether the client
+           local time was earlier or later than the server local time,
+           the connector would either send the same IDs to the GSA
+           repeatedly for adds and deletes, or it would repeatedly
+           skip adds and deletes in certain time windows.
+
+17737679 - The connector has an unclosed collection. This may use
+           extra resources and may lead to other problems.
+
+13218191 - The Advanced configuration section on the configuration
+           form did not load on GSA 7.2 when the Advanced
+           configuration checkbox was clicked.
 
 Version Compatibility
 ---------------------
