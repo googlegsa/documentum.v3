@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="connector-dctm-client" default="connector-dctm" basedir=".">
+<project name="connector-dctm-client" default="build" basedir=".">
 
   <!-- ========================= PROPERTIES ============================= -->
   <property file="${user.home}/google-enterprise-connector-dctm.properties"/>
@@ -46,7 +46,7 @@
   <property name="junit.jarfile" location="${thirdparty.jar.dir}/tests/junit.jar" />
 
   <!-- =========================== TASKS =============================== -->
-  <target name="connector-dctm" depends="init,compile,compile-all-tests,jar" />
+  <target name="build" depends="init,compile,compile-all-tests,jar" />
 
   <target name="compile-all-tests" depends="compile_tests,compile_accepttests,compile_perftests" />
 
@@ -143,7 +143,6 @@
     </jar>
     <manifest file="dist/MANIFEST.MF">
       <attribute name="Main-Class" value="com.google.enterprise.connector.dctm.AllTests"/>
-
     </manifest>
     <jar jarfile="${jarfile.test}" manifest="dist/MANIFEST.MF">
       <fileset dir="${tests.classes}" />

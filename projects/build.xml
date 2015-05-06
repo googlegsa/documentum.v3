@@ -55,6 +55,23 @@
   <property name="junit.plain.dir" value="${reports.dir}/junit-plain" />
   -->
 
+  <!-- ============================ PATHS ============================ -->
+  <path id="compile.prod.classpath">
+    <pathelement location="${spi.jarfile}" />
+    <fileset dir="${thirdparty.jar.dir}">
+      <include name="prod/*.jar" />
+    </fileset>
+  </path>
+
+  <path id="compile.tests.classpath">
+    <path refid="compile.prod.classpath" />
+    <pathelement location="${classes-core}" />
+    <pathelement location="${connector.jarfile}" />
+    <pathelement location="${tests.jarfile}" />
+    <pathelement location="${junit.jarfile}" />
+    <pathelement location="${jcr.jarfile}" />
+  </path>
+
   <!-- ======== Cobertura Code Coverage Properties ======= -->
   <!-- Instrumented classes are deposited into this directory. -->
   <property name="instrumented.dir" value="${build-core}/instrumented" />
@@ -66,8 +83,7 @@
   <!-- ============================ TASKS ============================ -->
   <include file="${connector-manager.dir}/../svnbuild.xml" as="svn"/>
 
-  <target name="build"
-          depends="init,compile,jar,compile-tests">
+  <target name="build" depends="init,compile,compile_tests,jar">
     <ant dir="dctm-client" target="compile-all-tests" />
   </target>
 
@@ -97,28 +113,11 @@
            target="${COMPILE_TARGET}" source="${COMPILE_TARGET}">
       <compilerarg line="-Xlint -Xlint:-serial"/>
       <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
-      <classpath>
-        <pathelement location="${spi.jarfile}" />
-        <fileset dir="${thirdparty.jar.dir}">
-          <include name="prod/*.jar" />
-        </fileset>
-      </classpath>
+      <classpath refid="compile.prod.classpath" />
     </javac>
   </target>
 
-  <path id="compile_tests_path">
-    <pathelement location="${classes-core}" />
-    <pathelement location="${spi.jarfile}" />
-    <pathelement location="${connector.jarfile}" />
-    <pathelement location="${tests.jarfile}" />
-    <pathelement location="${junit.jarfile}" />
-    <pathelement location="${jcr.jarfile}" />
-    <fileset dir="${thirdparty.jar.dir}">
-      <include name="prod/*.jar" />
-    </fileset>
-  </path>
-
-  <target name="compile-tests" depends="compile-core">
+  <target name="compile_tests" depends="compile-core">
     <javac srcdir="${src-tests}" destdir="${classes-tests}"
            includeantruntime="false"
            debug="${COMPILE_DEBUG_FLAG}"
@@ -127,7 +126,7 @@
       <!-- CM JAR Class-Path references are not available. -->
       <compilerarg line="-Xlint -Xlint:-serial -Xlint:-path"/>
       <bootclasspath path="${COMPILE_BOOTCLASSPATH}"/>
-      <classpath refid="compile_tests_path"/>
+      <classpath refid="compile.tests.classpath"/>
     </javac>
   </target>
 
@@ -135,16 +134,17 @@
     <pathelement location="${src-core}" /> <!-- For .js files. -->
     <pathelement location="${classes-tests}" />
     <pathelement location="${config}" />
-    <path refid="compile_tests_path" />
-    <fileset dir="${thirdparty.jar.dir}">
-      <include name="prod/*.jar" />
-    </fileset>
+    <path refid="compile.tests.classpath" />
   </path>
 
   <!-- This classpath gets overridden by code_coverage. -->
   <property name="tests.classpath" value="run_tests_path"/>
 
-  <target name="run_tests" depends="compile-tests">
+  <target name="run_tests">
+    <echo message="The run_tests target is deprecated. Use test instead." />
+  </target>
+
+  <target name="test" depends="compile_tests">
     <property name="test.suite" value="*"/>
     <junit>
       <assertions><enable/></assertions>
@@ -162,7 +162,7 @@
     </junitreport>
   </target>
 
-  <target name="jar" description="connector-dctm"
+  <target name="jar" description="Creates connector-dctm.jar file."
           depends="compile-core,compile-client,svn.svn-branch-version">
     <tstamp />
     <jar jarfile="${jarfile}">
@@ -197,7 +197,7 @@
     <property name="repackage.prefix" value="connector-dctm-${version}"/>
   </target>
 
-  <target name="bin-archive" depends="jar,init-package">
+  <target name="downloads" depends="jar,init-package">
     <property name="bin.archive" value="${downloads.prefix}" />
     <zip destfile="${downloads.dir}/${bin.archive}.zip">
       <zipfileset dir="${jar.dir}" prefix="${bin.archive}" />
@@ -212,9 +212,7 @@
       </zipfileset>
     </zip>
     <checksum algorithm="SHA-1" file="${downloads.dir}/${bin.archive}.zip" />
-  </target>
 
-  <target name="src-archive" depends="init,init-package">
     <archive-source downloads.dir="${downloads.dir}"
                     downloads.prefix="${downloads.prefix}" />
   </target>
@@ -234,9 +232,7 @@
     <delete dir="${reports.dir}" />
   </target>
 
-  <target name="downloads" depends="bin-archive,src-archive"/>
-
-  <target name="everything" depends="clean,bin-archive,src-archive" />
+  <target name="everything" depends="clean,build,test,downloads" />
 
   <!-- ====================== Cobertura Tasks ====================== -->
 
@@ -253,7 +249,7 @@
   </target>
 
   <target name="compile_coverage"
-          depends="init_coverage,compile,compile-tests" />
+          depends="init_coverage,compile,compile_tests" />
 
   <target name="instrument" depends="compile_coverage">
     <cobertura-instrument todir="${instrumented.dir}">
@@ -261,6 +257,9 @@
            refering to log4j, for the purposes of coverage reporting.
       -->
       <ignore regex="org.apache.log4j.*" />
+
+      <!-- Cobertura needs prod class dependencies during instrumentation. -->
+      <auxClassPath refid="compile.prod.classpath"/>
 
       <!-- Instrument the application classes, but not the test classes. -->
       <fileset dir="${classes-core}" includes="**/*.class" />
@@ -274,7 +273,7 @@
   </path>
 
   <target name="run_coverage_tests" depends="jar,instrument">
-    <antcall target="run_tests">
+    <antcall target="test">
       <param name="tests.classpath" value="coverage.classpath" />
     </antcall>
   </target>
