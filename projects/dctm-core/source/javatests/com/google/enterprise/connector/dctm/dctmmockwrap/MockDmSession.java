@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.enterprise.connector.dctm.JdbcFixture;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
 import com.google.enterprise.connector.dctm.dfcwrap.IPersistentObject;
@@ -112,13 +113,31 @@ public class MockDmSession implements ISession {
     return "dctmmockwrap";
   }
 
+  /** Map of Documentum object type tags to internal or table names. */
+  private final ImmutableMap<String, String> objectTypes =
+      ImmutableMap.of("45", "dm_acl");
+
   @Override
-  public ISysObject getObject(IId objectId) throws RepositoryDocumentException {
-    MockRepositoryDocument mockRepositoryDocument = mockRep.getRepo()
-        .getStore().getDocByID(objectId.toString());
-    MockDmObject dctmMockRepositoryDocument = new MockDmObject(
-        mockRepositoryDocument);
-    return dctmMockRepositoryDocument;
+  public IPersistentObject getObject(IId objectId)
+      throws RepositoryDocumentException {
+    String id = objectId.getId();
+    if (id.matches("\\p{XDigit}{2,}.*")) {
+      // Use H2 for real-ish object IDs.
+      String table = objectTypes.get(id.substring(0, 2).toLowerCase());
+      if (table == null) {
+        throw new IllegalArgumentException("Unsupported object ID: " + id);
+      } else {
+        return getObjectByQualification(table + " where r_object_id = '"
+            + id + '\'');
+      }
+    } else {
+      // Legacy JCR repository ID.
+      MockRepositoryDocument mockRepositoryDocument = mockRep.getRepo()
+          .getStore().getDocByID(objectId.toString());
+      MockDmObject dctmMockRepositoryDocument = new MockDmObject(
+          mockRepositoryDocument);
+      return dctmMockRepositoryDocument;
+    }
   }
 
   @Override
@@ -161,12 +180,48 @@ public class MockDmSession implements ISession {
         } else {
           return new MockDmGroup((String) values.get("group_name"));
         }
+      } else if (queryString.startsWith("dm_acl")) {
+        HashMap<String, Object> values =
+            executeQuery("select * from " + queryString, "r_object_id",
+                "r_accessor_name", "r_accessor_permit", "r_permit_type",
+                "r_is_group");
+        if (values == null) {
+          return null;
+        } else {
+          MockDmAcl acl =
+              new MockDmAcl((String) values.get("r_object_id"), null);
+          String[] accessorName =
+              getRepeatingValue(values.get("r_accessor_name"));
+          String[] accessorPermit =
+              getRepeatingValue(values.get("r_accessor_permit"));
+          String[] permitType =
+              getRepeatingValue(values.get("r_permit_type"));
+          String[] isGroup =
+              getRepeatingValue(values.get("r_is_group"));
+          if (accessorName.length != accessorPermit.length
+              || accessorName.length != permitType.length
+              || accessorName.length != isGroup.length) {
+            throw new RepositoryDocumentException("Invalid ACL record: "
+                + values);
+          }
+          for (int i = 0; i < accessorName.length; i++) {
+            acl.addAccessor(accessorName[i],
+                Integer.parseInt(accessorPermit[i]),
+                Integer.parseInt(permitType[i]),
+                Boolean.parseBoolean(isGroup[i]));
+          }
+          return acl;
+        }
       } else {
         return null;
       }
     } catch (SQLException e) {
       throw new RepositoryDocumentException("Database error", e);
     }
+  }
+
+  private String[] getRepeatingValue(Object value) {
+    return ((String) value).split(",");
   }
 
   /**

@@ -244,18 +244,20 @@ public class DctmAclList implements DocumentList {
                   getUserNamespace(userName)));
             }
           }
-        } else if (aclObj.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
-          if (userName.equalsIgnoreCase("dm_world") || aclObj.isGroup(i)) {
-            groupPrincipals.add(asPrincipalValue(userLoginName,
-                getGroupNamespace(userName)));
-          } else if (userName.equalsIgnoreCase("dm_owner")
-              || userName.equalsIgnoreCase("dm_group")) {
-            // skip dm_owner and dm_group for now.
-            // TODO (Srinivas): Need to resolve these acls
-            continue;
-          } else {
-            userPrincipals.add(asPrincipalValue(userLoginName,
-                getUserNamespace(userName)));
+        } else if (permitType == IAcl.DF_PERMIT_TYPE_ACCESS_PERMIT) {
+          if (aclObj.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
+            if (userName.equalsIgnoreCase("dm_world") || aclObj.isGroup(i)) {
+              groupPrincipals.add(asPrincipalValue(userLoginName,
+                      getGroupNamespace(userName)));
+            } else if (userName.equalsIgnoreCase("dm_owner")
+                || userName.equalsIgnoreCase("dm_group")) {
+              // skip dm_owner and dm_group for now.
+              // TODO (Srinivas): Need to resolve these acls
+              continue;
+            } else {
+              userPrincipals.add(asPrincipalValue(userLoginName,
+                      getUserNamespace(userName)));
+            }
           }
         }
       }
