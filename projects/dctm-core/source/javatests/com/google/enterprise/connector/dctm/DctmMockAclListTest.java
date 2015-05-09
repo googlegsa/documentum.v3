@@ -17,14 +17,18 @@ package com.google.enterprise.connector.dctm;
 import com.google.common.collect.ImmutableSet;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmAcl;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmQuery;
 import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
+import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Principal;
+import com.google.enterprise.connector.spi.Property;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.RepositoryLoginException;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
 import com.google.enterprise.connector.spi.SpiConstants;
+import com.google.enterprise.connector.spi.SpiConstants.AclInheritanceType;
 import com.google.enterprise.connector.spi.SpiConstants.CaseSensitivityType;
 import com.google.enterprise.connector.spi.SpiConstants.PrincipalType;
 import com.google.enterprise.connector.spi.Value;
@@ -36,6 +40,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -90,6 +95,16 @@ public class DctmMockAclListTest extends TestCase {
     return new DctmAclList(qtm, session, null, null, checkpoint);
   }
 
+  private DctmAclList getAclListForTest(String query)
+      throws RepositoryLoginException, RepositoryException {
+    List<String> whereClauselist = new ArrayList<String>();
+    Checkpoint checkpoint = new Checkpoint(whereClauselist);
+    ISession session =
+        qtm.getSessionManager().getSession(DmInitialize.DM_DOCBASE);
+    return new DctmAclList(qtm, session, new MockDmQuery().executeQuery(query),
+        null, checkpoint);
+  }
+
   private void addAllowUserToAcl(MockDmAcl aclObj, String name) {
     aclObj.addAccessor(name, IAcl.DF_PERMIT_READ,
         IAcl.DF_PERMIT_TYPE_ACCESS_PERMIT, false);
@@ -108,6 +123,16 @@ public class DctmMockAclListTest extends TestCase {
   private void addDenyGroupToAcl(MockDmAcl aclObj, String name, int permit) {
     aclObj.addAccessor(name, permit, IAcl.DF_PERMIT_TYPE_ACCESS_RESTRICTION,
         true);
+  }
+
+  private void addRequiredGroupToAcl(MockDmAcl aclObj, String name) {
+    aclObj.addAccessor(name, 0, IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP, true);
+  }
+
+  private void addRequiredGroupSetToAcl(MockDmAcl aclObj, String... names) {
+    for (String name : names) {
+      aclObj.addAccessor(name, 0, IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP_SET, true);
+    }
   }
 
   /**
@@ -165,6 +190,13 @@ public class DctmMockAclListTest extends TestCase {
       jdbcFixture.executeUpdate(String.format(
           "insert into dm_group(group_name, i_all_users_names) "
               + "values('%s', '%s')", groupName, user));
+    }
+  }
+
+  private void insertAcls(MockDmAcl... acls)
+      throws RepositoryException, SQLException {
+    for (MockDmAcl acl : acls) {
+      jdbcFixture.executeUpdate(acl.getSqlInsert());
     }
   }
 
@@ -323,6 +355,92 @@ public class DctmMockAclListTest extends TestCase {
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
+  }
+
+  public void testRequiredGroups() throws Exception {
+    insertGroup("Jedi Order");
+    insertGroup("Rebellion");
+    insertGroup("Return of the Jedi");
+    insertGroup("The Force Awakens");
+
+    MockDmAcl aclObj = new MockDmAcl("45opensesame", "opensesame");
+    addRequiredGroupToAcl(aclObj, "Jedi Order");
+    addRequiredGroupToAcl(aclObj, "Rebellion");
+    addRequiredGroupSetToAcl(aclObj, "Return of the Jedi", "The Force Awakens");
+    insertAcls(aclObj);
+
+    aclList = getAclListForTest("select r_object_id from dm_acl");
+    Document aclDocument;
+
+    assertNotNull(aclDocument = aclList.nextDocument());
+    assertPrincipalEquals(ImmutableSet.of(),
+        aclDocument, SpiConstants.PROPNAME_ACLGROUPS);
+    assertInheritanceTypeEquals(AclInheritanceType.PARENT_OVERRIDES,
+        aclDocument);
+
+    assertNotNull(aclDocument = aclList.nextDocument());
+    assertPrincipalEquals(
+        ImmutableSet.of("Return of the Jedi", "The Force Awakens"),
+        aclDocument, SpiConstants.PROPNAME_ACLGROUPS);
+    assertInheritanceTypeEquals(AclInheritanceType.AND_BOTH_PERMIT,
+        aclDocument);
+
+    assertNotNull(aclDocument = aclList.nextDocument());
+    assertPrincipalEquals(ImmutableSet.of("Rebellion"),
+        aclDocument, SpiConstants.PROPNAME_ACLGROUPS);
+    assertInheritanceTypeEquals(AclInheritanceType.AND_BOTH_PERMIT,
+        aclDocument);
+
+    assertNotNull(aclDocument = aclList.nextDocument());
+    assertPrincipalEquals(ImmutableSet.of("Jedi Order"),
+        aclDocument, SpiConstants.PROPNAME_ACLGROUPS);
+    assertInheritanceTypeEquals(AclInheritanceType.AND_BOTH_PERMIT,
+        aclDocument);
+
+    assertNull(aclList.nextDocument());
+  }
+
+  /** Tests an ACL with READ permission but not ACCESS_PERMIT. */
+  public void testEvilAcl() throws Exception {
+    insertGroup("Jedi");
+    insertGroup("Sith");
+
+    MockDmAcl aclObj = new MockDmAcl("45opensesame", "opensesame");
+    addAllowGroupToAcl(aclObj, "Jedi");
+    aclObj.addAccessor("Sith", IAcl.DF_PERMIT_READ,
+        IAcl.DF_PERMIT_TYPE_APPLICATION_PERMIT, true);
+    insertAcls(aclObj);
+
+    aclList = getAclListForTest("select r_object_id from dm_acl");
+    Document aclDocument;
+
+    assertNotNull(aclDocument = aclList.nextDocument());
+    assertPrincipalEquals(ImmutableSet.of("Jedi"),
+        aclDocument, SpiConstants.PROPNAME_ACLGROUPS);
+    assertInheritanceTypeEquals(AclInheritanceType.PARENT_OVERRIDES,
+        aclDocument);
+
+    assertNull(aclList.nextDocument());
+  }
+
+  private void assertPrincipalEquals(Set<?> expectedNames,
+      Document document, String propertyName) throws RepositoryException {
+    Set<String> actualNames = new HashSet<String>();
+    Property property = document.findProperty(propertyName);
+    if (property != null) {
+      PrincipalValue value;
+      while ((value = (PrincipalValue) property.nextValue()) != null) {
+        actualNames.add(value.getPrincipal().getName());
+      }
+    }
+    assertEquals(expectedNames, actualNames);
+  }
+
+  private void assertInheritanceTypeEquals(AclInheritanceType expected,
+      Document document) throws RepositoryException {
+    assertEquals(expected.toString(),
+        Value.getSingleValueString(document,
+            SpiConstants.PROPNAME_ACLINHERITANCETYPE));
   }
 
   private void testLdapSetup(String commonName, String domain)

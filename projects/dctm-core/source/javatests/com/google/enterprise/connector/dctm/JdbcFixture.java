@@ -22,6 +22,11 @@ import java.sql.Statement;
 
 /** Manages an in-memory H2 database modeling the Documentum database. */
 public class JdbcFixture {
+  /** All attributes except r_object_id are repeating CSVs. */
+  private static final String CREATE_TABLE_ACL = "create table dm_acl "
+      + "(r_object_id varchar, r_accessor_name varchar, "
+      + "r_accessor_permit varchar, r_permit_type varchar, r_is_group varchar)";
+
   private static final String CREATE_TABLE_GROUP = "create table dm_group "
       + "(group_name varchar, i_all_users_names varchar)";
 
@@ -56,6 +61,7 @@ public class JdbcFixture {
     jdbcConnection = getSharedConnection();
 
     executeUpdate(
+        CREATE_TABLE_ACL,
         CREATE_TABLE_GROUP,
         CREATE_TABLE_USER);
   }

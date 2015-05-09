@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.common.base.Joiner;
 import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.spi.RepositoryDocumentException;
 
@@ -21,11 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MockDmAcl implements IAcl {
-  private final int aclId;
+  private final String aclId;
   private final String aclname;
   private final List<MockAce> accessorList = new ArrayList<MockAce>();
 
   public MockDmAcl(int aclId, String aclname) {
+    this(String.valueOf(aclId), aclname);
+  }
+
+  public MockDmAcl(String aclId, String aclname) {
     this.aclId = aclId;
     this.aclname = aclname;
   }
@@ -38,8 +43,30 @@ public class MockDmAcl implements IAcl {
     accessorList.add(new MockAce(name, permit, permitType, isGroup));
   }
 
-  public int getAclId() {
+  public String getAclId() {
     return this.aclId;
+  }
+
+  /** Gets a SQL INSERT statement that adds this ACL to dm_acl. */
+  public String getSqlInsert() throws RepositoryDocumentException {
+    int n = getAccessorCount();
+    String[] accessorName = new String[n];
+    Integer[] accessorPermit = new Integer[n];
+    Integer[] permitType = new Integer[n];
+    Boolean[] isGroup = new Boolean[n];
+    for (int i = 0; i < n; i++) {
+      accessorName[i] = getAccessorName(i);
+      accessorPermit[i] = getAccessorPermit(i);
+      permitType[i] = getAccessorPermitType(i);
+      isGroup[i] = isGroup(i);
+    }
+
+    Joiner joiner = Joiner.on(',');
+    return String.format(
+        "insert into dm_acl(r_object_id, r_accessor_name, r_accessor_permit, "
+        + "r_permit_type, r_is_group) values('%s', '%s', '%s', '%s', '%s')",
+        getAclId(), joiner.join(accessorName), joiner.join(accessorPermit),
+        joiner.join(permitType), joiner.join(isGroup));
   }
 
   @Override

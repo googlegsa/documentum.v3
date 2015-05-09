@@ -152,7 +152,7 @@ public class MockDmQuery implements IQuery {
     }
   }
 
-  private ICollection executeQuery(String query) throws RepositoryException {
+  public ICollection executeQuery(String query) throws RepositoryException {
     try {
       Statement stmt = jdbcConnection.createStatement();
       try {
