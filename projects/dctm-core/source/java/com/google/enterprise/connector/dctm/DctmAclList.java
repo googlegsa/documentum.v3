@@ -65,13 +65,18 @@ public class DctmAclList implements DocumentList {
   private final Checkpoint checkpoint;
 
   private final DctmTraversalManager traversalManager;
+  private final String localNamespace;
+  private final String globalNamespace;
 
-  private Stack<Document> requiredGroupAclStack;
+  private final Stack<Document> aclStack = new Stack<Document>();
 
   public DctmAclList(DctmTraversalManager traversalManager, ISession session,
       ICollection collAcl, ICollection collAclToModify,
       Checkpoint checkpoint) {
     this.traversalManager = traversalManager;
+    localNamespace = traversalManager.getLocalNamespace();
+    globalNamespace = traversalManager.getGlobalNamespace();
+
     this.session = session;
     this.collectionAcl = collAcl;
     this.collectionAclToModify = collAclToModify;
@@ -80,35 +85,21 @@ public class DctmAclList implements DocumentList {
 
   @Override
   public Document nextDocument() throws RepositoryException {
-    Document retAclDocument;
     Document retDoc = null;
     boolean skippingDoc = false;
     try {
       while (retDoc == null) {
-        if (requiredGroupAclStack != null
-            && !requiredGroupAclStack.isEmpty()) {
-          retDoc = requiredGroupAclStack.pop();
+        if (!aclStack.isEmpty()) {
+          retDoc = aclStack.pop();
         } else if (isOpen(collectionAcl) && collectionAcl.next()) {
           logger.fine("Looking through the collection of ACLs to add");
 
-          String objId = "";
           try {
-            objId = collectionAcl.getString("r_object_id");
-            logger.fine("ACL r_object_id is " + objId);
-            checkpoint.setAclCheckpoint(objId);
-            IAcl aclObj = fetchAcl(objId);
-            if (isRequiredGroupOrSet(aclObj)) {
-              logger.log(Level.FINE,
-                  "ACL {0} has required groups or required group set", objId);
-              requiredGroupAclStack =
-                  getSecureAclDocumentWithRequiredGroupOrSet(aclObj, objId);
-              retDoc = requiredGroupAclStack.pop();
-            } else {
-              retAclDocument =
-                  getSecureAclDocument(aclObj, objId, ActionType.ADD);
-              logger.fine("Creation of a new ACL to add");
-              retDoc = retAclDocument;
-            }
+            String objectId = collectionAcl.getString("r_object_id");
+            logger.fine("ACL r_object_id is " + objectId);
+            checkpoint.setAclCheckpoint(objectId);
+            pushAclChainToStack(objectId);
+            retDoc = aclStack.pop();
           } catch (RepositoryException e) {
             logger.severe("impossible to get the r_object_id of the document");
             return null;
@@ -116,8 +107,7 @@ public class DctmAclList implements DocumentList {
         } else if (isOpen(collectionAclToModify)
             && collectionAclToModify.next()) {
           logger.fine("Looking through the collection of ACLs to modify");
-          String eventId = "";
-          eventId = collectionAclToModify.getString("r_object_id");
+          String eventId = collectionAclToModify.getString("r_object_id");
           String modifyDateToStr =
               collectionAclToModify.getString("time_stamp_utc_str");
           logger.fine("audit event r_object_id is " + eventId
@@ -126,35 +116,20 @@ public class DctmAclList implements DocumentList {
 
           String chronicleId = collectionAclToModify.getString("chronicle_id");
           if (aclModifiedIds.contains(chronicleId)) {
-            logger.fine("Skipping redundant modify of: "
-                + chronicleId);
+            logger.fine("Skipping redundant modify of: " + chronicleId);
             continue;
           }
 
-          String objIdModify = collectionAclToModify.getString("audited_obj_id");
+          String objectId = collectionAclToModify.getString("audited_obj_id");
           if (collectionAclToModify.getString("event_name").equalsIgnoreCase(
               "dm_destroy")) {
-            logger.log(Level.FINE, "ACL to delete: {0}" + objIdModify);
-            retAclDocument = getSecureAclDocument(null, objIdModify,
-                ActionType.DELETE);
+            logger.log(Level.FINE, "ACL to delete: {0}" + objectId);
+            retDoc = getDeletedAcl(objectId);
           } else {
-            IAcl aclObj = fetchAcl(objIdModify);
-            if (isRequiredGroupOrSet(aclObj)) {
-              logger.log(Level.FINE, "ACL to modify: {0} has required groups "
-                  + "or required group set", objIdModify);
-              requiredGroupAclStack =
-                  getSecureAclDocumentWithRequiredGroupOrSet(aclObj,
-                      objIdModify);
-              retAclDocument = requiredGroupAclStack.pop();
-            } else {
-              logger.log(Level.FINE,
-                  "ACL to modify: {0} has no required groups", objIdModify);
-              retAclDocument =
-                  getSecureAclDocument(aclObj, objIdModify, ActionType.ADD);
-            }
+            pushAclChainToStack(objectId);
+            retDoc = aclStack.pop();
           }
           aclModifiedIds.add(chronicleId);
-          retDoc = retAclDocument;
         } else {
           logger.fine("End of ACL list");
           break;
@@ -198,18 +173,6 @@ public class DctmAclList implements DocumentList {
     return (IAcl) session.getObject(id);
   }
 
-  private boolean isRequiredGroupOrSet(IAcl aclObj)
-      throws RepositoryException {
-    for (int i = 0; i < aclObj.getAccessorCount(); i++) {
-      int permitType = aclObj.getAccessorPermitType(i);
-      if (permitType == IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP
-          || permitType == IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP_SET) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   /*
    * Processes users and groups from the ACL object, populates the user and
    * group list with users and groups with READ permission. Populates
@@ -217,148 +180,153 @@ public class DctmAclList implements DocumentList {
    * READ permission
    */
   @VisibleForTesting
-  void processAcl(IAcl aclObj, Map<String, List<Value>> aclValues)
+  void processAcl(IAcl dmAcl, Map<String, List<Value>> aclValues)
       throws RepositoryDocumentException, RepositoryException {
     List<Value> userPrincipals = new ArrayList<Value>();
     List<Value> groupPrincipals = new ArrayList<Value>();
     List<Value> userDenyPrincipals = new ArrayList<Value>();
     List<Value> groupDenyPrincipals = new ArrayList<Value>();
 
-    try {
-      for (int i = 0; i < aclObj.getAccessorCount(); i++) {
-        String userName = aclObj.getAccessorName(i);
-        int permitType = aclObj.getAccessorPermitType(i);
-        String userLoginName = getUserLoginName(userName);
-        if (userLoginName == null) {
-          logger.log(Level.FINE,
-              "Skipping invalid username {0} found in ACL.", userName);
-          continue;
-        }
-        if (permitType == IAcl.DF_PERMIT_TYPE_ACCESS_RESTRICTION) {
-          if (aclObj.getAccessorPermit(i) <= IAcl.DF_PERMIT_READ) {
-            if (aclObj.isGroup(i)) {
-              groupDenyPrincipals.add(asPrincipalValue(userLoginName,
-                  getGroupNamespace(userName)));
-            } else {
-              userDenyPrincipals.add(asPrincipalValue(userLoginName,
-                  getUserNamespace(userName)));
-            }
+    for (int i = 0; i < dmAcl.getAccessorCount(); i++) {
+      String accessorName = dmAcl.getAccessorName(i);
+      int permitType = dmAcl.getAccessorPermitType(i);
+      String principalName = getPrincipalName(accessorName);
+      if (principalName == null) {
+        logger.log(Level.FINE,
+            "Skipping invalid username {0} found in ACL.", accessorName);
+        continue;
+      }
+      if (permitType == IAcl.DF_PERMIT_TYPE_ACCESS_RESTRICTION) {
+        if (dmAcl.getAccessorPermit(i) <= IAcl.DF_PERMIT_READ) {
+          if (dmAcl.isGroup(i)) {
+            groupDenyPrincipals.add(asPrincipalValue(principalName,
+                getGroupNamespace(accessorName)));
+          } else {
+            userDenyPrincipals.add(asPrincipalValue(principalName,
+                globalNamespace));
           }
-        } else if (permitType == IAcl.DF_PERMIT_TYPE_ACCESS_PERMIT) {
-          if (aclObj.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
-            if (userName.equalsIgnoreCase("dm_world") || aclObj.isGroup(i)) {
-              groupPrincipals.add(asPrincipalValue(userLoginName,
-                      getGroupNamespace(userName)));
-            } else if (userName.equalsIgnoreCase("dm_owner")
-                || userName.equalsIgnoreCase("dm_group")) {
-              // skip dm_owner and dm_group for now.
-              // TODO (Srinivas): Need to resolve these acls
-              continue;
-            } else {
-              userPrincipals.add(asPrincipalValue(userLoginName,
-                      getUserNamespace(userName)));
-            }
+        }
+      } else if (permitType == IAcl.DF_PERMIT_TYPE_ACCESS_PERMIT) {
+        if (dmAcl.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
+          if (accessorName.equalsIgnoreCase("dm_world")
+              || dmAcl.isGroup(i)) {
+            groupPrincipals.add(asPrincipalValue(principalName,
+                getGroupNamespace(accessorName)));
+          } else if (accessorName.equalsIgnoreCase("dm_owner")
+              || accessorName.equalsIgnoreCase("dm_group")) {
+            // skip dm_owner and dm_group for now.
+            // TODO (Srinivas): Need to resolve these acls
+            continue;
+          } else {
+            userPrincipals.add(asPrincipalValue(principalName,
+                globalNamespace));
           }
         }
       }
-      // add users and groups principals to the map
-      aclValues.put(SpiConstants.PROPNAME_ACLUSERS, userPrincipals);
-      aclValues.put(SpiConstants.PROPNAME_ACLGROUPS, groupPrincipals);
-      aclValues.put(SpiConstants.PROPNAME_ACLDENYUSERS, userDenyPrincipals);
-      aclValues.put(SpiConstants.PROPNAME_ACLDENYGROUPS, groupDenyPrincipals);
-    } catch (RepositoryDocumentException e) {
-      logger.log(Level.WARNING, "Error fetching Acl user and group names");
-      throw e;
     }
+    // add users and groups principals to the map
+    aclValues.put(SpiConstants.PROPNAME_ACLUSERS, userPrincipals);
+    aclValues.put(SpiConstants.PROPNAME_ACLGROUPS, groupPrincipals);
+    aclValues.put(SpiConstants.PROPNAME_ACLDENYUSERS, userDenyPrincipals);
+    aclValues.put(SpiConstants.PROPNAME_ACLDENYGROUPS, groupDenyPrincipals);
   }
 
-  /* Creates a secure document using Acl users and groups. */
-  private Document getSecureAclDocument(IAcl aclObj, String objId,
-      ActionType action) throws RepositoryDocumentException,
-      RepositoryException {
+  /*
+   * Creates an empty secure document for a deleted ACL. Named
+   * resources cannot be deleted, so we are just returning an empty
+   * ACL with no principals, no inherit-from, and the implicit default
+   * inheritance-type of LEAF (so it is invalid to inherit from this
+   * ACL).
+   */
+  private Document getDeletedAcl(String objectId) throws RepositoryException {
     Map<String, List<Value>> aclValues = new HashMap<String, List<Value>>();
 
     aclValues.put(SpiConstants.PROPNAME_DOCID,
-        Collections.singletonList(Value.getStringValue(objId)));
-    aclValues.put(SpiConstants.PROPNAME_ACTION,
-        Collections.singletonList(Value.getStringValue(action.toString())));
-
-    if (ActionType.ADD.equals(action)) {
-      processAcl(aclObj, aclValues);
-      aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
-          Collections.singletonList(Value.getStringValue(
-              SpiConstants.AclInheritanceType.PARENT_OVERRIDES.toString())));
-    }
+        Collections.singletonList(Value.getStringValue(objectId)));
     return SecureDocument.createAcl(aclValues);
   }
 
-  private Document getRequiredSecureAclDocument(IAcl aclObj, String idValue,
-      String parentIdValue, String... group) throws RepositoryException {
+  /* Creates a secure document using ACL basic permissions. */
+  private Document getBasicAcl(IAcl dmAcl, String aclId,
+      String parentAclId) throws RepositoryException {
     Map<String, List<Value>> aclValues = new HashMap<String, List<Value>>();
 
     aclValues.put(SpiConstants.PROPNAME_DOCID,
-        Collections.singletonList(Value.getStringValue(idValue)));
+        Collections.singletonList(Value.getStringValue(aclId)));
 
-    if (parentIdValue != null) {
+    if (parentAclId != null) {
+      logger.log(Level.FINE,
+          "ACL {0} has required groups or required group set", aclId);
       aclValues.put(SpiConstants.PROPNAME_ACLINHERITFROM_DOCID,
-          Collections.singletonList(Value.getStringValue(parentIdValue)));
+          Collections.singletonList(Value.getStringValue(parentAclId)));
     }
 
-    if (aclObj != null) {
-      aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
-          Collections.singletonList(Value.getStringValue(
-              SpiConstants.AclInheritanceType.PARENT_OVERRIDES.toString())));
-      processAcl(aclObj, aclValues);
-    } else {
-      aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
-          Collections.singletonList(Value.getStringValue(
-              SpiConstants.AclInheritanceType.AND_BOTH_PERMIT.toString())));
-      List<Value> groupPrincipals = new ArrayList<Value>();
-      for (String name : group) {
-        groupPrincipals.add(asPrincipalValue(name, getGroupNamespace(name)));
-      }
-      aclValues.put(SpiConstants.PROPNAME_ACLGROUPS, groupPrincipals);
-    }
+    aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
+        Collections.singletonList(Value.getStringValue(
+                SpiConstants.AclInheritanceType.PARENT_OVERRIDES.toString())));
+    processAcl(dmAcl, aclValues);
 
     return SecureDocument.createAcl(aclValues);
   }
 
-  private Stack<Document> getSecureAclDocumentWithRequiredGroupOrSet(
-      IAcl aclObj, String objId) throws RepositoryException {
-    Stack<Document> docStack = new Stack<Document>();
-    List<String> requiredGroupSetPrincipals = new ArrayList<String>();
+  /* Creates a secure document using ACL required group or group set. */
+  private Document getRequiredAcl(String aclId,
+      String parentAclId, List<String> groups) throws RepositoryException {
+    Map<String, List<Value>> aclValues = new HashMap<String, List<Value>>();
 
-    boolean processedReqGroupSet = false;
-    String accessor = null;
-    String parentIdValue = null;
-    for (int i = 0; i < aclObj.getAccessorCount(); i++) {
-      int permitType = aclObj.getAccessorPermitType(i);
+    aclValues.put(SpiConstants.PROPNAME_DOCID,
+        Collections.singletonList(Value.getStringValue(aclId)));
+
+    if (parentAclId != null) {
+      aclValues.put(SpiConstants.PROPNAME_ACLINHERITFROM_DOCID,
+          Collections.singletonList(Value.getStringValue(parentAclId)));
+    }
+
+    aclValues.put(SpiConstants.PROPNAME_ACLINHERITANCETYPE,
+        Collections.singletonList(Value.getStringValue(
+                SpiConstants.AclInheritanceType.AND_BOTH_PERMIT.toString())));
+    List<Value> groupPrincipals = new ArrayList<Value>();
+    for (String name : groups) {
+      groupPrincipals.add(asPrincipalValue(name, getGroupNamespace(name)));
+    }
+    aclValues.put(SpiConstants.PROPNAME_ACLGROUPS, groupPrincipals);
+
+    return SecureDocument.createAcl(aclValues);
+  }
+
+  /**
+   * Creates the full ACL chain for the Documentum ACL and pushes it
+   * onto {@link #aclStack}.
+   */
+  private void pushAclChainToStack(String objectId) throws RepositoryException {
+    IAcl dmAcl = fetchAcl(objectId);
+    List<String> requiredGroupSet = new ArrayList<String>();
+    String parentAclId = null;
+
+    for (int i = 0; i < dmAcl.getAccessorCount(); i++) {
+      String accessorName = dmAcl.getAccessorName(i);
+      int permitType = dmAcl.getAccessorPermitType(i);
+
       if (permitType == IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP) {
-        accessor = aclObj.getAccessorName(i);
-        String aclIdValue = objId + "_" + accessor;
-        // do not process ACL principals
-        Document doc = getRequiredSecureAclDocument(null,
-            aclIdValue, parentIdValue, accessor);
-        docStack.push(doc);
-        parentIdValue = aclIdValue;
+        String aclId = objectId + "_" + accessorName;
+        Document acl = getRequiredAcl(aclId, parentAclId,
+            Collections.singletonList(accessorName));
+        aclStack.push(acl);
+        parentAclId = aclId;
       } else if (permitType == IAcl.DF_PERMIT_TYPE_REQUIRED_GROUP_SET) {
-        String accessorName = aclObj.getAccessorName(i);
-        requiredGroupSetPrincipals.add(accessorName);
-        processedReqGroupSet = true;
+        requiredGroupSet.add(accessorName);
       }
     }
 
-    if (processedReqGroupSet) {
-      String idValue = objId + "_reqGroupSet";
-      String[] groups = requiredGroupSetPrincipals.toArray(new String[0]);
-      docStack.push(getRequiredSecureAclDocument(null, idValue, parentIdValue,
-          groups));
-      parentIdValue = idValue;
+    if (!requiredGroupSet.isEmpty()) {
+      String aclId = objectId + "_reqGroupSet";
+      Document acl = getRequiredAcl(aclId, parentAclId, requiredGroupSet);
+      aclStack.push(acl);
+      parentAclId = aclId;
     }
-    // process ACL principals
-    docStack.push(getRequiredSecureAclDocument(aclObj, objId, parentIdValue));
 
-    return docStack;
+    Document acl = getBasicAcl(dmAcl, objectId, parentAclId);
+    aclStack.push(acl);
   }
 
   private Value asPrincipalValue(String item, String namespace)
@@ -367,119 +335,76 @@ public class DctmAclList implements DocumentList {
         namespace, item, CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
   }
 
-  private String getUserLoginName(String userName) throws RepositoryException {
-    if (userName.equalsIgnoreCase("dm_world")
-        || userName.equalsIgnoreCase("dm_owner")
-        || userName.equalsIgnoreCase("dm_group")) {
-      return userName;
+  private String getPrincipalName(String accessorName)
+      throws RepositoryException {
+    if (accessorName.equalsIgnoreCase("dm_world")
+        || accessorName.equalsIgnoreCase("dm_owner")
+        || accessorName.equalsIgnoreCase("dm_group")) {
+      return accessorName;
     }
 
-    try {
-      IUser userObj = (IUser) session.getObjectByQualification(
-          "dm_user where user_name = '" + userName + "'");
-      if (userObj == null) {
+    IUser userObj = (IUser) session.getObjectByQualification(
+        "dm_user where user_name = '" + accessorName + "'");
+    if (userObj == null) {
+      return null;
+    }
+
+    if (!Strings.isNullOrEmpty(userObj.getUserSourceAsString())
+        && userObj.getUserSourceAsString().equalsIgnoreCase("ldap")) {
+      String dnName = userObj.getUserDistinguishedLDAPName();
+      if (Strings.isNullOrEmpty(dnName)) {
+        // TODO(jlacey): This is inconsistent with authN, which
+        // matches such users against windows_domain. This case
+        // probably can't happen, so I don't think it's important.
+        logger.log(Level.FINE, "Missing DN for user: {0}", accessorName);
         return null;
       }
 
-      if (!Strings.isNullOrEmpty(userObj.getUserSourceAsString())
-          && userObj.getUserSourceAsString().equalsIgnoreCase("ldap")) {
-        String dnName = userObj.getUserDistinguishedLDAPName();
-        if (Strings.isNullOrEmpty(dnName)) {
-          // TODO(jlacey): This is inconsistent with authN, which
-          // matches such users against windows_domain. This case
-          // probably can't happen, so I don't think it's important.
-          logger.log(Level.FINE, "Missing DN for user: {0}", userName);
-          return null;
+      try {
+        LdapName dnDomain = IdentityUtil.getDomainComponents(dnName);
+        if (!dnDomain.isEmpty()) {
+          return IdentityUtil.getFirstDomainFromDN(dnDomain) + "\\"
+              + userObj.getUserLoginName();
         }
-
-        try {
-          LdapName dnDomain = IdentityUtil.getDomainComponents(dnName);
-          if (!dnDomain.isEmpty()) {
-            return IdentityUtil.getFirstDomainFromDN(dnDomain) + "\\"
-                + userObj.getUserLoginName();
-          }
-          // Else fall-through to use windows_domain.
-        } catch (InvalidNameException e) {
-          logger.log(Level.FINE,
-              "Invalid DN " + dnName + " for user: " + userName, e);
-          return null;
-        }
-      }
-
-      String userLoginName;
-      String windowsDomain = traversalManager.getWindowsDomain();
-      if (!Strings.isNullOrEmpty(windowsDomain) && !userObj.isGroup()) {
-        logger.log(Level.FINEST,
-            "using configured domain: {0} for unsynchronized user {1}",
-            new String[] {windowsDomain, userName});
-        userLoginName = windowsDomain + "\\" + userObj.getUserLoginName();
-      } else {
-        userLoginName = userObj.getUserLoginName();
-      }
-      return userLoginName;
-    } catch (RepositoryException e) {
-      logger.finer(e.getMessage());
-      logger.info("error getting user login name for: " + userName);
-      throw e;
-    }
-  }
-
-  private String getUserNamespace(String usergroup)
-      throws RepositoryDocumentException {
-    String localNamespace = traversalManager.getLocalNamespace();
-    String globalNamespace = traversalManager.getGlobalNamespace();
-
-    try {
-      IUser userObj = (IUser) session.getObjectByQualification(
-          "dm_user where user_name = '" + usergroup + "'");
-      if (userObj != null) {
-        // TODO(srinivas) to check with Meghna about name space for users
-        // if it is always global namespace. setting to global for now.
-        return globalNamespace;
-        // following code commented until verification from Meghna
-        // if (Strings.isNullOrEmpty(userObj.getUserSourceAsString())) {
-        // logger.fine("local namespace for user " + usergroup);
-        // return localNamespace;
-        // } else {
-        // logger.fine("global namespace for user " + usergroup);
-        // return globalNamespace;
-        // }
-      } else {
+        // Else fall-through to use windows_domain.
+      } catch (InvalidNameException e) {
+        logger.log(Level.FINE,
+            "Invalid DN " + dnName + " for user: " + accessorName, e);
         return null;
       }
-    } catch (RepositoryDocumentException e) {
-      logger.fine("Exception in getNamespace " + e.getMessage());
-      throw e;
     }
+
+    String principalName;
+    String windowsDomain = traversalManager.getWindowsDomain();
+    if (!Strings.isNullOrEmpty(windowsDomain) && !userObj.isGroup()) {
+      logger.log(Level.FINEST,
+          "using configured domain: {0} for unsynchronized user {1}",
+          new String[] {windowsDomain, accessorName});
+      principalName = windowsDomain + "\\" + userObj.getUserLoginName();
+    } else {
+      principalName = userObj.getUserLoginName();
+    }
+    return principalName;
   }
 
   private String getGroupNamespace(String usergroup)
       throws RepositoryDocumentException {
-    String localNamespace = traversalManager.getLocalNamespace();
-    String globalNamespace = traversalManager.getGlobalNamespace();
-
     // special group local to repository
     if (usergroup.equalsIgnoreCase("dm_world")) {
       return localNamespace;
     }
 
-    try {
-      IGroup groupObj = (IGroup) session.getObjectByQualification(
-          "dm_group where group_name = '" + usergroup + "'");
-      if (groupObj != null) {
-        if (Strings.isNullOrEmpty(groupObj.getUserSource())) {
-          logger.finer("local namespace for group " + usergroup);
-          return localNamespace;
-        } else {
-          logger.finer("global namespace for group " + usergroup);
-          return globalNamespace;
-        }
-      } else {
-        return null;
-      }
-    } catch (RepositoryDocumentException e) {
-      logger.fine("Exception in getNamespace " + e.getMessage());
-      throw e;
+    IGroup groupObj = (IGroup) session.getObjectByQualification(
+        "dm_group where group_name = '" + usergroup + "'");
+    if (groupObj == null) {
+      // TODO(jlacey): Return localNamespace instead.
+      return null;
+    } else if (Strings.isNullOrEmpty(groupObj.getUserSource())) {
+      logger.finer("local namespace for group " + usergroup);
+      return localNamespace;
+    } else {
+      logger.finer("global namespace for group " + usergroup);
+      return globalNamespace;
     }
   }
 

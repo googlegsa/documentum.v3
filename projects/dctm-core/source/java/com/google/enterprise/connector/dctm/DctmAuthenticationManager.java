@@ -292,26 +292,18 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       throws RepositoryDocumentException {
     String localNamespace = connector.getGoogleLocalNamespace();
     String globalNamespace = connector.getGoogleGlobalNamespace();
-    String groupNamespace = null;
-    try {
-      IGroup groupObj = (IGroup) session.getObjectByQualification(
-          "dm_group where group_name = '" + groupName + "'");
-      if (groupObj != null) {
-        if (Strings.isNullOrEmpty(groupObj.getUserSource())) {
-          LOGGER.fine("local namespace for group " + groupName);
-          groupNamespace = localNamespace;
-        } else {
-          LOGGER.fine("global namespace for group " + groupName);
-          groupNamespace = globalNamespace;
-        }
-      } else {
-        LOGGER.fine("namespace for group is null");
-        return null;
-      }
-    } catch (RepositoryDocumentException e) {
-      LOGGER.fine("Exception in getNameSpace " + e.getMessage());
-      throw e;
+
+    IGroup groupObj = (IGroup) session.getObjectByQualification(
+        "dm_group where group_name = '" + groupName + "'");
+    if (groupObj == null) {
+      LOGGER.log(Level.FINE, "Group {0} does not exist", groupName);
+      return null;
+    } else if (Strings.isNullOrEmpty(groupObj.getUserSource())) {
+      LOGGER.fine("local namespace for group " + groupName);
+      return localNamespace;
+    } else {
+      LOGGER.fine("global namespace for group " + groupName);
+      return globalNamespace;
     }
-    return groupNamespace;
   }
 }
