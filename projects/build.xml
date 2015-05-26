@@ -41,9 +41,6 @@
   <property name="spi.jarfile" value="${spi.jar.dir}/connector-spi.jar" />
   <property name="connector.jarfile" value="${spi.jar.dir}/connector.jar" />
   <property name="tests.jarfile" value="${spi.jar.dir}/connector-tests.jar" />
-  <property name="junit.jarfile" location="${thirdparty.jar.dir}/tests/junit.jar" />
-
-  <property name="jcr.jarfile" location="${jarfile.dir}/jcr-1.0.jar" />
 
   <!-- All reports go into this directory. -->
   <property name="reports.dir" value="dctm-core/reports" />
@@ -68,8 +65,9 @@
     <pathelement location="${classes-core}" />
     <pathelement location="${connector.jarfile}" />
     <pathelement location="${tests.jarfile}" />
-    <pathelement location="${junit.jarfile}" />
-    <pathelement location="${jcr.jarfile}" />
+    <fileset dir="${thirdparty.jar.dir}">
+      <include name="tests/*.jar" />
+    </fileset>
   </path>
 
   <!-- ======== Cobertura Code Coverage Properties ======= -->
