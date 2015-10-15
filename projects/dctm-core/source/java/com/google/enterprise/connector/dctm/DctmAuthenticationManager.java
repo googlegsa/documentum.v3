@@ -139,7 +139,7 @@ public class DctmAuthenticationManager implements AuthenticationManager {
       queryBuff.append("select user_name, user_ldap_dn from ");
       queryBuff.append("dm_user where user_login_name = '");
       queryBuff.append(DqlUtils.escapeString(userLoginName));
-      queryBuff.append("'");
+      queryBuff.append("' and user_state = 0");
 
       if (!domainName.isEmpty()) {
         queryBuff.append(" and (user_source = 'LDAP'");
@@ -255,8 +255,9 @@ public class DctmAuthenticationManager implements AuthenticationManager {
     ISession session = sessionManager.getSession(docbase);
     try {
       String queryStr =
-          "select group_name from dm_group where any i_all_users_names = '"
-          + username + "'";
+          "select group_name from dm_group, dm_user "
+          + "where group_name = user_name and user_state = 0 and "
+          + "any i_all_users_names = '" + username + "'";
       IQuery query = clientX.getQuery();
       query.setDQL(queryStr);
       ICollection collecGroups = query.execute(session,

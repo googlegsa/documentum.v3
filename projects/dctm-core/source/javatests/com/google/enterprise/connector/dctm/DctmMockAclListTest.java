@@ -193,6 +193,13 @@ public class DctmMockAclListTest extends TestCase {
     }
   }
 
+  private void disableUsers(String... names) throws SQLException {
+    for (String name : names) {
+      jdbcFixture.executeUpdate(String.format(
+          "UPDATE dm_user SET user_state = 1 WHERE user_name = '%s'", name));
+    }
+  }
+
   private void insertAcls(MockDmAcl... acls)
       throws RepositoryException, SQLException {
     for (MockDmAcl acl : acls) {
@@ -340,6 +347,78 @@ public class DctmMockAclListTest extends TestCase {
       }
     }
     assertEquals(expectedPrincipal, groupLookupPrincipal);
+  }
+
+  public void testDisabledUserAcl() throws Exception {
+    insertUsers("user1", "user2");
+    disableUsers("user1");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowUserToAcl(aclObj, "user1");
+    addAllowUserToAcl(aclObj, "user2");
+
+    aclList.processAcl(aclObj, aclValues);
+
+    assertAclEquals(ImmutableSet.of("user2"), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
+  }
+
+  public void testDisabledUserDenyAcl() throws Exception {
+    insertUsers("user1", "user2");
+    disableUsers("user1");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addDenyUserToAcl(aclObj, "user1", IAcl.DF_PERMIT_READ);
+    addDenyUserToAcl(aclObj, "user2", IAcl.DF_PERMIT_READ);
+
+    aclList.processAcl(aclObj, aclValues);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
+
+    assertAclEquals(ImmutableSet.of("user1", "user2"),
+        SpiConstants.PROPNAME_ACLDENYUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
+  }
+
+  public void testDisabledGroupAcl() throws Exception {
+    insertGroup("group1", "user1", "user2");
+    insertGroup("group2", "user2", "user3");
+    disableUsers("group2");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addAllowGroupToAcl(aclObj, "group1");
+    addAllowGroupToAcl(aclObj, "group2");
+
+    aclList.processAcl(aclObj, aclValues);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of("group1"), SpiConstants.PROPNAME_ACLGROUPS);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
+  }
+
+  public void testDisabledGroupDenyAcl() throws Exception {
+    insertGroup("group1", "user1", "user2");
+    insertGroup("group2", "user2", "user3");
+    disableUsers("group2");
+
+    MockDmAcl aclObj = new MockDmAcl(123, "testAcl123");
+    addDenyGroupToAcl(aclObj, "group1", IAcl.DF_PERMIT_READ);
+    addDenyGroupToAcl(aclObj, "group2", IAcl.DF_PERMIT_READ);
+
+    aclList.processAcl(aclObj, aclValues);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLUSERS);
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
+
+    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
+    assertAclEquals(ImmutableSet.of("group1", "group2"),
+        SpiConstants.PROPNAME_ACLDENYGROUPS);
   }
 
   public void testNonExistentAccessorsAcl() throws Exception {

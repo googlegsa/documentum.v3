@@ -117,11 +117,22 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
 
   private void insertGroup(String group, String... members)
       throws SQLException {
+    jdbcFixture.executeUpdate(String.format(
+        "insert into dm_user(user_name, user_login_name, r_is_group) "
+        + "values('%s', '%s', TRUE)", group, group));
     for (String user : members) {
       jdbcFixture.executeUpdate(
           String.format("insert into dm_group(group_name, i_all_users_names) "
               + "values('%s', '%s')",
               group, user));
+    }
+  }
+
+  private void disableUsers(String... names) throws SQLException {
+    for (String name : names) {
+      jdbcFixture.executeUpdate(String.format(
+          "UPDATE dm_user SET user_state = 1 WHERE user_login_name = '%s'",
+          name));
     }
   }
 
@@ -133,8 +144,7 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     insertUser("margaret", DmInitialize.DM_LOGIN_OK2, "", "");
     insertGroup("grp1", "joseph", "user3", "user4");
     insertGroup("grp2", "user1", "joseph", "user2");
-    insertGroup("grp3", "user2", "user3", "joseph");
-    insertGroup("grp3", "user3", "user4");
+    insertGroup("grp3", "user2", "user3", "user4", "joseph");
   }
 
   public void testGroupLookup_only() throws Exception {
@@ -167,6 +177,30 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     assertTrue(result.isValid());
     Collection<?> groups = result.getGroups();
     assertEquals(ImmutableList.of("grp1", "grp2", "grp3", "dm_world"),
+        toStrings(groups));
+  }
+
+  public void testGroupLookup_disabledUser() throws Exception {
+    groupSetUp();
+    disableUsers(DmInitialize.DM_LOGIN_OK1);
+
+    AuthenticationResponse result =
+        authentManager.authenticate(new SimpleAuthenticationIdentity(
+            DmInitialize.DM_LOGIN_OK1, null));
+    assertFalse(result.isValid());
+    assertEquals(null, result.getGroups());
+  }
+
+  public void testGroupLookup_disabledGroup() throws Exception {
+    groupSetUp();
+    disableUsers("grp2");
+
+    AuthenticationResponse result =
+        authentManager.authenticate(new SimpleAuthenticationIdentity(
+            DmInitialize.DM_LOGIN_OK1, DmInitialize.DM_PWD_OK1));
+    assertTrue(result.isValid());
+    Collection<?> groups = result.getGroups();
+    assertEquals(ImmutableList.of("grp1", "grp3", "dm_world"),
         toStrings(groups));
   }
 
@@ -208,13 +242,9 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     insertUser("aussieuser", "ldapuser", "LDAP",
         "CN=LDAP User,dc=ajax,dc=example,dc=com,dc=au");
 
-    insertGroup("localgroup", "localuser");
-    insertGroup("localgroup", "otheruser");
-    insertGroup("ldapgroup", "acmeuser");
-    insertGroup("ldapgroup", "ajaxuser");
-    insertGroup("invalids", "someuser");
-    insertGroup("invalids", "ldapuser");
-    insertGroup("invalids", "aussieuser");
+    insertGroup("localgroup", "localuser", "otheruser");
+    insertGroup("ldapgroup", "acmeuser", "ajaxuser");
+    insertGroup("invalids", "someuser", "ldapuser", "aussieuser");
   }
 
   private void testDomain(String user, String domain, String... expectedGroups)
@@ -313,8 +343,7 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
     // Note ou, looking for false positives.
     insertUser("ajaxuser", "ldapuser", "LDAP",
         "CN=LDAP User,ou=dc\\=ajax,dc=example,dc=com");
-    insertGroup("ldapgroup", "acmeuser");
-    insertGroup("ldapgroup", "ajaxuser");
+    insertGroup("ldapgroup", "acmeuser", "ajaxuser");
   }
 
   public void testLdapEscaping_windows() throws Exception {
@@ -399,8 +428,7 @@ public class DctmMockAuthenticationManagerTest extends TestCase {
         "CN=LDAP User,dc=acme,dc=example,dc=com");
     insertUser("ajaxuser", "ldapuser", "LDAP",
         "uid=n314159,o=ajax,o=example,o=com");
-    insertGroup("ldapgroup", "acmeuser");
-    insertGroup("ldapgroup", "ajaxuser");
+    insertGroup("ldapgroup", "acmeuser", "ajaxuser");
 
     testGroupLookupFail("ldapuser", "acme");
   }
