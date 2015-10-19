@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.enterprise.connector.dctm.dfcwrap.IClientX;
 import com.google.enterprise.connector.dctm.dfcwrap.ICollection;
@@ -78,6 +79,7 @@ public class DctmTraversalManager
   private final String globalNamespace;
   private final String localNamespace;
   private final String windowsDomain;
+  @VisibleForTesting final String dateToStringFunction;
 
   public DctmTraversalManager(DctmConnector connector,
       ISessionManager sessionManager) throws RepositoryException {
@@ -120,6 +122,16 @@ public class DctmTraversalManager
     this.globalNamespace = globalnamespace;
     this.localNamespace = localnamespace;
     this.windowsDomain = windowsDomain;
+
+    ISession session = sessionManager.getSession(docbase);
+    try {
+      dateToStringFunction = session.getServerVersion().matches("[456]\\..*")
+          ? "DATETOSTRING" : "DATETOSTRING_LOCAL";
+    } finally {
+      if (session != null) {
+        sessionManager.release(session);
+      }
+    }
   }
 
   IClientX getClientX() {
@@ -403,7 +415,8 @@ public class DctmTraversalManager
 
   protected void baseQueryString(StringBuilder query, Checkpoint checkpoint) {
     query.append("select i_chronicle_id, r_object_id, r_modify_date, ");
-    query.append("DATETOSTRING(r_modify_date, 'yyyy-mm-dd hh:mi:ss') ");
+    query.append(dateToStringFunction);
+    query.append("(r_modify_date, 'yyyy-mm-dd hh:mi:ss') ");
     query.append("as r_modify_date_str from ");
     query.append(rootObjectType);
     query.append(" where ");
@@ -423,12 +436,14 @@ public class DctmTraversalManager
   }
 
   protected IQuery buildDelQuery(Checkpoint checkpoint) {
-    StringBuilder queryStr = new StringBuilder(
-        "select r_object_id, chronicle_id, audited_obj_id, time_stamp_utc, "
-        + "DATETOSTRING(time_stamp_utc, 'yyyy-mm-dd hh:mi:ss') "
-        + "as time_stamp_utc_str "
-        + "from dm_audittrail "
-        + "where (event_name='dm_destroy' or event_name='dm_prune')");
+    StringBuilder queryStr = new StringBuilder()
+        .append("select r_object_id, chronicle_id, audited_obj_id, ")
+        .append("time_stamp_utc, ")
+        .append(dateToStringFunction)
+        .append("(time_stamp_utc, 'yyyy-mm-dd hh:mi:ss') ")
+        .append("as time_stamp_utc_str ")
+        .append("from dm_audittrail ")
+        .append("where (event_name='dm_destroy' or event_name='dm_prune')");
     if (checkpoint.getDeleteDate() != null) {
       Object[] arguments =
           {checkpoint.getDeleteDate(), checkpoint.getDeleteId()};
@@ -460,14 +475,15 @@ public class DctmTraversalManager
   }
 
   protected IQuery buildAclModifyQuery(Checkpoint checkpoint) {
-    StringBuilder queryStr = new StringBuilder(
-        "select r_object_id, chronicle_id, audited_obj_id, event_name, "
-        + "time_stamp_utc, "
-        + "DATETOSTRING(time_stamp_utc, 'yyyy-mm-dd hh:mi:ss') "
-        + "as time_stamp_utc_str "
-        + "from dm_audittrail_acl "
-        + "where (event_name='dm_save' or event_name='dm_saveasnew' "
-        + "or event_name='dm_destroy')");
+    StringBuilder queryStr = new StringBuilder()
+        .append("select r_object_id, chronicle_id, audited_obj_id, ")
+        .append("event_name, time_stamp_utc, ")
+        .append(dateToStringFunction)
+        .append("(time_stamp_utc, 'yyyy-mm-dd hh:mi:ss') ")
+        .append("as time_stamp_utc_str ")
+        .append("from dm_audittrail_acl ")
+        .append("where (event_name='dm_save' or event_name='dm_saveasnew' ")
+        .append("or event_name='dm_destroy')");
 
     if (checkpoint.getAclModifiedDate() != null) {
       Object[] arguments =

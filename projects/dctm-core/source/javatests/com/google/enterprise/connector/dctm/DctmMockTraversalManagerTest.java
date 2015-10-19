@@ -15,6 +15,10 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSession;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
+import com.google.enterprise.connector.dctm.dfcwrap.ILoginInfo;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.RepositoryException;
@@ -30,6 +34,7 @@ import java.util.List;
 public class DctmMockTraversalManagerTest extends TestCase {
   DctmConnector connector;
   TraversalManager qtm;
+  ISessionManager sessionManager;
 
   @Override
   protected void setUp() throws RepositoryException {
@@ -48,6 +53,15 @@ public class DctmMockTraversalManagerTest extends TestCase {
     connector.setIncluded_meta(DmInitialize.DM_INCLUDED_META);
     Session session = connector.login();
     qtm = session.getTraversalManager();
+
+    sessionManager = new MockDmSessionManager();
+    ILoginInfo loginInfo = connector.getClientX().getLoginInfo();
+    loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
+    loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
+    sessionManager.setIdentity(connector.getDocbase(), loginInfo);
+    MockDmSession mockSession =
+        (MockDmSession) sessionManager.getSession(connector.getDocbase());
+    mockSession.setServerVersion("6.0.0.000  Win32.SQLServer");
   }
 
   public void testStartTraversal() throws RepositoryException {
@@ -89,7 +103,7 @@ public class DctmMockTraversalManagerTest extends TestCase {
     }
 
     MockTraversalManager(long delaySeconds) throws RepositoryException {
-      super(connector, null);
+      super(connector, sessionManager);
       this.delayMillis = delaySeconds * 1000L;
     }
 
@@ -232,5 +246,34 @@ public class DctmMockTraversalManagerTest extends TestCase {
     assertNull(documentList.nextDocument());
     assertNotNull(documentList.checkpoint()); // It's not MockDocumentList.
     assertEquals(1, mtm.count); // Would have been 2 without the timeout.
+  }
+
+  private void testDateToString(String version, String expected)
+      throws RepositoryException {
+    MockDmSession mockSession =
+        (MockDmSession) sessionManager.getSession(connector.getDocbase());
+    mockSession.setServerVersion(version);
+    MockTraversalManager mtm = new MockTraversalManager();
+    assertEquals(expected, mtm.dateToStringFunction);
+  }
+
+  public void testDateToString_version6() throws RepositoryException {
+    testDateToString("6.5.0.033  Win32.SQLServer", "DATETOSTRING");
+  }
+
+  public void testDateToString_version7() throws RepositoryException {
+    testDateToString("7.2.0000.0155  Win64.SQLServer", "DATETOSTRING_LOCAL");
+  }
+
+  public void testDateToString_version75() throws RepositoryException {
+    testDateToString("7.5.0000.0100  Win32.SQLServer", "DATETOSTRING_LOCAL");
+  }
+
+  public void testDateToString_version8() throws RepositoryException {
+    testDateToString("8.0.0000.0000  Win64.SQLServer", "DATETOSTRING_LOCAL");
+  }
+
+  public void testDateToString_version10() throws RepositoryException {
+    testDateToString("10.0.0000.0010  Win64.SQLServer", "DATETOSTRING_LOCAL");
   }
 }

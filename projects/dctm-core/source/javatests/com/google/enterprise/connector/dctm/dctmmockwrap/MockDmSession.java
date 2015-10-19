@@ -14,6 +14,7 @@
 
 package com.google.enterprise.connector.dctm.dctmmockwrap;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.enterprise.connector.dctm.JdbcFixture;
 import com.google.enterprise.connector.dctm.dfcwrap.IId;
@@ -46,6 +47,8 @@ public class MockDmSession implements ISession {
   private final String sessionFileNameSuffix;
 
   private final Connection jdbcConnection = JdbcFixture.getSharedConnection();
+
+  private String serverVersion;
 
   public MockDmSession(ISessionManager sessMgr, MockJcrRepository mjR,
       MockJcrSession mjS, String dbFileName) {
@@ -110,7 +113,14 @@ public class MockDmSession implements ISession {
 
   @Override
   public String getServerVersion() {
-    return "dctmmockwrap";
+    if (Strings.isNullOrEmpty(serverVersion)) {
+      serverVersion = "7.2.0000.0155  Win64.SQLServer";
+    }
+    return serverVersion;
+  }
+
+  public void setServerVersion(String serverVersion) {
+    this.serverVersion = serverVersion;
   }
 
   /** Map of Documentum object type tags to internal or table names. */
