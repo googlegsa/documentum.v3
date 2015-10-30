@@ -7,7 +7,59 @@ Connector for Documentum. This connector supports EMC Documentum Content Server.
 The following sections describe the release in detail and provide information
 that supplements the main documentation.
 
-Web Site: http://code.google.com/p/google-enterprise-connector-dctm/
+For information about the latest version of the Connector for Documentum,
+now in beta, see the version 4 overview page and GitHub project:
+
+    http://googlegsa.github.io/adaptor/index.html
+
+    https://github.com/googlegsa/documentum
+
+For more about version 3, see the version 3 GitHub project:
+
+    https://github.com/googlegsa/documentum.v3
+
+Release 3.4.0, October 29, 2015
+===============================
+
+Introduction
+------------
+This is a maintenance release that improves security and quality
+without adding any new functionality. Users of previous releases are
+encouraged to upgrade.
+
+Known Issues
+------------
+23774328 - Modified permissions on documents are not detected.
+           When permissions are modified on documents, the r_modify_date
+           attribute of the document is not updated. Since the queries depend
+           on r_modify_date to detect changes, these updates are not detected.
+           This issue is fixed in version 4.1.
+
+Issues Fixed Since 3.2.10
+-------------------------
+23774318 - Disabled users can see Documentum search results. Filter out
+           disabled users in group lookup by checking for user_state = 0
+           “indicating a user who can log in”.
+
+23226447 - In Documentum version 7.0 and later, the DATETOSTRING function
+           uses UTC rather than server time. This results in getting back
+           a timestamp in non-server timezone, and when this is used in DQL
+           using DATE function where it is interpreted as server time,
+           wrong results are returned.
+
+Version Compatibility
+---------------------
+Connector instances created using versions 1.0.1 through 3.2.10 may be
+used with this version. This version works with Connector Manager
+version 3.2.2 or later. Earlier versions of the Connector Manager will
+not work correctly with this version of the connector.
+
+Java SE versions 6, 7, and 8 are supported.
+
+This product is designed to function with EMC Documentum Content Server  
+versions 6.6 through 7.2. A compatible version of EMC Documentum Foundation
+Classes (DFC) is required.. Documentum Content Server 6.5 is no longer
+supported.
 
 
 Release 3.2.10, March 20, 2015
