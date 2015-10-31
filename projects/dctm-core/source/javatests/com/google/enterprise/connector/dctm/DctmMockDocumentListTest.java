@@ -15,6 +15,7 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.DocumentList;
 import com.google.enterprise.connector.spi.Property;
@@ -26,6 +27,7 @@ import com.google.enterprise.connector.spi.TraversalManager;
 import junit.framework.TestCase;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class DctmMockDocumentListTest extends TestCase {
@@ -50,33 +52,30 @@ public class DctmMockDocumentListTest extends TestCase {
     qtm.setBatchHint(2);
   }
 
-  /*
-   * Test method for
-   * 'com.google.enterprise.connector.dctm.DctmDocumentList.nextDocument()'
-   */
-  public void testNextDocument() throws RepositoryException {
-    int counter = 0;
-    DocumentList propertyMapList = qtm.startTraversal();
-    Document pm = null;
-    Property prop = null;
-
-    while ((pm = propertyMapList.nextDocument()) != null) {
-      assertTrue(pm instanceof DctmSysobjectDocument);
-      prop = pm.findProperty(SpiConstants.PROPNAME_DOCID);
-
-      assertNotNull(prop);
-      assertEquals("users", prop.nextValue().toString());
-      counter++;
-      if (counter == 1) {
-        break;
-      }
-    }
+  protected void tearDown() {
+    MockDmSessionManager.tearDown();
   }
 
-  /*
-   * Test method for
-   * 'com.google.enterprise.connector.dctm.DctmDocumentList.checkpoint()'
-   */
+  public void testNextDocument() throws RepositoryException {
+    ArrayList<String> expectedDocids = new ArrayList<String>();
+    expectedDocids.add("users");
+    for (int i = 1; i <= 26; i++) {
+      expectedDocids.add("doc" + i);
+    }
+
+    ArrayList<String> actualDocids = new ArrayList<String>();
+    DocumentList propertyMapList = qtm.startTraversal();
+    Document pm;
+    while ((pm = propertyMapList.nextDocument()) != null) {
+      assertTrue(pm.getClass().getName(), pm instanceof DctmSysobjectDocument);
+      Property prop = pm.findProperty(SpiConstants.PROPNAME_DOCID);
+      assertNotNull(prop);
+      actualDocids.add(prop.nextValue().toString());
+    }
+
+    assertEquals(expectedDocids, actualDocids);
+  }
+
   public void testCheckpoint() throws RepositoryException {
     String checkPoint = null;
 

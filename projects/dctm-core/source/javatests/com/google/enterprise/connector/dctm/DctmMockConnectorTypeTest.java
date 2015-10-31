@@ -18,6 +18,7 @@ import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClient;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmClientX;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmQuery;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.IClient;
 import com.google.enterprise.connector.dctm.dfcwrap.IDocbaseMap;
 import com.google.enterprise.connector.spi.ConfigureResponse;
@@ -99,6 +100,10 @@ public class DctmMockConnectorTypeTest extends TestCase {
     validMap.put("Password", DmInitialize.DM_PWD_OK1);
     validMap.put("docbase", DmInitialize.DM_DOCBASE);
     validMap.put("webtop_display_url", "http://www.google.com/");
+  }
+
+  protected void tearDown() {
+    MockDmSessionManager.tearDown();
   }
 
   private void assertContains(String source, String target) {

@@ -59,9 +59,11 @@ public class DctmMockTraversalManagerTest extends TestCase {
     loginInfo.setUser(DmInitialize.DM_LOGIN_OK1);
     loginInfo.setPassword(DmInitialize.DM_PWD_OK1);
     sessionManager.setIdentity(connector.getDocbase(), loginInfo);
-    MockDmSession mockSession =
-        (MockDmSession) sessionManager.getSession(connector.getDocbase());
-    mockSession.setServerVersion("6.0.0.000  Win32.SQLServer");
+  }
+
+  @Override
+  protected void tearDown() {
+    MockDmSessionManager.tearDown();
   }
 
   public void testStartTraversal() throws RepositoryException {

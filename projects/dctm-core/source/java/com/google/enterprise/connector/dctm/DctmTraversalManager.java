@@ -128,9 +128,7 @@ public class DctmTraversalManager
       dateToStringFunction = session.getServerVersion().matches("[456]\\..*")
           ? "DATETOSTRING" : "DATETOSTRING_LOCAL";
     } finally {
-      if (session != null) {
-        sessionManager.release(session);
-      }
+      sessionManager.release(session);
     }
   }
 

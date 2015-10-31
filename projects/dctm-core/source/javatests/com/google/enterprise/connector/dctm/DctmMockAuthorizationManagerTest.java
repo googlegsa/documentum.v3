@@ -15,6 +15,7 @@
 package com.google.enterprise.connector.dctm;
 
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
 import com.google.enterprise.connector.spi.AuthorizationResponse;
 import com.google.enterprise.connector.spi.RepositoryException;
 import com.google.enterprise.connector.spi.SimpleAuthenticationIdentity;
@@ -42,6 +43,10 @@ public class DctmMockAuthorizationManagerTest extends TestCase {
     DctmSession sess = connector.login();
     authorizationManager = sess.getAuthorizationManager();
     assertNotNull(authorizationManager);
+  }
+
+  protected void tearDown() {
+    MockDmSessionManager.tearDown();
   }
 
   private void testQueryString(int size, boolean containsOr) {

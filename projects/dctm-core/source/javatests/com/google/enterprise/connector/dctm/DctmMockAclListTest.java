@@ -18,8 +18,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.enterprise.connector.dctm.dctmmockwrap.DmInitialize;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmAcl;
 import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmQuery;
+import com.google.enterprise.connector.dctm.dctmmockwrap.MockDmSessionManager;
 import com.google.enterprise.connector.dctm.dfcwrap.IAcl;
 import com.google.enterprise.connector.dctm.dfcwrap.ISession;
+import com.google.enterprise.connector.dctm.dfcwrap.ISessionManager;
 import com.google.enterprise.connector.spi.AuthenticationResponse;
 import com.google.enterprise.connector.spi.Document;
 import com.google.enterprise.connector.spi.Principal;
@@ -51,6 +53,10 @@ public class DctmMockAclListTest extends TestCase {
 
   private DctmSession dctmSession = null;
 
+  private ISessionManager sessionManager;
+  /** A releaseable session for the DctmAclList objects under test. */
+  private ISession session;
+
   private DctmAclList aclList = null;
   private Map<String, List<Value>> aclValues;
 
@@ -76,6 +82,9 @@ public class DctmMockAclListTest extends TestCase {
     qtm = dctmSession.getTraversalManager();
     qtm.setBatchHint(2);
 
+    sessionManager = qtm.getSessionManager();
+    session = sessionManager.getSession(DmInitialize.DM_DOCBASE);
+
     aclValues = new HashMap<String, List<Value>>();
     aclList = getAclListForTest();
 
@@ -83,15 +92,18 @@ public class DctmMockAclListTest extends TestCase {
   }
 
   protected void tearDown() throws SQLException {
-    jdbcFixture.tearDown();
+    try {
+      sessionManager.release(session);
+      MockDmSessionManager.tearDown();
+    } finally {
+      jdbcFixture.tearDown();
+    }
   }
 
   private DctmAclList getAclListForTest()
       throws RepositoryLoginException, RepositoryException {
     List<String> whereClauselist = new ArrayList<String>();
     Checkpoint checkpoint = new Checkpoint(whereClauselist);
-    ISession session =
-        qtm.getSessionManager().getSession(DmInitialize.DM_DOCBASE);
     return new DctmAclList(qtm, session, null, null, checkpoint);
   }
 
@@ -99,8 +111,6 @@ public class DctmMockAclListTest extends TestCase {
       throws RepositoryLoginException, RepositoryException {
     List<String> whereClauselist = new ArrayList<String>();
     Checkpoint checkpoint = new Checkpoint(whereClauselist);
-    ISession session =
-        qtm.getSessionManager().getSession(DmInitialize.DM_DOCBASE);
     return new DctmAclList(qtm, session, new MockDmQuery().executeQuery(query),
         null, checkpoint);
   }

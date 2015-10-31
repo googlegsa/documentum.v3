@@ -47,6 +47,15 @@ public class DctmDocumentList implements DocumentList {
 
   private final DctmTraversalManager traversalManager;
 
+  /**
+   * The given session is closed and the collections are released when
+   * the first of the following happens:
+   * <ol>
+   * <li> nextDocument returns null
+   * <li> checkpoint is called
+   * <li> this object is finalized
+   * </ol>
+   */
   public DctmDocumentList(DctmTraversalManager traversalManager,
       ISession session, ICollection collToAdd, ICollection collToDel,
       Checkpoint checkpoint) {
