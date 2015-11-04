@@ -56,15 +56,6 @@ public class DmUser implements IUser {
   }
 
   @Override
-  public int getUserState() throws RepositoryException {
-    try {
-      return idfUser.getUserState();
-    } catch (DfException e) {
-      throw new RepositoryException(e);
-    }
-  }
-
-  @Override
   public String getUserSourceAsString() throws RepositoryDocumentException {
     try {
       logger.finest("getUserSourceAsString value: "

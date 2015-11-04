@@ -190,11 +190,7 @@ public class DctmAclList implements DocumentList {
     for (int i = 0; i < dmAcl.getAccessorCount(); i++) {
       String accessorName = dmAcl.getAccessorName(i);
       int permitType = dmAcl.getAccessorPermitType(i);
-
-      IUser userObj = (IUser) session.getObjectByQualification(
-          "dm_user where user_name = '" + accessorName + "'");
-
-      String principalName = getPrincipalName(accessorName, userObj);
+      String principalName = getPrincipalName(accessorName);
       if (principalName == null) {
         logger.log(Level.FINE,
             "Skipping invalid username {0} found in ACL.", accessorName);
@@ -211,8 +207,7 @@ public class DctmAclList implements DocumentList {
           }
         }
       } else if (permitType == IAcl.DF_PERMIT_TYPE_ACCESS_PERMIT) {
-        if (dmAcl.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ
-            && isAccessorActive(accessorName, userObj)) {
+        if (dmAcl.getAccessorPermit(i) >= IAcl.DF_PERMIT_READ) {
           if (accessorName.equalsIgnoreCase("dm_world")
               || dmAcl.isGroup(i)) {
             groupPrincipals.add(asPrincipalValue(principalName,
@@ -340,7 +335,7 @@ public class DctmAclList implements DocumentList {
         namespace, item, CaseSensitivityType.EVERYTHING_CASE_SENSITIVE));
   }
 
-  private String getPrincipalName(String accessorName, IUser userObj)
+  private String getPrincipalName(String accessorName)
       throws RepositoryException {
     if (accessorName.equalsIgnoreCase("dm_world")
         || accessorName.equalsIgnoreCase("dm_owner")
@@ -348,6 +343,8 @@ public class DctmAclList implements DocumentList {
       return accessorName;
     }
 
+    IUser userObj = (IUser) session.getObjectByQualification(
+        "dm_user where user_name = '" + accessorName + "'");
     if (userObj == null) {
       return null;
     }
@@ -388,18 +385,6 @@ public class DctmAclList implements DocumentList {
       principalName = userObj.getUserLoginName();
     }
     return principalName;
-  }
-
-  private boolean isAccessorActive(String accessorName, IUser userObj)
-      throws RepositoryException {
-    // TODO(Srinivas): Need to disable dm_owner and dm_group as well.
-    if (accessorName.equalsIgnoreCase("dm_world")
-        || accessorName.equalsIgnoreCase("dm_owner")
-        || accessorName.equalsIgnoreCase("dm_group")) {
-      return true;
-    }
-
-    return userObj != null && userObj.getUserState() == 0;
   }
 
   private String getGroupNamespace(String usergroup)

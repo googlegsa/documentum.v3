@@ -359,8 +359,9 @@ public class DctmMockAclListTest extends TestCase {
 
     aclList.processAcl(aclObj, aclValues);
 
-    assertAclEquals(ImmutableSet.of("user2"), SpiConstants.PROPNAME_ACLUSERS);
-    assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
+    assertAclEquals(ImmutableSet.of("user1", "user2"),
+        SpiConstants.PROPNAME_ACLUSERS);
+   assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLGROUPS);
 
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);
@@ -396,7 +397,8 @@ public class DctmMockAclListTest extends TestCase {
     aclList.processAcl(aclObj, aclValues);
 
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLUSERS);
-    assertAclEquals(ImmutableSet.of("group1"), SpiConstants.PROPNAME_ACLGROUPS);
+    assertAclEquals(ImmutableSet.of("group1", "group2"),
+        SpiConstants.PROPNAME_ACLGROUPS);
 
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYUSERS);
     assertAclEquals(ImmutableSet.of(), SpiConstants.PROPNAME_ACLDENYGROUPS);

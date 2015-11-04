@@ -171,16 +171,13 @@ public class MockDmSession implements ISession {
     try {
       if (queryString.startsWith("dm_user")) {
         HashMap<String, Object> values = executeQuery(
-            "select user_name, user_state, user_source, user_ldap_dn, "
-            + "r_is_group from "
+            "select user_name, user_source, user_ldap_dn, r_is_group from "
             + queryString,
-            "user_name", "user_state", "user_source", "user_ldap_dn",
-            "r_is_group");
+            "user_name", "user_source", "user_ldap_dn", "r_is_group");
         if (values == null) {
           return null;
         } else {
           return new MockDmUser((String) values.get("user_name"),
-              (Integer) values.get("user_state"),
               (String) values.get("user_source"),
               (String) values.get("user_ldap_dn"),
               Boolean.TRUE.equals(values.get("r_is_group")));

@@ -20,15 +20,13 @@ import com.google.enterprise.connector.spi.RepositoryException;
 
 public class MockDmUser implements IUser {
   private final String username;
-  private final int userState;
   private final String userSource;
   private final String userLdapDn;
   private final boolean isGroup;
 
-  public MockDmUser(String username, int userState, String userSource,
+  public MockDmUser(String username, String userSource,
       String userLdapDn, boolean isGroup) {
     this.username = username;
-    this.userState = userState;
     this.userSource = userSource;
     this.userLdapDn = userLdapDn;
     this.isGroup = isGroup;
@@ -42,11 +40,6 @@ public class MockDmUser implements IUser {
   @Override
   public String getUserLoginName() throws RepositoryException {
     return this.username;
-  }
-
-  @Override
-  public int getUserState() throws RepositoryException {
-    return this.userState;
   }
 
   @Override
