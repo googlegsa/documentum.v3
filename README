@@ -27,14 +27,13 @@ Corporation and is not included in this distribution.
 Documentation Links
 
     * Documentation for the Google Search Appliance Connectors
-      http://code.google.com/apis/searchappliance/documentation/connectors/index.html
+      https://support.google.com/gsa/topic/4566684?ref_topic=2709671
 
     * Google Search Appliance Connector for Documentum
-      http://code.google.com/p/google-enterprise-connector-dctm/
+      https://github.com/googlegsa/documentum.v3
 
     * Documentum Foundation Classes
-      Documentum Foundation Classes information is available on
-      the EMC Software web site: http://software.emc.com
+      http://documentum.opentext.com/
 
 Licensing
 
